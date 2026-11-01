@@ -24,7 +24,7 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 |---|---|---|---|---|
 | 01 | Scaffold app + tooling | done | – | sonnet/high |
 | 02 | Desktop spike checklist | blocked: owner — run docs/desktop-findings.md in Claude Desktop | 01 | haiku/low |
-| 03 | Cloud setup (Supabase, Vercel, secrets) | in-progress | 01 | sonnet/high |
+| 03 | Cloud setup (Supabase, Vercel, secrets) | blocked: owner — import repo at vercel.com/new and confirm the emailed code (Vercel reauth); then re-run /execute-loop | 01 | sonnet/high |
 | 04 | Design system + app shell | done | 01 | sonnet/high |
 | 05 | Auth, profiles, roles, RLS | todo | 03, 04 | opus/medium |
 | 06 | People admin + invite link | todo | 05 | sonnet/high |
@@ -61,3 +61,7 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 2026-11-01 · #07 · in-progress · delegating
 2026-11-01 · #07 · done · verified check/typecheck/test (53)/guard exit codes · #08 needs #03
 2026-11-01 · #07 · decision · guard args format A:path/M:path; editing or deleting a merged migration also fails; DO $$ bodies scanned · spec silent; #08 must fetch-depth 0 so origin/main exists
+2026-11-01 · #03 · blocked: owner · Supabase dev+prod created (SG), signups off, 5 GH secrets verified, .env.development has no service key; Vercel project not created (reauth code emailed to owner) · remaining: Vercel import, env vars per scope, prod branch main, Supabase site URL/redirects, prod deploy check after merge
+2026-11-01 · #03 · decision · publishable key name NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (current Supabase name); server var SUPABASE_SERVICE_ROLE_KEY holds the new sb_secret_ key · task allowed current key name
+2026-11-01 · #03 · decision · SUPABASE_ACCESS_TOKEN is a legacy full-account token, 90-day expiry (renewal in docs/environments.md) · scoped 7-day tokens would break CI migrations
+2026-11-01 · #03 · note · token value appeared once in a subagent dashboard screenshot; consider rotating it after loop; dev signup toggle saved but not reloaded to confirm

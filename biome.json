@@ -13,7 +13,8 @@
       "!.next",
       "!dist",
       "!build",
-      "!docs/mockup"
+      "!docs/mockup",
+      "!src/components/ui"
     ]
   },
   "formatter": {

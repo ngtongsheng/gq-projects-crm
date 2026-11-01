@@ -24,8 +24,8 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 |---|---|---|---|---|
 | 01 | Scaffold app + tooling | done | – | sonnet/high |
 | 02 | Desktop spike checklist | blocked: owner — run docs/desktop-findings.md in Claude Desktop | 01 | haiku/low |
-| 03 | Cloud setup (Supabase, Vercel, secrets) | blocked: owner — allow `gh secret set` (permission rule or run it yourself), then re-run /execute-loop | 01 | sonnet/high |
-| 04 | Design system + app shell | todo | 01 | sonnet/high |
+| 03 | Cloud setup (Supabase, Vercel, secrets) | in-progress | 01 | sonnet/high |
+| 04 | Design system + app shell | done | 01 | sonnet/high |
 | 05 | Auth, profiles, roles, RLS | todo | 03, 04 | opus/medium |
 | 06 | People admin + invite link | todo | 05 | sonnet/high |
 | 07 | Destructive-migration guard | todo | 01 | sonnet/high |
@@ -51,3 +51,10 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 2026-11-01 · #02 · blocked: owner · checklist written (7 rows), verified; owner runs it, then record Results/fallbacks · #09 waits on it; continue #03
 2026-11-01 · #03 · in-progress · delegating
 2026-11-01 · #03 · blocked: owner · classifier denied gh secret set (Secret-Store Writes); local part done (supabase devDep, config.toml, draft environments.md); no cloud resources created, no secrets written · #05, #08 wait on it; continue #04, #07
+2026-11-01 · #04 · in-progress · delegating
+2026-11-01 · #02 · note · rows 1 and 5 PASS (Desktop session); rows 2,3,4,6,7 pending owner · probe files in worktree .claude/ must not be committed; delete after rows 2-3
+2026-11-01 · #03 · in-progress · owner explicitly authorised the executor to do #03 incl. secret writes (chat, 2026-11-01); re-delegating from step 1
+2026-11-01 · #04 · done · verified check/typecheck/test/build pass; /dev/components prerenders; subagent checked light+dark in Chrome · #05 still waits on #03
+2026-11-01 · #04 · decision · radix-nova shadcn preset, `field` instead of absent `form`; Biome excludes src/components/ui (generated code fails lint rules) · avoids lint-disables/vendor edits
+2026-11-01 · #04 · decision · theme via next-themes data-theme; shadcn --accent = soft mint, mockup navy = --primary · keeps shadcn components working with mockup palette
+2026-11-01 · #04 · note · `next dev` regenerates root AGENTS.md; set agentRules:false in next.config if it recurs (#09). /dev/components 404s on Vercel production (untested)

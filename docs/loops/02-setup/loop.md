@@ -18,9 +18,9 @@ Inputs from loop 01 D11 and `docs/decisions.md` ("Loop 02 inputs") still apply: 
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Bootstrap probe (fetch-and-follow) | todo | – | haiku/low |
-| 02 | gq-setup README (human steps) | todo | 01 | sonnet/high |
-| 03 | SETUP.md (Claude-facing setup) | todo | 01 | opus/medium |
+| 01 | Bootstrap probe (fetch-and-follow) | blocked: owner — create public repo (classifier denied), then paste probe message | – | haiku/low |
+| 02 | gq-setup README (human steps) | done | 01 | sonnet/high |
+| 03 | SETUP.md (Claude-facing setup) | in-progress | 01 | opus/medium |
 | 04 | Dry run on owner's Mac + fixes | todo | 02, 03 | sonnet/high |
 | 05 | Onboarding doc (owner + day-2) | todo | 03 | sonnet/high |
 | 06 | First run with Vicky | todo | 04, 05 | sonnet/high |
@@ -32,3 +32,13 @@ Inputs from loop 01 D11 and `docs/decisions.md` ("Loop 02 inputs") still apply: 
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-01 · plan · loop written · /execute-loop after loop 01 done
+2026-11-02 · start · decision · run #01-#03 now though loop 01 not done (#08-#11 open) · they only touch the separate gq-setup repo; #04-#06 wait for loop 01 merge
+2026-11-02 · #01 · decision · record row 7 result in this log, copy into docs/desktop-findings.md after loop 01 merges · file exists only on loop/01-foundation
+2026-11-02 · #01 · in-progress · delegating (haiku/low)
+2026-11-02 · #01 · blocked: owner · auto-mode classifier denied `gh repo create ngtongsheng/gq-setup --public` (Create Public Surface); nothing created · owner runs it, executor then writes probe + pushes
+2026-11-02 · #02 · decision · write #02/#03 now in local git repo ~/work/projects/gq-setup (no remote) though #01 blocked · content doesn't depend on probe result; push when repo exists; marketplace fallback added only if probe fails
+2026-11-02 · #02 · in-progress · delegating (sonnet/high)
+2026-11-02 · #02 · done · README.md committed locally in gq-setup; jargon grep clean; push + GitHub render check deferred until #01 repo exists
+2026-11-02 · #02 · decision · Desktop default mode is now labelled "Manual" (older: "Ask permissions"); "press" not "click" (grep caught "cli"); folder-button label and Finder path unverified · from current Desktop docs; confirm on #04/#06
+2026-11-02 · #02 · note · README says "About 10 minutes"; whole setup is ~30-45 min: fix in #04
+2026-11-02 · #03 · in-progress · delegating (opus/medium)

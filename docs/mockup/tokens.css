@@ -1,0 +1,85 @@
+/* Theme tokens extracted from docs/mockup/gq-crm-mockup.html */
+
+/* Layout: navy brand header with logo, mint tab marker; one working column of white panels on a cool grey ground */
+:root {
+  --surface:#ffffff;
+  --sunk:#eaeff2;
+  --line:#d7dfe5;
+  --fg:#1c2a38;
+  --muted:#5b6a79;
+  --accent:#233343;
+  --accent-fg:#ffffff;
+  --accent-soft:#dbf8f1;
+  --mint:#3ae6c0;
+  --mint-ink:#0d7a63;
+  --head-bg:#233343;
+  --head-fg:#ffffff;
+  --head-muted:#a9b8c6;
+  --good:#1e7a3c;
+  --good-bg:#e1f3e6;
+  --info:#2558a8;
+  --info-bg:#e3ecfa;
+  --warn:#9a5a00;
+  --warn-bg:#fbefd6;
+  --bad:#b03a2e;
+  --bad-bg:#fbe3df;
+  --neutral:#566573;
+  --neutral-bg:#e9eef2;
+  --font-ui:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-head:"Saira","Figtree",system-ui,sans-serif;
+  --font-num:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+
+:root:not([data-theme="light"]) {
+  --bg:#0f1820;
+  --surface:#16222d;
+  --sunk:#1d2b38;
+  --line:#2a3b4a;
+  --fg:#e5edf3;
+  --muted:#98a8b6;
+  --accent:#3ae6c0;
+  --accent-fg:#10202a;
+  --accent-soft:#143a36;
+  --mint:#3ae6c0;
+  --mint-ink:#5ef0cf;
+  --head-bg:#0b131a;
+  --head-fg:#ffffff;
+  --head-muted:#8fa1b1;
+  --good:#7fd69a;
+  --good-bg:#16321f;
+  --info:#8db4f0;
+  --info-bg:#1a2944;
+  --warn:#f0bd6a;
+  --warn-bg:#3a2c12;
+  --bad:#f2928a;
+  --bad-bg:#3d1c19;
+  --neutral:#a7b4bf;
+  --neutral-bg:#24323f;
+}
+
+:root[data-theme="dark"] {
+  --bg:#0f1820;
+  --surface:#16222d;
+  --sunk:#1d2b38;
+  --line:#2a3b4a;
+  --fg:#e5edf3;
+  --muted:#98a8b6;
+  --accent:#3ae6c0;
+  --accent-fg:#10202a;
+  --accent-soft:#143a36;
+  --mint:#3ae6c0;
+  --mint-ink:#5ef0cf;
+  --head-bg:#0b131a;
+  --head-fg:#ffffff;
+  --head-muted:#8fa1b1;
+  --good:#7fd69a;
+  --good-bg:#16321f;
+  --info:#8db4f0;
+  --info-bg:#1a2944;
+  --warn:#f0bd6a;
+  --warn-bg:#3a2c12;
+  --bad:#f2928a;
+  --bad-bg:#3d1c19;
+  --neutral:#a7b4bf;
+  --neutral-bg:#24323f;
+}

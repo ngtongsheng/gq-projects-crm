@@ -9,9 +9,16 @@ depends: [01]
 shadcn/ui on Tailwind with a calm, professional theme, a reusable app shell, and a catalog page agents and Vicky can browse.
 ## Context
 - D6. Read current shadcn/ui docs for the installed Next.js/Tailwind versions before `init`.
-- Look: neutral surfaces, one brand accent (warm, carpet-trade appropriate, e.g. deep teal or terracotta), no purple
-  gradients, no glassmorphism, no emoji icons. Use lucide icons (shadcn default). Tokens as CSS variables so a future
-  brand colour change is one edit.
+- Look: follow Vicky's approved mockup `docs/mockup/gq-crm-mockup.html` (open it in Chrome to see it; a React
+  prototype with demo data in localStorage). Tokens extracted to `docs/mockup/tokens.css`: navy header (`--head-bg`),
+  mint accent (`--accent`/`--mint`), cool grey ground, status colours (good/bad/info/neutral), light + dark themes
+  (system default + `data-theme` override). Fonts: Figtree (UI), Saira (headings), IBM Plex Mono (numbers) via
+  `next/font/google`. Map these onto shadcn's CSS variables so components inherit them; keep the mockup's names as
+  aliases where shadcn has no equivalent. Match the mockup's shell layout (header, nav, density). Use lucide icons.
+  No purple gradients, glassmorphism or emoji icons.
+- The mockup also defines CRM screens and data (leads, projects, deliveries, installations, claims, stock): do not
+  build those here (loop 03). Only extract shared components the mockup repeats (status badge, stat card, filter bar)
+  if they are needed for the catalog.
 - Base components to add: button, input, label, form, select, textarea, checkbox, card, table, dialog, dropdown-menu,
   sonner (toasts), badge, skeleton, sidebar (or sheet for mobile nav).
 - App components (in `src/components/app/`): `AppShell` (sidebar nav + header + content, responsive), `PageHeader`

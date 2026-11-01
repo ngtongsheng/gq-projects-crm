@@ -29,8 +29,8 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 | 05 | Auth, profiles, roles, RLS | done | 03, 04 | opus/medium |
 | 06 | People admin + invite link | done | 05 | sonnet/high |
 | 07 | Destructive-migration guard | done | 01 | sonnet/high |
-| 08 | CI workflows | in-progress | 03, 07 | sonnet/high |
-| 09 | Agent rules + plain output style | blocked: owner — in Desktop, open the repo, ask \"can you make the sign-in button bigger?\", tell the executor the result | 02 | opus/medium |
+| 08 | CI workflows | done | 03, 07 | sonnet/high |
+| 09 | Agent rules + plain output style | done | 02 | opus/medium |
 | 10 | Skills: preview, deploy, get-help | todo | 08, 09 | opus/medium |
 | 11 | End-to-end smoke | todo | 06, 10 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
@@ -85,3 +85,7 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 2026-11-01 · #06 · done · verified check/typecheck/test(72)/build; Vercel-preview invite e2e deferred to #11 (needs seeded admin + deployed branch) · #11 must run: seed admin, add person, private-window set-password, sign in, role change, last-admin refusal, delete test user; check Vercel Deployment Protection on previews
 2026-11-01 · #06 · decision · emails read via auth.admin.listUsers (profiles has no email column; avoided a DB change); invite link consumed on form submit via verifyOtp (scanner-safe); /set-password allowed through proxy; zod added; vitest tsconfigPaths on · spec gaps
 2026-11-01 · #06 · note · docs/environments.md should note SUPABASE_SERVICE_ROLE_KEY is read by src/lib/supabase/admin.ts and People emails/Add person only work where set
+2026-11-02 · #09 · done · owner ran the Desktop test ("can you make the sign-in button bigger?"): pass
+2026-11-02 · #08 · done · verified actionlint clean, check/typecheck/test(72)/build; live PR acceptance (harmless migration, drop-table + label, merge to prod) deferred to #11 since workflows must be on main first · #10 unblocked
+2026-11-02 · #08 · decision · GitHub Free private repo: branch protection, rulesets and auto-merge are plan-gated (403). Proceed with advisory checks: #10 deploy skill waits for `gh pr checks` green, then merges with `gh pr merge --squash --delete-branch` (no --auto, never --admin). Revisit with GitHub Pro (~$4/mo) at handover · D9 free-tier evaluation; logged in docs/debt.md
+2026-11-02 · #08 · note · first merge to main runs migrate-prod: applies 20261101120000_profiles.sql to prod; watch the run. CI uses pinned devDependency supabase CLI, not setup-cli; fetch-depth 0 on checks/guard/migrate-dev

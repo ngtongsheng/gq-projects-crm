@@ -1,0 +1,27 @@
+name: Migrate prod
+
+on:
+  push:
+    branches: [main]
+    paths: ["supabase/migrations/**"]
+
+permissions:
+  contents: read
+
+# Prod pushes run one at a time and are never cancelled midway.
+concurrency:
+  group: migrate-prod
+  cancel-in-progress: false
+
+jobs:
+  migrate-prod:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: jdx/mise-action@v5
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec supabase link --project-ref "${{ secrets.SUPABASE_PROD_PROJECT_REF }}"
+      - run: pnpm exec supabase db push --yes

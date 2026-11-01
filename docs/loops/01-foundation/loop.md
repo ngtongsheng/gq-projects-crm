@@ -22,7 +22,7 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Scaffold app + tooling | todo | – | sonnet/high |
+| 01 | Scaffold app + tooling | done | – | sonnet/high |
 | 02 | Desktop spike checklist | todo | 01 | haiku/low |
 | 03 | Cloud setup (Supabase, Vercel, secrets) | todo | 01 | sonnet/high |
 | 04 | Design system + app shell | todo | 01 | sonnet/high |
@@ -41,3 +41,9 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-01 · plan · loop written · /execute-loop
+2026-11-01 · #01 · in-progress · worktree loop/01-foundation · planner tab closed by owner
+2026-11-01 · #01 · done · verified install/check/typecheck/test/build pass · #02, #03, #04, #07 unblocked
+2026-11-01 · #01 · decision · Node 24 LTS pinned in mise.toml, not 26 · 26 is days old, Vercel support unconfirmed
+2026-11-01 · #01 · decision · removed cacheComponents/partialPrefetching from next.config.ts · forces Suspense around dynamic access, friction for auth in #05
+2026-11-01 · #01 · decision · Biome ignores docs/mockup; "type": "module" set; Next AGENTS.md skipped · mockup is lint noise; #09 owns agent rules
+2026-11-01 · #01 · note · Tailwind wired via @tailwindcss/turbopack loader in next.config.ts (create-next-app default); #04 should know

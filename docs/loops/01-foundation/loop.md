@@ -23,7 +23,7 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
 | 01 | Scaffold app + tooling | done | – | sonnet/high |
-| 02 | Desktop spike checklist | todo | 01 | haiku/low |
+| 02 | Desktop spike checklist | blocked: owner — run docs/desktop-findings.md in Claude Desktop | 01 | haiku/low |
 | 03 | Cloud setup (Supabase, Vercel, secrets) | todo | 01 | sonnet/high |
 | 04 | Design system + app shell | todo | 01 | sonnet/high |
 | 05 | Auth, profiles, roles, RLS | todo | 03, 04 | opus/medium |
@@ -47,3 +47,5 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 2026-11-01 · #01 · decision · removed cacheComponents/partialPrefetching from next.config.ts · forces Suspense around dynamic access, friction for auth in #05
 2026-11-01 · #01 · decision · Biome ignores docs/mockup; "type": "module" set; Next AGENTS.md skipped · mockup is lint noise; #09 owns agent rules
 2026-11-01 · #01 · note · Tailwind wired via @tailwindcss/turbopack loader in next.config.ts (create-next-app default); #04 should know
+2026-11-01 · #02 · in-progress · delegating
+2026-11-01 · #02 · blocked: owner · checklist written (7 rows), verified; owner runs it, then record Results/fallbacks · #09 waits on it; continue #03

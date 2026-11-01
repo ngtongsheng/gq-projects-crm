@@ -1,9 +1,15 @@
-import { APP_NAME } from "@/lib/app-name";
+import { PageHeader } from "@/components/app/page-header";
+import { requireRole } from "@/lib/auth/require-role";
 
-export default function Home() {
+export default async function Home() {
+  const profile = await requireRole("staff");
+
   return (
-    <main className="flex flex-1 items-center justify-center">
-      <h1 className="text-3xl font-semibold tracking-tight">{APP_NAME}</h1>
-    </main>
+    <PageHeader
+      title="Home"
+      description={
+        profile.fullName ? `Welcome, ${profile.fullName}.` : undefined
+      }
+    />
   );
 }

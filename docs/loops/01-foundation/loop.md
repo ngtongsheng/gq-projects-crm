@@ -26,7 +26,7 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 | 02 | Desktop spike checklist | done | 01 | haiku/low |
 | 03 | Cloud setup (Supabase, Vercel, secrets) | in-progress | 01 | sonnet/high |
 | 04 | Design system + app shell | done | 01 | sonnet/high |
-| 05 | Auth, profiles, roles, RLS | in-progress | 03, 04 | opus/medium |
+| 05 | Auth, profiles, roles, RLS | done | 03, 04 | opus/medium |
 | 06 | People admin + invite link | todo | 05 | sonnet/high |
 | 07 | Destructive-migration guard | done | 01 | sonnet/high |
 | 08 | CI workflows | todo | 03, 07 | sonnet/high |
@@ -73,3 +73,7 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 2026-11-01 · #09 · blocked: owner · files written, pnpm check passes; acceptance needs the Desktop test (jargon-free answer + multiple-choice step) · #10 also waits on #08
 2026-11-01 · #09 · decision · single CLAUDE.md (no @AGENTS.md import; imports untested in Desktop); next.config agentRules:false; .gitignore ignores .claude/worktrees; owner shown as "Tong Sheng" in text Vicky sees · spike never tested imports
 2026-11-01 · #09 · note · settings allow `git *` broadly; deny covers force-push and db push but not plain `git push origin main` — #08 should add branch protection or a deny so D4's PR flow is enforced
+2026-11-01 · #05 · done · verified check/typecheck/test(58)/build/guard; dev server: / -> 307 /sign-in, /sign-in 200; subagent ran 15 RLS checks on dev DB via SQL editor, test users deleted · #06 unblocked
+2026-11-01 · #05 · decision · src/proxy.ts instead of middleware.ts (Next 16.4 rename); staff on admin pages redirect to /; admin updates limited to full_name+role; lazy env read so build works · per Next docs / spec gaps
+2026-11-01 · #05 · decision · dev DB has supabase_migrations.schema_migrations row for the profiles migration (as `migration repair` would) so CI db push won't re-apply · migration applied by hand via SQL editor
+2026-11-01 · #05 · note · not verified: real password sign-in (no admin on dev yet; run scripts/seed-admin.ts per docs/environments.md; temp password, no change-password screen yet). Stray Chrome tab 904780670 (dev SQL editor, maybe "Leave site?" dialog) needs closing by owner

@@ -37,6 +37,9 @@
       "Bash(git push * --force*)",
       "Bash(git push * -f*)",
       "Bash(git push * +*)",
+      "Bash(git push origin main*)",
+      "Bash(git push * origin main*)",
+      "Bash(git push *:main*)",
       "Bash(gh pr merge * --admin*)",
       "Bash(gh pr merge --admin*)"
     ]

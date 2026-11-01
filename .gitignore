@@ -37,6 +37,7 @@ yarn-error.log*
 # claude: per-change worktrees and personal settings
 /.claude/worktrees/
 /.claude/settings.local.json
+/.claude/help-report.md
 
 # vercel
 .vercel

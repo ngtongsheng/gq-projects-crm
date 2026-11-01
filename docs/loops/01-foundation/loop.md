@@ -10,7 +10,7 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 | D1 | Next.js + Supabase + Vercel, Singapore region; private repo `ngtongsheng/gq-projects-crm` | Most agent fluency; built-in auth/Postgres; preview URL per change | SvelteKit, Cloudflare D1, Rails/Django |
 | D2 | Two Supabase projects: `gq-crm-dev` (local + previews), `gq-crm-prod`. Migrations in `supabase/migrations`, applied by CI: dev on PR, prod on merge to main | Local Supabase needs Docker; not tied to her laptop | Supabase branching (paid), local migrations |
 | D3 | Vicky needs a GitHub account only. Dev Supabase URL + anon key committed in `.env.development` (public by design, RLS protects data). Service-role key only on Vercel; locally, admin-only server features show a plain "works on the preview link" message | No secrets on her machine; one login | GitHub + Vercel + Supabase logins |
-| D4 | Every change: branch + PR. On "Yes, deploy", Claude enables auto-merge; merges when checks pass; Claude watches the prod deploy and reports | Self-service; owner still sees PRs | Owner approves each deploy |
+| D4 | Every change: branch + PR. On "Yes, deploy", Claude waits for checks, then squash-merges (auto-merge is plan-gated on GitHub Free, amended 2026-11-02); Claude watches the prod deploy and reports | Self-service; owner still sees PRs | Owner approves each deploy |
 | D5 | CI fails on destructive SQL (DROP, TRUNCATE, DELETE, ALTER ... DROP/RENAME/TYPE) in new migrations unless PR has label `owner-approved`. After handover: replace with Claude double-confirm (loop 02+) | Free tier has no backups | No guard |
 | D6 | shadcn/ui + Tailwind themed from Vicky's mockup (`docs/mockup/`: navy + mint, Figtree/Saira/IBM Plex Mono, light + dark); all common UI in `src/components/ui` + app components; catalog page `/dev/components`; rule: reuse before create | Agents know shadcn best; mockup is the approved look | Mantine, MUI, invented theme |
 | D7 | Email + password. Roles `admin`, `staff` in `profiles`. Admins add people: server creates user + one-time set-password link via Supabase admin API; admin copies and sends it (WhatsApp). No email service until a company domain exists | Supabase default SMTP only reaches project team members | Resend now, magic link, Google sign-in |
@@ -31,7 +31,7 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 | 07 | Destructive-migration guard | done | 01 | sonnet/high |
 | 08 | CI workflows | done | 03, 07 | sonnet/high |
 | 09 | Agent rules + plain output style | done | 02 | opus/medium |
-| 10 | Skills: preview, deploy, get-help | todo | 08, 09 | opus/medium |
+| 10 | Skills: preview, deploy, get-help | done | 08, 09 | opus/medium |
 | 11 | End-to-end smoke | todo | 06, 10 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
@@ -89,3 +89,7 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 2026-11-02 · #08 · done · verified actionlint clean, check/typecheck/test(72)/build; live PR acceptance (harmless migration, drop-table + label, merge to prod) deferred to #11 since workflows must be on main first · #10 unblocked
 2026-11-02 · #08 · decision · GitHub Free private repo: branch protection, rulesets and auto-merge are plan-gated (403). Proceed with advisory checks: #10 deploy skill waits for `gh pr checks` green, then merges with `gh pr merge --squash --delete-branch` (no --auto, never --admin). Revisit with GitHub Pro (~$4/mo) at handover · D9 free-tier evaluation; logged in docs/debt.md
 2026-11-02 · #08 · note · first merge to main runs migrate-prod: applies 20261101120000_profiles.sql to prod; watch the run. CI uses pinned devDependency supabase CLI, not setup-cli; fetch-depth 0 on checks/guard/migrate-dev
+2026-11-02 · #10 · in-progress · delegating; live dry-run acceptance deferred to #11 (workflows must be on main)
+2026-11-02 · #10 · done · 3 skills + launch.json written, pnpm check passes, no --auto/--admin in skills, consistent with workflow job names; live dry run moves to #11 · #11 unblocked after merge
+2026-11-02 · #10 · decision · added deny rules for `git push` to main in .claude/settings.json · enforces PR flow without branch protection
+2026-11-02 · #10 · note · OWNER DECISION: skills need extra allow entries in .claude/settings.json to avoid jargon permission prompts (gh api .../deployments*, curl -sI https://gq-projects-crm*, lsof -ti tcp:3000, kill *, sleep *). Not added by executor (permission config). Also Vercel Deployment Protection on Hobby may 401 preview links: Vercel > Settings > Deployment Protection

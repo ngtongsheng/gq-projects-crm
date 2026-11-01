@@ -24,7 +24,7 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 |---|---|---|---|---|
 | 01 | Scaffold app + tooling | done | – | sonnet/high |
 | 02 | Desktop spike checklist | blocked: owner — run docs/desktop-findings.md in Claude Desktop | 01 | haiku/low |
-| 03 | Cloud setup (Supabase, Vercel, secrets) | todo | 01 | sonnet/high |
+| 03 | Cloud setup (Supabase, Vercel, secrets) | blocked: owner — allow `gh secret set` (permission rule or run it yourself), then re-run /execute-loop | 01 | sonnet/high |
 | 04 | Design system + app shell | todo | 01 | sonnet/high |
 | 05 | Auth, profiles, roles, RLS | todo | 03, 04 | opus/medium |
 | 06 | People admin + invite link | todo | 05 | sonnet/high |
@@ -49,3 +49,5 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 2026-11-01 · #01 · note · Tailwind wired via @tailwindcss/turbopack loader in next.config.ts (create-next-app default); #04 should know
 2026-11-01 · #02 · in-progress · delegating
 2026-11-01 · #02 · blocked: owner · checklist written (7 rows), verified; owner runs it, then record Results/fallbacks · #09 waits on it; continue #03
+2026-11-01 · #03 · in-progress · delegating
+2026-11-01 · #03 · blocked: owner · classifier denied gh secret set (Secret-Store Writes); local part done (supabase devDep, config.toml, draft environments.md); no cloud resources created, no secrets written · #05, #08 wait on it; continue #04, #07

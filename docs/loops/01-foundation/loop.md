@@ -93,3 +93,5 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 2026-11-02 · #10 · done · 3 skills + launch.json written, pnpm check passes, no --auto/--admin in skills, consistent with workflow job names; live dry run moves to #11 · #11 unblocked after merge
 2026-11-02 · #10 · decision · added deny rules for `git push` to main in .claude/settings.json · enforces PR flow without branch protection
 2026-11-02 · #10 · note · OWNER DECISION: skills need extra allow entries in .claude/settings.json to avoid jargon permission prompts (gh api .../deployments*, curl -sI https://gq-projects-crm*, lsof -ti tcp:3000, kill *, sleep *). Not added by executor (permission config). Also Vercel Deployment Protection on Hobby may 401 preview links: Vercel > Settings > Deployment Protection
+2026-11-02 · #11 · decision · merge loop branch to main now (#01-#10 done, checks pass) so workflows/Vercel exist on main for #11's live checks; keep worktree/branch for #11, final merge after it · #11 live acceptance requires main
+2026-11-02 · merged to main (interim, before #11)

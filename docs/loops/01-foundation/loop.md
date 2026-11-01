@@ -27,9 +27,9 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 | 03 | Cloud setup (Supabase, Vercel, secrets) | done | 01 | sonnet/high |
 | 04 | Design system + app shell | done | 01 | sonnet/high |
 | 05 | Auth, profiles, roles, RLS | done | 03, 04 | opus/medium |
-| 06 | People admin + invite link | in-progress | 05 | sonnet/high |
+| 06 | People admin + invite link | done | 05 | sonnet/high |
 | 07 | Destructive-migration guard | done | 01 | sonnet/high |
-| 08 | CI workflows | todo | 03, 07 | sonnet/high |
+| 08 | CI workflows | in-progress | 03, 07 | sonnet/high |
 | 09 | Agent rules + plain output style | blocked: owner — in Desktop, open the repo, ask \"can you make the sign-in button bigger?\", tell the executor the result | 02 | opus/medium |
 | 10 | Skills: preview, deploy, get-help | todo | 08, 09 | opus/medium |
 | 11 | End-to-end smoke | todo | 06, 10 | sonnet/high |
@@ -80,3 +80,8 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 2026-11-01 · #06 · in-progress · delegating
 2026-11-01 · #03 · done · verified 5 GH secrets, no service key in .env.development, no TBD in environments.md; subagent verified Vercel env vars per scope, prod branch main, Supabase auth URLs; prod URL https://gq-projects-crm.vercel.app · prod deploy check pending until merge to main · #08 unblocked
 2026-11-01 · #03 · note · env changes need a redeploy (first push to main); dev secret key verified by length only, first preview deploy is the real check; prod key partly shown once in a subagent screenshot; prod redirect allow-list empty: add https://gq-projects-crm.vercel.app/** before invite links are tested in #11
+2026-11-01 · #08 · in-progress · delegating
+2026-11-01 · #08 · decision · write workflows + repo settings now; defer branch protection and the live test-PR acceptance until after loop merges to main (protection would block the merge push; PR checks need workflows on main) · move live acceptance into #11
+2026-11-01 · #06 · done · verified check/typecheck/test(72)/build; Vercel-preview invite e2e deferred to #11 (needs seeded admin + deployed branch) · #11 must run: seed admin, add person, private-window set-password, sign in, role change, last-admin refusal, delete test user; check Vercel Deployment Protection on previews
+2026-11-01 · #06 · decision · emails read via auth.admin.listUsers (profiles has no email column; avoided a DB change); invite link consumed on form submit via verifyOtp (scanner-safe); /set-password allowed through proxy; zod added; vitest tsconfigPaths on · spec gaps
+2026-11-01 · #06 · note · docs/environments.md should note SUPABASE_SERVICE_ROLE_KEY is read by src/lib/supabase/admin.ts and People emails/Add person only work where set

@@ -3,10 +3,12 @@ import { type NextRequest, NextResponse } from "next/server";
 import { supabaseEnv } from "./env";
 
 export const SIGN_IN_PATH = "/sign-in";
+/** Reached from an invite link, signed out (or signed in as someone else). */
+const SET_PASSWORD_PATH = "/set-password";
 
 /**
  * Refreshes the auth session cookies on every request and redirects:
- * signed out → /sign-in, signed in on /sign-in → /.
+ * signed out → /sign-in, signed in on /sign-in → /; /set-password is open to all.
  * This is an optimistic check; pages still enforce access with requireRole.
  */
 export async function updateSession(request: NextRequest) {
@@ -35,6 +37,8 @@ export async function updateSession(request: NextRequest) {
 
   // Nothing may run between client creation and this call, or sessions can drop.
   const { data } = await supabase.auth.getClaims();
+  if (request.nextUrl.pathname === SET_PASSWORD_PATH) return response;
+
   const signedIn = Boolean(data?.claims);
   const onSignIn = request.nextUrl.pathname === SIGN_IN_PATH;
 

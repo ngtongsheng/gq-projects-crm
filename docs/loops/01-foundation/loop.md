@@ -23,7 +23,7 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
 | 01 | Scaffold app + tooling | done | – | sonnet/high |
-| 02 | Desktop spike checklist | blocked: owner — run docs/desktop-findings.md in Claude Desktop | 01 | haiku/low |
+| 02 | Desktop spike checklist | done | 01 | haiku/low |
 | 03 | Cloud setup (Supabase, Vercel, secrets) | blocked: owner — import repo at vercel.com/new and confirm the emailed code (Vercel reauth); then re-run /execute-loop | 01 | sonnet/high |
 | 04 | Design system + app shell | done | 01 | sonnet/high |
 | 05 | Auth, profiles, roles, RLS | in-progress | 03, 04 | opus/medium |
@@ -67,3 +67,4 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 2026-11-01 · #03 · note · token value appeared once in a subagent dashboard screenshot; consider rotating it after loop; dev signup toggle saved but not reloaded to confirm
 2026-11-01 · #05 · decision · start #05 though #03 is blocked · #03's Supabase dev project + sign-up setting (all #05 needs) are done; only Vercel steps remain. #08 stays blocked on #03
 2026-11-01 · #05 · in-progress · delegating (opus/medium)
+2026-11-01 · #02 · done · owner ran all 7 rows in Desktop: all pass (row 7 fetch only); recorded in docs/desktop-findings.md · #09 unblocked; probe files removed

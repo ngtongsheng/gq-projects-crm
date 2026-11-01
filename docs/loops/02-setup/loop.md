@@ -20,9 +20,9 @@ Inputs from loop 01 D11 and `docs/decisions.md` ("Loop 02 inputs") still apply: 
 |---|---|---|---|---|
 | 01 | Bootstrap probe (fetch-and-follow) | blocked: owner — create public repo (classifier denied), then paste probe message | – | haiku/low |
 | 02 | gq-setup README (human steps) | done | 01 | sonnet/high |
-| 03 | SETUP.md (Claude-facing setup) | in-progress | 01 | opus/medium |
-| 04 | Dry run on owner's Mac + fixes | todo | 02, 03 | sonnet/high |
-| 05 | Onboarding doc (owner + day-2) | todo | 03 | sonnet/high |
+| 03 | SETUP.md (Claude-facing setup) | done | 01 | opus/medium |
+| 04 | Dry run on owner's Mac + fixes | blocked: #01 repo + loop 01 merged to main (clone needs the app) | 02, 03 | sonnet/high |
+| 05 | Onboarding doc (owner + day-2) | blocked: loop 01 merged to main (needs CLAUDE.md, kit) | 03 | sonnet/high |
 | 06 | First run with Vicky | todo | 04, 05 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
@@ -42,3 +42,8 @@ Inputs from loop 01 D11 and `docs/decisions.md` ("Loop 02 inputs") still apply: 
 2026-11-02 · #02 · decision · Desktop default mode is now labelled "Manual" (older: "Ask permissions"); "press" not "click" (grep caught "cli"); folder-button label and Finder path unverified · from current Desktop docs; confirm on #04/#06
 2026-11-02 · #02 · note · README says "About 10 minutes"; whole setup is ~30-45 min: fix in #04
 2026-11-02 · #03 · in-progress · delegating (opus/medium)
+2026-11-02 · #03 · done · SETUP.md (steps 0-9 + failure rule) committed locally in gq-setup; 0 sudo/brew; every step check-first · push with #01
+2026-11-02 · #03 · decision · git check via `xcode-select -p` (git --version triggers the popup); mise shims in ~/.zprofile + activate in ~/.zshrc; gh auth login run in background with --clipboard, Claude opens device page; access via .permissions.push, accept invite by PATCH; pull only if on clean main; quit + reopen Desktop before hand-off · subagent defaults
+2026-11-02 · #03 · note · #04 must verify: background Bash in Desktop + device code output; gh --web prompts without a TTY; `gh auth setup-git` may pin a versioned mise path (breaks on gh update → debt.md); pnpm build-script approval prompts; Apple/GitHub button labels; README time estimate
+2026-11-02 · #04 · blocked · needs #01 public repo (owner) and loop 01 merged to main (CRM app to clone/install)
+2026-11-02 · #05 · blocked · needs loop 01 merged to main (CLAUDE.md + skills to check)

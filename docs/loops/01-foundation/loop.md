@@ -24,10 +24,10 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 |---|---|---|---|---|
 | 01 | Scaffold app + tooling | done | – | sonnet/high |
 | 02 | Desktop spike checklist | done | 01 | haiku/low |
-| 03 | Cloud setup (Supabase, Vercel, secrets) | in-progress | 01 | sonnet/high |
+| 03 | Cloud setup (Supabase, Vercel, secrets) | done | 01 | sonnet/high |
 | 04 | Design system + app shell | done | 01 | sonnet/high |
 | 05 | Auth, profiles, roles, RLS | done | 03, 04 | opus/medium |
-| 06 | People admin + invite link | todo | 05 | sonnet/high |
+| 06 | People admin + invite link | in-progress | 05 | sonnet/high |
 | 07 | Destructive-migration guard | done | 01 | sonnet/high |
 | 08 | CI workflows | todo | 03, 07 | sonnet/high |
 | 09 | Agent rules + plain output style | blocked: owner — in Desktop, open the repo, ask \"can you make the sign-in button bigger?\", tell the executor the result | 02 | opus/medium |
@@ -77,3 +77,6 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 2026-11-01 · #05 · decision · src/proxy.ts instead of middleware.ts (Next 16.4 rename); staff on admin pages redirect to /; admin updates limited to full_name+role; lazy env read so build works · per Next docs / spec gaps
 2026-11-01 · #05 · decision · dev DB has supabase_migrations.schema_migrations row for the profiles migration (as `migration repair` would) so CI db push won't re-apply · migration applied by hand via SQL editor
 2026-11-01 · #05 · note · not verified: real password sign-in (no admin on dev yet; run scripts/seed-admin.ts per docs/environments.md; temp password, no change-password screen yet). Stray Chrome tab 904780670 (dev SQL editor, maybe "Leave site?" dialog) needs closing by owner
+2026-11-01 · #06 · in-progress · delegating
+2026-11-01 · #03 · done · verified 5 GH secrets, no service key in .env.development, no TBD in environments.md; subagent verified Vercel env vars per scope, prod branch main, Supabase auth URLs; prod URL https://gq-projects-crm.vercel.app · prod deploy check pending until merge to main · #08 unblocked
+2026-11-01 · #03 · note · env changes need a redeploy (first push to main); dev secret key verified by length only, first preview deploy is the real check; prod key partly shown once in a subagent screenshot; prod redirect allow-list empty: add https://gq-projects-crm.vercel.app/** before invite links are tested in #11

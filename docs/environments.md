@@ -1,17 +1,19 @@
 # Environments
 
-Status: Supabase and GitHub secrets done. Vercel project not created yet (blocked: Vercel asks for an email code to confirm the first deploy). Items marked TBD are filled in once the Vercel project exists.
+Status: Supabase, GitHub secrets and Vercel (project, env vars, auth URLs) are set up. The push-to-`main` deploy is checked after the first merge.
 
-| Environment | Where it runs | Database | Env vars come from |
-|---|---|---|---|
-| Local | `pnpm dev` | Supabase `gq-crm-dev` | `.env.development` (committed, public values only) |
-| Preview | Vercel preview per branch/PR | Supabase `gq-crm-dev` | Vercel env, Preview + Development scope |
-| Production | Vercel, branch `main` | Supabase `gq-crm-prod` | Vercel env, Production scope |
+Vercel project: `gq-projects-crm` (team `ng-tong-shengs-projects`, Hobby), linked to GitHub `ngtongsheng/gq-projects-crm`, production branch `main`.
+
+| Environment | Where it runs | URL | Database | Env vars come from |
+|---|---|---|---|---|
+| Local | `pnpm dev` | `http://localhost:3000` | Supabase `gq-crm-dev` | `.env.development` (committed, public values only) |
+| Preview | Vercel preview per branch/PR | `https://gq-projects-crm-<hash>-ng-tong-shengs-projects.vercel.app` | Supabase `gq-crm-dev` | Vercel env, Preview + Development scope |
+| Production | Vercel, branch `main` | `https://gq-projects-crm.vercel.app` | Supabase `gq-crm-prod` | Vercel env, Production scope |
 
 | Supabase project | Region | Ref | API URL | Dashboard auth settings |
 |---|---|---|---|---|
-| `gq-crm-dev` | Singapore (`ap-southeast-1`) | `heobsflkmqwkesfgbehz` | `https://heobsflkmqwkesfgbehz.supabase.co` | Public sign-ups off (done). TBD: redirect allow-list = `http://localhost:3000/**` + Vercel preview pattern |
-| `gq-crm-prod` | Singapore (`ap-southeast-1`) | `jepoalodqfrgeddzpfgz` | `https://jepoalodqfrgeddzpfgz.supabase.co` | Public sign-ups off (done). TBD: site URL = Vercel prod URL |
+| `gq-crm-dev` | Singapore (`ap-southeast-1`) | `heobsflkmqwkesfgbehz` | `https://heobsflkmqwkesfgbehz.supabase.co` | Public sign-ups off. Site URL `http://localhost:3000`; redirect allow-list `http://localhost:3000/**` and `https://gq-projects-crm-*-ng-tong-shengs-projects.vercel.app/**` |
+| `gq-crm-prod` | Singapore (`ap-southeast-1`) | `jepoalodqfrgeddzpfgz` | `https://jepoalodqfrgeddzpfgz.supabase.co` | Public sign-ups off. Site URL `https://gq-projects-crm.vercel.app` |
 
 ## Variables
 
@@ -21,7 +23,19 @@ Supabase now issues a publishable key and a secret key; the legacy `anon` / `ser
 |---|---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | dev | dev | prod |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | dev | dev | prod |
-| `SUPABASE_SERVICE_ROLE_KEY` (server only, never `NEXT_PUBLIC_`; holds the project's secret key) | not set | dev | prod |
+| `SUPABASE_SERVICE_ROLE_KEY` (server only, never `NEXT_PUBLIC_`; holds the project's secret key; Sensitive in Vercel) | not set | dev | prod |
+
+Vercel stores the dev values for both Preview and Development (the secret key as two Sensitive entries, one per scope). The two public vars are Config type; values are not secret.
+
+## Seeding the first admins
+
+Admins are created once per environment by `scripts/seed-admin.ts`, never by a migration (no personal data in git). New users always start as `staff`; the script promotes them.
+
+1. Put the project's secret key in a throwaway `.env.seed` (gitignored by `.env*`): `SUPABASE_SERVICE_ROLE_KEY=...`. For prod, also set `NEXT_PUBLIC_SUPABASE_URL` there to the prod URL and drop the `.env.development` flag below.
+2. Run per person:
+   `node --env-file=.env.development --env-file=.env.seed scripts/seed-admin.ts --email someone@example.com --name "Full Name"`
+3. It prints a temporary password once. Send it privately; there is no password change screen yet.
+4. Delete `.env.seed`.
 
 ## GitHub secrets (names only)
 

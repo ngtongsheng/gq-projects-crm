@@ -40,7 +40,12 @@ export function SignInForm() {
           />
         </Field>
         {state.error && <FieldError>{state.error}</FieldError>}
-        <Button type="submit" disabled={pending}>
+        <Button
+          type="submit"
+          size="lg"
+          className="h-11 text-base"
+          disabled={pending}
+        >
           {pending ? "Signing in..." : "Sign in"}
         </Button>
       </FieldGroup>

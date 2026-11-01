@@ -10,7 +10,8 @@
     "check": "biome check",
     "format": "biome format --write",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "guard:migrations": "node scripts/migration-guard.ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

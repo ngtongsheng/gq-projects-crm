@@ -28,7 +28,7 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 | 04 | Design system + app shell | done | 01 | sonnet/high |
 | 05 | Auth, profiles, roles, RLS | todo | 03, 04 | opus/medium |
 | 06 | People admin + invite link | todo | 05 | sonnet/high |
-| 07 | Destructive-migration guard | todo | 01 | sonnet/high |
+| 07 | Destructive-migration guard | done | 01 | sonnet/high |
 | 08 | CI workflows | todo | 03, 07 | sonnet/high |
 | 09 | Agent rules + plain output style | todo | 02 | opus/medium |
 | 10 | Skills: preview, deploy, get-help | todo | 08, 09 | opus/medium |
@@ -58,3 +58,6 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 2026-11-01 · #04 · decision · radix-nova shadcn preset, `field` instead of absent `form`; Biome excludes src/components/ui (generated code fails lint rules) · avoids lint-disables/vendor edits
 2026-11-01 · #04 · decision · theme via next-themes data-theme; shadcn --accent = soft mint, mockup navy = --primary · keeps shadcn components working with mockup palette
 2026-11-01 · #04 · note · `next dev` regenerates root AGENTS.md; set agentRules:false in next.config if it recurs (#09). /dev/components 404s on Vercel production (untested)
+2026-11-01 · #07 · in-progress · delegating
+2026-11-01 · #07 · done · verified check/typecheck/test (53)/guard exit codes · #08 needs #03
+2026-11-01 · #07 · decision · guard args format A:path/M:path; editing or deleting a merged migration also fails; DO $$ bodies scanned · spec silent; #08 must fetch-depth 0 so origin/main exists

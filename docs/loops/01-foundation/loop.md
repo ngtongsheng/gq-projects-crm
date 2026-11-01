@@ -26,7 +26,7 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 | 02 | Desktop spike checklist | blocked: owner — run docs/desktop-findings.md in Claude Desktop | 01 | haiku/low |
 | 03 | Cloud setup (Supabase, Vercel, secrets) | blocked: owner — import repo at vercel.com/new and confirm the emailed code (Vercel reauth); then re-run /execute-loop | 01 | sonnet/high |
 | 04 | Design system + app shell | done | 01 | sonnet/high |
-| 05 | Auth, profiles, roles, RLS | todo | 03, 04 | opus/medium |
+| 05 | Auth, profiles, roles, RLS | in-progress | 03, 04 | opus/medium |
 | 06 | People admin + invite link | todo | 05 | sonnet/high |
 | 07 | Destructive-migration guard | done | 01 | sonnet/high |
 | 08 | CI workflows | todo | 03, 07 | sonnet/high |
@@ -65,3 +65,5 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 2026-11-01 · #03 · decision · publishable key name NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (current Supabase name); server var SUPABASE_SERVICE_ROLE_KEY holds the new sb_secret_ key · task allowed current key name
 2026-11-01 · #03 · decision · SUPABASE_ACCESS_TOKEN is a legacy full-account token, 90-day expiry (renewal in docs/environments.md) · scoped 7-day tokens would break CI migrations
 2026-11-01 · #03 · note · token value appeared once in a subagent dashboard screenshot; consider rotating it after loop; dev signup toggle saved but not reloaded to confirm
+2026-11-01 · #05 · decision · start #05 though #03 is blocked · #03's Supabase dev project + sign-up setting (all #05 needs) are done; only Vercel steps remain. #08 stays blocked on #03
+2026-11-01 · #05 · in-progress · delegating (opus/medium)

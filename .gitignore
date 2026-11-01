@@ -34,6 +34,10 @@ yarn-error.log*
 .env*
 !.env.development
 
+# claude: per-change worktrees and personal settings
+/.claude/worktrees/
+/.claude/settings.local.json
+
 # vercel
 .vercel
 

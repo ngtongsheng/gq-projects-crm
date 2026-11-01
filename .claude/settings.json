@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "outputStyle": "plain",
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install)",
+      "Bash(pnpm install *)",
+      "Bash(pnpm dev)",
+      "Bash(pnpm build)",
+      "Bash(pnpm check)",
+      "Bash(pnpm check *)",
+      "Bash(pnpm format)",
+      "Bash(pnpm format *)",
+      "Bash(pnpm typecheck)",
+      "Bash(pnpm test)",
+      "Bash(pnpm test *)",
+      "Bash(pnpm guard:migrations *)",
+      "Bash(pnpm dlx shadcn@latest add *)",
+      "Bash(git *)",
+      "Bash(gh pr *)",
+      "Bash(gh issue *)",
+      "Bash(gh run *)",
+      "Bash(gh repo view *)",
+      "Bash(pnpm exec supabase migration list*)",
+      "Bash(pnpm exec supabase migration new *)",
+      "Bash(pnpm exec supabase projects list*)",
+      "Bash(pnpm exec supabase --version)"
+    ],
+    "deny": [
+      "Bash(supabase db push*)",
+      "Bash(pnpm exec supabase db push*)",
+      "Bash(pnpm supabase db push*)",
+      "Bash(npx supabase db push*)",
+      "Bash(pnpm dlx supabase db push*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * --force*)",
+      "Bash(git push * -f*)",
+      "Bash(git push * +*)",
+      "Bash(gh pr merge * --admin*)",
+      "Bash(gh pr merge --admin*)"
+    ]
+  }
+}

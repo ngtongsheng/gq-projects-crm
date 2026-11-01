@@ -24,13 +24,13 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 |---|---|---|---|---|
 | 01 | Scaffold app + tooling | done | – | sonnet/high |
 | 02 | Desktop spike checklist | done | 01 | haiku/low |
-| 03 | Cloud setup (Supabase, Vercel, secrets) | blocked: owner — import repo at vercel.com/new and confirm the emailed code (Vercel reauth); then re-run /execute-loop | 01 | sonnet/high |
+| 03 | Cloud setup (Supabase, Vercel, secrets) | in-progress | 01 | sonnet/high |
 | 04 | Design system + app shell | done | 01 | sonnet/high |
 | 05 | Auth, profiles, roles, RLS | in-progress | 03, 04 | opus/medium |
 | 06 | People admin + invite link | todo | 05 | sonnet/high |
 | 07 | Destructive-migration guard | done | 01 | sonnet/high |
 | 08 | CI workflows | todo | 03, 07 | sonnet/high |
-| 09 | Agent rules + plain output style | todo | 02 | opus/medium |
+| 09 | Agent rules + plain output style | blocked: owner — in Desktop, open the repo, ask \"can you make the sign-in button bigger?\", tell the executor the result | 02 | opus/medium |
 | 10 | Skills: preview, deploy, get-help | todo | 08, 09 | opus/medium |
 | 11 | End-to-end smoke | todo | 06, 10 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
@@ -68,3 +68,8 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 2026-11-01 · #05 · decision · start #05 though #03 is blocked · #03's Supabase dev project + sign-up setting (all #05 needs) are done; only Vercel steps remain. #08 stays blocked on #03
 2026-11-01 · #05 · in-progress · delegating (opus/medium)
 2026-11-01 · #02 · done · owner ran all 7 rows in Desktop: all pass (row 7 fetch only); recorded in docs/desktop-findings.md · #09 unblocked; probe files removed
+2026-11-01 · #09 · in-progress · delegating (opus/medium)
+2026-11-01 · #03 · in-progress · owner imported repo into Vercel (reauth done); delegating remaining Vercel env vars, prod branch, Supabase redirect URLs
+2026-11-01 · #09 · blocked: owner · files written, pnpm check passes; acceptance needs the Desktop test (jargon-free answer + multiple-choice step) · #10 also waits on #08
+2026-11-01 · #09 · decision · single CLAUDE.md (no @AGENTS.md import; imports untested in Desktop); next.config agentRules:false; .gitignore ignores .claude/worktrees; owner shown as "Tong Sheng" in text Vicky sees · spike never tested imports
+2026-11-01 · #09 · note · settings allow `git *` broadly; deny covers force-push and db push but not plain `git push origin main` — #08 should add branch protection or a deny so D4's PR flow is enforced

@@ -184,3 +184,5 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #35 · in-progress · start · sonnet/high subagent
 2026-11-02 · #35 · decision · fixed installer_po_id column name in site-work-data (crashed Site Work/dashboard); app-shell grid minmax fixes 390px overflow; reservations table side-scroll on phone → debt; accounts can still edit MOF form (canEditRegister) → on Vicky's checklist; resize_window didn't resize, 390px checked in a 390px frame
 2026-11-02 · #35 · done · 742 tests pass · pushed to PR #14
+2026-11-02 · vault · session note updated (all done)
+2026-11-02 · merge · merged to main

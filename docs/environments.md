@@ -7,7 +7,7 @@ Vercel project: `gq-projects-crm` (team `ng-tong-shengs-projects`, Hobby), linke
 | Environment | Where it runs | URL | Database | Env vars come from |
 |---|---|---|---|---|
 | Local | `pnpm dev` | `http://localhost:3000` | Supabase `gq-crm-dev` | `.env.development` (committed, public values only) |
-| Preview | Vercel preview per branch/PR | `https://gq-projects-crm-<hash>-ng-tong-shengs-projects.vercel.app` | Supabase `gq-crm-dev` | Vercel env, Preview + Development scope |
+| Preview | Vercel preview per branch/PR | `https://gq-projects-crm-git-<branch>-ng-tong-shengs-projects.vercel.app` (read from the Vercel bot comment on the PR) | Supabase `gq-crm-dev` | Vercel env, Preview + Development scope |
 | Production | Vercel, branch `main` | `https://gq-projects-crm.vercel.app` | Supabase `gq-crm-prod` | Vercel env, Production scope |
 
 | Supabase project | Region | Ref | API URL | Dashboard auth settings |

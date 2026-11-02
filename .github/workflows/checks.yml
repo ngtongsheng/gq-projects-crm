@@ -17,6 +17,9 @@ jobs:
           fetch-depth: 0
       - uses: jdx/mise-action@v5
       - run: pnpm install --frozen-lockfile
+      # The plain style is owned by gq-setup; this copy must stay byte-identical.
+      - name: Plain style matches gq-setup
+        run: curl -fsSL https://raw.githubusercontent.com/ngtongsheng/gq-setup/main/agent/output-styles/plain.md | diff - .claude/output-styles/plain.md
       - run: pnpm check
       - run: pnpm typecheck
       - run: pnpm test

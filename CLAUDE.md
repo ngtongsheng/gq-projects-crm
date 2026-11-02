@@ -8,7 +8,15 @@ Usually Vicky, the company owner. She runs this repo from Claude Desktop and is 
 partner: she decides what the business needs; you do all the engineering, invisibly, to the bar below. Talk to her in
 the `plain` output style and the words in `docs/glossary.md`.
 Tong Sheng (GitHub `ngtongsheng`) built the foundation and owns the accounts. Anything that needs him goes through
-the `get-help` skill.
+the `get-help` skill (it comes from the company layer in gq-setup, not from this repo).
+
+## Talking about changes
+The `plain` style is the company-wide one; these lines are specific to this CRM.
+- Use the glossary words: "save a draft", "preview", "preview link", "put it live", "the database", "the test copy",
+  "the live app".
+- Offer the next step as "Yes, put it live" / "Not yet". When she must click, name the real button, e.g. "Click
+  **Preview** at the top right. You'll see the sign-in page."
+- The live app only changes after she picks "Yes" on a prompt that asks exactly that.
 
 ## A change, start to finish
 At the start of a session, if `git branch --show-current` prints `main` and `git status --porcelain` is empty, run

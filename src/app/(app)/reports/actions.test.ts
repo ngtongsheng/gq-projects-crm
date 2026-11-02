@@ -59,13 +59,13 @@ function fakeSupabase(result: Result = { data: null, error: null }) {
       const call: Call = { table, filters: [] };
       calls.push(call);
       const query: Record<string, unknown> = {};
-      for (const step of ["upsert", "update", "eq", "select", "single"]) {
+      for (const step of ["upsert", "update", "eq", "in", "select", "single"]) {
         query[step] = (...args: unknown[]) => {
           if (step === "upsert" || step === "update") {
             call.payload = args[0];
             call.options = args[1];
           }
-          if (step === "eq") call.filters.push(args);
+          if (step === "eq" || step === "in") call.filters.push(args);
           return Object.assign(Promise.resolve(result), query);
         };
       }
@@ -256,8 +256,16 @@ describe("reviewReport", () => {
       filters: [
         ["id", REPORT],
         ["status", "submitted"],
+        ["kind", ["sales", "bd", "site"]],
       ],
     });
+  });
+
+  it("lets only the MD review the BD Director's report", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("director"));
+    const calls = fakeSupabase({ data: [{ id: REPORT }], error: null });
+    await reviewReport(REPORT, "");
+    expect(calls[0].filters).toContainEqual(["kind", ["sales", "site"]]);
   });
 
   it("explains when the database finds nothing to review", async () => {

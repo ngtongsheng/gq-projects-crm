@@ -5,8 +5,10 @@ import { z } from "zod";
 import { getCurrentProfile } from "@/lib/auth/current-profile";
 import { requireSection } from "@/lib/auth/require-section";
 import {
+  canReviewReport,
   HIGHLIGHT_ROWS,
   isLate,
+  REPORT_KINDS,
   type ReportStats,
   reportKindFor,
 } from "@/lib/domain/report-stats";
@@ -23,7 +25,7 @@ const NOT_A_FILER =
 const LOCKED = "This report is already submitted and can no longer be changed.";
 const NOT_REVIEWER = "Only the MD or Sales Director can review reports.";
 const NOT_FOUND_REPORT =
-  "This report is not waiting for your review. Reload the page.";
+  "This report is not waiting for your review, or you cannot review it (only the MD reviews the BD Director's). Reload the page.";
 const TRY_AGAIN = "Could not save. Try again.";
 
 const textField = (formData: FormData, key: string) => {
@@ -139,7 +141,7 @@ async function writeReport(
     return { error: TRY_AGAIN };
   }
 
-  revalidatePath("/reports");
+  revalidatePath("/reports", "layout");
   if (status === "draft") return { error: null, message: "Draft saved." };
   const submittedAt = z.string().safeParse(data?.submitted_at);
   const late =
@@ -192,6 +194,10 @@ export async function reviewReport(
     .update({ status: "reviewed", review_note: parsed.data.note })
     .eq("id", parsed.data.reportId)
     .eq("status", "submitted")
+    .in(
+      "kind",
+      REPORT_KINDS.filter((kind) => canReviewReport(me.jobRole, kind)),
+    )
     .select("id");
   if (error) {
     if (error.code === "42501") return { error: NOT_REVIEWER };
@@ -200,6 +206,6 @@ export async function reviewReport(
   }
   if (data.length === 0) return { error: NOT_FOUND_REPORT };
 
-  revalidatePath("/reports");
+  revalidatePath("/reports", "layout");
   return { error: null, message: "Marked as reviewed." };
 }

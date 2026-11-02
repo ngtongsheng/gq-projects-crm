@@ -37,6 +37,8 @@ type Section = {
   /** Role-specific wording, e.g. "My Sales" for a salesperson's view of the MOF register. */
   labelFor?: (jobRole: JobRole) => string;
   href: string;
+  /** Role-specific page, e.g. managers open Team Reports rather than their own report. */
+  hrefFor?: (jobRole: JobRole) => string;
   icon: LucideIcon;
   allowed: readonly JobRole[];
   /** False until the task that builds the page flips it; unbuilt sections stay out of the sidebar. */
@@ -155,6 +157,7 @@ const SECTIONS: readonly Section[] = [
     label: "My Report",
     labelFor: (jobRole) => (isManager(jobRole) ? "Team Reports" : "My Report"),
     href: "/reports",
+    hrefFor: (jobRole) => (isManager(jobRole) ? "/reports/team" : "/reports"),
     icon: ClipboardList,
     // The BD Director's monthly report sits under Director Report, as in the prototype.
     allowed: ["md", "director", "sales", "accounts", "site"],
@@ -163,10 +166,10 @@ const SECTIONS: readonly Section[] = [
   {
     key: "directorReport",
     label: "Director Report",
-    href: "/director-report",
+    href: "/reports/director",
     icon: Target,
     allowed: ["md", "director", "bd", "accounts"],
-    built: false,
+    built: true,
   },
 ];
 
@@ -180,7 +183,7 @@ export type NavSection = {
 const toNavSection = (section: Section, jobRole: JobRole): NavSection => ({
   key: section.key,
   label: section.labelFor?.(jobRole) ?? section.label,
-  href: section.href,
+  href: section.hrefFor?.(jobRole) ?? section.href,
   icon: section.icon,
 });
 

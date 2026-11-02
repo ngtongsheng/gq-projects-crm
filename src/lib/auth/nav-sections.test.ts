@@ -121,12 +121,26 @@ describe("sectionsFor", () => {
       "commission",
       "reports",
     ]);
+    expect(sectionsFor("bd").map((s) => s.key)).toContain("directorReport");
+    expect(sectionsFor("bd").map((s) => s.key)).not.toContain("reports");
     expect(sectionsFor("site").map((s) => s.label)).toEqual([
       "Installation Calendar",
       "Site Work",
       "Overtime",
       "My Report",
     ]);
+  });
+});
+
+describe("report links", () => {
+  const hrefOf = (jobRole: JobRole, key: string) =>
+    allowedSectionsFor(jobRole).find((s) => s.key === key)?.href;
+
+  it("sends managers to Team Reports and others to their own report", () => {
+    expect(hrefOf("md", "reports")).toBe("/reports/team");
+    expect(hrefOf("accounts", "reports")).toBe("/reports/team");
+    expect(hrefOf("sales", "reports")).toBe("/reports");
+    expect(hrefOf("bd", "directorReport")).toBe("/reports/director");
   });
 });
 

@@ -13,7 +13,7 @@ export const metadata: Metadata = { title: `Sign in · ${APP_NAME}` };
 
 export default function SignInPage() {
   return (
-    <main className="flex flex-1 flex-col items-center justify-center p-4">
+    <main className="flex flex-1 items-center justify-center p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="font-heading text-xl">{APP_NAME}</CardTitle>
@@ -25,9 +25,6 @@ export default function SignInPage() {
           <SignInForm />
         </CardContent>
       </Card>
-      <p className="mt-4 text-center text-sm text-muted-foreground">
-        Smoke test
-      </p>
     </main>
   );
 }

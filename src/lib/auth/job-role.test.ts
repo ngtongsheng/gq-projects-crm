@@ -7,6 +7,7 @@ import {
   canEditSite,
   canEditStock,
   canEnterPayments,
+  canPayOutCommission,
   canScheduleJobs,
   canUpdateJobStatus,
   isManager,
@@ -93,6 +94,14 @@ describe("job role capabilities", () => {
       payments: canEnterPayments(jobRole),
       stock: canEditStock({ jobRole, arrangesStock: false }),
     }).toEqual(expected[jobRole]);
+  });
+
+  it.each(
+    JobRole.options,
+  )("%s pays out commission only as MD or accounts", (jobRole) => {
+    expect(canPayOutCommission(jobRole)).toBe(
+      jobRole === "md" || jobRole === "accounts",
+    );
   });
 
   it.each(

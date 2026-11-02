@@ -48,7 +48,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 23 | Stock items + reservations | done | 14 | sonnet/high |
 | 24 | Collection (payments, outstanding) | done | 14 | sonnet/high |
 | 25 | Commission settings + calculation | done | 01, 24 | opus/medium |
-| 26 | Commission screen + payouts | todo | 25 | sonnet/high |
+| 26 | Commission screen + payouts | done | 25 | sonnet/high |
 | 27 | Monthly reports (sales, BD, site) | todo | 08, 11, 14, 21 | opus/medium |
 | 28 | Team + director reports | todo | 27 | sonnet/high |
 | 29 | Dashboards per role | todo | 11, 14, 20, 24, 27 | sonnet/high |
@@ -147,3 +147,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #25 · decision · rules beyond spec: low margin caps rate (own 1.5%, other 1%); late cut per payment from invoice date (LOA until invoiced), after day 90; flat-rate person no high-margin extra, 1% of whole sale on top; excluded co-salesperson's half not reassigned; no cost = not claimable · all in post-loop Vicky confirmation
 2026-11-02 · #25 · decision · settings editable by MD or admin (matches app_settings policy); threshold shared with collection; placeholder project-commission.ts removed; #26 must expose margin/claimable to salespeople without leaking mof_costs
 2026-11-02 · #25 · done · 596 tests pass · pushed to PR #14
+2026-11-02 · #26 · start · sonnet/high subagent
+2026-11-02 · #26 · decision · commission_basis() security-definer returns margin tier only (never cost) scoped to caller's MOFs; director reads payouts read-only; over-remaining check in action; removePayout added
+2026-11-02 · #26 · done · 637 tests pass · pushed to PR #14

@@ -148,7 +148,7 @@ const SECTIONS: readonly Section[] = [
     href: "/commission",
     icon: Percent,
     allowed: SALES_SIDE,
-    built: false,
+    built: true,
   },
   {
     key: "reports",

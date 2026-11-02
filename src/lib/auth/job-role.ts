@@ -79,6 +79,10 @@ export const canDecideOvertime = (jobRole: JobRole) =>
 export const canEnterPayments = (jobRole: JobRole) =>
   has(jobRole, ["md", "accounts"]);
 
+/** Records commission paid out (SQL: the insert and delete policies on commission_payouts). */
+export const canPayOutCommission = (jobRole: JobRole) =>
+  has(jobRole, ["md", "accounts"]);
+
 export const canEditStock = (person: {
   jobRole: JobRole;
   arrangesStock: boolean;

@@ -235,6 +235,28 @@ describe("calculateCommission: claimable", () => {
   });
 });
 
+describe("calculateCommission: a tier worked out elsewhere", () => {
+  it("uses the given tier without a cost and keeps the margin hidden", () => {
+    const result = calculateCommission(
+      input({ cost: null, knownTier: "high" }),
+    );
+    expect(result).toMatchObject({
+      tier: "high",
+      marginPct: null,
+      claimable: true,
+    });
+    expect(result.people[0]?.earned).toBe(4_000);
+    expect(result.lines[0]).toBe("Margin is above 45%: +1% extra.");
+  });
+
+  it("holds the claim when the tier says the cost is missing", () => {
+    const result = calculateCommission(
+      input({ cost: null, knownTier: "unknown" }),
+    );
+    expect(result.claimable).toBe(false);
+  });
+});
+
 describe("estimatedCommission", () => {
   it("is the value times the base rate", () => {
     const s = DEFAULT_COMMISSION_SETTINGS;

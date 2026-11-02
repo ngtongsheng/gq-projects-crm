@@ -33,8 +33,13 @@ export type CommissionInput = {
     /** Who passed the customer down (from the project), if anyone. */
     passedById: string | null;
   };
-  /** Null when the cost is not keyed in, or the caller may not see it. */
+  /** Null when the cost is not keyed in. */
   cost: number | null;
+  /**
+   * The margin tier worked out where the cost is visible, for callers who may not see the cost.
+   * When set it replaces `cost`, and `marginPct` stays null.
+   */
+  knownTier?: MarginTier;
   payments: readonly { amount: number; receivedOn: CalendarDate }[];
   people: readonly CommissionPerson[];
   settings: CommissionSettings;
@@ -208,18 +213,18 @@ function tierLine(
   marginPct: number | null,
   s: CommissionSettings,
 ): string {
-  const margin = marginPct === null ? "" : pct(marginPct);
+  const margin = marginPct === null ? "Margin" : `Margin ${pct(marginPct)}`;
   switch (tier) {
     case "unknown":
       return "Cost not keyed in: the margin rule can't be applied, so this can't be claimed yet.";
     case "none":
-      return `Margin ${margin} is below ${pct(s.noCommissionBelowPct)}: no commission.`;
+      return `${margin} is below ${pct(s.noCommissionBelowPct)}: no commission.`;
     case "low":
-      return `Margin ${margin} is below ${pct(s.lowMarginBelowPct)}: low-margin rate.`;
+      return `${margin} is below ${pct(s.lowMarginBelowPct)}: low-margin rate.`;
     case "high":
-      return `Margin ${margin} is above ${pct(s.highMarginAbovePct)}: +${pct(s.highMarginBonusPct)} extra.`;
+      return `${margin} is above ${pct(s.highMarginAbovePct)}: +${pct(s.highMarginBonusPct)} extra.`;
     case "standard":
-      return `Margin ${margin}: standard rate.`;
+      return `${margin}: standard rate.`;
   }
 }
 
@@ -232,9 +237,9 @@ export function calculateCommission(input: CommissionInput): CommissionResult {
   const { mof, settings: s } = input;
   const invoiceCents = toCents(mof.total);
   const costCents = input.cost === null ? null : toCents(input.cost);
-  const tier = marginTier(invoiceCents, costCents, s);
+  const tier = input.knownTier ?? marginTier(invoiceCents, costCents, s);
   const marginPct =
-    costCents === null
+    costCents === null || input.knownTier !== undefined
       ? null
       : Math.round(((invoiceCents - costCents) * 1000) / invoiceCents) / 10;
   const collection = summariseCollection(

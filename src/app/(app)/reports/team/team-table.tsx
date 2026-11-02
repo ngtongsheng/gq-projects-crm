@@ -3,7 +3,8 @@ import Link from "next/link";
 import { DataTable, type DataTableColumn } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
 import { StatusBadge } from "@/components/app/status-badge";
-import { achievedTone, type ReportStats } from "@/lib/domain/report-stats";
+import { TargetProgress } from "@/components/app/target-progress";
+import type { ReportStats } from "@/lib/domain/report-stats";
 import { formatRm } from "@/lib/format/money";
 import type { MonthlyReport } from "../report-data";
 import type { ReportsView } from "../report-params";
@@ -17,41 +18,23 @@ export type TeamRow = {
   stats: ReportStats;
 };
 
-/** "12 / 50" with the share of target, coloured against how far through the month it is. */
-function Progress({
-  done,
-  target,
-  pace,
-}: {
-  done: number;
-  target: number;
-  pace: number;
-}) {
-  return (
-    <span className="inline-flex items-center justify-end gap-2">
-      {done} / {target}
-      {target > 0 && (
-        <StatusBadge tone={achievedTone(done, target, pace)}>
-          {Math.round((done / target) * 100)}%
-        </StatusBadge>
-      )}
-    </span>
-  );
-}
-
 const visitsColumn = (pace: number): DataTableColumn<TeamRow> => ({
   key: "visits",
   header: "Visits / target",
   numeric: true,
   cell: ({ stats }) =>
     stats.kind === "site" ? (
-      <Progress
+      <TargetProgress
         done={stats.siteVisits}
         target={stats.siteVisitTarget}
         pace={pace}
       />
     ) : (
-      <Progress done={stats.visits} target={stats.visitTarget} pace={pace} />
+      <TargetProgress
+        done={stats.visits}
+        target={stats.visitTarget}
+        pace={pace}
+      />
     ),
 });
 
@@ -86,7 +69,7 @@ const siteColumns = (pace: number): DataTableColumn<TeamRow>[] => [
     numeric: true,
     cell: ({ stats }) =>
       stats.kind === "site" ? (
-        <Progress
+        <TargetProgress
           done={stats.shootings}
           target={stats.shootingTarget}
           pace={pace}
@@ -101,7 +84,7 @@ const siteColumns = (pace: number): DataTableColumn<TeamRow>[] => [
     numeric: true,
     cell: ({ stats }) =>
       stats.kind === "site" ? (
-        <Progress
+        <TargetProgress
           done={stats.handovers}
           target={stats.handoverTarget}
           pace={pace}

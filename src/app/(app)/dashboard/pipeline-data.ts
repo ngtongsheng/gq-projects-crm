@@ -72,3 +72,11 @@ export const projectsOf = (
   projects.filter(
     (project) => project.picId === personId || project.supportId === personId,
   );
+
+/** Overdue or stale projects, overdue first. */
+export const projectsToChase = (
+  projects: readonly OpenProject[],
+): OpenProject[] =>
+  projects
+    .filter((project) => project.overdue || project.stale)
+    .sort((a, b) => Number(b.overdue) - Number(a.overdue));

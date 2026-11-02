@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { StatusBadge } from "@/components/app/status-badge";
 import type { Profile } from "@/lib/auth/current-profile";
 import { attentionItems } from "@/lib/domain/attention";
 import { salesTotals, yearPace } from "@/lib/domain/order-rollup";
@@ -9,15 +7,9 @@ import { formatRm, sumRm } from "@/lib/format/money";
 import { ProjectStageLabel } from "../projects/schemas";
 import { loadInactiveCustomerOwners } from "./customer-data";
 import { loadDashboardOrders } from "./dashboard-orders";
-import {
-  AttentionPanel,
-  PaceBar,
-  Panel,
-  PanelEmpty,
-  StatTile,
-  TileGrid,
-} from "./dashboard-parts";
+import { AttentionPanel, PaceBar, StatTile, TileGrid } from "./dashboard-parts";
 import { loadOpenProjects, projectsOf } from "./pipeline-data";
+import { ProjectsToChase } from "./projects-to-chase";
 import { loadOwnMonth } from "./report-snapshot";
 
 /** A salesperson's or BD Director's own month: visits, sales and pace, and the deals to chase. */
@@ -31,9 +23,6 @@ export async function SalesDashboard({ me }: { me: Profile }) {
   ]);
   const stats = own?.stats.kind === "site" ? null : (own?.stats ?? null);
   const mine = projectsOf(projects, me.id);
-  const chase = mine
-    .filter((project) => project.overdue || project.stale)
-    .sort((a, b) => Number(b.overdue) - Number(a.overdue));
   const myOrders = orders.filter((order) => order.salespersonId === me.id);
   const totals = salesTotals(myOrders, today);
   const owed = sumRm(
@@ -113,48 +102,20 @@ export async function SalesDashboard({ me }: { me: Profile }) {
           />
         ) : null}
       </TileGrid>
-      <Panel
-        title="Projects to chase"
-        aside={
-          <Link href="/projects" className="hover:underline">
-            Open Projects
-          </Link>
-        }
-      >
-        {chase.length === 0 ? (
-          <PanelEmpty>
-            Every open project has a next action date ahead and was updated in
-            the last 14 days.
-          </PanelEmpty>
-        ) : (
-          <ul className="divide-y">
-            {chase.slice(0, 8).map((project) => (
-              <li
-                key={project.id}
-                className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-sm"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium">{project.name}</p>
-                  <p className="truncate text-xs text-muted-foreground">
-                    {project.companyName} · {ProjectStageLabel[project.stage]} ·{" "}
-                    <span className="font-mono tabular-nums">
-                      {formatRm(project.value)}
-                    </span>
-                  </p>
-                </div>
-                {project.overdue ? (
-                  <StatusBadge tone="bad">
-                    Next action {formatDate(project.nextActionDate ?? today)}
-                  </StatusBadge>
-                ) : null}
-                {project.stale ? (
-                  <StatusBadge tone="warn">No update in 14+ days</StatusBadge>
-                ) : null}
-              </li>
-            ))}
-          </ul>
+      <ProjectsToChase
+        projects={mine}
+        detail={(project) => (
+          <>
+            {project.companyName} · {ProjectStageLabel[project.stage]} ·{" "}
+            <span className="font-mono tabular-nums">
+              {formatRm(project.value)}
+            </span>
+          </>
         )}
-      </Panel>
+        overdueLabel={(project) =>
+          `Next action ${formatDate(project.nextActionDate ?? today)}`
+        }
+      />
     </div>
   );
 }

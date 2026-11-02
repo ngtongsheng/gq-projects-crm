@@ -36,7 +36,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 11 | Pipeline board/list | done | 10 | sonnet/high |
 | 12 | Order register (MOF) data, private cost | done | 10 | opus/medium |
 | 13 | MOF form | done | 12 | opus/medium |
-| 14 | MOF register list + stages | todo | 13 | sonnet/high |
+| 14 | MOF register list + stages | done | 13 | sonnet/high |
 | 15 | Supplier PO tracking | todo | 14 | sonnet/high |
 | 16 | Installer POs + claims | todo | 14 | sonnet/high |
 | 17 | Delivery + installation jobs, DOs | todo | 14 | sonnet/high |
@@ -108,3 +108,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #13 · start · opus/medium subagent
 2026-11-02 · #13 · decision · reason required when contract sum or VO changes; blank cost keeps stored; multi-write save not transactional (debt.md); /mofs/new; nav href /mof -> fix in #14
 2026-11-02 · #13 · done · 301 tests pass · pushed to PR #14
+2026-11-02 · #14 · start · sonnet/high subagent
+2026-11-02 · #14 · decision · salesperson 'My Sales' scoping is a view filter only (mofs read-all per #12, cost stays private); open orders may move to any stage; payment warning on leaving pending delivery, non-blocking
+2026-11-02 · #14 · done · 321 tests pass · pushed to PR #14

@@ -1,37 +1,14 @@
 import { z } from "zod";
+import { MOF_STAGE_LABEL, MOF_STAGES } from "@/lib/domain/mof-stages";
 import { lineAreaM2, orderTotal } from "@/lib/domain/mof-totals";
 import { parseRm } from "@/lib/format/money";
 import { AccountType } from "../customers/schemas";
 
 // Values mirror the check constraints in the mofs migration.
-export const MofStage = z.enum([
-  "pending_order",
-  "ordered",
-  "in_production",
-  "shipping",
-  "arrived_warehouse",
-  "pending_delivery",
-  "delivered_installing",
-  "completed_payment_pending",
-  "closed",
-  "on_hold",
-  "cancelled",
-]);
+export const MofStage = z.enum(MOF_STAGES);
 export type MofStage = z.infer<typeof MofStage>;
 
-export const MofStageLabel: Record<MofStage, string> = {
-  pending_order: "Pending order",
-  ordered: "Ordered",
-  in_production: "In production",
-  shipping: "Shipping",
-  arrived_warehouse: "Arrived warehouse",
-  pending_delivery: "Pending delivery",
-  delivered_installing: "Delivered – installing",
-  completed_payment_pending: "Completed – payment pending",
-  closed: "Closed",
-  on_hold: "On hold",
-  cancelled: "Cancelled",
-};
+export const MofStageLabel = MOF_STAGE_LABEL;
 
 export const JobScope = z.enum(["s_and_l", "supply", "labour"]);
 export type JobScope = z.infer<typeof JobScope>;

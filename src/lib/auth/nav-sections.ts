@@ -102,11 +102,11 @@ const SECTIONS: readonly Section[] = [
     label: "MOF Register",
     labelFor: (jobRole) =>
       isManager(jobRole) || jobRole === "support" ? "MOF Register" : "My Sales",
-    href: "/mof",
+    href: "/mofs",
     icon: FileText,
     // The Sales Director sees the team's work elsewhere, so no MOF entry.
     allowed: ["md", "bd", "sales", "accounts", "support"],
-    built: false,
+    built: true,
   },
   {
     key: "siteWork",

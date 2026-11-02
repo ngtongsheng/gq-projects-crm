@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { type DuplicateContact, saveContact } from "./actions";
+import { RequestOwnershipDialog } from "./ownership/request-ownership-dialog";
 import {
   AccountType,
   AccountTypeLabel,
@@ -57,6 +58,8 @@ type ContactDialogProps = {
   team: { id: string; name: string }[];
   /** MD and Sales Director choose the account type; everyone else adds own-effort accounts. */
   canSetAccountType: boolean;
+  /** Salespeople who hit a customer someone else owns can ask for it. */
+  canRequestOwnership: boolean;
 };
 
 const NEW_COMPANY = "new";
@@ -101,6 +104,7 @@ function ContactForm({
   companies,
   team,
   canSetAccountType,
+  canRequestOwnership,
   onSaved,
 }: ContactDialogProps & { onSaved: () => void }) {
   const [pending, startTransition] = useTransition();
@@ -197,7 +201,12 @@ function ContactForm({
             />
           </Field>
         </div>
-        {duplicate && <DuplicateNotice duplicate={duplicate} />}
+        {duplicate && (
+          <DuplicateNotice
+            duplicate={duplicate}
+            canRequestOwnership={canRequestOwnership}
+          />
+        )}
         <Field>
           <FieldLabel htmlFor="rating">Rating</FieldLabel>
           <Select name="rating" defaultValue={String(contact?.rating ?? 3)}>
@@ -274,7 +283,13 @@ function ContactForm({
   );
 }
 
-function DuplicateNotice({ duplicate }: { duplicate: DuplicateContact }) {
+function DuplicateNotice({
+  duplicate,
+  canRequestOwnership,
+}: {
+  duplicate: DuplicateContact;
+  canRequestOwnership: boolean;
+}) {
   const owners = duplicate.ownerNames.join(" + ") || "nobody yet";
   return (
     <div
@@ -286,17 +301,14 @@ function DuplicateNotice({ duplicate }: { duplicate: DuplicateContact }) {
           ? `You already have this contact: ${duplicate.name}, ${duplicate.companyName}.`
           : `This number already belongs to ${duplicate.name}, ${duplicate.companyName}. Owned by ${owners}. You can't add it again.`}
       </p>
-      {!duplicate.ownedByMe && (
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          className="self-start"
-          disabled
-          title="Coming soon"
-        >
-          Request ownership
-        </Button>
+      {!duplicate.ownedByMe && canRequestOwnership && (
+        <div className="self-start">
+          <RequestOwnershipDialog
+            contactId={duplicate.contactId}
+            customerName={duplicate.name}
+            ownerNames={duplicate.ownerNames}
+          />
+        </div>
       )}
     </div>
   );

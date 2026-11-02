@@ -164,6 +164,7 @@ export default async function CustomerPage({
               companies={companies}
               team={team}
               canSetAccountType={canSetAccountType(me.jobRole)}
+              canRequestOwnership={false}
             />
           ) : undefined
         }

@@ -29,6 +29,8 @@ import {
 import { ContactDialog } from "./contact-form";
 import { filterCustomers, parseCustomerFilters } from "./customer-filters";
 import { CustomerHealthBadge } from "./customer-health-badge";
+import { canRequestOwnership } from "./ownership/ownership-access";
+import { RequestOwnershipDialog } from "./ownership/request-ownership-dialog";
 import {
   AccountType,
   AccountTypeLabel,
@@ -67,6 +69,8 @@ const contactRows = z.array(
 
 const companyRows = z.array(z.object({ id: z.string(), name: z.string() }));
 
+const pendingRequestRows = z.array(z.object({ contact_id: z.string() }));
+
 // Activities arrive in task 08; until then nobody has a completed activity.
 const lastCompletedActivityDate = null;
 
@@ -79,17 +83,23 @@ export default async function CustomersPage({
   const filters = parseCustomerFilters(await searchParams);
   const supabase = await createClient();
 
-  const [contactsResult, companiesResult, team] = await Promise.all([
-    supabase
-      .from("contacts")
-      .select(
-        "id, company_id, name, mobile, title, rating, account_type, passed_by, notes, companies(name, company_type), contact_owners(profile_id)",
-      )
-      .is("archived_at", null)
-      .order("name"),
-    supabase.from("companies").select("id, name").order("name"),
-    getTeamDirectory(),
-  ]);
+  const [contactsResult, companiesResult, pendingResult, team] =
+    await Promise.all([
+      supabase
+        .from("contacts")
+        .select(
+          "id, company_id, name, mobile, title, rating, account_type, passed_by, notes, companies(name, company_type), contact_owners(profile_id)",
+        )
+        .is("archived_at", null)
+        .order("name"),
+      supabase.from("companies").select("id, name").order("name"),
+      supabase
+        .from("ownership_requests")
+        .select("contact_id")
+        .eq("requested_by", me.id)
+        .eq("status", "pending"),
+      getTeamDirectory(),
+    ]);
   if (contactsResult.error) {
     throw new Error(
       `Could not load customers: ${contactsResult.error.message}`,
@@ -100,7 +110,15 @@ export default async function CustomersPage({
       `Could not load companies: ${companiesResult.error.message}`,
     );
   }
+  if (pendingResult.error) {
+    throw new Error(
+      `Could not load your ownership requests: ${pendingResult.error.message}`,
+    );
+  }
   const companies = companyRows.parse(companiesResult.data);
+  const requestedIds = new Set(
+    pendingRequestRows.parse(pendingResult.data).map((row) => row.contact_id),
+  );
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
 
   const health = customerHealth(lastCompletedActivityDate, todayMyt());
@@ -130,6 +148,8 @@ export default async function CustomersPage({
         notes: row.notes ?? "",
       },
       canEdit: canEditContact(me.jobRole, ownerIds.includes(me.id)),
+      canRequest: canRequestOwnership(me.jobRole, ownerIds.includes(me.id)),
+      requested: requestedIds.has(row.id),
     };
   });
   const rows = filterCustomers(customers, filters);
@@ -150,6 +170,7 @@ export default async function CustomersPage({
               companies={companies}
               team={team}
               canSetAccountType={canSetAccountType(me.jobRole)}
+              canRequestOwnership={canRequestOwnership(me.jobRole, false)}
             />
           ) : undefined
         }
@@ -294,15 +315,29 @@ export default async function CustomersPage({
           {
             key: "edit",
             header: "",
-            cell: (row) =>
-              row.canEdit ? (
-                <ContactDialog
-                  contact={row.editable}
-                  companies={companies}
-                  team={team}
-                  canSetAccountType={canSetAccountType(me.jobRole)}
+            cell: (row) => {
+              if (row.canEdit) {
+                return (
+                  <ContactDialog
+                    contact={row.editable}
+                    companies={companies}
+                    team={team}
+                    canSetAccountType={canSetAccountType(me.jobRole)}
+                    canRequestOwnership={false}
+                  />
+                );
+              }
+              if (!row.canRequest) return null;
+              return row.requested ? (
+                <StatusBadge tone="warn">Requested</StatusBadge>
+              ) : (
+                <RequestOwnershipDialog
+                  contactId={row.id}
+                  customerName={row.name}
+                  ownerNames={row.ownerNames}
                 />
-              ) : null,
+              );
+            },
           },
         ]}
       />

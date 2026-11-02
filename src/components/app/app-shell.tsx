@@ -8,6 +8,7 @@ import {
   SidebarContent,
   SidebarInset,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
@@ -21,6 +22,8 @@ export type NavItem = {
   label: string;
   /** An element such as <Home />; components cannot cross the server/client boundary. */
   icon: ReactNode;
+  /** A count shown at the right edge, e.g. pending requests; hidden at zero. */
+  badge?: number;
 };
 
 type AppShellProps = {
@@ -36,7 +39,7 @@ function NavMenu({ nav }: { nav: NavItem[] }) {
 
   return (
     <SidebarMenu>
-      {nav.map(({ href, label, icon }) => (
+      {nav.map(({ href, label, icon, badge }) => (
         <SidebarMenuItem key={href}>
           <SidebarMenuButton
             asChild
@@ -48,6 +51,7 @@ function NavMenu({ nav }: { nav: NavItem[] }) {
               <span>{label}</span>
             </Link>
           </SidebarMenuButton>
+          {badge ? <SidebarMenuBadge>{badge}</SidebarMenuBadge> : null}
         </SidebarMenuItem>
       ))}
     </SidebarMenu>

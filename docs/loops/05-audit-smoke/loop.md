@@ -19,8 +19,8 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
 | 01 | Run loop 03 #35 walk-through + Vicky checklist | done | owner: .env.smoke.local | sonnet/high |
-| 02 | Audit + fix: migrations and RLS | in-progress | 01 | opus/medium |
-| 03 | Audit + fix: lib and proxy | todo | 01 | opus/medium |
+| 02 | Audit + fix: migrations and RLS | done | 01 | opus/medium |
+| 03 | Audit + fix: lib and proxy | in-progress | 01 | opus/medium |
 | 04 | Audit + fix: MOFs | todo | 02, 03 | sonnet/high |
 | 05 | Audit + fix: stock, collection, commission | todo | 02, 03 | sonnet/high |
 | 06 | Audit + fix: customers, activities, calendar, projects, people | todo | 02, 03 | sonnet/high |
@@ -44,3 +44,6 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 2026-11-02 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-02-loop-05-audit-smoke.md
 2026-11-02 · #01 · done: loop 03 #35 completed and merged by owner (PR #16, d02e658) · #02
 2026-11-02 · #02 · in-progress · subagent opus/medium
+2026-11-02 · #02 · decision · no in-repo SQL regression test; verified on scratch PGlite, gap logged in debt.md · new dev dependency not in plan
+2026-11-02 · #02 · done: 2 additive migrations (account type guard a45d275, guard fn revokes 593fe28); checks + 742 tests pass · #03
+2026-11-02 · #03 · in-progress · subagent opus/medium

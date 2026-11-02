@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getCurrentProfile } from "@/lib/auth/current-profile";
 import { requireSection } from "@/lib/auth/require-section";
+import { startOfMonth } from "@/lib/domain/calendar-grid";
 import {
   canReviewReport,
   HIGHLIGHT_ROWS,
@@ -14,7 +15,11 @@ import {
 } from "@/lib/domain/report-stats";
 import { todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
-import { loadLiveStats, loadReportSettings } from "./report-data";
+import {
+  loadLiveStats,
+  loadReportSettings,
+  type ReportSettings,
+} from "./report-data";
 
 export type ReportResult = { error: string | null; message?: string };
 
@@ -93,7 +98,7 @@ async function writeReport(
     return { error: parsed.error.issues[0]?.message ?? "Check the details." };
   }
   const form = parsed.data;
-  if (form.month.slice(0, 7) > todayMyt().slice(0, 7)) {
+  if (form.month > startOfMonth(todayMyt())) {
     return {
       error: "You cannot file a report for a month that has not started.",
     };
@@ -102,8 +107,6 @@ async function writeReport(
     (highlight) => highlight.achievement !== "",
   );
 
-  const settings = await loadReportSettings();
-  let stats: ReportStats | null = null;
   if (status === "submitted") {
     if (kind !== "site" && highlights.length < MIN_HIGHLIGHTS) {
       return {
@@ -113,8 +116,19 @@ async function writeReport(
     if (kind === "bd" && !form.passDownsConfirmed) {
       return { error: "Tick the pass-down confirmation before submitting." };
     }
+  }
+
+  let settings: ReportSettings;
+  let stats: ReportStats | null = null;
+  try {
+    settings = await loadReportSettings();
     // Frozen at submit so later changes to projects or the site log do not rewrite the report.
-    stats = await loadLiveStats(kind, me.id, form.month, settings.targets);
+    if (status === "submitted") {
+      stats = await loadLiveStats(kind, me.id, form.month, settings.targets);
+    }
+  } catch (error) {
+    console.error("Could not read the figures for the monthly report", error);
+    return { error: TRY_AGAIN };
   }
 
   const supabase = await createClient();

@@ -234,6 +234,19 @@ describe("submitReport", () => {
   });
 });
 
+describe("when the figures cannot be read", () => {
+  it("says to try again instead of ending in the error screen", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.mocked(loadLiveStats).mockRejectedValue(new Error("db down"));
+    const calls = fakeSupabase();
+    expect(await submitReport(reportForm())).toEqual({
+      error: "Could not save. Try again.",
+    });
+    expect(calls).toHaveLength(0);
+    expect(console.error).toHaveBeenCalled();
+  });
+});
+
 describe("reviewReport", () => {
   it("refuses anyone but the MD and Sales Director", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("accounts"));

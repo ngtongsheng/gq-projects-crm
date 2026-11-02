@@ -25,8 +25,8 @@ dry run; Vicky's first run (loop 02 #06) is the real test. Must land before loop
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Company rules, plain style, Chat profile text | todo | – | opus/medium |
-| 02 | Global skills: tdd, diagnosing-bugs, grilling, get-help | todo | 01 | sonnet/high |
+| 01 | Company rules, plain style, Chat profile text | done | – | opus/medium |
+| 02 | Global skills: tdd, diagnosing-bugs, grilling, get-help | in-progress | 01 | sonnet/high |
 | 03 | settings.json + apply.py | todo | 01 | opus/medium |
 | 04 | SETUP.md: rtk, gq-setup, apply, Chat profile, about you | todo | 03 | sonnet/high |
 | 05 | Scratch-HOME dry run + fixes | todo | 02, 04 | sonnet/high |
@@ -38,3 +38,8 @@ dry run; Vicky's first run (loop 02 #06) is the real test. Must land before loop
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-02 · plan · loop written · /execute-loop; loop 02 #06 waits for this loop
+2026-11-02 · #01 · in-progress · worktree gq-projects-crm-loops/04-vicky-agent-layer · delegating (opus/medium)
+2026-11-02 · #01 · done · gq-setup commit eb3e617 verified locally; push to origin was denied by the permission system, so gq-setup main is 1 ahead (owner action: push) · #02
+2026-11-02 · #01 · decision · chat profile written person-neutral (D1) · future staff can paste the same text
+2026-11-02 · #01 · decision · CRM-only style lines dropped from plain.md for #06 to move into CRM CLAUDE.md: glossary word list (save a draft, preview, preview link, put it live, the database, the test copy, the live app); example "Yes, put it live"; example "Click **Preview** at the top right"; "live app only changes after she picks Yes on a prompt that asks exactly that"
+2026-11-02 · #02 · in-progress · delegating (sonnet/high)

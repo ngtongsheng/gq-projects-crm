@@ -41,9 +41,10 @@ she already picked "Yes" on exactly that prompt for this change. On "Not yet", s
 ## 4. Live
 1. Database change in the pull request: `gh run list --workflow migrate-prod.yml --commit <sha> --json databaseId`
    (empty right after the merge: wait 30 seconds and retry), then `gh run watch <id> --exit-status`.
-2. The live build: `gh api "repos/ngtongsheng/gq-projects-crm/deployments?sha=<sha>" --jq '.[] | select(.environment |
-   test("^Production")) | .id'`, then `gh api repos/ngtongsheng/gq-projects-crm/deployments/<id>/statuses --jq '.[0]'`.
-   Done when `state` is `success`. `pending` or `in_progress`: check again every 30 seconds, up to 10 minutes.
+2. The live build: Vercel reports through commit statuses on the merge commit, not GitHub deployments. Read
+   `gh api "repos/ngtongsheng/gq-projects-crm/commits/<sha>/statuses" --jq '[.[] | select(.context == "Vercel – gq-projects-crm")][0].state'`
+   (newest first; ignore the `gq-projects-crm-ym4y` project). Done when it is `success`. `pending`: check again every
+   30 seconds, up to 10 minutes.
 3. `curl -sI https://gq-projects-crm.vercel.app` answers `200`, or a redirect to the sign-in page.
 4. Tell her in one line what is now live, in on-screen words.
 

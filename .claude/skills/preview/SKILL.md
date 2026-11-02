@@ -33,12 +33,15 @@ on "No".
    preview link uses the test copy.
    - A failing check: read `gh run view <run-id> --log-failed`, fix the cause, run the local checks, commit, push and
      watch again. One silent retry. Still failing, or `migration-guard` failed: use `get-help`.
-4. Find the link. Get the head commit with `gh pr view <n> --json headRefOid --jq .headRefOid`, then
-   `gh api "repos/ngtongsheng/gq-projects-crm/deployments?sha=<sha>" --jq '.[] | select(.environment | test("^Preview")) | .id'`
-   and read `gh api repos/ngtongsheng/gq-projects-crm/deployments/<id>/statuses --jq '.[0]'`. Done when `state` is
-   `success`; the link is its `environment_url`. Still `pending` or `in_progress`: check again every 30 seconds, up to
-   10 minutes. `failure` or `error`: treat as a failing check above.
-5. Check the link opens: `curl -sI <link>`. A `401`, or a redirect to `vercel.com/login`, means the link is locked
+4. Find the link. Vercel does not create GitHub deployments here; it reports through commit statuses and one bot
+   comment on the pull request. The repo has two Vercel projects; only `gq-projects-crm` counts (ignore
+   `gq-projects-crm-ym4y`). First wait until its status is `success`:
+   `gh api "repos/ngtongsheng/gq-projects-crm/commits/$(gh pr view <n> --json headRefOid --jq .headRefOid)/statuses" --jq '[.[] | select(.context == "Vercel – gq-projects-crm")][0].state'`
+   (newest first). `pending`: check again every 30 seconds, up to 10 minutes. `failure` or `error`: treat as a failing
+   check above. Then read the link from the bot comment:
+   `gh pr view <n> --json comments --jq '[.comments[] | select(.author.login == "vercel")][0].body' | grep -oE 'https://gq-projects-crm-git-[a-z0-9-]+\.vercel\.app' | head -1`
+   The link is stable per branch and follows the latest push. No comment yet: wait 30 seconds and read again.
+5. Check the link opens: `curl -sI <link>`. A `401`, or a `302` to `vercel.com/sso-api` (then `vercel.com/login`), means the link is locked
    behind a login only Tong Sheng can turn off: use `get-help`, then still give her the link with that caveat.
 6. Give her the link in one line, plus: "It uses the test copy, so people sign in with their test copy account and
    nothing they do touches real records." Accounts on the live app do not exist on the test copy; adding someone

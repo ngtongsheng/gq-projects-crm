@@ -22,8 +22,8 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 | 02 | Audit + fix: migrations and RLS | done | 01 | opus/medium |
 | 03 | Audit + fix: lib and proxy | done | 01 | opus/medium |
 | 04 | Audit + fix: MOFs | done | 02, 03 | sonnet/high |
-| 05 | Audit + fix: stock, collection, commission | in-progress | 02, 03 | sonnet/high |
-| 06 | Audit + fix: customers, activities, calendar, projects, people | todo | 02, 03 | sonnet/high |
+| 05 | Audit + fix: stock, collection, commission | done | 02, 03 | sonnet/high |
+| 06 | Audit + fix: customers, activities, calendar, projects, people | in-progress | 02, 03 | sonnet/high |
 | 07 | Audit + fix: installation, site work, overtime | todo | 02, 03 | sonnet/high |
 | 08 | Audit + fix: reports, dashboard, shared components, auth, guide, dev | todo | 02, 03 | sonnet/high |
 | 09 | Cross-module fixes from findings | todo | 04, 05, 06, 07, 08 | opus/medium |
@@ -53,3 +53,6 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 2026-11-02 · #04 · decision · row 13 (installer claim cap app-only) moved from debt to #09 as an additive trigger · D3 fix everything; permission rules belong in the database
 2026-11-02 · #04 · done: rows 10-14, fixed 5696060 9a643b7, row 12-13 to #09, row 14 debt; 746 tests pass · #05
 2026-11-02 · #05 · in-progress · subagent sonnet/high
+2026-11-02 · #05 · decision · commission payout cap stays app-only (debt row 20), stock/actions.ts not split · loop 03 #26 decision; SQL copy would drift; actions.ts is one concern
+2026-11-02 · #05 · done: rows 15-23, fixed 202066c 7184498 60e4a48, rows 18-19 21-23 to #09; 754 tests pass · #06
+2026-11-02 · #06 · in-progress · subagent sonnet/high

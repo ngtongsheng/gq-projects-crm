@@ -29,14 +29,14 @@ Editors get write access (D4): they can push branches and open pull requests, no
 - Her GitHub username is invited (section 1), or the setup will pause at step 6 until you send it.
 
 **During**
-1. She follows `https://github.com/ngtongsheng/gq-setup` (README): download Claude, open the **Code** tab, make the
-   `GQ` folder, leave permissions on **Manual**, paste the one message.
+1. Claude Desktop is already installed and signed in (Pro). She opens the **Code** tab, makes and chooses the `GQ`
+   folder, leaves permissions on **Manual**, and pastes the link `https://github.com/ngtongsheng/gq-setup`.
 2. Claude runs `SETUP.md` and asks her to press **Allow** at each step.
 3. Watch for the Apple developer tools window (step 1). It takes 5 to 15 minutes; tell her it is normal and to press
    **Install**, then **Agree**.
 4. At the GitHub sign-in (step 5) she pastes the 8-character code in the browser. Stay with her if she is making a new
    account.
-5. If a step stops twice, Claude tells her to send you a screenshot. Fix the cause, then she pastes the same message
+5. If a step stops twice, Claude tells her to send you a screenshot. Fix the cause, then she pastes the same link
    again: setup skips what is done (D5).
 6. Hand-off: she quits Claude with Command + Q, reopens it, picks the **Code** tab and the folder `GQ/gq-projects-crm`.
 

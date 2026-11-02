@@ -58,6 +58,8 @@ export async function addPerson(
     options: { data: { full_name: fullName } },
   });
   if (error) {
+    if (error.code !== "email_exists")
+      console.error("Could not add person", error);
     return {
       error:
         error.code === "email_exists"
@@ -81,6 +83,7 @@ export async function addPerson(
       .update({ role })
       .eq("id", data.user.id);
     if (roleError) {
+      console.error("Could not make the new person an admin", roleError);
       revalidatePath("/people");
       return {
         error:
@@ -111,7 +114,10 @@ export async function changeRole(input: unknown): Promise<ChangeRoleResult> {
       .from("profiles")
       .select("id")
       .eq("role", "admin");
-    if (error) return { error: "Could not change the role. Try again." };
+    if (error) {
+      console.error("Could not check the admins", error);
+      return { error: "Could not change the role. Try again." };
+    }
     const isLastAdmin =
       admins.length === 1 && admins.some((row) => row.id === userId);
     if (isLastAdmin) {
@@ -124,6 +130,7 @@ export async function changeRole(input: unknown): Promise<ChangeRoleResult> {
     .update({ role })
     .eq("id", userId)
     .select("id");
+  if (error) console.error("Could not change role", error);
   if (error || updated.length === 0) {
     return { error: "Could not change the role. Try again." };
   }

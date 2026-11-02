@@ -28,7 +28,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 03 | Money, date and area helpers | done | - | sonnet/high |
 | 04 | Companies + contacts in the database | done | 01 | opus/medium |
 | 05 | Customer list + add/edit | done | 02, 03, 04 | sonnet/high |
-| 06 | Customer detail + health flags | todo | 05 | sonnet/high |
+| 06 | Customer detail + health flags | done | 05 | sonnet/high |
 | 07 | Ownership requests | todo | 05 | sonnet/high |
 | 08 | Activities (visits, calls) | todo | 06 | sonnet/high |
 | 09 | Sales calendar | todo | 08 | sonnet/high |
@@ -84,3 +84,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #05 · start · sonnet/high subagent
 2026-11-02 · #05 · decision · team_directory() exposes id+name only; account type/passed-by set by md/director only; accounts read-only; GET-form filters; request-ownership button stub until #07; orphan company possible if contact insert races (unlikely)
 2026-11-02 · #05 · done · 163 tests pass · pushed to PR #14
+2026-11-02 · #06 · start · sonnet/high subagent
+2026-11-02 · #06 · decision · added 'active' health state (<=60 days); last-activity null until #08 so all show New
+2026-11-02 · #06 · done · 166 tests pass · pushed to PR #14

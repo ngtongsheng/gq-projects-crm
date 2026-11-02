@@ -1,5 +1,6 @@
 import { Search, Users } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { z } from "zod";
 import { DataTable } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
@@ -16,7 +17,9 @@ import {
 } from "@/components/ui/select";
 import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
+import { customerHealth } from "@/lib/domain/customer-health";
 import { formatMobile } from "@/lib/domain/mobile";
+import { todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
 import {
   canAddContact,
@@ -25,6 +28,7 @@ import {
 } from "./contact-access";
 import { ContactDialog } from "./contact-form";
 import { filterCustomers, parseCustomerFilters } from "./customer-filters";
+import { CustomerHealthBadge } from "./customer-health-badge";
 import {
   AccountType,
   AccountTypeLabel,
@@ -63,6 +67,9 @@ const contactRows = z.array(
 
 const companyRows = z.array(z.object({ id: z.string(), name: z.string() }));
 
+// Activities arrive in task 08; until then nobody has a completed activity.
+const lastCompletedActivityDate = null;
+
 export default async function CustomersPage({
   searchParams,
 }: {
@@ -96,6 +103,7 @@ export default async function CustomersPage({
   const companies = companyRows.parse(companiesResult.data);
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
 
+  const health = customerHealth(lastCompletedActivityDate, todayMyt());
   const customers = contactRows.parse(contactsResult.data).map((row) => {
     const ownerIds = row.contact_owners.map((owner) => owner.profile_id);
     return {
@@ -107,6 +115,7 @@ export default async function CustomersPage({
       companyType: row.companies.company_type,
       rating: row.rating,
       accountType: row.account_type,
+      health,
       ownerIds,
       ownerNames: ownerIds.map((id) => nameOf.get(id) ?? "Unnamed"),
       editable: {
@@ -223,7 +232,12 @@ export default async function CustomersPage({
             header: "Customer",
             cell: (row) => (
               <div className="flex flex-col">
-                <span className="font-medium">{row.name}</span>
+                <Link
+                  href={`/customers/${row.id}`}
+                  className="font-medium hover:underline"
+                >
+                  {row.name}
+                </Link>
                 {row.title && (
                   <span className="text-xs text-muted-foreground">
                     {row.title}
@@ -271,6 +285,11 @@ export default async function CustomersPage({
             key: "account",
             header: "Account type",
             cell: (row) => AccountTypeLabel[row.accountType],
+          },
+          {
+            key: "health",
+            header: "Activity",
+            cell: (row) => <CustomerHealthBadge health={row.health} />,
           },
           {
             key: "edit",

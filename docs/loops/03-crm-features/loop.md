@@ -55,7 +55,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 30 | CSV export | done | 05, 14, 22, 23 | sonnet/high |
 | 31 | Paste import: parser + companies | done | 04 | opus/medium |
 | 32 | Paste import: MOFs, stock, leftover | done | 31, 13, 22, 23 | sonnet/high |
-| 33 | Test-copy example data | todo | 32 | sonnet/high |
+| 33 | Test-copy example data | done | 32 | sonnet/high |
 | 34 | In-app guide | todo | 29 | haiku/low |
 | 35 | Walk-through per role on localhost | todo | 33, 34 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
@@ -168,3 +168,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #32 · start · sonnet/high subagent
 2026-11-02 · #32 · decision · MOF rows grouped by MOF no.; total changes via update_mof_total('Imported'); cost column managers only; stock matches SKU, unit immutable; leftover add-only, dedupes repeats; reservation paste not built; shared match-cells helpers
 2026-11-02 · #32 · done · 725 tests pass · pushed to PR #14
+2026-11-02 · #33 · start · sonnet/high subagent
+2026-11-02 · #33 · decision · fixed ids instead of note tags; guard accepts only the dev project ref; claims/follow-ups seeded open (triggers need a signed-in person); 7 role sign-ins, MD is admin; tsconfig allowImportingTsExtensions
+2026-11-02 · #33 · done · 742 tests pass · pushed to PR #14

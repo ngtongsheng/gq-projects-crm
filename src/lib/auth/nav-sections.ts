@@ -8,6 +8,7 @@ import {
   HardHat,
   LayoutGrid,
   type LucideIcon,
+  Moon,
   Percent,
   Target,
   Truck,
@@ -23,6 +24,7 @@ export type SectionKey =
   | "projects"
   | "mof"
   | "siteWork"
+  | "overtime"
   | "stock"
   | "collection"
   | "commission"
@@ -114,6 +116,14 @@ const SECTIONS: readonly Section[] = [
     href: "/site-work",
     icon: HardHat,
     allowed: [...SALES_SIDE, "site", "support"],
+    built: true,
+  },
+  {
+    key: "overtime",
+    label: "Overtime",
+    href: "/overtime",
+    icon: Moon,
+    allowed: ["md", "director", "bd", "sales", "accounts", "site", "support"],
     built: true,
   },
   {

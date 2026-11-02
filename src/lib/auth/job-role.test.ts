@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   canAnswerBookings,
   canBookSiteSupervisor,
+  canDecideOvertime,
   canEditRegister,
   canEditSite,
   canEditStock,
@@ -132,5 +133,14 @@ describe("site supervisor bookings", () => {
 
   it("lets only Site Supervisors answer a booking", () => {
     expect(JobRole.options.filter(canAnswerBookings)).toEqual(["site"]);
+  });
+});
+
+describe("overtime approval", () => {
+  it("lets only the MD and Sales Director decide", () => {
+    expect(JobRole.options.filter(canDecideOvertime)).toEqual([
+      "md",
+      "director",
+    ]);
   });
 });

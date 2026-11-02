@@ -43,7 +43,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 18 | Installation calendar | done | 09, 17 | sonnet/high |
 | 19 | Site supervisor booking | done | 17 | sonnet/high |
 | 20 | Site stage, site log, follow-ups | done | 17 | sonnet/high |
-| 21 | Overtime claims + approval | todo | 20 | sonnet/high |
+| 21 | Overtime claims + approval | done | 20 | sonnet/high |
 | 22 | Stock returns / leftover | todo | 20 | sonnet/high |
 | 23 | Stock items + reservations | todo | 14 | sonnet/high |
 | 24 | Collection (payments, outstanding) | todo | 14 | sonnet/high |
@@ -131,3 +131,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #20 · start · sonnet/high subagent
 2026-11-02 · #20 · decision · site_stage via set_site_stage() only; follow-up owner->closer mapping chosen (salesperson: sales/bd, purchasing: support, accounts: managers, install/client/site: site); logs append-only; pending installer claims + Verify on Site Work
 2026-11-02 · #20 · done · 451 tests pass · pushed to PR #14
+2026-11-02 · #21 · start · sonnet/high subagent
+2026-11-02 · #21 · decision · approved_as column (approver may switch claim/leave); equal times and <15 min refused; no self-approval; site required; no future dates; new Overtime nav section for all roles
+2026-11-02 · #21 · done · 470 tests pass · pushed to PR #14

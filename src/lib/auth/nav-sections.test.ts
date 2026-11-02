@@ -20,6 +20,7 @@ describe("allowedSectionsFor", () => {
       "Projects",
       "MOF Register",
       "Site Work",
+      "Overtime",
       "Stock",
       "Collection",
       "Commission",
@@ -36,6 +37,7 @@ describe("allowedSectionsFor", () => {
       "Customers",
       "Projects",
       "Site Work",
+      "Overtime",
       "Stock",
       "Collection",
       "Commission",
@@ -53,6 +55,7 @@ describe("allowedSectionsFor", () => {
       "Projects",
       "My Sales",
       "Site Work",
+      "Overtime",
       "Stock",
       "Collection",
       "Commission",
@@ -69,6 +72,7 @@ describe("allowedSectionsFor", () => {
       "Projects",
       "My Sales",
       "Site Work",
+      "Overtime",
       "Stock",
       "Collection",
       "Commission",
@@ -80,10 +84,11 @@ describe("allowedSectionsFor", () => {
     expect(labels("accounts")).toEqual(labels("md"));
   });
 
-  it("gives the site supervisor three sections", () => {
+  it("gives the site supervisor four sections", () => {
     expect(labels("site")).toEqual([
       "Installation Calendar",
       "Site Work",
+      "Overtime",
       "My Report",
     ]);
   });
@@ -94,6 +99,7 @@ describe("allowedSectionsFor", () => {
       "Delivery & Installation",
       "MOF Register",
       "Site Work",
+      "Overtime",
       "Stock",
     ]);
   });
@@ -109,10 +115,12 @@ describe("sectionsFor", () => {
       "projects",
       "mof",
       "siteWork",
+      "overtime",
     ]);
     expect(sectionsFor("site").map((s) => s.label)).toEqual([
       "Installation Calendar",
       "Site Work",
+      "Overtime",
     ]);
   });
 });

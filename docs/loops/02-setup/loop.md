@@ -21,7 +21,7 @@ Inputs from loop 01 D11 and `docs/decisions.md` ("Loop 02 inputs") still apply: 
 | 01 | Bootstrap probe (fetch-and-follow) | done | – | haiku/low |
 | 02 | gq-setup README (human steps) | done | 01 | sonnet/high |
 | 03 | SETUP.md (Claude-facing setup) | done | 01 | opus/medium |
-| 04 | Dry run on owner's Mac + fixes | in-progress | 02, 03 | sonnet/high |
+| 04 | Dry run on owner's Mac + fixes | blocked: owner — Desktop dry run in ~/GQ-dryrun | 02, 03 | sonnet/high |
 | 05 | Onboarding doc (owner + day-2) | done | 03 | sonnet/high |
 | 06 | First run with Vicky | todo | 04, 05 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
@@ -56,3 +56,7 @@ Inputs from loop 01 D11 and `docs/decisions.md` ("Loop 02 inputs") still apply: 
 2026-11-02 · #05 · done · docs/onboarding.md (invite, first-run script, updates, off-boarding per editor); pnpm check pass
 2026-11-02 · #05 · decision · step 3 gap: CLAUDE.md had no pull at session start → added "git pull --ff-only when on clean main" (matches SETUP.md step 7); invites via repos/.../invitations incl. expired resend; off-boarding also cancels pending invites · spec gaps
 2026-11-02 · #04 · in-progress · delegating executor walk-through (sonnet/high)
+2026-11-02 · #04 · step 1 done · checks report "already done" (steps 1, 3-6); clone to ~/GQ-dryrun + mise install + pnpm install (no prompts) + typecheck pass; gq-setup fixes pushed
+2026-11-02 · #04 · decision · replaced `gh auth setup-git` with git config pointing at the mise shim (setup-git pins versioned gh path, verified in scratch config); README total time 45-60 min; "of 9" status lines · avoids breakage on gh update
+2026-11-02 · #04 · note · owner Mac uses Homebrew mise, so SETUP step 2 check misfires there (would curl-install); fine for Vicky's fresh Mac. Owner dry run must tell Claude: dry run, clone into ~/GQ-dryrun, don't change shell profile or git config
+2026-11-02 · #04 · blocked: owner · Desktop run of README message in ~/GQ-dryrun to hand-off

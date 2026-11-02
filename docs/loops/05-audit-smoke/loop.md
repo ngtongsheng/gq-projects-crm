@@ -18,7 +18,7 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Run loop 03 #35 walk-through + Vicky checklist | todo | owner: .env.smoke.local | sonnet/high |
+| 01 | Run loop 03 #35 walk-through + Vicky checklist | blocked: owner: .env.smoke.local | owner: .env.smoke.local | sonnet/high |
 | 02 | Audit + fix: migrations and RLS | todo | 01 | opus/medium |
 | 03 | Audit + fix: lib and proxy | todo | 01 | opus/medium |
 | 04 | Audit + fix: MOFs | todo | 02, 03 | sonnet/high |
@@ -39,3 +39,6 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-02 · plan · loop written (11 tasks) · /execute-loop
+2026-11-02 · #01 · blocked: owner: .env.smoke.local missing in main repo root; task spec says stop the loop · owner writes it, then /execute-loop
+2026-11-02 · #02-#11 · waiting: all depend on #01 · resume after #01
+2026-11-02 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-02-loop-05-audit-smoke.md

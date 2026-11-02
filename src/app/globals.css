@@ -1,0 +1,192 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is([data-theme="dark"] *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans:
+    var(--font-figtree), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-heading: var(--font-saira), var(--font-figtree), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, Menlo, monospace;
+  --color-sunk: var(--sunk);
+  --color-accent-soft: var(--accent-soft);
+  --color-mint: var(--mint);
+  --color-mint-ink: var(--mint-ink);
+  --color-head: var(--head-bg);
+  --color-head-foreground: var(--head-fg);
+  --color-head-muted: var(--head-muted);
+  --color-good: var(--good);
+  --color-good-bg: var(--good-bg);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+  --color-warn: var(--warn);
+  --color-warn-bg: var(--warn-bg);
+  --color-bad: var(--bad);
+  --color-bad-bg: var(--bad-bg);
+  --color-neutral: var(--neutral);
+  --color-neutral-bg: var(--neutral-bg);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+ * Theme from docs/mockup/tokens.css. Mockup names map to shadcn variables:
+ * --surface=--card, --line=--border, --fg=--foreground, --muted (text)=--muted-foreground,
+ * --accent (navy)=--primary. shadcn's --accent is the soft hover surface (mockup --accent-soft).
+ * The rest keep their mockup names. Theme comes from next-themes: data-theme="light" | "dark".
+ */
+:root {
+  --background: #f3f6f8;
+  --foreground: #1c2a38;
+  --card: #ffffff;
+  --card-foreground: #1c2a38;
+  --popover: #ffffff;
+  --popover-foreground: #1c2a38;
+  --primary: #233343;
+  --primary-foreground: #ffffff;
+  --secondary: #eaeff2;
+  --secondary-foreground: #1c2a38;
+  --muted: #eaeff2;
+  --muted-foreground: #5b6a79;
+  --accent: #dbf8f1;
+  --accent-foreground: #1c2a38;
+  --destructive: #b03a2e;
+  --border: #d7dfe5;
+  --input: #d7dfe5;
+  --ring: #0d7a63;
+  --chart-1: #0d7a63;
+  --chart-2: #2558a8;
+  --chart-3: #9a5a00;
+  --chart-4: #1e7a3c;
+  --chart-5: #b03a2e;
+  --radius: 0.625rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1c2a38;
+  --sidebar-primary: #233343;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #dbf8f1;
+  --sidebar-accent-foreground: #1c2a38;
+  --sidebar-border: #d7dfe5;
+  --sidebar-ring: #0d7a63;
+  color-scheme: light;
+
+  --sunk: #eaeff2;
+  --accent-soft: #dbf8f1;
+  --mint: #3ae6c0;
+  --mint-ink: #0d7a63;
+  --head-bg: #233343;
+  --head-fg: #ffffff;
+  --head-muted: #a9b8c6;
+  --good: #1e7a3c;
+  --good-bg: #e1f3e6;
+  --info: #2558a8;
+  --info-bg: #e3ecfa;
+  --warn: #9a5a00;
+  --warn-bg: #fbefd6;
+  --bad: #b03a2e;
+  --bad-bg: #fbe3df;
+  --neutral: #566573;
+  --neutral-bg: #e9eef2;
+}
+
+[data-theme="dark"] {
+  --background: #0f1820;
+  --foreground: #e5edf3;
+  --card: #16222d;
+  --card-foreground: #e5edf3;
+  --popover: #16222d;
+  --popover-foreground: #e5edf3;
+  --primary: #3ae6c0;
+  --primary-foreground: #10202a;
+  --secondary: #1d2b38;
+  --secondary-foreground: #e5edf3;
+  --muted: #1d2b38;
+  --muted-foreground: #98a8b6;
+  --accent: #143a36;
+  --accent-foreground: #e5edf3;
+  --destructive: #f2928a;
+  --border: #2a3b4a;
+  --input: #2a3b4a;
+  --ring: #5ef0cf;
+  --chart-1: #5ef0cf;
+  --chart-2: #8db4f0;
+  --chart-3: #f0bd6a;
+  --chart-4: #7fd69a;
+  --chart-5: #f2928a;
+  --sidebar: #16222d;
+  --sidebar-foreground: #e5edf3;
+  --sidebar-primary: #3ae6c0;
+  --sidebar-primary-foreground: #10202a;
+  --sidebar-accent: #143a36;
+  --sidebar-accent-foreground: #e5edf3;
+  --sidebar-border: #2a3b4a;
+  --sidebar-ring: #5ef0cf;
+  color-scheme: dark;
+
+  --sunk: #1d2b38;
+  --accent-soft: #143a36;
+  --mint: #3ae6c0;
+  --mint-ink: #5ef0cf;
+  --head-bg: #0b131a;
+  --head-fg: #ffffff;
+  --head-muted: #8fa1b1;
+  --good: #7fd69a;
+  --good-bg: #16321f;
+  --info: #8db4f0;
+  --info-bg: #1a2944;
+  --warn: #f0bd6a;
+  --warn-bg: #3a2c12;
+  --bad: #f2928a;
+  --bad-bg: #3d1c19;
+  --neutral: #a7b4bf;
+  --neutral-bg: #24323f;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground text-[15px] leading-[1.45];
+  }
+  html {
+    @apply font-sans;
+  }
+}

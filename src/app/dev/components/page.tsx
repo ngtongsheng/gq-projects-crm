@@ -44,6 +44,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { monthWeeks, weekDays } from "@/lib/domain/calendar-grid";
+import { formatRm } from "@/lib/format/money";
 import { ToastDemo } from "./toast-demo";
 
 const nav: NavItem[] = [
@@ -51,7 +52,9 @@ const nav: NavItem[] = [
   { href: "/dev/components", label: "Components", icon: <Users /> },
 ];
 
-type DemoLead = { name: string; stage: string; value: number };
+const stageTones = { Quoted: "info", Won: "good", Lost: "bad" } as const;
+
+type DemoLead = { name: string; stage: keyof typeof stageTones; value: number };
 
 const leads: DemoLead[] = [
   { name: "Harbour Offices", stage: "Quoted", value: 18450 },
@@ -59,26 +62,20 @@ const leads: DemoLead[] = [
   { name: "Oak Street Hotel", stage: "Lost", value: 31000 },
 ];
 
-const stageTones = { Quoted: "info", Won: "good", Lost: "bad" } as const;
-
 const columns: DataTableColumn<DemoLead>[] = [
   { key: "name", header: "Lead", cell: (lead) => lead.name },
   {
     key: "stage",
     header: "Stage",
     cell: (lead) => (
-      <StatusBadge
-        tone={stageTones[lead.stage as keyof typeof stageTones] ?? "neutral"}
-      >
-        {lead.stage}
-      </StatusBadge>
+      <StatusBadge tone={stageTones[lead.stage]}>{lead.stage}</StatusBadge>
     ),
   },
   {
     key: "value",
     header: "Value",
     numeric: true,
-    cell: (lead) => lead.value.toLocaleString("en-US"),
+    cell: (lead) => formatRm(lead.value),
   },
 ];
 

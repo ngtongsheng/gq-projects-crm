@@ -50,6 +50,10 @@ export const isReadOnly = (jobRole: JobRole) => jobRole === "accounts";
 export const canEditRegister = (jobRole: JobRole) =>
   has(jobRole, ["md", "support", "accounts"]);
 
+/** Installer POs and claims (SQL: the read policies on installer_pos and installer_claims). */
+export const canSeeInstallerClaims = (jobRole: JobRole) =>
+  has(jobRole, ["md", "director", "accounts", "support", "site"]);
+
 export const canEditSite = (jobRole: JobRole) =>
   has(jobRole, ["md", "director", "site"]);
 

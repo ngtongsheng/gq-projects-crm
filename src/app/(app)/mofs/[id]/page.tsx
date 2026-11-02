@@ -5,7 +5,13 @@ import { DataTable } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { canEditRegister, isManager } from "@/lib/auth/job-role";
+import {
+  canEditRegister,
+  canEditSite,
+  canEnterPayments,
+  canSeeInstallerClaims,
+  isManager,
+} from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { formatMobile } from "@/lib/domain/mobile";
@@ -20,6 +26,8 @@ import { createClient } from "@/lib/supabase/server";
 import { AccountType } from "../../customers/schemas";
 import { type MofDraft, MofForm } from "../mof-form";
 import { JobScope, LineUnit, MofStage, StockType } from "../schemas";
+import { InstallerClaims } from "./installer-claims";
+import { loadInstallerPos } from "./installer-data";
 import { SupplierPos } from "./supplier-pos";
 
 export const metadata: Metadata = { title: "MOF" };
@@ -383,6 +391,10 @@ export default async function MofPage({
   ];
   const cost = costRow.parse(costResult.data);
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
+  const showInstallers = canSeeInstallerClaims(me.jobRole);
+  const installerPos = showInstallers
+    ? await loadInstallerPos(supabase, mof.id, nameOf)
+    : [];
   const changes: TotalChange[] = totalChangeRows
     .parse(changesResult.data)
     .map((row) => ({
@@ -417,6 +429,17 @@ export default async function MofPage({
         today={todayMyt()}
         supplierSuggestions={supplierSuggestions}
       />
+      {showInstallers && (
+        <InstallerClaims
+          mofId={mof.id}
+          pos={installerPos}
+          mofInstaller={text(mof.installer_name)}
+          canEdit={canEdit}
+          canVerify={canEditSite(me.jobRole)}
+          canPay={canEnterPayments(me.jobRole)}
+          today={todayMyt()}
+        />
+      )}
       <Card>
         <CardHeader>
           <CardTitle className="font-heading">Order total changes</CardTitle>

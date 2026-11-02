@@ -38,7 +38,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 13 | MOF form | done | 12 | opus/medium |
 | 14 | MOF register list + stages | done | 13 | sonnet/high |
 | 15 | Supplier PO tracking | done | 14 | sonnet/high |
-| 16 | Installer POs + claims | todo | 14 | sonnet/high |
+| 16 | Installer POs + claims | done | 14 | sonnet/high |
 | 17 | Delivery + installation jobs, DOs | todo | 14 | sonnet/high |
 | 18 | Installation calendar | todo | 09, 17 | sonnet/high |
 | 19 | Site supervisor booking | todo | 17 | sonnet/high |
@@ -114,3 +114,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #15 · start · sonnet/high subagent
 2026-11-02 · #15 · decision · PO number = MOF no + Zoho no built in app (no dash); ETA always PO date + lead time; cancelled POs don't cover an MOF; no origin/m2 fields
 2026-11-02 · #15 · done · 342 tests pass · pushed to PR #14
+2026-11-02 · #16 · start · sonnet/high subagent
+2026-11-02 · #16 · decision · site supervisors can't open /mofs, so installer-claim verify must surface in Site Work (#20 reuses verifyInstallerClaim) · carried into #20 prompt
+2026-11-02 · #16 · decision · added paid_amount + claim_no; md/director may also verify; claims<=PO amount checked in app only; retention 0-100%; no two-installer limit
+2026-11-02 · #16 · done · 369 tests pass · pushed to PR #14

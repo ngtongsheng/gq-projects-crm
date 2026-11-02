@@ -70,3 +70,4 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #01 · start · opus/medium subagent
 2026-11-02 · #01 · decision · all person settings edited in one Settings dialog per person; CommissionMode lives in job-role.ts; yearly_target >= 0 check added · fewer controls, stays in listed files
 2026-11-02 · #01 · done · check/typecheck/test pass (96 tests) · PR + merge
+2026-11-02 · #01 · decision · merge to main denied by auto-mode classifier (production deploy) · PR #13 left open for owner; later tasks stack on loop/03-crm-features with one draft PR so CI + test-copy migrations still run per push

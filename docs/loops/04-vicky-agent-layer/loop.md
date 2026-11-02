@@ -28,8 +28,8 @@ dry run; Vicky's first run (loop 02 #06) is the real test. Must land before loop
 | 01 | Company rules, plain style, Chat profile text | done | – | opus/medium |
 | 02 | Global skills: tdd, diagnosing-bugs, grilling, get-help | done | 01 | sonnet/high |
 | 03 | settings.json + apply.py | done | 01 | opus/medium |
-| 04 | SETUP.md: rtk, gq-setup, apply, Chat profile, about you | in-progress | 03 | sonnet/high |
-| 05 | Scratch-HOME dry run + fixes | todo | 02, 04 | sonnet/high |
+| 04 | SETUP.md: rtk, gq-setup, apply, Chat profile, about you | done | 03 | sonnet/high |
+| 05 | Scratch-HOME dry run + fixes | in-progress | 02, 04 | sonnet/high |
 | 06 | CRM: style copy, CLAUDE.md lines, drift CI, docs, remove CRM get-help | todo | 01, 02 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
@@ -49,3 +49,6 @@ dry run; Vicky's first run (loop 02 #06) is the real test. Must land before loop
 2026-11-02 · #03 · done · gq-setup commit 1be5639; scratch-HOME rerun identical, her CLAUDE.md and settings keys survive; push pending (owner) · #04
 2026-11-02 · #03 · decision · SessionStart matcher startup|resume (docs), 20s hook timeout, company hook entry replaces her same-command entry, absolute link paths · per current Claude Code docs
 2026-11-02 · #04 · in-progress · delegating (sonnet/high)
+2026-11-02 · #04 · done · gq-setup commit 0514144 verified (no "of 9", no banned words in quotes); push pending (owner) · #05
+2026-11-02 · #04 · decision · About me appended at end of CLAUDE.md; Chat step asks "already pasted?" to skip on re-run; "Authorize GitHub CLI" quote changed to "Authorize" · Chat tab Desktop labels (Profile / Your Claude) to confirm in loop 02 #06
+2026-11-02 · #05 · in-progress · delegating (sonnet/high)

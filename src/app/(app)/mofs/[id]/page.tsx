@@ -25,67 +25,18 @@ import {
 import { formatDateTime, todayMyt } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
 import { createClient } from "@/lib/supabase/server";
-import { AccountType } from "../../customers/schemas";
 import { type MofDraft, MofForm } from "../mof-form";
-import { JobScope, LineUnit, MofStage, StockType } from "../schemas";
+import { loadAwardedProjects } from "./awarded-projects";
 import { DeliveryJobs } from "./delivery-jobs";
 import { InstallerClaims } from "./installer-claims";
 import { loadInstallerPos } from "./installer-data";
 import { loadJobs } from "./job-data";
+import { blankDraft, blankIfNull, draftFromMof, mofRow } from "./mof-draft";
 import { SupplierPos } from "./supplier-pos";
 
 export const metadata: Metadata = { title: "MOF" };
 
-type Supabase = Awaited<ReturnType<typeof createClient>>;
-
 const NEW = "new";
-
-const mofRow = z.object({
-  id: z.string(),
-  mof_no: z.string(),
-  loa_date: z.string(),
-  salesperson_id: z.string(),
-  second_salesperson_id: z.string().nullable(),
-  project_id: z.string().nullable(),
-  company_name: z.string(),
-  project_name: z.string(),
-  loa_no: z.string().nullable(),
-  quote_no: z.string().nullable(),
-  site_address: z.string().nullable(),
-  site_contact_name: z.string().nullable(),
-  site_contact_mobile: z.string().nullable(),
-  office_pic_id: z.string().nullable(),
-  customer_contact: z.string().nullable(),
-  accounts_contact: z.string().nullable(),
-  scope: JobScope,
-  installer_name: z.string().nullable(),
-  contract_sum: z.number(),
-  vo_amount: z.number(),
-  retention_pct: z.number(),
-  invoice_no: z.string().nullable(),
-  invoice_date: z.string().nullable(),
-  commission_type: AccountType,
-  delivery_date: z.string().nullable(),
-  stage: MofStage,
-  latest_update: z.string().nullable(),
-  payment_checked: z.boolean(),
-  approvals_in_writing: z.boolean(),
-  artwork_signed_off: z.boolean(),
-  dos_pre_approved: z.boolean(),
-  updated_at: z.string(),
-  mof_lines: z.array(
-    z.object({
-      id: z.string(),
-      product: z.string(),
-      stock_type: StockType,
-      supplier: z.string().nullable(),
-      qty: z.number(),
-      unit: LineUnit,
-      area_m2: z.number(),
-      created_at: z.string(),
-    }),
-  ),
-});
 
 const totalChangeRows = z.array(
   z.object({
@@ -95,22 +46,6 @@ const totalChangeRows = z.array(
     reason: z.string(),
     changed_by: z.string().nullable(),
     created_at: z.string(),
-  }),
-);
-
-const awardedRows = z.array(
-  z.object({
-    id: z.string(),
-    name: z.string(),
-    value: z.number(),
-    pic_id: z.string(),
-    support_id: z.string().nullable(),
-    commission_type: AccountType,
-    contacts: z.object({
-      name: z.string(),
-      mobile: z.string(),
-      companies: z.object({ name: z.string() }),
-    }),
   }),
 );
 
@@ -136,119 +71,6 @@ type TotalChange = {
   reason: string;
   by: string;
 };
-
-const text = (value: string | null) => value ?? "";
-
-const blankDraft = (): MofDraft => ({
-  id: "",
-  mofNo: "",
-  loaDate: todayMyt(),
-  salespersonId: "",
-  secondSalespersonId: "",
-  projectId: "",
-  companyName: "",
-  projectName: "",
-  loaNo: "",
-  quoteNo: "",
-  siteAddress: "",
-  siteContactName: "",
-  siteContactMobile: "",
-  officePicId: "",
-  customerContact: "",
-  accountsContact: "",
-  scope: "s_and_l",
-  installerName: "",
-  contractSum: null,
-  voAmount: 0,
-  retentionPct: 0,
-  invoiceNo: "",
-  invoiceDate: "",
-  commissionType: "own",
-  deliveryDate: "",
-  stage: "pending_order",
-  latestUpdate: "",
-  paymentChecked: false,
-  approvalsInWriting: false,
-  artworkSignedOff: false,
-  dosPreApproved: false,
-  lines: [],
-});
-
-const draftFromMof = (row: z.infer<typeof mofRow>): MofDraft => ({
-  id: row.id,
-  mofNo: row.mof_no,
-  loaDate: row.loa_date,
-  salespersonId: row.salesperson_id,
-  secondSalespersonId: text(row.second_salesperson_id),
-  projectId: text(row.project_id),
-  companyName: row.company_name,
-  projectName: row.project_name,
-  loaNo: text(row.loa_no),
-  quoteNo: text(row.quote_no),
-  siteAddress: text(row.site_address),
-  siteContactName: text(row.site_contact_name),
-  siteContactMobile: text(row.site_contact_mobile),
-  officePicId: text(row.office_pic_id),
-  customerContact: text(row.customer_contact),
-  accountsContact: text(row.accounts_contact),
-  scope: row.scope,
-  installerName: text(row.installer_name),
-  contractSum: row.contract_sum,
-  voAmount: row.vo_amount,
-  retentionPct: row.retention_pct,
-  invoiceNo: text(row.invoice_no),
-  invoiceDate: text(row.invoice_date),
-  commissionType: row.commission_type,
-  deliveryDate: text(row.delivery_date),
-  stage: row.stage,
-  latestUpdate: text(row.latest_update),
-  paymentChecked: row.payment_checked,
-  approvalsInWriting: row.approvals_in_writing,
-  artworkSignedOff: row.artwork_signed_off,
-  dosPreApproved: row.dos_pre_approved,
-  lines: [...row.mof_lines]
-    .sort((a, b) => a.created_at.localeCompare(b.created_at))
-    .map((line) => ({
-      id: line.id,
-      product: line.product,
-      stockType: line.stock_type,
-      supplier: text(line.supplier),
-      qty: String(line.qty),
-      unit: line.unit,
-      // Area units work the area out from qty; only rolls and pieces keep a keyed-in area.
-      areaM2:
-        line.unit === "roll" || line.unit === "pcs" ? String(line.area_m2) : "",
-    })),
-});
-
-/** Awarded projects that have no MOF yet, which a new MOF can start from. */
-async function loadAwardedProjects(supabase: Supabase) {
-  const [projectsResult, linkedResult] = await Promise.all([
-    supabase
-      .from("projects")
-      .select(
-        "id, name, value, pic_id, support_id, commission_type, contacts(name, mobile, companies(name))",
-      )
-      .eq("stage", "awarded")
-      .order("name"),
-    supabase.from("mofs").select("project_id").not("project_id", "is", null),
-  ]);
-  if (projectsResult.error) {
-    throw new Error(`Could not load projects: ${projectsResult.error.message}`);
-  }
-  if (linkedResult.error) {
-    throw new Error(`Could not load MOFs: ${linkedResult.error.message}`);
-  }
-  const linked = new Set(
-    z
-      .array(z.object({ project_id: z.string() }))
-      .parse(linkedResult.data)
-      .map((row) => row.project_id),
-  );
-  return awardedRows
-    .parse(projectsResult.data)
-    .filter((project) => !linked.has(project.id));
-}
 
 function NewMof({
   draft,
@@ -305,7 +127,7 @@ export default async function MofPage({
       Object.assign(draft, {
         projectId: source.id,
         salespersonId: source.pic_id,
-        secondSalespersonId: text(source.support_id),
+        secondSalespersonId: blankIfNull(source.support_id),
         companyName: source.contacts.companies.name,
         projectName: source.name,
         customerContact: `${source.contacts.name} (${formatMobile(source.contacts.mobile)})`,
@@ -381,7 +203,7 @@ export default async function MofPage({
     poDate: po.po_date,
     leadTimeDays: po.lead_time_days,
     status: po.status,
-    notes: text(po.notes),
+    notes: blankIfNull(po.notes),
   }));
   const poLines = mof.mof_lines.map((line) => ({
     stockType: line.stock_type,
@@ -439,7 +261,7 @@ export default async function MofPage({
         mofNo={mof.mof_no}
         jobs={jobs}
         team={team}
-        defaultInstaller={text(mof.installer_name)}
+        defaultInstaller={blankIfNull(mof.installer_name)}
         missingChecks={missingDeliveryChecks({
           paymentChecked: mof.payment_checked,
           dosPreApproved: mof.dos_pre_approved,
@@ -450,7 +272,7 @@ export default async function MofPage({
         <InstallerClaims
           mofId={mof.id}
           pos={installerPos}
-          mofInstaller={text(mof.installer_name)}
+          mofInstaller={blankIfNull(mof.installer_name)}
           canEdit={canEdit}
           canVerify={canEditSite(me.jobRole)}
           canPay={canEnterPayments(me.jobRole)}

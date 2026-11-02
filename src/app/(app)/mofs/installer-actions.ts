@@ -274,6 +274,8 @@ export async function verifyInstallerClaim(
   if (data.length === 0) return { error: NOT_FOUND_CLAIM };
 
   revalidatePath(`/mofs/${mofId}`);
+  // Site supervisors verify from Site Work, which lists the pending claims.
+  revalidatePath("/site-work");
   return { error: null };
 }
 

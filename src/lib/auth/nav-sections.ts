@@ -114,7 +114,7 @@ const SECTIONS: readonly Section[] = [
     href: "/site-work",
     icon: HardHat,
     allowed: [...SALES_SIDE, "site", "support"],
-    built: false,
+    built: true,
   },
   {
     key: "stock",

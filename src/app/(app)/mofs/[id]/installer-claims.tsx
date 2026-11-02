@@ -61,7 +61,13 @@ type InstallerClaimsProps = {
   today: string;
 };
 
-function VerifyButton({ mofId, claimId }: { mofId: string; claimId: string }) {
+export function VerifyButton({
+  mofId,
+  claimId,
+}: {
+  mofId: string;
+  claimId: string;
+}) {
   const [pending, startTransition] = useTransition();
   return (
     <Button

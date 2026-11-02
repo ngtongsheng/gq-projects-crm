@@ -108,9 +108,11 @@ describe("sectionsFor", () => {
       "customers",
       "projects",
       "mof",
+      "siteWork",
     ]);
     expect(sectionsFor("site").map((s) => s.label)).toEqual([
       "Installation Calendar",
+      "Site Work",
     ]);
   });
 });

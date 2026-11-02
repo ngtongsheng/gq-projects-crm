@@ -26,8 +26,8 @@ dry run; Vicky's first run (loop 02 #06) is the real test. Must land before loop
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
 | 01 | Company rules, plain style, Chat profile text | done | – | opus/medium |
-| 02 | Global skills: tdd, diagnosing-bugs, grilling, get-help | in-progress | 01 | sonnet/high |
-| 03 | settings.json + apply.py | todo | 01 | opus/medium |
+| 02 | Global skills: tdd, diagnosing-bugs, grilling, get-help | done | 01 | sonnet/high |
+| 03 | settings.json + apply.py | in-progress | 01 | opus/medium |
 | 04 | SETUP.md: rtk, gq-setup, apply, Chat profile, about you | todo | 03 | sonnet/high |
 | 05 | Scratch-HOME dry run + fixes | todo | 02, 04 | sonnet/high |
 | 06 | CRM: style copy, CLAUDE.md lines, drift CI, docs, remove CRM get-help | todo | 01, 02 | sonnet/high |
@@ -43,3 +43,6 @@ dry run; Vicky's first run (loop 02 #06) is the real test. Must land before loop
 2026-11-02 · #01 · decision · chat profile written person-neutral (D1) · future staff can paste the same text
 2026-11-02 · #01 · decision · CRM-only style lines dropped from plain.md for #06 to move into CRM CLAUDE.md: glossary word list (save a draft, preview, preview link, put it live, the database, the test copy, the live app); example "Yes, put it live"; example "Click **Preview** at the top right"; "live app only changes after she picks Yes on a prompt that asks exactly that"
 2026-11-02 · #02 · in-progress · delegating (sonnet/high)
+2026-11-02 · #02 · done · gq-setup commit 9d58c6f verified; push pending (owner) · #03
+2026-11-02 · #02 · decision · dropped Codex openai.yaml and hitl-loop.template.sh (needs terminal); option 10 is a guided click-through · plain style says no terminal
+2026-11-02 · #03 · in-progress · delegating (opus/medium)

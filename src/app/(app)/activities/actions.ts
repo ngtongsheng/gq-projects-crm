@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { JobRole } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
+import { textField } from "@/lib/form/form-fields";
 import { createClient } from "@/lib/supabase/server";
 import {
   canEditActivity,
@@ -25,11 +26,6 @@ const existingActivityRow = z.object({
   status: ActivityStatus,
   starts_at: z.string(),
 });
-
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
 
 type Change = { ok: false; error: string } | { ok: true; startsAt: string };
 

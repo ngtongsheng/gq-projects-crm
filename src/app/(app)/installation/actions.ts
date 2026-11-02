@@ -9,7 +9,8 @@ import {
   JOB_STATUSES,
   JOB_TYPES,
 } from "@/lib/domain/delivery-status";
-import { isClockTime } from "@/lib/domain/ot-hours";
+import { optionalId, optionalText, textField } from "@/lib/form/form-fields";
+import { isClockTime } from "@/lib/format/clock-time";
 import { createClient } from "@/lib/supabase/server";
 import { mofIdSchema } from "../mofs/schemas";
 
@@ -20,23 +21,6 @@ const NOT_SCHEDULER =
 const NOT_FOUND_JOB = "Could not find that job. Reload the page.";
 const DO_NO_NEEDED = "Key in the Zoho DO no. before marking the delivery Done.";
 const TRY_AGAIN = "Could not save the job. Try again.";
-
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
-
-const optionalText = (max: number, message: string) =>
-  z
-    .string()
-    .trim()
-    .max(max, message)
-    .transform((value) => (value === "" ? null : value));
-
-const optionalId = (message: string) =>
-  z
-    .union([z.literal(""), z.uuid({ error: message })])
-    .transform((value) => (value === "" ? null : value));
 
 const jobForm = z
   .object({

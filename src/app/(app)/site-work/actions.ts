@@ -10,6 +10,7 @@ import {
   SITE_ACTIVITIES,
 } from "@/lib/domain/site-log";
 import { SITE_STAGES } from "@/lib/domain/site-stage";
+import { optionalText, textField } from "@/lib/form/form-fields";
 import { createClient } from "@/lib/supabase/server";
 
 export type SiteWorkResult = { error: string | null };
@@ -21,18 +22,6 @@ const NOT_FOUND_MOF = "Could not find that MOF. Reload the page.";
 const NOT_FOUND_LOG = "Could not find that site visit. Reload the page.";
 const NOT_FOUND_FOLLOW_UP = "Could not find that follow-up. Reload the page.";
 const TRY_AGAIN = "Could not save. Try again.";
-
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
-
-const optionalText = (max: number, message: string) =>
-  z
-    .string()
-    .trim()
-    .max(max, message)
-    .transform((value) => (value === "" ? null : value));
 
 // Files are not uploaded; the Drive link only has to be a web address.
 const driveLink = z

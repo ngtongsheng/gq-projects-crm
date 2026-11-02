@@ -4,8 +4,9 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { canAnswerBookings, canBookSiteSupervisor } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
-import { isClockTime } from "@/lib/domain/ot-hours";
 import { BOOKING_PURPOSES } from "@/lib/domain/site-booking";
+import { optionalText, textField } from "@/lib/form/form-fields";
+import { isClockTime } from "@/lib/format/clock-time";
 import { createClient } from "@/lib/supabase/server";
 
 export type BookingResult = { error: string | null };
@@ -16,18 +17,6 @@ const NOT_SUPERVISOR = "Only the booked site supervisor can answer a booking.";
 const NOT_FOUND_BOOKING =
   "Could not find that booking, or it was already answered. Reload the page.";
 const TRY_AGAIN = "Could not save the booking. Try again.";
-
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
-
-const optionalText = (max: number, message: string) =>
-  z
-    .string()
-    .trim()
-    .max(max, message)
-    .transform((value) => (value === "" ? null : value));
 
 const bookingForm = z
   .object({

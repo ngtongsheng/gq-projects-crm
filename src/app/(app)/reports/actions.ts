@@ -13,6 +13,7 @@ import {
   type ReportStats,
   reportKindFor,
 } from "@/lib/domain/report-stats";
+import { optionalText, textField } from "@/lib/form/form-fields";
 import { todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -33,18 +34,6 @@ const NOT_FOUND_REPORT =
   "This report is not waiting for your review, or you cannot review it (only the MD reviews the BD Director's). Reload the page.";
 const TRY_AGAIN = "Could not save. Try again.";
 
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
-
-const optionalText = (max: number, label: string) =>
-  z
-    .string()
-    .trim()
-    .max(max, `Keep ${label} under ${max} characters.`)
-    .transform((text) => (text === "" ? null : text));
-
 const reportForm = z.object({
   month: z.iso
     .date("Choose the month.")
@@ -61,8 +50,11 @@ const reportForm = z.object({
         .max(300, "Keep each highlight under 300 characters."),
     }),
   ),
-  nextMonthPlan: optionalText(1000, "the plan"),
-  supportNeeded: optionalText(1000, "the support needed"),
+  nextMonthPlan: optionalText(1000, "Keep the plan under 1000 characters."),
+  supportNeeded: optionalText(
+    1000,
+    "Keep the support needed under 1000 characters.",
+  ),
   passDownsConfirmed: z.boolean(),
 });
 
@@ -181,7 +173,7 @@ export async function submitReport(formData: FormData): Promise<ReportResult> {
 
 const reviewForm = z.object({
   reportId: z.uuid({ error: NOT_FOUND_REPORT }),
-  note: optionalText(500, "the comment"),
+  note: optionalText(500, "Keep the comment under 500 characters."),
 });
 
 /**

@@ -33,7 +33,8 @@ import {
   OT_CLAIM_TYPES,
   type OtClaimType,
 } from "@/lib/domain/ot-claim";
-import { isClockTime, otHours } from "@/lib/domain/ot-hours";
+import { otHours } from "@/lib/domain/ot-hours";
+import { isClockTime } from "@/lib/format/clock-time";
 import { submitOtClaim } from "./actions";
 import type { MofOption } from "./overtime-data";
 

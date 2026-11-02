@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { MOF_STAGE_LABEL, MOF_STAGES } from "@/lib/domain/mof-stages";
 import { lineAreaM2, orderTotal } from "@/lib/domain/mof-totals";
+import { optionalId, optionalText } from "@/lib/form/form-fields";
 import { parseRm } from "@/lib/format/money";
 import { roundQuantity } from "@/lib/format/quantity";
 import { AccountType } from "../customers/schemas";
@@ -50,15 +51,6 @@ export const PreProceedCheckLabel = {
 } as const;
 
 // A blank select posts "".
-const optionalId = z.union([z.literal("").transform(() => null), z.uuid()]);
-
-const optionalText = (max: number) =>
-  z
-    .string()
-    .trim()
-    .max(max, `Keep this under ${max} characters.`)
-    .transform((value) => (value === "" ? null : value));
-
 const optionalDate = (message: string) =>
   z.union([z.literal("").transform(() => null), z.iso.date(message)]);
 
@@ -116,8 +108,8 @@ export const mofFormSchema = z
       .transform((value) => value.toUpperCase()),
     loaDate: z.iso.date("Choose the LOA / PO date."),
     salespersonId: z.uuid("Choose the salesperson."),
-    secondSalespersonId: optionalId,
-    projectId: optionalId,
+    secondSalespersonId: optionalId(),
+    projectId: optionalId(),
     companyName: z.string().trim().min(1, "Enter the company.").max(200),
     projectName: z.string().trim().min(1, "Enter the project.").max(200),
     loaNo: optionalText(100),
@@ -125,7 +117,7 @@ export const mofFormSchema = z
     siteAddress: optionalText(500),
     siteContactName: optionalText(200),
     siteContactMobile: optionalText(50),
-    officePicId: optionalId,
+    officePicId: optionalId(),
     customerContact: optionalText(200),
     accountsContact: optionalText(200),
     scope: JobScope,

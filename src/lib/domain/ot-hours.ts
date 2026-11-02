@@ -1,8 +1,4 @@
-const CLOCK = /^([01]\d|2[0-3]):([0-5]\d)$/;
 const DAY_MINUTES = 24 * 60;
-
-/** True for an "HH:MM" 24-hour time, the value of a time input. */
-export const isClockTime = (value: string): boolean => CLOCK.test(value);
 
 function toMinutes(clock: string): number {
   const [hours, minutes] = clock.split(":").map(Number);

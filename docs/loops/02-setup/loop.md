@@ -21,9 +21,9 @@ Inputs from loop 01 D11 and `docs/decisions.md` ("Loop 02 inputs") still apply: 
 | 01 | Bootstrap probe (fetch-and-follow) | done | – | haiku/low |
 | 02 | gq-setup README (human steps) | done | 01 | sonnet/high |
 | 03 | SETUP.md (Claude-facing setup) | done | 01 | opus/medium |
-| 04 | Dry run on owner's Mac + fixes | blocked: owner — Desktop dry run in ~/GQ-dryrun | 02, 03 | sonnet/high |
+| 04 | Dry run on owner's Mac + fixes | done | 02, 03 | sonnet/high |
 | 05 | Onboarding doc (owner + day-2) | done | 03 | sonnet/high |
-| 06 | First run with Vicky | todo | 04, 05 | sonnet/high |
+| 06 | First run with Vicky | blocked: owner — run docs/onboarding.md first-run script with Vicky | 04, 05 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - #01: in Claude Desktop (Code mode), paste the probe message; report whether Claude followed the steps.
@@ -61,3 +61,6 @@ Inputs from loop 01 D11 and `docs/decisions.md` ("Loop 02 inputs") still apply: 
 2026-11-02 · #04 · note · owner Mac uses Homebrew mise, so SETUP step 2 check misfires there (would curl-install); fine for Vicky's fresh Mac. Owner dry run must tell Claude: dry run, clone into ~/GQ-dryrun, don't change shell profile or git config
 2026-11-02 · #04 · blocked: owner · Desktop run of README message in ~/GQ-dryrun to hand-off
 2026-11-02 · #04 · decision · owner Desktop dry run (read-only) found 2 bugs: duplicate mise install when mise exists elsewhere; git identity overwritten → SETUP.md now detects existing mise (command -v + known paths) and sets identity only when unset; pushed · step 9 hand-off + preview still to confirm by owner
+2026-11-02 · #04 · done · owner Desktop session on ~/GQ-dryrun/gq-projects-crm: "show me the app" opened preview on sign-in page, plain language, admin-only note shown (D3) · full fresh install untested until #06
+2026-11-02 · #04 · decision · ~/GQ-dryrun left for owner to remove after closing the Desktop session · deleting it under a running preview breaks the session
+2026-11-02 · #06 · blocked: owner · first run with Vicky

@@ -4,6 +4,8 @@ import {
   canEditSite,
   canEditStock,
   canEnterPayments,
+  canScheduleJobs,
+  canUpdateJobStatus,
   isManager,
   isReadOnly,
   JobRole,
@@ -94,5 +96,24 @@ describe("job role capabilities", () => {
     JobRole.options,
   )("%s can edit stock when they arrange stock", (jobRole) => {
     expect(canEditStock({ jobRole, arrangesStock: true })).toBe(true);
+  });
+});
+
+describe("job scheduling", () => {
+  it("lets the MD, Sales Director and Purchasing schedule jobs", () => {
+    expect(JobRole.options.filter(canScheduleJobs)).toEqual([
+      "md",
+      "director",
+      "support",
+    ]);
+  });
+
+  it("also lets Site Supervisors move a job's status", () => {
+    expect(JobRole.options.filter(canUpdateJobStatus)).toEqual([
+      "md",
+      "director",
+      "site",
+      "support",
+    ]);
   });
 });

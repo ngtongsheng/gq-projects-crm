@@ -57,6 +57,14 @@ export const canSeeInstallerClaims = (jobRole: JobRole) =>
 export const canEditSite = (jobRole: JobRole) =>
   has(jobRole, ["md", "director", "site"]);
 
+/** Schedules delivery, installation and measurement jobs and keys in DOs (SQL: the policies on jobs). */
+export const canScheduleJobs = (jobRole: JobRole) =>
+  has(jobRole, ["md", "director", "support"]);
+
+/** Moves a job along; a Site Supervisor only for jobs assigned to them, which the database checks. */
+export const canUpdateJobStatus = (jobRole: JobRole) =>
+  canScheduleJobs(jobRole) || jobRole === "site";
+
 export const canEnterPayments = (jobRole: JobRole) =>
   has(jobRole, ["md", "accounts"]);
 

@@ -9,11 +9,13 @@ import {
   canEditRegister,
   canEditSite,
   canEnterPayments,
+  canScheduleJobs,
   canSeeInstallerClaims,
   isManager,
 } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
+import { missingDeliveryChecks } from "@/lib/domain/delivery-status";
 import { formatMobile } from "@/lib/domain/mobile";
 import { totalAreaM2 } from "@/lib/domain/mof-totals";
 import {
@@ -26,8 +28,10 @@ import { createClient } from "@/lib/supabase/server";
 import { AccountType } from "../../customers/schemas";
 import { type MofDraft, MofForm } from "../mof-form";
 import { JobScope, LineUnit, MofStage, StockType } from "../schemas";
+import { DeliveryJobs } from "./delivery-jobs";
 import { InstallerClaims } from "./installer-claims";
 import { loadInstallerPos } from "./installer-data";
+import { loadJobs } from "./job-data";
 import { SupplierPos } from "./supplier-pos";
 
 export const metadata: Metadata = { title: "MOF" };
@@ -324,7 +328,7 @@ export default async function MofPage({
 
   if (!z.uuid().safeParse(id).success) notFound();
 
-  const [mofResult, changesResult, costResult, posResult, team] =
+  const [mofResult, changesResult, costResult, posResult, team, jobs] =
     await Promise.all([
       supabase
         .from("mofs")
@@ -352,6 +356,7 @@ export default async function MofPage({
         .eq("mof_id", id)
         .order("po_date"),
       getTeamDirectory(),
+      loadJobs(supabase, id),
     ]);
   if (mofResult.error) {
     throw new Error(`Could not load MOF: ${mofResult.error.message}`);
@@ -428,6 +433,18 @@ export default async function MofPage({
         canEdit={canEdit}
         today={todayMyt()}
         supplierSuggestions={supplierSuggestions}
+      />
+      <DeliveryJobs
+        mofId={mof.id}
+        mofNo={mof.mof_no}
+        jobs={jobs}
+        team={team}
+        defaultInstaller={text(mof.installer_name)}
+        missingChecks={missingDeliveryChecks({
+          paymentChecked: mof.payment_checked,
+          dosPreApproved: mof.dos_pre_approved,
+        })}
+        canSchedule={canScheduleJobs(me.jobRole)}
       />
       {showInstallers && (
         <InstallerClaims

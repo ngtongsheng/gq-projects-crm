@@ -39,7 +39,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 14 | MOF register list + stages | done | 13 | sonnet/high |
 | 15 | Supplier PO tracking | done | 14 | sonnet/high |
 | 16 | Installer POs + claims | done | 14 | sonnet/high |
-| 17 | Delivery + installation jobs, DOs | todo | 14 | sonnet/high |
+| 17 | Delivery + installation jobs, DOs | done | 14 | sonnet/high |
 | 18 | Installation calendar | todo | 09, 17 | sonnet/high |
 | 19 | Site supervisor booking | todo | 17 | sonnet/high |
 | 20 | Site stage, site log, follow-ups | todo | 17 | sonnet/high |
@@ -118,3 +118,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #16 · decision · site supervisors can't open /mofs, so installer-claim verify must surface in Site Work (#20 reuses verifyInstallerClaim) · carried into #20 prompt
 2026-11-02 · #16 · decision · added paid_amount + claim_no; md/director may also verify; claims<=PO amount checked in app only; retention 0-100%; no two-installer limit
 2026-11-02 · #16 · done · 369 tests pass · pushed to PR #14
+2026-11-02 · #17 · start · sonnet/high subagent
+2026-11-02 · #17 · decision · DO no = MOF no + running_no in app; added is_final/items/ends_on; writers md/director/support (accounts read-only); no delete, Postponed instead; job+DO two-step write; supervisor picker lists whole team
+2026-11-02 · #17 · done · 398 tests pass · pushed to PR #14

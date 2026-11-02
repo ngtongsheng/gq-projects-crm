@@ -33,7 +33,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 08 | Activities (visits, calls) | done | 06 | sonnet/high |
 | 09 | Sales calendar | done | 08 | sonnet/high |
 | 10 | Projects (pipeline) data + form | done | 06 | sonnet/high |
-| 11 | Pipeline board/list | todo | 10 | sonnet/high |
+| 11 | Pipeline board/list | done | 10 | sonnet/high |
 | 12 | Order register (MOF) data, private cost | todo | 10 | opus/medium |
 | 13 | MOF form | todo | 12 | opus/medium |
 | 14 | MOF register list + stages | todo | 13 | sonnet/high |
@@ -99,3 +99,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #10 · start · sonnet/high subagent
 2026-11-02 · #10 · decision · commission type/passed-by/PIC + stage clock enforced by guard_project_write trigger (orchestrator review: app-only was bypassable); lead source required; by-date default today+3; nav stays unbuilt until #11
 2026-11-02 · #10 · done · 247 tests pass · pushed to PR #14
+2026-11-02 · #11 · start · sonnet/high subagent
+2026-11-02 · #11 · decision · stale = >14 MYT days since updated_at; placeholder commission rates 3%/1.5% in project-commission.ts until #25; no default person filter
+2026-11-02 · #11 · done · 260 tests pass · pushed to PR #14

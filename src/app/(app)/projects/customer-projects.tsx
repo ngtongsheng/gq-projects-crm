@@ -12,7 +12,7 @@ export type CustomerProject = EditableProject & {
   canEdit: boolean;
 };
 
-const stageTone: Record<ProjectStage, StatusTone> = {
+export const stageTone: Record<ProjectStage, StatusTone> = {
   lead: "neutral",
   quotation_sent: "info",
   sample_mockup: "info",

@@ -105,6 +105,7 @@ describe("sectionsFor", () => {
       "dashboard",
       "salesCalendar",
       "customers",
+      "projects",
     ]);
     expect(sectionsFor("site")).toEqual([]);
   });

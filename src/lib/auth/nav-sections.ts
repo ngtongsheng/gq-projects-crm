@@ -95,7 +95,7 @@ const SECTIONS: readonly Section[] = [
     href: "/projects",
     icon: FolderKanban,
     allowed: SALES_SIDE,
-    built: false,
+    built: true,
   },
   {
     key: "mof",

@@ -18,11 +18,11 @@ Inputs from loop 01 D11 and `docs/decisions.md` ("Loop 02 inputs") still apply: 
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Bootstrap probe (fetch-and-follow) | blocked: owner — paste probe message in Desktop, report result | – | haiku/low |
+| 01 | Bootstrap probe (fetch-and-follow) | done | – | haiku/low |
 | 02 | gq-setup README (human steps) | done | 01 | sonnet/high |
 | 03 | SETUP.md (Claude-facing setup) | done | 01 | opus/medium |
-| 04 | Dry run on owner's Mac + fixes | blocked: loop 01 merged to main (clone needs the app) | 02, 03 | sonnet/high |
-| 05 | Onboarding doc (owner + day-2) | blocked: loop 01 merged to main (needs CLAUDE.md, kit) | 03 | sonnet/high |
+| 04 | Dry run on owner's Mac + fixes | todo | 02, 03 | sonnet/high |
+| 05 | Onboarding doc (owner + day-2) | in-progress | 03 | sonnet/high |
 | 06 | First run with Vicky | todo | 04, 05 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
@@ -50,3 +50,6 @@ Inputs from loop 01 D11 and `docs/decisions.md` ("Loop 02 inputs") still apply: 
 2026-11-02 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-02-loop-02-setup.md
 2026-11-02 · #01 · owner created public gq-setup; README + SETUP.md pushed; raw SETUP.md returns 200
 2026-11-02 · #01 · decision · probe lives in PROBE.md, not SETUP.md · keeps the real SETUP.md live; probe pushed (1452c9f) · owner pastes probe message
+2026-11-02 · #01 · done · owner ran probe in Desktop: all 3 steps done, ~/gq-probe/result.txt = SETUP-OK (verified, folder removed); row 7 updated · fetch-and-follow works, no marketplace channel needed (D1)
+2026-11-02 · merge · loop 01 merged to main (e9f3c25); merged into loop/02-setup · #04, #05 unblocked
+2026-11-02 · #05 · in-progress · delegating (sonnet/high)

@@ -17,7 +17,7 @@ At the start of a session, if `git branch --show-current` prints `main` and `git
 1. **Own space.** Before the first edit of a change, run `git rev-parse --show-toplevel`. Outside `.claude/worktrees/`,
    call EnterWorktree with a short kebab-case name for the change. One change per worktree.
 2. **Build it** to the engineering bar. Run `pnpm check`, `pnpm typecheck` and `pnpm test`; fix until all pass.
-3. **Preview.** Use the `preview` skill so she sees it running; offer a preview link for the team.
+3. **Preview.** Use the `preview` skill so she sees it running on her laptop. No preview links (the free Vercel plan locks them).
 4. **Her review.** Ask whether it looks right (multiple-choice). Adjust and preview again until she picks yes.
 5. **Put it live** with the `deploy` skill, only after she picks "Yes" on "Shall we put this live now?".
 
@@ -45,7 +45,7 @@ rather than copying it. Theme tokens only, never raw colours.
 - New tables get row-level security for `admin` and `staff` in the same migration.
 - The migration guard blocks changes that drop, rename, retype or delete stored information. A blocked change goes to
   `get-help`; the `owner-approved` label is Tong Sheng's alone.
-- On her laptop, admin-only server features show a "works on the preview link" message; that is by design, not a bug.
+- On her laptop, admin-only server features show a "can't be tried on your laptop" message; that is by design, not a bug.
 
 ## Call get-help when
 - The safety checks still fail after one fix attempt, or the migration guard blocks a change.

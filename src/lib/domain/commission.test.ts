@@ -264,4 +264,13 @@ describe("estimatedCommission", () => {
     expect(estimatedCommission(65_000, "pass_down", s)).toBe(975);
     expect(estimatedCommission(33.34, "own", s)).toBe(1);
   });
+
+  it("rounds a half cent up despite float noise", () => {
+    const s = {
+      ...DEFAULT_COMMISSION_SETTINGS,
+      baseRatePct: { ...DEFAULT_COMMISSION_SETTINGS.baseRatePct, own: 2.3 },
+    };
+    // RM 15.00 x 2.3% is RM 0.345 exactly.
+    expect(estimatedCommission(15, "own", s)).toBe(0.35);
+  });
 });

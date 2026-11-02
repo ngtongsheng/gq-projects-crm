@@ -83,7 +83,7 @@ export function estimatedCommission(
   settings: CommissionSettings,
 ): number {
   return fromCents(
-    Math.round((toCents(value) * settings.baseRatePct[commissionType]) / 100),
+    roundCents((toCents(value) * settings.baseRatePct[commissionType]) / 100),
   );
 }
 

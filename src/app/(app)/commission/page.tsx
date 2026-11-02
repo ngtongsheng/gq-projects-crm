@@ -14,7 +14,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { canPayOutCommission, isManager } from "@/lib/auth/job-role";
+import {
+  canChangeSettings,
+  canPayOutCommission,
+  isManager,
+} from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { todayMyt } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
@@ -36,7 +40,7 @@ export default async function CommissionPage({
   const me = await requireSection("commission");
   const seesEveryone = isManager(me.jobRole);
   const canPay = canPayOutCommission(me.jobRole);
-  const canSetRules = me.role === "admin" || me.jobRole === "md";
+  const canSetRules = canChangeSettings(me);
   const person = personParam.parse((await searchParams).person);
   const today = todayMyt();
 

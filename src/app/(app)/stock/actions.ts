@@ -2,7 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { canEditStock } from "@/lib/auth/job-role";
+import {
+  canChangeSettings,
+  canEditStock,
+  canRequestStock,
+} from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import {
   canExtendHold,
@@ -12,6 +16,7 @@ import {
   RESERVATION_STATUSES,
   type ReservationStatus,
 } from "@/lib/domain/reservation";
+import { optionalText, textField } from "@/lib/form/form-fields";
 import { todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
 import { positiveQuantity } from "./quantity-fields";
@@ -30,19 +35,6 @@ const NOT_FOUND_RESERVATION =
   "Could not find that reservation. Reload the page.";
 const CHANGED = "Someone changed this reservation first. Reload the page.";
 const TRY_AGAIN = "Could not save. Try again.";
-const REQUESTERS = ["bd", "sales"] as const;
-
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
-
-const optionalText = (max: number, message: string) =>
-  z
-    .string()
-    .trim()
-    .max(max, message)
-    .transform((value) => (value === "" ? null : value));
 
 /** The database message for a hold that takes more than is left; it is already plain words. */
 const tooMuch = (error: { code?: string; message?: string }) =>
@@ -66,7 +58,7 @@ const reserveForm = z.object({
 export async function reserveStock(formData: FormData): Promise<StockResult> {
   const me = await requireSection("stock");
   const arranges = canEditStock(me);
-  if (!arranges && !(REQUESTERS as readonly string[]).includes(me.jobRole)) {
+  if (!canRequestStock(me)) {
     return { error: NOT_REQUESTER };
   }
 
@@ -312,7 +304,7 @@ export async function saveStockSettings(
   formData: FormData,
 ): Promise<StockResult> {
   const me = await requireSection("stock");
-  if (me.role !== "admin" && me.jobRole !== "md") {
+  if (!canChangeSettings(me)) {
     return { error: "Only the MD or an admin can change these settings." };
   }
 

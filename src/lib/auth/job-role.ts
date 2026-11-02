@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { Role } from "./current-profile";
 
 /** What someone does at GQ Projects. Separate from `role`, which only decides who manages people. */
 export const JobRole = z.enum([
@@ -88,3 +89,13 @@ export const canEditStock = (person: {
   arrangesStock: boolean;
 }) =>
   person.arrangesStock || has(person.jobRole, ["md", "director", "support"]);
+
+/** Asks for a stock hold (SQL: the insert policy on stock_reservations). */
+export const canRequestStock = (person: {
+  jobRole: JobRole;
+  arrangesStock: boolean;
+}) => canEditStock(person) || has(person.jobRole, ["bd", "sales"]);
+
+/** Changes the commission rules and stock hold settings (SQL: the write policies on app_settings). */
+export const canChangeSettings = (person: { role: Role; jobRole: JobRole }) =>
+  person.role === "admin" || person.jobRole === "md";

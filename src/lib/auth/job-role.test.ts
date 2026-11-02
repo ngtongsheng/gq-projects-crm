@@ -2,12 +2,14 @@ import { describe, expect, it } from "vitest";
 import {
   canAnswerBookings,
   canBookSiteSupervisor,
+  canChangeSettings,
   canDecideOvertime,
   canEditRegister,
   canEditSite,
   canEditStock,
   canEnterPayments,
   canPayOutCommission,
+  canRequestStock,
   canScheduleJobs,
   canUpdateJobStatus,
   isManager,
@@ -151,5 +153,28 @@ describe("overtime approval", () => {
       "md",
       "director",
     ]);
+  });
+});
+
+describe("stock holds and settings", () => {
+  it("lets BD, sales and anyone who arranges stock ask for a hold", () => {
+    const asks = (jobRole: JobRole, arrangesStock = false) =>
+      canRequestStock({ jobRole, arrangesStock });
+    expect(JobRole.options.filter((jobRole) => asks(jobRole))).toEqual([
+      "md",
+      "director",
+      "bd",
+      "sales",
+      "support",
+    ]);
+    expect(asks("accounts", true)).toBe(true);
+  });
+
+  it("lets only admins and the MD change settings", () => {
+    expect(canChangeSettings({ role: "staff", jobRole: "md" })).toBe(true);
+    expect(canChangeSettings({ role: "admin", jobRole: "sales" })).toBe(true);
+    expect(canChangeSettings({ role: "staff", jobRole: "director" })).toBe(
+      false,
+    );
   });
 });

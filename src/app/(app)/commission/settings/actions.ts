@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { canChangeSettings } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import {
   CommissionSettings,
@@ -26,7 +27,7 @@ export async function saveCommissionSettings(
   formData: FormData,
 ): Promise<CommissionSettingsResult> {
   const me = await requireSection("commission");
-  if (me.role !== "admin" && me.jobRole !== "md") return { error: NOT_MD };
+  if (!canChangeSettings(me)) return { error: NOT_MD };
 
   const n = (key: string) => numberField(formData, key);
   const parsed = CommissionSettings.safeParse({

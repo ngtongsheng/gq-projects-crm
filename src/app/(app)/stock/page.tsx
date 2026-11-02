@@ -4,7 +4,11 @@ import { DownloadCsvButton } from "@/components/app/download-csv-button";
 import { PageHeader } from "@/components/app/page-header";
 import { PasteImportDialog } from "@/components/app/paste-import-dialog";
 import { Button } from "@/components/ui/button";
-import { canEditStock } from "@/lib/auth/job-role";
+import {
+  canChangeSettings,
+  canEditStock,
+  canRequestStock,
+} from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { availableQty, holdState } from "@/lib/domain/reservation";
@@ -41,8 +45,8 @@ export default async function StockPage({
   const view = params.view === "items" ? "items" : "reservations";
   const filter = parseFilter(params.filter);
   const arranges = canEditStock(me);
-  const canRequest = arranges || me.jobRole === "bd" || me.jobRole === "sales";
-  const canSetSettings = me.role === "admin" || me.jobRole === "md";
+  const canRequest = canRequestStock(me);
+  const canSetSettings = canChangeSettings(me);
 
   const [items, reservations, settings, team, projects] = await Promise.all([
     loadStockItems(),

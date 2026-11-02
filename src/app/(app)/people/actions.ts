@@ -99,6 +99,9 @@ export async function addPerson(
 
 export type ChangeRoleResult = { error: string | null };
 
+/** Must match the message in the keep_one_admin trigger. */
+const LAST_ADMIN = "There must be at least one admin.";
+
 export async function changeRole(input: unknown): Promise<ChangeRoleResult> {
   await requireRole("admin");
 
@@ -120,9 +123,7 @@ export async function changeRole(input: unknown): Promise<ChangeRoleResult> {
     }
     const isLastAdmin =
       admins.length === 1 && admins.some((row) => row.id === userId);
-    if (isLastAdmin) {
-      return { error: "There must be at least one admin." };
-    }
+    if (isLastAdmin) return { error: LAST_ADMIN };
   }
 
   const { data: updated, error } = await supabase
@@ -130,6 +131,10 @@ export async function changeRole(input: unknown): Promise<ChangeRoleResult> {
     .update({ role })
     .eq("id", userId)
     .select("id");
+  // The keep_one_admin trigger refuses when another admin was demoted at the same moment.
+  if (error?.code === "23514" && error.message === LAST_ADMIN) {
+    return { error: LAST_ADMIN };
+  }
   if (error) console.error("Could not change role", error);
   if (error || updated.length === 0) {
     return { error: "Could not change the role. Try again." };

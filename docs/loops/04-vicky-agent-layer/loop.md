@@ -57,3 +57,4 @@ dry run; Vicky's first run (loop 02 #06) is the real test. Must land before loop
 2026-11-02 · #06 · in-progress · delegating (sonnet/high)
 2026-11-02 · #06 · blocked: owner · CRM changes done and verified locally (pnpm check/typecheck/test pass, 72 tests, style diff clean). The new CI drift step fetches gq-setup main from GitHub, which lacks plain.md changes until gq-setup is pushed, so the PR would fail · owner: `git -C ~/work/projects/gq-setup push origin main`, then re-run /execute-loop to merge
 2026-11-02 · #06 · decision · drift step lives in the existing checks job as a named step · task named no job
+2026-11-02 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-02-loop-04-vicky-agent-layer.md

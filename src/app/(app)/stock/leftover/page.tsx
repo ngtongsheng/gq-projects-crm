@@ -5,10 +5,12 @@ import { DataTable } from "@/components/app/data-table";
 import { DownloadCsvButton } from "@/components/app/download-csv-button";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
+import { PasteImportDialog } from "@/components/app/paste-import-dialog";
 import { canEditStock } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import {
+  canRecordLeftover,
   creditNoteState,
   LEFTOVER_CONDITION_LABEL,
   LEFTOVER_DESTINATION_LABEL,
@@ -16,8 +18,10 @@ import {
 } from "@/lib/domain/leftover";
 import { formatDateTime } from "@/lib/format/date";
 import { StockTabs } from "../stock-tabs";
+import { importLeftovers, previewLeftoverImport } from "./import-actions";
 import { LeftoverBadges } from "./leftover-badges";
 import { loadLeftovers } from "./leftover-data";
+import { leftoverImportFields } from "./leftover-import";
 import { UpdateLeftoverDialog } from "./update-leftover-dialog";
 
 export const metadata: Metadata = { title: "Leftover stock" };
@@ -52,7 +56,27 @@ export default async function LeftoverPage() {
             ? summary.join(" · ")
             : "Stock left over at sites, from pickup to the supplier's credit note."
         }
-        actions={<DownloadCsvButton path="/stock/leftover/export" />}
+        actions={
+          <>
+            <DownloadCsvButton path="/stock/leftover/export" />
+            {canRecordLeftover(me) && (
+              <PasteImportDialog
+                title="Paste leftover stock from sheet"
+                description="One row per item left over at a site. Each lands as waiting for pickup. Items already recorded are skipped."
+                canUpdate={false}
+                kinds={[
+                  {
+                    value: "leftover",
+                    label: "Leftover stock",
+                    columns: leftoverImportFields.map((field) => field.label),
+                  },
+                ]}
+                preview={previewLeftoverImport}
+                save={importLeftovers}
+              />
+            )}
+          </>
+        }
       />
       <StockTabs active="leftover" />
       <DataTable

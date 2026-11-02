@@ -11,10 +11,10 @@ import {
   holdUntil,
   RESERVATION_STATUSES,
   type ReservationStatus,
-  STOCK_UNITS,
 } from "@/lib/domain/reservation";
 import { todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
+import { stockItemSchema } from "./stock-item-schema";
 import { loadStockSettings } from "./stock-settings";
 
 export type StockResult = { error: string | null };
@@ -252,24 +252,8 @@ export async function extendReservation(
   return { error: null };
 }
 
-const itemForm = z.object({
+const itemForm = stockItemSchema.extend({
   itemId: z.union([z.literal(""), z.uuid({ error: NOT_FOUND_ITEM })]),
-  sku: z
-    .string()
-    .trim()
-    .min(1, "Enter the SKU.")
-    .max(60, "Keep the SKU under 60 characters."),
-  supplier: z
-    .string()
-    .trim()
-    .min(1, "Enter the supplier.")
-    .max(120, "Keep the supplier under 120 characters."),
-  collection: optionalText(120, "Keep the collection under 120 characters."),
-  qty: z.coerce
-    .number({ error: "Enter the quantity." })
-    .min(0, "The quantity cannot be negative.")
-    .max(9_999_999_999, "That quantity is too large."),
-  unit: z.enum(STOCK_UNITS, "Choose the unit."),
 });
 
 /** Adds a stock item, or changes one when `itemId` is given (the unit stays as first entered). */

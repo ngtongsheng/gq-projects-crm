@@ -5,6 +5,7 @@ import { DataTable } from "@/components/app/data-table";
 import { DownloadCsvButton } from "@/components/app/download-csv-button";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
+import { PasteImportDialog } from "@/components/app/paste-import-dialog";
 import { StatusBadge } from "@/components/app/status-badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,14 +15,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { canEditRegister } from "@/lib/auth/job-role";
+import { canEditRegister, isManager } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { isFinalStage, MOF_STAGE_TONE } from "@/lib/domain/mof-stages";
 import { formatDate } from "@/lib/format/date";
 import { formatRm, sumRm } from "@/lib/format/money";
+import { importMofs, previewMofImport } from "./import-actions";
 import { loadRegister } from "./mof-data";
 import { parseMofFilters, seesOnlyOwnMofs, visibleMofs } from "./mof-filters";
+import { mofImportFields } from "./mof-import";
 import { MofStage, MofStageLabel } from "./schemas";
 import { StageSelect } from "./stage-select";
 
@@ -58,6 +61,23 @@ export default async function MofRegisterPage({
               path="/mofs/export"
               query={{ stage: filters.stage, person: filters.person }}
             />
+            {canEdit && (
+              <PasteImportDialog
+                title="Paste MOFs from sheet"
+                description="One row per product. An MOF with several products repeats its MOF no. on each row. An MOF already in the register is changed only in the columns you paste; a changed contract sum or VO is logged as Imported."
+                kinds={[
+                  {
+                    value: "mofs",
+                    label: "MOFs",
+                    columns: mofImportFields(isManager(me.jobRole)).map(
+                      (field) => field.label,
+                    ),
+                  },
+                ]}
+                preview={previewMofImport}
+                save={importMofs}
+              />
+            )}
             {canEdit && (
               <Button asChild>
                 <Link href="/mofs/new">

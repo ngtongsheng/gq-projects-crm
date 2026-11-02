@@ -5,6 +5,7 @@ import { DataTable } from "@/components/app/data-table";
 import { DownloadCsvButton } from "@/components/app/download-csv-button";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
+import { PasteImportDialog } from "@/components/app/paste-import-dialog";
 import { Button } from "@/components/ui/button";
 import { canEditStock } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
@@ -17,6 +18,7 @@ import {
   supplierMailto,
 } from "@/lib/domain/reservation";
 import { formatDate, todayMyt } from "@/lib/format/date";
+import { importStockItems, previewStockImport } from "./import-actions";
 import { ReservationActions } from "./reservation-actions";
 import { ReservationBadges } from "./reservation-badges";
 import {
@@ -32,6 +34,7 @@ import {
   loadReservations,
   loadStockItems,
 } from "./stock-data";
+import { stockImportFields } from "./stock-import";
 import { StockItemDialog } from "./stock-item-dialog";
 import { loadStockSettings } from "./stock-settings";
 import { StockSettingsDialog } from "./stock-settings-dialog";
@@ -103,6 +106,21 @@ export default async function StockPage({
         query={view === "items" ? { view } : { filter }}
       />
       {canSetSettings && <StockSettingsDialog settings={settings} />}
+      {arranges && (
+        <PasteImportDialog
+          title="Paste stock from sheet"
+          description="One row per SKU. A SKU already in stock keeps its unit; the columns you paste replace the saved ones."
+          kinds={[
+            {
+              value: "stock",
+              label: "Stock items",
+              columns: stockImportFields.map((field) => field.label),
+            },
+          ]}
+          preview={previewStockImport}
+          save={importStockItems}
+        />
+      )}
       {arranges && <StockItemDialog />}
       {canRequest && (
         <ReserveStockDialog

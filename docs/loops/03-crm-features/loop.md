@@ -54,7 +54,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 29 | Dashboards per role | done | 11, 14, 20, 24, 27 | sonnet/high |
 | 30 | CSV export | done | 05, 14, 22, 23 | sonnet/high |
 | 31 | Paste import: parser + companies | done | 04 | opus/medium |
-| 32 | Paste import: MOFs, stock, leftover | todo | 31, 13, 22, 23 | sonnet/high |
+| 32 | Paste import: MOFs, stock, leftover | done | 31, 13, 22, 23 | sonnet/high |
 | 33 | Test-copy example data | todo | 32 | sonnet/high |
 | 34 | In-app guide | todo | 29 | haiku/low |
 | 35 | Walk-through per role on localhost | todo | 33, 34 | sonnet/high |
@@ -165,3 +165,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #31 · start · opus/medium subagent
 2026-11-02 · #31 · decision · import limited to md/director; contacts need existing company; blanks default (company type others, account own); invoker-rights SQL functions make each import one transaction; generic parser/plan/dialog for #32
 2026-11-02 · #31 · done · 709 tests pass · pushed to PR #14
+2026-11-02 · #32 · start · sonnet/high subagent
+2026-11-02 · #32 · decision · MOF rows grouped by MOF no.; total changes via update_mof_total('Imported'); cost column managers only; stock matches SKU, unit immutable; leftover add-only, dedupes repeats; reservation paste not built; shared match-cells helpers
+2026-11-02 · #32 · done · 725 tests pass · pushed to PR #14

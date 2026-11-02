@@ -5,6 +5,14 @@ import {
   type DuplicateChoice,
   type ImportPlan,
 } from "@/lib/import/import-plan";
+import {
+  cellsOf,
+  matchOption,
+  optionKey,
+  personId,
+  pickKept,
+  rejectIssues,
+} from "@/lib/import/match-cells";
 import { type ImportField, mapPaste } from "@/lib/import/parse-tsv";
 import {
   AccountType,
@@ -63,29 +71,6 @@ export const contactImportFields = [
 ] as const satisfies readonly ImportField<string>[];
 type ContactKey = (typeof contactImportFields)[number]["key"];
 
-const cellsOf = <Key extends string>(
-  fields: readonly ImportField<Key>[],
-): z.ZodObject<Record<Key, z.ZodString>> =>
-  z.object(
-    Object.fromEntries(fields.map((field) => [field.key, z.string()])),
-  ) as z.ZodObject<Record<Key, z.ZodString>>;
-
-// "Main Contractor", "main_contractor" and "MAIN CONTRACTOR" are the same choice.
-const optionKey = (value: string) =>
-  value.toLowerCase().replace(/[^a-z0-9]/g, "");
-
-function matchOption<T extends string>(
-  value: string,
-  options: readonly T[],
-  labels: Record<T, string>,
-): T | undefined {
-  const wanted = optionKey(value);
-  return options.find(
-    (option) =>
-      optionKey(option) === wanted || optionKey(labels[option]) === wanted,
-  );
-}
-
 /** "4", "4 · Potential" or "Potential"; blank means the usual 3. */
 function matchRating(value: string): string | undefined {
   if (value === "") return "3";
@@ -98,18 +83,6 @@ function matchRating(value: string): string | undefined {
 }
 
 type Issues = string[];
-
-function personId(name: string, team: readonly TeamMember[], issues: Issues) {
-  const wanted = name.trim().toLowerCase();
-  const found = team.filter((member) => member.name.toLowerCase() === wanted);
-  if (found.length === 1) return found[0].id;
-  issues.push(
-    found.length === 0
-      ? `No one called "${name}" in the team.`
-      : `More than one person is called "${name}".`,
-  );
-  return "";
-}
 
 function readShared(
   cells: { rating: string; accountType: string; passedBy: string },
@@ -130,11 +103,6 @@ function readShared(
   return { rating: rating ?? "", accountType: accountType ?? "", passedBy };
 }
 
-const reject = (issues: Issues, ctx: z.RefinementCtx) => {
-  for (const message of issues) ctx.addIssue({ code: "custom", message });
-  return z.NEVER;
-};
-
 export function companyImportSchema(team: readonly TeamMember[]) {
   return cellsOf<CompanyKey>(companyImportFields)
     .transform((cells, ctx) => {
@@ -149,7 +117,7 @@ export function companyImportSchema(team: readonly TeamMember[]) {
             );
       if (!companyType) issues.push(`"${cells.companyType}" is not a type.`);
       const shared = readShared(cells, team, issues);
-      if (issues.length > 0) return reject(issues, ctx);
+      if (issues.length > 0) return rejectIssues(issues, ctx);
       return {
         name: cells.name,
         companyType: companyType ?? "others",
@@ -184,7 +152,7 @@ export function contactImportSchema(
         issues.push("A customer can have at most two owners.");
       }
       const owners = ownerNames.map((name) => personId(name, team, issues));
-      if (issues.length > 0) return reject(issues, ctx);
+      if (issues.length > 0) return rejectIssues(issues, ctx);
       return {
         contact: {
           companyId: companyId ?? "",
@@ -290,7 +258,7 @@ export function importPayload({ kind, plan }: CustomerImportPlan): Payload[] {
           ? { ...all, ...account }
           : {
               id: existingId,
-              ...pick(all, {
+              ...pickKept(all, {
                 name: true,
                 company_type: has("companyType"),
                 rating: has("rating"),
@@ -326,7 +294,7 @@ export function importPayload({ kind, plan }: CustomerImportPlan): Payload[] {
         ? { ...all, ...account, ...ownersPart }
         : {
             id: existingId,
-            ...pick(all, {
+            ...pickKept(all, {
               company_id: true,
               name: true,
               mobile: true,
@@ -340,8 +308,4 @@ export function importPayload({ kind, plan }: CustomerImportPlan): Payload[] {
     );
   }
   return payload;
-}
-
-function pick(all: Payload, keep: Record<string, boolean>): Payload {
-  return Object.fromEntries(Object.entries(all).filter(([key]) => keep[key]));
 }

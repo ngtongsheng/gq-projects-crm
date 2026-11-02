@@ -54,6 +54,8 @@ type PasteImportDialogProps<Kind extends string> = {
   title: string;
   description: string;
   kinds: readonly [ImportKindOption<Kind>, ...ImportKindOption<Kind>[]];
+  /** False for lists that are only ever added to; hides the choice for rows already in the CRM. */
+  canUpdate?: boolean;
   /** Server action: checks the paste and returns what would happen. */
   preview: (
     request: PasteImportRequest<Kind>,
@@ -107,6 +109,7 @@ export function PasteImportDialog<Kind extends string>(
 
 function PasteImportForm<Kind extends string>({
   kinds,
+  canUpdate = true,
   preview,
   save,
   onSaved,
@@ -176,26 +179,30 @@ function PasteImportForm<Kind extends string>({
             </Select>
           </Field>
         )}
-        <Field>
-          <FieldLabel htmlFor="importDuplicates">
-            Rows already in the CRM
-          </FieldLabel>
-          <Select
-            value={onDuplicate}
-            onValueChange={(value) => {
-              setOnDuplicate(value === "update" ? "update" : "skip");
-              changed();
-            }}
-          >
-            <SelectTrigger id="importDuplicates">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="skip">Skip them</SelectItem>
-              <SelectItem value="update">Update them from the sheet</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
+        {canUpdate && (
+          <Field>
+            <FieldLabel htmlFor="importDuplicates">
+              Rows already in the CRM
+            </FieldLabel>
+            <Select
+              value={onDuplicate}
+              onValueChange={(value) => {
+                setOnDuplicate(value === "update" ? "update" : "skip");
+                changed();
+              }}
+            >
+              <SelectTrigger id="importDuplicates">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="skip">Skip them</SelectItem>
+                <SelectItem value="update">
+                  Update them from the sheet
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+        )}
       </div>
       <Field>
         <FieldLabel htmlFor="importText">Rows from your sheet</FieldLabel>

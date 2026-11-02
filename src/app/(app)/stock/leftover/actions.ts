@@ -9,11 +9,11 @@ import {
   LEFTOVER_CONDITIONS,
   LEFTOVER_DESTINATIONS,
   LEFTOVER_STATUSES,
-  LEFTOVER_UNITS,
   leftoverProblem,
 } from "@/lib/domain/leftover";
 import { parseRm } from "@/lib/format/money";
 import { createClient } from "@/lib/supabase/server";
+import { leftoverRecordSchema } from "./leftover-record-schema";
 
 export type LeftoverResult = { error: string | null };
 
@@ -36,23 +36,6 @@ const optionalText = (max: number, message: string) =>
     .trim()
     .max(max, message)
     .transform((value) => (value === "" ? null : value));
-
-const recordForm = z.object({
-  mofId: z.uuid({ error: NOT_FOUND_MOF }),
-  item: z
-    .string()
-    .trim()
-    .min(1, "Enter the item.")
-    .max(200, "Keep the item under 200 characters."),
-  qty: z.coerce
-    .number({ error: "Enter the quantity." })
-    .positive("Enter a quantity above zero.")
-    .max(9_999_999_999, "That quantity is too large."),
-  unit: z.enum(LEFTOVER_UNITS, "Choose the unit."),
-  condition: z.enum(LEFTOVER_CONDITIONS, "Choose the condition."),
-  destination: z.enum(LEFTOVER_DESTINATIONS, "Choose where it goes."),
-  note: optionalText(300, "Keep the note under 300 characters."),
-});
 
 const creditNoteAmount = z
   .string()
@@ -90,7 +73,7 @@ export async function recordLeftover(
   const me = await requireSection("siteWork");
   if (!canRecordLeftover(me)) return { error: NOT_RECORDER };
 
-  const parsed = recordForm.safeParse({
+  const parsed = leftoverRecordSchema.safeParse({
     mofId: textField(formData, "mofId"),
     item: textField(formData, "item"),
     qty: textField(formData, "qty"),

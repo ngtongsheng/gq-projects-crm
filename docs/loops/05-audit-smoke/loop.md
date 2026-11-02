@@ -20,8 +20,8 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 |---|---|---|---|---|
 | 01 | Run loop 03 #35 walk-through + Vicky checklist | done | owner: .env.smoke.local | sonnet/high |
 | 02 | Audit + fix: migrations and RLS | done | 01 | opus/medium |
-| 03 | Audit + fix: lib and proxy | in-progress | 01 | opus/medium |
-| 04 | Audit + fix: MOFs | todo | 02, 03 | sonnet/high |
+| 03 | Audit + fix: lib and proxy | done | 01 | opus/medium |
+| 04 | Audit + fix: MOFs | in-progress | 02, 03 | sonnet/high |
 | 05 | Audit + fix: stock, collection, commission | todo | 02, 03 | sonnet/high |
 | 06 | Audit + fix: customers, activities, calendar, projects, people | todo | 02, 03 | sonnet/high |
 | 07 | Audit + fix: installation, site work, overtime | todo | 02, 03 | sonnet/high |
@@ -47,3 +47,6 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 2026-11-02 · #02 · decision · no in-repo SQL regression test; verified on scratch PGlite, gap logged in debt.md · new dev dependency not in plan
 2026-11-02 · #02 · done: 2 additive migrations (account type guard a45d275, guard fn revokes 593fe28); checks + 742 tests pass · #03
 2026-11-02 · #03 · in-progress · subagent opus/medium
+2026-11-02 · #03 · decision · new src/lib/format/quantity.ts for shared 2dp rounding; env.ts kept as plain presence check · no shared helper existed; two plain strings
+2026-11-02 · #03 · done: 6 findings, 4 fixed (abeb511 a5158fd 5c1610c 444bf53), rows 7-8 to #09; 745 tests pass · #04
+2026-11-02 · #04 · in-progress · subagent sonnet/high

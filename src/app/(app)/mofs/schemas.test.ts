@@ -68,6 +68,14 @@ describe("mofLineSchema", () => {
     expect(parsed).toMatchObject({ qty: 3, areaM2: 120.5 });
   });
 
+  it("rounds a half to 2 places like the database, not down on float noise", () => {
+    // 2.135 is stored as 2.13499999999999979 in binary; Math.round(x * 100) gives 2.13.
+    const parsed = mofLineSchema.parse(
+      line({ qty: "2.135", unit: "roll", areaM2: "1.005" }),
+    );
+    expect(parsed).toMatchObject({ qty: 2.14, areaM2: 1.01 });
+  });
+
   it("rejects a blank product, a negative quantity and an unknown unit", () => {
     expect(mofLineSchema.safeParse(line({ product: " " })).success).toBe(false);
     expect(mofLineSchema.safeParse(line({ qty: "-1" })).success).toBe(false);

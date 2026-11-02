@@ -2,6 +2,7 @@ import { z } from "zod";
 import { MOF_STAGE_LABEL, MOF_STAGES } from "@/lib/domain/mof-stages";
 import { lineAreaM2, orderTotal } from "@/lib/domain/mof-totals";
 import { parseRm } from "@/lib/format/money";
+import { roundQuantity } from "@/lib/format/quantity";
 import { AccountType } from "../customers/schemas";
 
 // Values mirror the check constraints in the mofs migration.
@@ -88,7 +89,7 @@ const number = (message: string) =>
     .trim()
     .transform((text) => (text === "" ? 0 : Number(text.replace(/,/g, ""))))
     .pipe(z.number(message).min(0, "This can't be negative."))
-    .transform((value) => Math.round(value * 100) / 100);
+    .transform(roundQuantity);
 
 const TOTAL_MESSAGE = "The order total must be more than zero.";
 

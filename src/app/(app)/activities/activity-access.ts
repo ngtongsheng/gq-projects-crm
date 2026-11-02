@@ -22,6 +22,3 @@ const NEXT: Record<ActivityStatus, readonly ActivityStatus[]> = {
 /** A planned activity is completed or cancelled; those two are final. Staying put is not a change. */
 export const canMoveActivity = (from: ActivityStatus, to: ActivityStatus) =>
   from === to || NEXT[from].includes(to);
-
-export const isFinalActivityStatus = (status: ActivityStatus) =>
-  NEXT[status].length === 0;

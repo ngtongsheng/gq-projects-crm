@@ -79,7 +79,6 @@ export const companyFormSchema = z
     notes: optionalText(2000),
   })
   .refine(needsPassedBy, { message: PASSED_BY_MESSAGE, path: ["passedBy"] });
-export type CompanyForm = z.infer<typeof companyFormSchema>;
 
 export const contactFormSchema = z
   .object({

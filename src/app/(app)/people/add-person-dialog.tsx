@@ -84,6 +84,7 @@ function AddPersonForm() {
           </FieldLabel>
           <Textarea
             id="invite-message"
+            className="field-sizing-fixed w-full break-all"
             readOnly
             rows={5}
             value={state.invite.message}

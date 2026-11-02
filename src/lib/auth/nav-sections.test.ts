@@ -1,16 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { JobRole } from "./job-role";
-import {
-  allowedSectionsFor,
-  canOpenSection,
-  sectionsFor,
-} from "./nav-sections";
+import { canOpenSection, sectionsFor } from "./nav-sections";
 
-const labels = (jobRole: JobRole) =>
-  allowedSectionsFor(jobRole).map((s) => s.label);
+const labels = (jobRole: JobRole) => sectionsFor(jobRole).map((s) => s.label);
 
 // Lists copied from the prototype's tabsDef.
-describe("allowedSectionsFor", () => {
+describe("sectionsFor", () => {
   it("gives the MD every section, with manager wording", () => {
     expect(labels("md")).toEqual([
       "Dashboard",
@@ -111,8 +106,8 @@ describe("allowedSectionsFor", () => {
   });
 });
 
-describe("sectionsFor", () => {
-  it("only lists sections that have a page", () => {
+describe("sidebar per role", () => {
+  it("lists the sections in sidebar order", () => {
     expect(sectionsFor("sales").map((s) => s.key)).toEqual([
       "dashboard",
       "salesCalendar",
@@ -142,7 +137,7 @@ describe("sectionsFor", () => {
 
 describe("report links", () => {
   const hrefOf = (jobRole: JobRole, key: string) =>
-    allowedSectionsFor(jobRole).find((s) => s.key === key)?.href;
+    sectionsFor(jobRole).find((s) => s.key === key)?.href;
 
   it("sends managers to Team Reports and others to their own report", () => {
     expect(hrefOf("md", "reports")).toBe("/reports/team");

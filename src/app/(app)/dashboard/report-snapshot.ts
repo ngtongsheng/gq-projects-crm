@@ -1,4 +1,5 @@
 import type { Profile } from "@/lib/auth/current-profile";
+import { startOfMonth } from "@/lib/domain/calendar-grid";
 import {
   type ReportFlag,
   type ReportKind,
@@ -16,9 +17,6 @@ import {
   type MonthlyReport,
 } from "../reports/report-data";
 import { loadReportFilers } from "../reports/report-filers";
-
-const firstOfMonth = (day: CalendarDate): CalendarDate =>
-  `${day.slice(0, 7)}-01`;
 
 function lastMonthFlag(
   month: CalendarDate,
@@ -52,7 +50,7 @@ export type TeamRow = {
 export async function loadTeamSnapshot(
   today: CalendarDate,
 ): Promise<{ rows: TeamRow[]; lateReports: number }> {
-  const month = firstOfMonth(today);
+  const month = startOfMonth(today);
   const previous = shiftMonth(month, -1);
   const [filers, settings, reports] = await Promise.all([
     loadReportFilers(),
@@ -116,7 +114,7 @@ export async function loadOwnMonth(
 ): Promise<OwnMonth | null> {
   const kind = reportKindFor(me.jobRole);
   if (!kind) return null;
-  const previous = shiftMonth(firstOfMonth(today), -1);
+  const previous = shiftMonth(startOfMonth(today), -1);
   const [settings, report] = await Promise.all([
     loadReportSettings(),
     loadMonthlyReport(me.id, previous),
@@ -126,7 +124,7 @@ export async function loadOwnMonth(
     stats: await loadLiveStats(
       kind,
       me.id,
-      firstOfMonth(today),
+      startOfMonth(today),
       settings.targets,
     ),
     reportOverdue:

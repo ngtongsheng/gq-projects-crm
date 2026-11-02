@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { Profile } from "@/lib/auth/current-profile";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
+import { startOfMonth } from "@/lib/domain/calendar-grid";
 import { type CalendarDate, todayMyt } from "@/lib/format/date";
 import { loadReportSettings, type ReportSettings } from "./report-data";
 
@@ -32,7 +33,7 @@ export async function loadReportsView(
   params: SearchParams,
 ): Promise<{ view: ReportsView; person: string | undefined }> {
   const today = todayMyt();
-  const current = `${today.slice(0, 7)}-01`;
+  const current = startOfMonth(today);
   const asked = monthParam.parse(params.month);
   const [settings, team] = await Promise.all([
     loadReportSettings(),

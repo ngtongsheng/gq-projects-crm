@@ -1,5 +1,6 @@
 import { sqftToM2 } from "@/lib/domain/area";
 import { sumRm } from "@/lib/format/money";
+import { roundQuantity } from "@/lib/format/quantity";
 
 export type StockType = "stock" | "indent" | "custom";
 export type LineUnit = "sqft" | "m2" | "roll" | "pcs";
@@ -29,8 +30,7 @@ export function lineAreaM2(line: {
 export function totalAreaM2(
   lines: readonly { qty: number; unit: LineUnit; areaM2: number }[],
 ): number {
-  const total = lines.reduce((sum, line) => sum + lineAreaM2(line), 0);
-  return Math.round((total + Number.EPSILON) * 100) / 100;
+  return roundQuantity(lines.reduce((sum, line) => sum + lineAreaM2(line), 0));
 }
 
 export function needsSupplierPo(

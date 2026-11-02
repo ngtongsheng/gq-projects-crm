@@ -5,6 +5,7 @@ import {
   daysBetween,
   formatDate,
 } from "@/lib/format/date";
+import { roundQuantity } from "@/lib/format/quantity";
 
 // Values mirror the check constraints in the stock migration.
 export const STOCK_UNITS = [
@@ -69,8 +70,6 @@ const HELD: readonly ReservationStatus[] = ["reserved", "po_issued"];
 
 export const isLive = (status: ReservationStatus) => LIVE.includes(status);
 
-const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
-
 /**
  * What can still be promised: the stock on hand less live holds (an expired hold stays live
  * until released) and delivered lines, which are sold. Never below zero.
@@ -82,7 +81,7 @@ export function availableQty(
   const taken = reservations
     .filter((line) => isLive(line.status) || line.status === "delivered")
     .reduce((sum, line) => sum + line.qty, 0);
-  return Math.max(0, round2(qty - taken));
+  return Math.max(0, roundQuantity(qty - taken));
 }
 
 export type HoldState =

@@ -104,11 +104,14 @@ describe("sectionsFor", () => {
     expect(sectionsFor("sales").map((s) => s.key)).toEqual([
       "dashboard",
       "salesCalendar",
+      "installation",
       "customers",
       "projects",
       "mof",
     ]);
-    expect(sectionsFor("site")).toEqual([]);
+    expect(sectionsFor("site").map((s) => s.label)).toEqual([
+      "Installation Calendar",
+    ]);
   });
 });
 

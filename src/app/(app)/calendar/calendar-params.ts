@@ -39,14 +39,17 @@ export function parseCalendarParams(
 }
 
 /** Builds a link that keeps the view and person filter and changes the rest. */
-export function calendarHref(params: Partial<CalendarParams>): string {
+export function calendarHref(
+  params: Partial<CalendarParams>,
+  path = "/calendar",
+): string {
   const query = new URLSearchParams();
   if (params.view && params.view !== "month") query.set("view", params.view);
   if (params.date) query.set("date", params.date);
   if (params.who) query.set("who", params.who);
   if (params.add) query.set("add", params.add);
   const text = query.toString();
-  return text ? `/calendar?${text}` : "/calendar";
+  return text ? `${path}?${text}` : path;
 }
 
 /** The date one step back or forward: a month in month view, seven days in week view. */

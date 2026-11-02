@@ -69,6 +69,8 @@ type JobDialogProps = {
   defaultInstaller: string;
   /** What is not yet ticked on the MOF before goods go out; shown for a delivery. */
   missingChecks: string[];
+  /** The day to start on when scheduling a new job, e.g. the calendar day clicked. */
+  defaultDate?: string;
 };
 
 const NONE = "none";
@@ -111,13 +113,14 @@ export function JobDialog(props: JobDialogProps) {
   );
 }
 
-function JobForm({
+export function JobForm({
   mofId,
   mofNo,
   job,
   team,
   defaultInstaller,
   missingChecks,
+  defaultDate,
   onSaved,
 }: JobDialogProps & { onSaved: () => void }) {
   const [pending, startTransition] = useTransition();
@@ -125,8 +128,10 @@ function JobForm({
   const [jobType, setJobType] = useState<JobType>(
     job?.jobType ?? "installation",
   );
-  const [startDate, setStartDate] = useState(job?.scheduledOn ?? "");
-  const [endDate, setEndDate] = useState(job?.endsOn ?? "");
+  const [startDate, setStartDate] = useState(
+    job?.scheduledOn ?? defaultDate ?? "",
+  );
+  const [endDate, setEndDate] = useState(job?.endsOn ?? defaultDate ?? "");
   const [supervisor, setSupervisor] = useState(job?.siteSupervisorId || NONE);
   const order = job?.order;
 

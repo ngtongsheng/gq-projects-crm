@@ -47,3 +47,10 @@ test("links keep what is set and leave month view and everyone out", () => {
     "/calendar?date=2026-11-02",
   );
 });
+
+test("links can point at another calendar page", () => {
+  expect(
+    calendarHref({ view: "week", date: "2026-11-02" }, "/installation"),
+  ).toBe("/installation?view=week&date=2026-11-02");
+  expect(calendarHref({}, "/installation")).toBe("/installation");
+});

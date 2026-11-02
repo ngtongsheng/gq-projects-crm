@@ -79,7 +79,7 @@ const SECTIONS: readonly Section[] = [
     href: "/installation",
     icon: Truck,
     allowed: [...SALES_SIDE, "site", "support"],
-    built: false,
+    built: true,
   },
   {
     key: "customers",

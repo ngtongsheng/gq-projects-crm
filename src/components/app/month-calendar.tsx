@@ -19,6 +19,8 @@ type MonthCalendarProps = {
   addHref?: (date: CalendarDate) => string;
   /** Where "+N more" goes, usually the week view for that day. */
   dayHref: (date: CalendarDate) => string;
+  /** What a day holds, for the "+" label and the phone count. Defaults to activities. */
+  noun?: { one: string; many: string };
 };
 
 export function MonthCalendar({
@@ -28,6 +30,7 @@ export function MonthCalendar({
   eventsByDay,
   addHref,
   dayHref,
+  noun = { one: "activity", many: "activities" },
 }: MonthCalendarProps) {
   return (
     <div className="overflow-hidden rounded-lg border bg-border">
@@ -65,7 +68,7 @@ export function MonthCalendar({
                 {addHref && (
                   <Link
                     href={addHref(date)}
-                    aria-label={`Add activity on ${formatDate(date)}`}
+                    aria-label={`Add ${noun.one} on ${formatDate(date)}`}
                     className="rounded-md p-0.5 text-muted-foreground hover:bg-muted-foreground/10 hover:text-foreground"
                   >
                     <Plus className="size-3.5" />
@@ -90,8 +93,7 @@ export function MonthCalendar({
                   href={dayHref(date)}
                   className="text-xs font-medium text-info sm:hidden"
                 >
-                  {events.length}{" "}
-                  {events.length === 1 ? "activity" : "activities"}
+                  {events.length} {events.length === 1 ? noun.one : noun.many}
                 </Link>
               )}
             </div>

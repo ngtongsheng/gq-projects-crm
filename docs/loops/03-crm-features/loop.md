@@ -57,7 +57,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 32 | Paste import: MOFs, stock, leftover | done | 31, 13, 22, 23 | sonnet/high |
 | 33 | Test-copy example data | done | 32 | sonnet/high |
 | 34 | In-app guide | done | 29 | haiku/low |
-| 35 | Walk-through per role on localhost | in-progress | 33, 34 | sonnet/high |
+| 35 | Walk-through per role on localhost | done | 33, 34 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - #33: if no dev secret is available to the executor, Tong Sheng creates `.env.seed.dev` (test copy only) and runs `pnpm seed:example`.
@@ -182,3 +182,5 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #35 · unblocked · #33 seeded
 2026-11-02 · merge · PR #14 squash-merged to main by owner-approved command; migrate-prod succeeded; main merged back into loop branch
 2026-11-02 · #35 · in-progress · start · sonnet/high subagent
+2026-11-02 · #35 · decision · fixed installer_po_id column name in site-work-data (crashed Site Work/dashboard); app-shell grid minmax fixes 390px overflow; reservations table side-scroll on phone → debt; accounts can still edit MOF form (canEditRegister) → on Vicky's checklist; resize_window didn't resize, 390px checked in a 390px frame
+2026-11-02 · #35 · done · 742 tests pass · pushed to PR #14

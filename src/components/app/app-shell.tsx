@@ -75,7 +75,7 @@ export function AppShell({ nav, headerActions, children }: AppShellProps) {
           </SidebarContent>
         </Sidebar>
         <SidebarInset>
-          <div className="mx-auto grid w-full max-w-[1180px] gap-4 px-4 py-5 pb-10">
+          <div className="mx-auto grid w-full max-w-[1180px] grid-cols-[minmax(0,1fr)] gap-4 px-4 py-5 pb-10">
             {children}
           </div>
         </SidebarInset>

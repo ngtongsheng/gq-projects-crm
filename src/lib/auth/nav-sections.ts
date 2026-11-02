@@ -140,7 +140,7 @@ const SECTIONS: readonly Section[] = [
     href: "/collection",
     icon: Banknote,
     allowed: SALES_SIDE,
-    built: false,
+    built: true,
   },
   {
     key: "commission",

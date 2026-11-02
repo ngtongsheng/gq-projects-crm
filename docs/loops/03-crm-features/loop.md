@@ -46,7 +46,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 21 | Overtime claims + approval | done | 20 | sonnet/high |
 | 22 | Stock returns / leftover | done | 20 | sonnet/high |
 | 23 | Stock items + reservations | done | 14 | sonnet/high |
-| 24 | Collection (payments, outstanding) | todo | 14 | sonnet/high |
+| 24 | Collection (payments, outstanding) | done | 14 | sonnet/high |
 | 25 | Commission settings + calculation | todo | 01, 24 | opus/medium |
 | 26 | Commission screen + payouts | todo | 25 | sonnet/high |
 | 27 | Monthly reports (sales, BD, site) | todo | 08, 11, 14, 21 | opus/medium |
@@ -140,3 +140,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #23 · start · sonnet/high subagent
 2026-11-02 · #23 · decision · app_settings table introduced here (stock_hold_days, stock_warning_days; MD/admin edit) — #25 reuses; sold = delivered reservations; expired holds live until released; hold > available rejected by locking trigger; projects->mofs embed relies on unique project_id (check in #35)
 2026-11-02 · #23 · done · 531 tests pass · pushed to PR #14
+2026-11-02 · #24 · start · sonnet/high subagent
+2026-11-02 · #24 · decision · invoice = contract sum + VO (spec says verify: added to post-loop Vicky confirmation); payments deletable by md/accounts, no update; payment_threshold_pct=90 in app_settings, no edit UI yet (#25 may add)
+2026-11-02 · #24 · done · 557 tests pass · pushed to PR #14

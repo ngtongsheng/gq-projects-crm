@@ -12,10 +12,11 @@ import {
 } from "@/components/ui/select";
 import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
-import { estimatedCommission } from "@/lib/domain/project-commission";
+import { estimatedCommission } from "@/lib/domain/commission";
 import { projectFlags } from "@/lib/domain/project-flags";
 import { todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
+import { loadCommissionSettings } from "../commission/commission-settings-data";
 import { AccountType } from "../customers/schemas";
 import {
   PipelineBoard,
@@ -61,7 +62,7 @@ export default async function ProjectsPage({
   const filters = parsePipelineFilters(await searchParams);
   const supabase = await createClient();
 
-  const [projectsResult, team] = await Promise.all([
+  const [projectsResult, team, commissionSettings] = await Promise.all([
     supabase
       .from("projects")
       .select(
@@ -69,6 +70,7 @@ export default async function ProjectsPage({
       )
       .order("created_at", { ascending: false }),
     getTeamDirectory(),
+    loadCommissionSettings(),
   ]);
   if (projectsResult.error) {
     throw new Error(`Could not load projects: ${projectsResult.error.message}`);
@@ -95,7 +97,11 @@ export default async function ProjectsPage({
         : null,
       nextAction: row.next_action,
       nextActionDate: row.next_action_date,
-      estCommission: estimatedCommission(row.value, row.commission_type),
+      estCommission: estimatedCommission(
+        row.value,
+        row.commission_type,
+        commissionSettings,
+      ),
       flags: projectFlags(
         {
           open: OPEN_STAGES.includes(row.stage),

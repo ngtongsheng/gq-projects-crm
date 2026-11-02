@@ -64,3 +64,4 @@ Inputs from loop 01 D11 and `docs/decisions.md` ("Loop 02 inputs") still apply: 
 2026-11-02 · #04 · done · owner Desktop session on ~/GQ-dryrun/gq-projects-crm: "show me the app" opened preview on sign-in page, plain language, admin-only note shown (D3) · full fresh install untested until #06
 2026-11-02 · #04 · decision · ~/GQ-dryrun left for owner to remove after closing the Desktop session · deleting it under a running preview breaks the session
 2026-11-02 · #06 · blocked: owner · first run with Vicky
+2026-11-02 · merge · decision · merge #01-#05 to main via PR before #06 · Vicky clones main and needs onboarding.md + pull-on-start rule; direct push to main is denied by project settings; branch kept for #06 log

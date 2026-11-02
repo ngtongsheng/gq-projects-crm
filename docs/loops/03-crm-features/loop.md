@@ -34,7 +34,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 09 | Sales calendar | done | 08 | sonnet/high |
 | 10 | Projects (pipeline) data + form | done | 06 | sonnet/high |
 | 11 | Pipeline board/list | done | 10 | sonnet/high |
-| 12 | Order register (MOF) data, private cost | todo | 10 | opus/medium |
+| 12 | Order register (MOF) data, private cost | done | 10 | opus/medium |
 | 13 | MOF form | todo | 12 | opus/medium |
 | 14 | MOF register list + stages | todo | 13 | sonnet/high |
 | 15 | Supplier PO tracking | todo | 14 | sonnet/high |
@@ -102,3 +102,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #11 · start · sonnet/high subagent
 2026-11-02 · #11 · decision · stale = >14 MYT days since updated_at; placeholder commission rates 3%/1.5% in project-commission.ts until #25; no default person filter
 2026-11-02 · #11 · done · 260 tests pass · pushed to PR #14
+2026-11-02 · #12 · start · opus/medium subagent
+2026-11-02 · #12 · decision · one MOF per project; mof_no trimmed upper; units/stock types per task (indent merged); mof_lines deletable by register editors; RLS verified on PGlite by subagent
+2026-11-02 · #12 · done · 281 tests pass · pushed to PR #14

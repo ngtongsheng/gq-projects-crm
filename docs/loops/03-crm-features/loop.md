@@ -44,7 +44,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 19 | Site supervisor booking | done | 17 | sonnet/high |
 | 20 | Site stage, site log, follow-ups | done | 17 | sonnet/high |
 | 21 | Overtime claims + approval | done | 20 | sonnet/high |
-| 22 | Stock returns / leftover | todo | 20 | sonnet/high |
+| 22 | Stock returns / leftover | done | 20 | sonnet/high |
 | 23 | Stock items + reservations | todo | 14 | sonnet/high |
 | 24 | Collection (payments, outstanding) | todo | 14 | sonnet/high |
 | 25 | Commission settings + calculation | todo | 01, 24 | opus/medium |
@@ -134,3 +134,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #21 · start · sonnet/high subagent
 2026-11-02 · #21 · decision · approved_as column (approver may switch claim/leave); equal times and <15 min refused; no self-approval; site required; no future dates; new Overtime nav section for all roles
 2026-11-02 · #21 · done · 470 tests pass · pushed to PR #14
+2026-11-02 · #22 · start · sonnet/high subagent
+2026-11-02 · #22 · decision · credit note optional (shows pending); Stock section built with /stock redirect to leftover (#23 replaces); site records leftover from site page only; accounts excluded per canEditStock; added can_edit_stock() SQL helper for #23
+2026-11-02 · #22 · done · 492 tests pass · pushed to PR #14

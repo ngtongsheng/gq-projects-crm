@@ -132,7 +132,7 @@ const SECTIONS: readonly Section[] = [
     href: "/stock",
     icon: Boxes,
     allowed: [...SALES_SIDE, "support"],
-    built: false,
+    built: true,
   },
   {
     key: "collection",

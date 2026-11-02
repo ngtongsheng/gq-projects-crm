@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { canEditSite, type JobRole } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
+import { canRecordLeftover, LEFTOVER_UNIT_LABEL } from "@/lib/domain/leftover";
 import { MOF_STAGE_LABEL, MOF_STAGE_TONE } from "@/lib/domain/mof-stages";
 import {
   canCloseFollowUp,
@@ -19,6 +20,9 @@ import {
 } from "@/lib/domain/site-log";
 import { formatDate, formatDateTime, todayMyt } from "@/lib/format/date";
 import { cn } from "@/lib/utils";
+import { LeftoverBadges } from "../../stock/leftover/leftover-badges";
+import { loadLeftovers } from "../../stock/leftover/leftover-data";
+import { RecordLeftoverDialog } from "../../stock/leftover/record-leftover-dialog";
 import { FollowUpCheck, FollowUpDialog } from "../follow-up-parts";
 import { SiteLogDialog } from "../site-log-dialog";
 import { SiteStageSelect } from "../site-stage-select";
@@ -99,9 +103,10 @@ export default async function SiteDetailPage({
   const { mofId } = await params;
   if (!z.uuid().safeParse(mofId).success) notFound();
 
-  const [loaded, team] = await Promise.all([
+  const [loaded, team, leftovers] = await Promise.all([
     loadSite(mofId),
     getTeamDirectory(),
+    loadLeftovers(mofId),
   ]);
   if (!loaded) notFound();
   const { site, logs } = loaded;
@@ -143,6 +148,45 @@ export default async function SiteDetailPage({
           )}
         </CardContent>
       </Card>
+
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-heading text-lg font-semibold">Leftover stock</h2>
+          {canRecordLeftover(me) && <RecordLeftoverDialog mofId={site.id} />}
+        </div>
+        {leftovers.length === 0 ? (
+          <div className="rounded-xl border bg-card">
+            <EmptyState
+              title="No leftover stock recorded"
+              description="Record anything left over after the job so purchasing can collect it."
+            />
+          </div>
+        ) : (
+          <Card>
+            <CardContent>
+              <ul className="flex flex-col divide-y">
+                {leftovers.map((leftover) => (
+                  <li
+                    key={leftover.id}
+                    className="flex flex-col gap-1.5 py-2.5 first:pt-0 last:pb-0"
+                  >
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+                      <span className="text-sm font-medium">
+                        {leftover.item}
+                      </span>
+                      <span className="font-mono text-sm tabular-nums">
+                        {leftover.qty.toLocaleString("en-MY")}{" "}
+                        {LEFTOVER_UNIT_LABEL[leftover.unit]}
+                      </span>
+                    </div>
+                    <LeftoverBadges leftover={leftover} />
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       <div className="flex flex-col gap-3">
         <h2 className="font-heading text-lg font-semibold">Site visits</h2>

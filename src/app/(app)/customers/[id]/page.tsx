@@ -1,4 +1,4 @@
-import { ArrowLeft, CalendarCheck, FolderKanban } from "lucide-react";
+import { ArrowLeft, FolderKanban } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -13,6 +13,17 @@ import { customerHealth } from "@/lib/domain/customer-health";
 import { formatMobile } from "@/lib/domain/mobile";
 import { todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
+import {
+  canEditActivity,
+  canLogActivity,
+} from "../../activities/activity-access";
+import { ActivityDialog } from "../../activities/activity-form";
+import {
+  CustomerActivities,
+  type CustomerActivity,
+} from "../../activities/customer-activities";
+import { lastCompletedDay } from "../../activities/last-activity";
+import { ActivityStatus, ActivityType } from "../../activities/schemas";
 import { canEditContact, canSetAccountType } from "../contact-access";
 import { ContactDialog } from "../contact-form";
 import { CustomerHealthBadge } from "../customer-health-badge";
@@ -63,8 +74,17 @@ const colleagueRows = z.array(
 
 const companyRows = z.array(z.object({ id: z.string(), name: z.string() }));
 
-// Activities arrive in task 08; until then nobody has a completed activity.
-const lastCompletedActivityDate = null;
+const activityRows = z.array(
+  z.object({
+    id: z.string(),
+    owner_id: z.string(),
+    type: ActivityType,
+    purpose: z.string(),
+    outcome: z.string().nullable(),
+    starts_at: z.string(),
+    status: ActivityStatus,
+  }),
+);
 
 function Field({
   label,
@@ -103,17 +123,23 @@ export default async function CustomerPage({
   if (!data) notFound();
   const customer = customerRow.parse(data);
 
-  const [colleaguesResult, companiesResult, team] = await Promise.all([
-    supabase
-      .from("contacts")
-      .select("id, name, title, mobile")
-      .eq("company_id", customer.company_id)
-      .neq("id", customer.id)
-      .is("archived_at", null)
-      .order("name"),
-    supabase.from("companies").select("id, name").order("name"),
-    getTeamDirectory(),
-  ]);
+  const [colleaguesResult, companiesResult, activitiesResult, team] =
+    await Promise.all([
+      supabase
+        .from("contacts")
+        .select("id, name, title, mobile")
+        .eq("company_id", customer.company_id)
+        .neq("id", customer.id)
+        .is("archived_at", null)
+        .order("name"),
+      supabase.from("companies").select("id, name").order("name"),
+      supabase
+        .from("activities")
+        .select("id, owner_id, type, purpose, outcome, starts_at, status")
+        .eq("contact_id", customer.id)
+        .order("starts_at", { ascending: false }),
+      getTeamDirectory(),
+    ]);
   if (colleaguesResult.error) {
     throw new Error(
       `Could not load the company's contacts: ${colleaguesResult.error.message}`,
@@ -124,6 +150,11 @@ export default async function CustomerPage({
       `Could not load companies: ${companiesResult.error.message}`,
     );
   }
+  if (activitiesResult.error) {
+    throw new Error(
+      `Could not load activities: ${activitiesResult.error.message}`,
+    );
+  }
   const colleagues = colleagueRows.parse(colleaguesResult.data);
   const companies = companyRows.parse(companiesResult.data);
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
@@ -131,7 +162,24 @@ export default async function CustomerPage({
   const ownerNames = ownerIds.map(
     (ownerId) => nameOf.get(ownerId) ?? "Unnamed",
   );
-  const health = customerHealth(lastCompletedActivityDate, todayMyt());
+  const activities: CustomerActivity[] = activityRows
+    .parse(activitiesResult.data)
+    .map((row) => ({
+      id: row.id,
+      ownerName: nameOf.get(row.owner_id) ?? "Unnamed",
+      type: row.type,
+      purpose: row.purpose,
+      outcome: row.outcome,
+      startsAt: row.starts_at,
+      status: row.status,
+      canEdit: canEditActivity(me.jobRole, row.owner_id === me.id),
+    }));
+  const health = customerHealth(
+    lastCompletedDay(
+      activities.map((a) => ({ status: a.status, startsAt: a.startsAt })),
+    ),
+    todayMyt(),
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -241,14 +289,20 @@ export default async function CustomerPage({
         </Card>
       </div>
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
           <CardTitle className="font-heading">Activities</CardTitle>
+          {canLogActivity(me.jobRole) && (
+            <ActivityDialog
+              contactId={customer.id}
+              customerName={customer.name}
+            />
+          )}
         </CardHeader>
         <CardContent>
-          <EmptyState
-            icon={CalendarCheck}
-            title="No activities yet"
-            description="Visits, calls and meetings with this customer will show here."
+          <CustomerActivities
+            contactId={customer.id}
+            customerName={customer.name}
+            activities={activities}
           />
         </CardContent>
       </Card>

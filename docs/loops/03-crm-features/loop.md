@@ -30,7 +30,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 05 | Customer list + add/edit | done | 02, 03, 04 | sonnet/high |
 | 06 | Customer detail + health flags | done | 05 | sonnet/high |
 | 07 | Ownership requests | done | 05 | sonnet/high |
-| 08 | Activities (visits, calls) | todo | 06 | sonnet/high |
+| 08 | Activities (visits, calls) | done | 06 | sonnet/high |
 | 09 | Sales calendar | todo | 08 | sonnet/high |
 | 10 | Projects (pipeline) data + form | todo | 06 | sonnet/high |
 | 11 | Pipeline board/list | todo | 10 | sonnet/high |
@@ -90,3 +90,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #07 · start · sonnet/high subagent
 2026-11-02 · #07 · decision · only sales/bd may request; approve replaces all owners (no history); owner swap tested via action tests only, SQL verified by CI apply; nav entry lives in layout with pending badge
 2026-11-02 · #07 · done · 179 tests pass · pushed to PR #14
+2026-11-02 · #08 · start · sonnet/high subagent
+2026-11-02 · #08 · decision · activity owner_id = doer; md/director edit any; accounts read-only; planned->completed|cancelled enforced in app only; free-text purpose
+2026-11-02 · #08 · done · 206 tests pass · pushed to PR #14

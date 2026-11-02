@@ -21,6 +21,7 @@ import { customerHealth } from "@/lib/domain/customer-health";
 import { formatMobile } from "@/lib/domain/mobile";
 import { todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
+import { getLastCompletedDays } from "../activities/last-activity";
 import {
   canAddContact,
   canEditContact,
@@ -71,9 +72,6 @@ const companyRows = z.array(z.object({ id: z.string(), name: z.string() }));
 
 const pendingRequestRows = z.array(z.object({ contact_id: z.string() }));
 
-// Activities arrive in task 08; until then nobody has a completed activity.
-const lastCompletedActivityDate = null;
-
 export default async function CustomersPage({
   searchParams,
 }: {
@@ -83,7 +81,7 @@ export default async function CustomersPage({
   const filters = parseCustomerFilters(await searchParams);
   const supabase = await createClient();
 
-  const [contactsResult, companiesResult, pendingResult, team] =
+  const [contactsResult, companiesResult, pendingResult, lastActivity, team] =
     await Promise.all([
       supabase
         .from("contacts")
@@ -98,6 +96,7 @@ export default async function CustomersPage({
         .select("contact_id")
         .eq("requested_by", me.id)
         .eq("status", "pending"),
+      getLastCompletedDays(supabase),
       getTeamDirectory(),
     ]);
   if (contactsResult.error) {
@@ -121,7 +120,7 @@ export default async function CustomersPage({
   );
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
 
-  const health = customerHealth(lastCompletedActivityDate, todayMyt());
+  const today = todayMyt();
   const customers = contactRows.parse(contactsResult.data).map((row) => {
     const ownerIds = row.contact_owners.map((owner) => owner.profile_id);
     return {
@@ -133,7 +132,7 @@ export default async function CustomersPage({
       companyType: row.companies.company_type,
       rating: row.rating,
       accountType: row.account_type,
-      health,
+      health: customerHealth(lastActivity.get(row.id) ?? null, today),
       ownerIds,
       ownerNames: ownerIds.map((id) => nameOf.get(id) ?? "Unnamed"),
       editable: {

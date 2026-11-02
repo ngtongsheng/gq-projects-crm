@@ -65,3 +65,5 @@ Inputs from loop 01 D11 and `docs/decisions.md` ("Loop 02 inputs") still apply: 
 2026-11-02 · #04 · decision · ~/GQ-dryrun left for owner to remove after closing the Desktop session · deleting it under a running preview breaks the session
 2026-11-02 · #06 · blocked: owner · first run with Vicky
 2026-11-02 · merge · decision · merge #01-#05 to main via PR before #06 · Vicky clones main and needs onboarding.md + pull-on-start rule; direct push to main is denied by project settings; branch kept for #06 log
+2026-11-02 · merge · #01-#05 merged to main (PR #8, all checks pass) · vault ~/work/vault/sessions/gq-projects-crm/2026-11-02-loop-02-setup.md
+2026-11-02 · #02 · decision · owner correction: Vicky already has Desktop + Pro and pastes only the bare repo link → README now opens with a note to Claude to fetch and follow SETUP.md; install steps dropped; onboarding.md updated · needs one Desktop test of the bare link

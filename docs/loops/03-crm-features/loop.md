@@ -25,7 +25,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 |---|---|---|---|---|
 | 01 | Job roles + per-person settings | done | - | opus/medium |
 | 02 | Navigation by job role + page guards | done | 01 | sonnet/high |
-| 03 | Money, date and area helpers | in-progress | - | sonnet/high |
+| 03 | Money, date and area helpers | done | - | sonnet/high |
 | 04 | Companies + contacts in the database | todo | 01 | opus/medium |
 | 05 | Customer list + add/edit | todo | 02, 03, 04 | sonnet/high |
 | 06 | Customer detail + health flags | todo | 05 | sonnet/high |
@@ -75,3 +75,5 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #02 · decision · sections carry a built flag (sectionsFor shows built only; guards check role); placeholder hrefs fixed now; / keeps requireRole(staff) · avoids redirect loop for site role
 2026-11-02 · #02 · done · 106 tests pass · pushed to PR #14
 2026-11-02 · #03 · start · sonnet/high subagent
+2026-11-02 · #03 · decision · formatRm shows 2 decimals and leading minus; parseRm returns null on bad input; dates as YYYY-MM-DD strings formatted by hand · matches task example, stable output
+2026-11-02 · #03 · done · 127 tests pass · pushed to PR #14

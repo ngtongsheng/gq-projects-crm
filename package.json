@@ -9,7 +9,7 @@
     "start": "next start",
     "check": "biome check",
     "format": "biome format --write",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "guard:migrations": "node scripts/migration-guard.ts"
   },

@@ -2,6 +2,7 @@ import { Boxes } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DataTable } from "@/components/app/data-table";
+import { DownloadCsvButton } from "@/components/app/download-csv-button";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { canEditStock } from "@/lib/auth/job-role";
@@ -51,6 +52,7 @@ export default async function LeftoverPage() {
             ? summary.join(" · ")
             : "Stock left over at sites, from pickup to the supplier's credit note."
         }
+        actions={<DownloadCsvButton path="/stock/leftover/export" />}
       />
       <StockTabs active="leftover" />
       <DataTable

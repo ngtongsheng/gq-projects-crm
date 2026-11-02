@@ -1,23 +1,11 @@
 import { StatusBadge } from "@/components/app/status-badge";
 import {
   type HoldState,
+  holdLabel,
   RESERVATION_STATUS_LABEL,
   RESERVATION_STATUS_TONE,
   type ReservationStatus,
 } from "@/lib/domain/reservation";
-
-const holdText = (hold: HoldState) => {
-  switch (hold.kind) {
-    case "waiting":
-      return "Waiting for confirmation";
-    case "expiring":
-      return hold.daysLeft === 0
-        ? "Last day today"
-        : `Expiring in ${hold.daysLeft}d`;
-    case "expired":
-      return `Expired ${hold.daysAgo}d, extend or release`;
-  }
-};
 
 /** The line's status, plus what to do about its hold when it needs attention. */
 export function ReservationBadges({
@@ -42,7 +30,7 @@ export function ReservationBadges({
                 : "info"
           }
         >
-          {holdText(hold)}
+          {holdLabel(hold)}
         </StatusBadge>
       )}
     </div>

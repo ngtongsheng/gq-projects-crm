@@ -2,6 +2,7 @@ import { Boxes } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DataTable } from "@/components/app/data-table";
+import { DownloadCsvButton } from "@/components/app/download-csv-button";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,13 @@ import {
 import { formatDate, todayMyt } from "@/lib/format/date";
 import { ReservationActions } from "./reservation-actions";
 import { ReservationBadges } from "./reservation-badges";
+import {
+  FILTERS,
+  heldQty,
+  parseFilter,
+  reservedOnLabel,
+  selectReservations,
+} from "./reservation-filters";
 import { ReserveStockDialog } from "./reserve-stock-dialog";
 import {
   loadReservableProjects,
@@ -30,16 +38,6 @@ import { StockSettingsDialog } from "./stock-settings-dialog";
 import { StockTabs } from "./stock-tabs";
 
 export const metadata: Metadata = { title: "Stock" };
-
-const FILTERS = [
-  { key: "active", label: "Active" },
-  { key: "attention", label: "Expired / expiring" },
-  { key: "all", label: "All" },
-] as const;
-type Filter = (typeof FILTERS)[number]["key"];
-
-const parseFilter = (value: string | string[] | undefined): Filter =>
-  FILTERS.find((filter) => filter.key === value)?.key ?? "active";
 
 export default async function StockPage({
   searchParams,
@@ -100,6 +98,10 @@ export default async function StockPage({
 
   const actions = (
     <>
+      <DownloadCsvButton
+        path="/stock/export"
+        query={view === "items" ? { view } : { filter }}
+      />
       {canSetSettings && <StockSettingsDialog settings={settings} />}
       {arranges && <StockItemDialog />}
       {canRequest && (
@@ -173,12 +175,7 @@ export default async function StockPage({
               header: "Held",
               numeric: true,
               cell: (item) =>
-                reservations
-                  .filter(
-                    (line) => line.itemId === item.id && isLive(line.status),
-                  )
-                  .reduce((sum, line) => sum + line.qty, 0)
-                  .toLocaleString("en-MY"),
+                heldQty(item.id, reservations).toLocaleString("en-MY"),
             },
             {
               key: "available",
@@ -205,20 +202,7 @@ export default async function StockPage({
     );
   }
 
-  const shown = withHold
-    .filter(({ line, hold }) =>
-      filter === "all"
-        ? true
-        : filter === "active"
-          ? isLive(line.status)
-          : hold?.kind === "expired" || hold?.kind === "expiring",
-    )
-    .sort(
-      (a, b) =>
-        Number(b.hold?.kind === "expired") -
-          Number(a.hold?.kind === "expired") ||
-        b.line.createdAt.localeCompare(a.line.createdAt),
-    );
+  const shown = selectReservations(withHold, filter);
 
   return (
     <div className="flex flex-col gap-6">
@@ -263,10 +247,7 @@ export default async function StockPage({
             key: "when",
             header: "Reserved",
             numeric: true,
-            cell: ({ line }) =>
-              line.reservedAt
-                ? formatDate(line.reservedAt)
-                : `${formatDate(todayMyt(new Date(line.createdAt)))} (asked)`,
+            cell: ({ line }) => reservedOnLabel(line),
           },
           {
             key: "who",

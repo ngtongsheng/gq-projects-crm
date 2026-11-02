@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 
@@ -7,8 +8,8 @@ const teamRows = z.array(
 
 export type TeamMember = { id: string; name: string };
 
-/** Everyone's id and name. Staff cannot read other profiles directly, so this goes through team_directory(). */
-export async function getTeamDirectory(): Promise<TeamMember[]> {
+/** Everyone's id and name. Staff cannot read other profiles directly, so this goes through team_directory(). Cached per request. */
+export const getTeamDirectory = cache(async (): Promise<TeamMember[]> => {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("team_directory");
   if (error) throw new Error(`Could not load the team: ${error.message}`);
@@ -16,4 +17,4 @@ export async function getTeamDirectory(): Promise<TeamMember[]> {
     .parse(data)
     .map((row) => ({ id: row.id, name: row.full_name ?? "Unnamed" }))
     .sort((a, b) => a.name.localeCompare(b.name));
-}
+});

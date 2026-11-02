@@ -108,6 +108,20 @@ export function holdState(
   return null;
 }
 
+/** What to do about a hold, in words. */
+export function holdLabel(hold: HoldState): string {
+  switch (hold.kind) {
+    case "waiting":
+      return "Waiting for confirmation";
+    case "expiring":
+      return hold.daysLeft === 0
+        ? "Last day today"
+        : `Expiring in ${hold.daysLeft}d`;
+    case "expired":
+      return `Expired ${hold.daysAgo}d, extend or release`;
+  }
+}
+
 /** Last day of a hold taken on `from`. */
 export const holdUntil = (from: CalendarDate, holdDays: number) =>
   addDays(from, holdDays);

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { STOCK_UNITS } from "@/lib/domain/reservation";
+import { onHandQuantity } from "./quantity-fields";
 
 /** A stock item as entered by hand or pasted from a sheet. */
 export const stockItemSchema = z.object({
@@ -18,9 +19,6 @@ export const stockItemSchema = z.object({
     .trim()
     .max(120, "Keep the collection under 120 characters.")
     .transform((value) => (value === "" ? null : value)),
-  qty: z.coerce
-    .number<string>({ error: "Enter the quantity." })
-    .min(0, "The quantity cannot be negative.")
-    .max(9_999_999_999, "That quantity is too large."),
+  qty: onHandQuantity,
   unit: z.enum(STOCK_UNITS, "Choose the unit."),
 });

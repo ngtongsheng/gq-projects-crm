@@ -14,6 +14,7 @@ import {
 } from "@/lib/domain/reservation";
 import { todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
+import { positiveQuantity } from "./quantity-fields";
 import { stockItemSchema } from "./stock-item-schema";
 import { loadStockSettings } from "./stock-settings";
 
@@ -43,11 +44,6 @@ const optionalText = (max: number, message: string) =>
     .max(max, message)
     .transform((value) => (value === "" ? null : value));
 
-const quantity = z.coerce
-  .number({ error: "Enter the quantity." })
-  .positive("Enter a quantity above zero.")
-  .max(9_999_999_999, "That quantity is too large.");
-
 /** The database message for a hold that takes more than is left; it is already plain words. */
 const tooMuch = (error: { code?: string; message?: string }) =>
   error.code === "23514" &&
@@ -58,7 +54,7 @@ const tooMuch = (error: { code?: string; message?: string }) =>
 const reserveForm = z.object({
   itemId: z.uuid({ error: NOT_FOUND_ITEM }),
   projectId: z.uuid({ error: NOT_FOUND_PROJECT }),
-  qty: quantity,
+  qty: positiveQuantity,
   reservedBy: z.union([z.literal(""), z.uuid()]),
   note: optionalText(300, "Keep the note under 300 characters."),
 });

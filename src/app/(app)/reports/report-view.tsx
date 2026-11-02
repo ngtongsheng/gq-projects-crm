@@ -3,14 +3,13 @@ import Link from "next/link";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
 import { Button } from "@/components/ui/button";
-import { startOfMonth } from "@/lib/domain/calendar-grid";
+import { shiftMonth, startOfMonth } from "@/lib/domain/calendar-grid";
 import {
   canReviewReport,
   monthPace,
   type ReportKind,
   reportDueAt,
   reportFlag,
-  shiftMonth,
 } from "@/lib/domain/report-stats";
 import {
   type CalendarDate,

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { shiftMonth } from "@/lib/domain/calendar-grid";
 import {
   bdStats,
   REPORT_KINDS,
@@ -7,9 +8,9 @@ import {
   ReportStats,
   ReportTargets,
   salesStats,
-  shiftMonth,
   siteStats,
 } from "@/lib/domain/report-stats";
+import { isClockTime } from "@/lib/format/clock-time";
 import { type CalendarDate, todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
 
@@ -77,10 +78,7 @@ const reportRow = z
   );
 
 const DEFAULT_DUE_TIME = "09:00";
-const dueTimeSetting = z
-  .string()
-  .regex(/^([01]\d|2[0-3]):[0-5]\d$/)
-  .catch(DEFAULT_DUE_TIME);
+const dueTimeSetting = z.string().refine(isClockTime).catch(DEFAULT_DUE_TIME);
 
 export async function loadReportSettings(): Promise<ReportSettings> {
   const supabase = await createClient();

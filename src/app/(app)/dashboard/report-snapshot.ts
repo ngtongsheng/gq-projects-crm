@@ -1,12 +1,11 @@
 import type { Profile } from "@/lib/auth/current-profile";
-import { startOfMonth } from "@/lib/domain/calendar-grid";
+import { shiftMonth, startOfMonth } from "@/lib/domain/calendar-grid";
 import {
   type ReportFlag,
   type ReportKind,
   type ReportStats,
   reportFlag,
   reportKindFor,
-  shiftMonth,
 } from "@/lib/domain/report-stats";
 import type { CalendarDate } from "@/lib/format/date";
 import {

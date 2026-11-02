@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { JobRole } from "@/lib/auth/job-role";
-import { isSameMonth } from "@/lib/domain/calendar-grid";
+import { isSameMonth, startOfMonth } from "@/lib/domain/calendar-grid";
 import { orderTotal } from "@/lib/domain/mof-totals";
 import { firstMondayOfNextMonth, pace } from "@/lib/domain/workdays";
 import type { CalendarDate } from "@/lib/format/date";
@@ -261,9 +261,8 @@ export function reportFlag(input: {
 
 /** Share of the month's workdays gone by `today`: all of a past month, none of a future one. */
 export function monthPace(month: CalendarDate, today: CalendarDate): number {
-  if (month.slice(0, 7) < today.slice(0, 7)) return 1;
-  if (month.slice(0, 7) > today.slice(0, 7)) return 0;
-  return pace(today);
+  if (isSameMonth(month, today)) return pace(today);
+  return startOfMonth(month) < startOfMonth(today) ? 1 : 0;
 }
 
 /** Green at 90% of where you should be by now, amber at 70%, red below. */
@@ -278,11 +277,4 @@ export function achievedTone(
   if (ratio >= 0.9) return "good";
   if (ratio >= 0.7) return "warn";
   return "bad";
-}
-
-/** The first of the month `months` away from `month`, e.g. ("2026-12-01", 1) -> "2027-01-01". */
-export function shiftMonth(month: CalendarDate, months: number): CalendarDate {
-  const [year, monthNo] = month.split("-").map(Number);
-  const index = year * 12 + (monthNo - 1) + months;
-  return `${Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, "0")}-01`;
 }

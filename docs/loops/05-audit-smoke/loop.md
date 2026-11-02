@@ -23,8 +23,8 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 | 03 | Audit + fix: lib and proxy | done | 01 | opus/medium |
 | 04 | Audit + fix: MOFs | done | 02, 03 | sonnet/high |
 | 05 | Audit + fix: stock, collection, commission | done | 02, 03 | sonnet/high |
-| 06 | Audit + fix: customers, activities, calendar, projects, people | in-progress | 02, 03 | sonnet/high |
-| 07 | Audit + fix: installation, site work, overtime | todo | 02, 03 | sonnet/high |
+| 06 | Audit + fix: customers, activities, calendar, projects, people | done | 02, 03 | sonnet/high |
+| 07 | Audit + fix: installation, site work, overtime | in-progress | 02, 03 | sonnet/high |
 | 08 | Audit + fix: reports, dashboard, shared components, auth, guide, dev | todo | 02, 03 | sonnet/high |
 | 09 | Cross-module fixes from findings | todo | 04, 05, 06, 07, 08 | opus/medium |
 | 10 | Smoke test vs prototype: sales side | todo | 09 | sonnet/high |
@@ -56,3 +56,6 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 2026-11-02 · #05 · decision · commission payout cap stays app-only (debt row 20), stock/actions.ts not split · loop 03 #26 decision; SQL copy would drift; actions.ts is one concern
 2026-11-02 · #05 · done: rows 15-23, fixed 202066c 7184498 60e4a48, rows 18-19 21-23 to #09; 754 tests pass · #06
 2026-11-02 · #06 · in-progress · subagent sonnet/high
+2026-11-02 · #06 · decision · row 31 (company saved before contact) stays debt like row 14; project value capped at the DB column max · partial-write, not a permission rule; matches DB
+2026-11-02 · #06 · done: rows 24-33, fixed 8e8ff2a..76701f7 (7 commits), rows 32-33 to #09; 758 tests pass · #07
+2026-11-02 · #07 · in-progress · subagent sonnet/high

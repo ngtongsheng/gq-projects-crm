@@ -156,8 +156,9 @@ const SECTIONS: readonly Section[] = [
     labelFor: (jobRole) => (isManager(jobRole) ? "Team Reports" : "My Report"),
     href: "/reports",
     icon: ClipboardList,
+    // The BD Director's monthly report sits under Director Report, as in the prototype.
     allowed: ["md", "director", "sales", "accounts", "site"],
-    built: false,
+    built: true,
   },
   {
     key: "directorReport",

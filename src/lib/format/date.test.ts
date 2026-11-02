@@ -5,6 +5,7 @@ import {
   daysBetween,
   formatDate,
   formatDateTime,
+  formatMonth,
   todayMyt,
 } from "./date";
 
@@ -42,4 +43,8 @@ test("formats dates and Malaysia date-times", () => {
   expect(formatDateTime("2026-11-02T01:00:00Z")).toBe("2 Nov 2026, 9:00 AM");
   expect(formatDateTime("2026-11-02T16:30:00Z")).toBe("3 Nov 2026, 12:30 AM");
   expect(formatDateTime("2026-11-02T04:05:00Z")).toBe("2 Nov 2026, 12:05 PM");
+});
+
+test("formats a month", () => {
+  expect(formatMonth("2026-11-01")).toBe("Nov 2026");
 });

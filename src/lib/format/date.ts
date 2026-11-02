@@ -53,6 +53,12 @@ export function formatDate(date: CalendarDate): string {
   return `${day} ${MONTHS[month - 1]} ${year}`;
 }
 
+// "2026-11-01" -> "Nov 2026"
+export function formatMonth(date: CalendarDate): string {
+  const [year, month] = date.split("-").map(Number);
+  return `${MONTHS[month - 1]} ${year}`;
+}
+
 // Takes a timestamp (ISO string or Date) and shows it in Malaysia time, e.g. "2 Nov 2026, 9:00 AM".
 export function formatDateTime(timestamp: string | Date): string {
   const shifted = new Date(new Date(timestamp).getTime() + MYT_OFFSET_MS);

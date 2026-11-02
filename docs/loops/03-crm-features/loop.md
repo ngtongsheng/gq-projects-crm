@@ -49,7 +49,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 24 | Collection (payments, outstanding) | done | 14 | sonnet/high |
 | 25 | Commission settings + calculation | done | 01, 24 | opus/medium |
 | 26 | Commission screen + payouts | done | 25 | sonnet/high |
-| 27 | Monthly reports (sales, BD, site) | todo | 08, 11, 14, 21 | opus/medium |
+| 27 | Monthly reports (sales, BD, site) | done | 08, 11, 14, 21 | opus/medium |
 | 28 | Team + director reports | todo | 27 | sonnet/high |
 | 29 | Dashboards per role | todo | 11, 14, 20, 24, 27 | sonnet/high |
 | 30 | CSV export | todo | 05, 14, 22, 23 | sonnet/high |
@@ -150,3 +150,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #26 · start · sonnet/high subagent
 2026-11-02 · #26 · decision · commission_basis() security-definer returns margin tier only (never cost) scoped to caller's MOFs; director reads payouts read-only; over-remaining check in action; removePayout added
 2026-11-02 · #26 · done · 637 tests pass · pushed to PR #14
+2026-11-02 · #27 · start · opus/medium subagent
+2026-11-02 · #27 · decision · BD report gated on directorReport, its fill-in page left to #28; managers get a basic review list (#28 replaces); quotations = projects past lead stage that month (debt); submitted figures computed in app, not DB (debt); awarded value counts main salesperson only
+2026-11-02 · #27 · done · 665 tests pass · pushed to PR #14

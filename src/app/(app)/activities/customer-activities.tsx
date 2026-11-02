@@ -1,8 +1,9 @@
 import { CalendarCheck } from "lucide-react";
 import { EmptyState } from "@/components/app/empty-state";
-import { StatusBadge, type StatusTone } from "@/components/app/status-badge";
+import { StatusBadge } from "@/components/app/status-badge";
 import { formatDateTime } from "@/lib/format/date";
 import { ActivityActions } from "./activity-actions";
+import { activityStatusTone } from "./activity-status-tone";
 import {
   type ActivityStatus,
   ActivityStatusLabel,
@@ -19,12 +20,6 @@ export type CustomerActivity = {
   startsAt: string;
   status: ActivityStatus;
   canEdit: boolean;
-};
-
-const statusTone: Record<ActivityStatus, StatusTone> = {
-  planned: "info",
-  completed: "good",
-  cancelled: "neutral",
 };
 
 type CustomerActivitiesProps = {
@@ -60,7 +55,7 @@ export function CustomerActivities({
               <span className="font-mono text-sm tabular-nums">
                 {formatDateTime(activity.startsAt)}
               </span>
-              <StatusBadge tone={statusTone[activity.status]}>
+              <StatusBadge tone={activityStatusTone[activity.status]}>
                 {ActivityStatusLabel[activity.status]}
               </StatusBadge>
             </div>

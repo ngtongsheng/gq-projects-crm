@@ -5,7 +5,6 @@ import { z } from "zod";
 import type { CalendarEvent } from "@/components/app/calendar-event";
 import { MonthCalendar } from "@/components/app/month-calendar";
 import { PageHeader } from "@/components/app/page-header";
-import type { StatusTone } from "@/components/app/status-badge";
 import { WeekList } from "@/components/app/week-list";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,11 +25,11 @@ import {
 import { addDays, formatDate, todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
 import { canLogActivity } from "../activities/activity-access";
+import { activityStatusTone } from "../activities/activity-status-tone";
 import { toMytInput } from "../activities/activity-time";
 import { activityDay } from "../activities/last-activity";
 import {
   ActivityStatus,
-  type ActivityStatus as ActivityStatusValue,
   ActivityType,
   ActivityTypeLabel,
 } from "../activities/schemas";
@@ -40,12 +39,6 @@ import { calendarHref, parseCalendarParams, stepDate } from "./calendar-params";
 export const metadata: Metadata = { title: "Sales Calendar" };
 
 const ALL = "all";
-
-const statusTone: Record<ActivityStatusValue, StatusTone> = {
-  planned: "info",
-  completed: "good",
-  cancelled: "neutral",
-};
 
 const activityRows = z.array(
   z.object({
@@ -125,7 +118,7 @@ export default async function SalesCalendarPage({
       time: showOwner ? `${clock} · ${owner}` : clock,
       title: activity.contacts.companies.name,
       detail: `${ActivityTypeLabel[activity.type]} · ${activity.purpose}`,
-      tone: statusTone[activity.status],
+      tone: activityStatusTone[activity.status],
       href: `/customers/${activity.contact_id}`,
       muted: activity.status === "cancelled",
     };

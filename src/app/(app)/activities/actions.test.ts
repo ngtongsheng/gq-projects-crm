@@ -242,6 +242,16 @@ describe("setActivityStatus", () => {
     expect(calls).toHaveLength(1);
   });
 
+  it("shows a plain message when the activity cannot be loaded", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    fakeSupabase([{ data: null, error: { code: "XX000" } }]);
+
+    const result = await setActivityStatus(ACTIVITY, "completed");
+
+    expect(result.error).toBe("Could not save the activity. Try again.");
+  });
+
   it("rejects an id that is not a uuid", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
     const calls = fakeSupabase([]);

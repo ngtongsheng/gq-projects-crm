@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  canAnswerBookings,
+  canBookSiteSupervisor,
   canEditRegister,
   canEditSite,
   canEditStock,
@@ -115,5 +117,20 @@ describe("job scheduling", () => {
       "site",
       "support",
     ]);
+  });
+});
+
+describe("site supervisor bookings", () => {
+  it("lets sales and the MD, Sales Director and BD Director book a supervisor", () => {
+    expect(JobRole.options.filter(canBookSiteSupervisor)).toEqual([
+      "md",
+      "director",
+      "bd",
+      "sales",
+    ]);
+  });
+
+  it("lets only Site Supervisors answer a booking", () => {
+    expect(JobRole.options.filter(canAnswerBookings)).toEqual(["site"]);
   });
 });

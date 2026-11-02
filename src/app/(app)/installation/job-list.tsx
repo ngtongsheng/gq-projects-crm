@@ -1,5 +1,4 @@
 import Link from "next/link";
-import type { CalendarEvent } from "@/components/app/calendar-event";
 import { StatusBadge } from "@/components/app/status-badge";
 import { WeekList } from "@/components/app/week-list";
 import {
@@ -11,19 +10,18 @@ import {
 } from "@/lib/domain/delivery-status";
 import { type CalendarDate, formatDate } from "@/lib/format/date";
 import { cn } from "@/lib/utils";
+import { BookingCard } from "./booking-card";
+import type { CalendarItem } from "./calendar-items";
 import type { CalendarJob } from "./calendar-jobs";
 import { JobDialog } from "./job-form";
 import { JobStatusSelect } from "./job-status-select";
-
-/** A job on the calendar: the compact event for the grid, plus the job for the list card. */
-export type JobEvent = CalendarEvent & { job: CalendarJob };
 
 type Team = { id: string; name: string }[];
 
 type JobListProps = {
   days: CalendarDate[];
   today: CalendarDate;
-  eventsByDay: ReadonlyMap<CalendarDate, JobEvent[]>;
+  eventsByDay: ReadonlyMap<CalendarDate, CalendarItem[]>;
   team: Team;
   /** The signed-in person; a Site Supervisor moves only the jobs assigned to them. */
   meId: string;
@@ -31,35 +29,52 @@ type JobListProps = {
   canUpdateStatus: boolean;
   /** Whether the person may open the MOF register page the job belongs to. */
   canOpenMof: boolean;
+  /** Whether the person answers bookings; they still only answer their own. */
+  canAnswerBookings: boolean;
   addHref?: (date: CalendarDate) => string;
   emptyText?: string;
 };
 
-/** One row per day with a card per job: the phone-friendly way to read the calendar. */
+/** One row per day with a card per job or booking: the phone-friendly way to read the calendar. */
 export function JobList({
   team,
   meId,
   canSchedule,
   canUpdateStatus,
   canOpenMof,
+  canAnswerBookings,
   ...list
 }: JobListProps) {
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
   return (
     <WeekList
       {...list}
-      renderEvent={({ job }) => (
-        <JobCard
-          job={job}
-          supervisor={nameOf.get(job.siteSupervisorId)}
-          team={team}
-          canSchedule={canSchedule}
-          canMove={
-            canUpdateStatus && (canSchedule || job.siteSupervisorId === meId)
-          }
-          canOpenMof={canOpenMof}
-        />
-      )}
+      renderEvent={(event) =>
+        event.kind === "booking" ? (
+          <BookingCard
+            booking={event.booking}
+            supervisor={nameOf.get(event.booking.supervisorId) ?? "Unnamed"}
+            requester={nameOf.get(event.booking.requestedBy) ?? "Unnamed"}
+            canAnswer={
+              canAnswerBookings &&
+              event.booking.status === "requested" &&
+              event.booking.supervisorId === meId
+            }
+          />
+        ) : (
+          <JobCard
+            job={event.job}
+            supervisor={nameOf.get(event.job.siteSupervisorId)}
+            team={team}
+            canSchedule={canSchedule}
+            canMove={
+              canUpdateStatus &&
+              (canSchedule || event.job.siteSupervisorId === meId)
+            }
+            canOpenMof={canOpenMof}
+          />
+        )
+      }
     />
   );
 }

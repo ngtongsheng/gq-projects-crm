@@ -41,7 +41,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 16 | Installer POs + claims | done | 14 | sonnet/high |
 | 17 | Delivery + installation jobs, DOs | done | 14 | sonnet/high |
 | 18 | Installation calendar | done | 09, 17 | sonnet/high |
-| 19 | Site supervisor booking | todo | 17 | sonnet/high |
+| 19 | Site supervisor booking | done | 17 | sonnet/high |
 | 20 | Site stage, site log, follow-ups | todo | 17 | sonnet/high |
 | 21 | Overtime claims + approval | todo | 20 | sonnet/high |
 | 22 | Stock returns / leftover | todo | 20 | sonnet/high |
@@ -125,3 +125,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #18 · decision · manual 390px check deferred to #35 walk-through (needs per-role sign-ins from #33); layout switches at 640px · no session available to subagent
 2026-11-02 · #18 · decision · site supervisor sees own jobs (page filter; jobs read-all); phone month view lists days with jobs; move = edit dates; calendar components made generic for reuse
 2026-11-02 · #18 · done · 404 tests pass · pushed to PR #14
+2026-11-02 · #19 · start · sonnet/high subagent
+2026-11-02 · #19 · decision · booking links project_id + free-text site (no mof_id); only booked supervisor decides; decline reason optional; no cancel/availability; declined stay faded on calendar
+2026-11-02 · #19 · done · 426 tests pass · pushed to PR #14

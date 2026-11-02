@@ -5,7 +5,12 @@ import { EmptyState } from "@/components/app/empty-state";
 import { MonthCalendar } from "@/components/app/month-calendar";
 import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
-import { canScheduleJobs, canUpdateJobStatus } from "@/lib/auth/job-role";
+import {
+  canAnswerBookings,
+  canBookSiteSupervisor,
+  canScheduleJobs,
+  canUpdateJobStatus,
+} from "@/lib/auth/job-role";
 import { allowedSectionsFor, canOpenSection } from "@/lib/auth/nav-sections";
 import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
@@ -15,12 +20,6 @@ import {
   monthWeeks,
   weekDays,
 } from "@/lib/domain/calendar-grid";
-import {
-  JOB_STATUS_LABEL,
-  JOB_STATUS_TONE,
-  JOB_TYPE_LABEL,
-} from "@/lib/domain/delivery-status";
-import { jobsByDay } from "@/lib/domain/job-calendar";
 import { formatDate, todayMyt } from "@/lib/format/date";
 import {
   calendarHref,
@@ -28,8 +27,16 @@ import {
   stepDate,
 } from "../calendar/calendar-params";
 import { AddJobDialog } from "./add-job-dialog";
+import {
+  loadBookableProjects,
+  loadCalendarBookings,
+  loadPendingBookingDays,
+  loadSiteSupervisors,
+} from "./booking-data";
+import { BookingDialog } from "./booking-form";
+import { calendarItems } from "./calendar-items";
 import { loadCalendarJobs } from "./calendar-jobs";
-import { type JobEvent, JobList } from "./job-list";
+import { JobList } from "./job-list";
 import { loadMofOptions } from "./mof-options";
 
 export const metadata: Metadata = { title: "Installation" };
@@ -47,6 +54,8 @@ export default async function InstallationPage({
   const { view } = params;
   const today = todayMyt();
   const canSchedule = canScheduleJobs(me.jobRole);
+  const canBook = canBookSiteSupervisor(me.jobRole);
+  const answersBookings = canAnswerBookings(me.jobRole);
   const title =
     allowedSectionsFor(me.jobRole).find((s) => s.key === "installation")
       ?.label ?? "Installation";
@@ -56,34 +65,33 @@ export default async function InstallationPage({
   const from = days[0];
   const to = days[days.length - 1];
 
-  const [jobs, team, mofs] = await Promise.all([
-    // A Site Supervisor sees their own jobs; everyone else sees the whole schedule.
-    loadCalendarJobs(from, to, me.jobRole === "site" ? me.id : null),
-    getTeamDirectory(),
-    canSchedule && params.add ? loadMofOptions() : Promise.resolve(null),
-  ]);
+  // A Site Supervisor sees their own jobs and bookings; everyone else sees the whole schedule.
+  const ownOnly = me.jobRole === "site" ? me.id : null;
+  const [jobs, bookings, team, mofs, supervisors, projects, pendingDays] =
+    await Promise.all([
+      loadCalendarJobs(from, to, ownOnly),
+      loadCalendarBookings(from, to, ownOnly),
+      getTeamDirectory(),
+      canSchedule && params.add ? loadMofOptions() : Promise.resolve(null),
+      canBook ? loadSiteSupervisors() : Promise.resolve([]),
+      canBook ? loadBookableProjects(me) : Promise.resolve([]),
+      answersBookings ? loadPendingBookingDays(me.id) : Promise.resolve([]),
+    ]);
 
   const keep = { view };
   const here = { ...keep, date: params.date };
   const href = (next: Parameters<typeof calendarHref>[0]) =>
     calendarHref(next, PATH);
 
-  const eventsByDay = new Map<string, JobEvent[]>();
-  for (const [day, dayJobs] of jobsByDay(jobs, from, to)) {
-    eventsByDay.set(
-      day,
-      dayJobs.map((job) => ({
-        id: job.id,
-        time: job.startTime || "All day",
-        title: `${job.mofNo} · ${job.companyName}`,
-        detail: `${JOB_TYPE_LABEL[job.jobType]} · ${JOB_STATUS_LABEL[job.status]}`,
-        tone: JOB_STATUS_TONE[job.status],
-        href: href({ view: "week", date: day }),
-        muted: job.status === "postponed",
-        job,
-      })),
-    );
-  }
+  const nameOf = new Map(team.map((member) => [member.id, member.name]));
+  const eventsByDay = calendarItems({
+    jobs,
+    bookings,
+    from,
+    to,
+    supervisorName: (id) => nameOf.get(id) ?? "Unnamed",
+    hrefFor: (day) => href({ view: "week", date: day }),
+  });
 
   // The month grid needs room, so a phone gets a list of the days that have jobs instead.
   const listDays = weeks
@@ -109,6 +117,7 @@ export default async function InstallationPage({
       canSchedule={canSchedule}
       canUpdateStatus={canUpdateJobStatus(me.jobRole)}
       canOpenMof={canOpenSection(me.jobRole, "mof")}
+      canAnswerBookings={answersBookings}
       addHref={view === "week" ? addHref : undefined}
       emptyText="No jobs."
     />
@@ -137,6 +146,13 @@ export default async function InstallationPage({
                 <Link href={href({ ...here, view: "week" })}>Week</Link>
               </Button>
             </div>
+            {canBook && supervisors.length > 0 && (
+              <BookingDialog
+                supervisors={supervisors}
+                projects={projects}
+                defaultDate={today}
+              />
+            )}
             {addHref && (
               <Button asChild size="sm">
                 <Link href={addHref(today)}>
@@ -148,6 +164,19 @@ export default async function InstallationPage({
           </>
         }
       />
+      {pendingDays[0] && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-warn-bg px-3 py-2 text-sm text-warn">
+          <span className="font-medium">
+            {pendingDays.length} booking{" "}
+            {pendingDays.length === 1 ? "request" : "requests"} waiting for you
+          </span>
+          <Button asChild size="sm" variant="outline">
+            <Link href={href({ view: "week", date: pendingDays[0] })}>
+              Review
+            </Link>
+          </Button>
+        </div>
+      )}
       <div className="flex flex-wrap items-center gap-2">
         <Button asChild size="icon-sm" variant="outline">
           <Link
@@ -206,8 +235,9 @@ export default async function InstallationPage({
         list
       )}
       <p className="text-sm text-muted-foreground">
-        Green = done · Amber = in progress · Blue = scheduled · Grey =
-        postponed.
+        Jobs: green = done · amber = in progress · blue = scheduled · grey =
+        postponed. Site supervisor bookings: amber = waiting for an answer ·
+        green = confirmed · grey = declined.
       </p>
       {params.add && mofs && (
         <AddJobDialog

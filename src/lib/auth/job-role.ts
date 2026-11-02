@@ -65,6 +65,13 @@ export const canScheduleJobs = (jobRole: JobRole) =>
 export const canUpdateJobStatus = (jobRole: JobRole) =>
   canScheduleJobs(jobRole) || jobRole === "site";
 
+/** Books a Site Supervisor (SQL: the insert policy on site_bookings). */
+export const canBookSiteSupervisor = (jobRole: JobRole) =>
+  has(jobRole, ["md", "director", "bd", "sales"]);
+
+/** Only a Site Supervisor answers a booking, and only their own, which the database checks. */
+export const canAnswerBookings = (jobRole: JobRole) => jobRole === "site";
+
 export const canEnterPayments = (jobRole: JobRole) =>
   has(jobRole, ["md", "accounts"]);
 

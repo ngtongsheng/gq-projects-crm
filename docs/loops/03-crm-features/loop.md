@@ -32,7 +32,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 07 | Ownership requests | done | 05 | sonnet/high |
 | 08 | Activities (visits, calls) | done | 06 | sonnet/high |
 | 09 | Sales calendar | done | 08 | sonnet/high |
-| 10 | Projects (pipeline) data + form | todo | 06 | sonnet/high |
+| 10 | Projects (pipeline) data + form | done | 06 | sonnet/high |
 | 11 | Pipeline board/list | todo | 10 | sonnet/high |
 | 12 | Order register (MOF) data, private cost | todo | 10 | opus/medium |
 | 13 | MOF form | todo | 12 | opus/medium |
@@ -96,3 +96,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #09 · start · sonnet/high subagent
 2026-11-02 · #09 · decision · nav href /sales-calendar -> /calendar; managers get person filter; ?add=date opens shared add dialog; phone month view shows counts
 2026-11-02 · #09 · done · 218 tests pass · pushed to PR #14
+2026-11-02 · #10 · start · sonnet/high subagent
+2026-11-02 · #10 · decision · commission type/passed-by/PIC + stage clock enforced by guard_project_write trigger (orchestrator review: app-only was bypassable); lead source required; by-date default today+3; nav stays unbuilt until #11
+2026-11-02 · #10 · done · 247 tests pass · pushed to PR #14

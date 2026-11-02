@@ -1,9 +1,8 @@
-import { ArrowLeft, FolderKanban } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
-import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge, type StatusTone } from "@/components/app/status-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +23,17 @@ import {
 } from "../../activities/customer-activities";
 import { lastCompletedDay } from "../../activities/last-activity";
 import { ActivityStatus, ActivityType } from "../../activities/schemas";
+import {
+  type CustomerProject,
+  CustomerProjects,
+} from "../../projects/customer-projects";
+import {
+  canChoosePic,
+  canCreateProject,
+  canEditProject,
+} from "../../projects/project-access";
+import { ProjectDialog } from "../../projects/project-form";
+import { LeadSource, ProjectStage } from "../../projects/schemas";
 import { canEditContact, canSetAccountType } from "../contact-access";
 import { ContactDialog } from "../contact-form";
 import { CustomerHealthBadge } from "../customer-health-badge";
@@ -86,6 +96,24 @@ const activityRows = z.array(
   }),
 );
 
+const projectRows = z.array(
+  z.object({
+    id: z.string(),
+    name: z.string(),
+    lead_source: LeadSource,
+    stage: ProjectStage,
+    qty_sqft: z.number(),
+    value: z.number(),
+    pic_id: z.string(),
+    support_id: z.string().nullable(),
+    passed_by: z.string().nullable(),
+    commission_type: AccountType,
+    next_action: z.string().nullable(),
+    next_action_date: z.string().nullable(),
+    notes: z.string().nullable(),
+  }),
+);
+
 function Field({
   label,
   children,
@@ -123,23 +151,35 @@ export default async function CustomerPage({
   if (!data) notFound();
   const customer = customerRow.parse(data);
 
-  const [colleaguesResult, companiesResult, activitiesResult, team] =
-    await Promise.all([
-      supabase
-        .from("contacts")
-        .select("id, name, title, mobile")
-        .eq("company_id", customer.company_id)
-        .neq("id", customer.id)
-        .is("archived_at", null)
-        .order("name"),
-      supabase.from("companies").select("id, name").order("name"),
-      supabase
-        .from("activities")
-        .select("id, owner_id, type, purpose, outcome, starts_at, status")
-        .eq("contact_id", customer.id)
-        .order("starts_at", { ascending: false }),
-      getTeamDirectory(),
-    ]);
+  const [
+    colleaguesResult,
+    companiesResult,
+    activitiesResult,
+    projectsResult,
+    team,
+  ] = await Promise.all([
+    supabase
+      .from("contacts")
+      .select("id, name, title, mobile")
+      .eq("company_id", customer.company_id)
+      .neq("id", customer.id)
+      .is("archived_at", null)
+      .order("name"),
+    supabase.from("companies").select("id, name").order("name"),
+    supabase
+      .from("activities")
+      .select("id, owner_id, type, purpose, outcome, starts_at, status")
+      .eq("contact_id", customer.id)
+      .order("starts_at", { ascending: false }),
+    supabase
+      .from("projects")
+      .select(
+        "id, name, lead_source, stage, qty_sqft, value, pic_id, support_id, passed_by, commission_type, next_action, next_action_date, notes",
+      )
+      .eq("contact_id", customer.id)
+      .order("created_at", { ascending: false }),
+    getTeamDirectory(),
+  ]);
   if (colleaguesResult.error) {
     throw new Error(
       `Could not load the company's contacts: ${colleaguesResult.error.message}`,
@@ -154,6 +194,9 @@ export default async function CustomerPage({
     throw new Error(
       `Could not load activities: ${activitiesResult.error.message}`,
     );
+  }
+  if (projectsResult.error) {
+    throw new Error(`Could not load projects: ${projectsResult.error.message}`);
   }
   const colleagues = colleagueRows.parse(colleaguesResult.data);
   const companies = companyRows.parse(companiesResult.data);
@@ -174,6 +217,40 @@ export default async function CustomerPage({
       status: row.status,
       canEdit: canEditActivity(me.jobRole, row.owner_id === me.id),
     }));
+  const projects: CustomerProject[] = projectRows
+    .parse(projectsResult.data)
+    .map((row) => ({
+      id: row.id,
+      name: row.name,
+      leadSource: row.lead_source,
+      stage: row.stage,
+      qtySqft: row.qty_sqft,
+      value: row.value,
+      picId: row.pic_id,
+      supportId: row.support_id,
+      commissionType: row.commission_type,
+      passedBy: row.passed_by,
+      nextAction: row.next_action ?? "",
+      nextActionDate: row.next_action_date ?? "",
+      notes: row.notes ?? "",
+      picName: nameOf.get(row.pic_id) ?? "Unnamed",
+      supportName: row.support_id
+        ? (nameOf.get(row.support_id) ?? "Unnamed")
+        : null,
+      canEdit: canEditProject(
+        me.jobRole,
+        row.pic_id === me.id || row.support_id === me.id,
+      ),
+    }));
+  const projectDialog = {
+    team,
+    canChoosePic: canChoosePic(me.jobRole),
+    me: { id: me.id, name: nameOf.get(me.id) ?? me.fullName ?? "Unnamed" },
+    customerCommission: {
+      type: customer.account_type,
+      passedBy: customer.passed_by,
+    },
+  };
   const health = customerHealth(
     lastCompletedDay(
       activities.map((a) => ({ status: a.status, startsAt: a.startsAt })),
@@ -307,14 +384,22 @@ export default async function CustomerPage({
         </CardContent>
       </Card>
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
           <CardTitle className="font-heading">Projects</CardTitle>
+          {canCreateProject(me.jobRole, ownerIds.includes(me.id)) && (
+            <ProjectDialog
+              {...projectDialog}
+              contactId={customer.id}
+              customerName={customer.name}
+            />
+          )}
         </CardHeader>
         <CardContent>
-          <EmptyState
-            icon={FolderKanban}
-            title="No projects yet"
-            description="Projects for this customer will show here."
+          <CustomerProjects
+            contactId={customer.id}
+            customerName={customer.name}
+            projects={projects}
+            dialog={projectDialog}
           />
         </CardContent>
       </Card>

@@ -18,7 +18,8 @@ One command fills the test copy with realistic fictional records for every modul
 - docs/environments.md
 ## Steps
 1. Uses the dev URL and a dev secret from an untracked `.env.seed.dev`; refuses to run if the URL is the prod project ref (check `docs/environments.md`).
-2. Fictional names only; deterministic. Idempotent: deletes only rows it created (tagged in notes).
+2. Also create one test sign-in per job role on the test copy (Supabase admin API, fixed emails like `test-sales@example.invalid`, passwords printed once to the terminal, never committed), so #35 can sign in as each role.
+3. Fictional names only; deterministic. Idempotent: deletes only rows it created (tagged in notes).
 ## Acceptance
 - Run against the test copy; record row counts in loop.md Log. If the dev secret is not available, park as owner action.
 - `pnpm check && pnpm typecheck && pnpm test` pass; PR checks green; merged per conventions "Done".

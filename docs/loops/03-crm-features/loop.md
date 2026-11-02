@@ -4,7 +4,7 @@ Orchestrator: opus/medium
 Every module of Vicky's prototype (`docs/mockup/gq-crm-mockup.html`) works in the app on real database tables with
 job-role permissions: customers, activities, pipeline, MOF register, supplier and installer POs, deliveries and
 installation, site work, OT, stock and leftover, collection, commission, reports, dashboards, import/export. Each slice
-is live on main; a per-role walk-through on a preview link passes and Vicky has a review checklist.
+is live on main; a per-role walk-through on localhost against the test copy passes and Vicky has a review checklist.
 ## Decisions
 | ID | Decision | Why | Rejected |
 |---|---|---|---|
@@ -57,13 +57,13 @@ is live on main; a per-role walk-through on a preview link passes and Vicky has 
 | 32 | Paste import: MOFs, stock, leftover | todo | 31, 13, 22, 23 | sonnet/high |
 | 33 | Test-copy example data | todo | 32 | sonnet/high |
 | 34 | In-app guide | todo | 29 | haiku/low |
-| 35 | Walk-through per role on a preview link | todo | 33, 34 | sonnet/high |
+| 35 | Walk-through per role on localhost | todo | 33, 34 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - #33: if no dev secret is available to the executor, Tong Sheng creates `.env.seed.dev` (test copy only) and runs `pnpm seed:example`.
-- #35: Tong Sheng sets everyone's job role on the People screen of the live app; Vicky goes through `assets/walkthrough.md` on a preview link before the team uses the app.
-- Before #35: decide the Vercel preview-link login (loop 01 finding) so teammates can open preview links.
+- #35: Tong Sheng sets everyone's job role on the People screen of the live app; Vicky goes through `assets/walkthrough.md` on her laptop preview before the team uses the app.
 - After the loop: confirm the prototype's commission, payment (90%) and stock-hold rules with Vicky; adjust in settings.
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
+2026-11-02 · plan · #33/#35 moved to localhost: preview links are local-only (decisions.md, PR #10)
 2026-11-02 · plan · loop written (35 tasks); mockup customers/companies/calendar parts skimmed only, tasks tell executor to read anchors · /execute-loop

@@ -53,7 +53,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 28 | Team + director reports | done | 27 | sonnet/high |
 | 29 | Dashboards per role | done | 11, 14, 20, 24, 27 | sonnet/high |
 | 30 | CSV export | done | 05, 14, 22, 23 | sonnet/high |
-| 31 | Paste import: parser + companies | todo | 04 | opus/medium |
+| 31 | Paste import: parser + companies | done | 04 | opus/medium |
 | 32 | Paste import: MOFs, stock, leftover | todo | 31, 13, 22, 23 | sonnet/high |
 | 33 | Test-copy example data | todo | 32 | sonnet/high |
 | 34 | In-app guide | todo | 29 | haiku/low |
@@ -162,3 +162,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #30 · start · sonnet/high subagent
 2026-11-02 · #30 · decision · server route handlers (orchestrator prompt) instead of client-built files: same RLS path, filters passed via link; loaders moved out of pages; formula-injection guard; no costs exported
 2026-11-02 · #30 · done · 688 tests pass · pushed to PR #14
+2026-11-02 · #31 · start · opus/medium subagent
+2026-11-02 · #31 · decision · import limited to md/director; contacts need existing company; blanks default (company type others, account own); invoker-rights SQL functions make each import one transaction; generic parser/plan/dialog for #32
+2026-11-02 · #31 · done · 709 tests pass · pushed to PR #14

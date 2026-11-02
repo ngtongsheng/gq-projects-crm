@@ -12,3 +12,6 @@ export const canEditContact = (jobRole: JobRole, isOwner: boolean) =>
 
 /** Account type and passed-by are set by the MD or Sales Director; everyone else adds own-effort accounts. */
 export const canSetAccountType = isOwnerManager;
+
+/** Paste-from-sheet import sets owners and updates companies, which only these roles may. */
+export const canImportCustomers = isOwnerManager;

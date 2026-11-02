@@ -6,6 +6,7 @@ import { DataTable } from "@/components/app/data-table";
 import { DownloadCsvButton } from "@/components/app/download-csv-button";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
+import { PasteImportDialog } from "@/components/app/paste-import-dialog";
 import { StatusBadge, type StatusTone } from "@/components/app/status-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,11 +21,17 @@ import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { formatMobile } from "@/lib/domain/mobile";
 import { createClient } from "@/lib/supabase/server";
-import { canAddContact, canSetAccountType } from "./contact-access";
+import {
+  canAddContact,
+  canImportCustomers,
+  canSetAccountType,
+} from "./contact-access";
 import { ContactDialog } from "./contact-form";
 import { loadCustomers } from "./customer-data";
 import { filterCustomers, parseCustomerFilters } from "./customer-filters";
 import { CustomerHealthBadge } from "./customer-health-badge";
+import { companyImportFields, contactImportFields } from "./customer-import";
+import { importCustomers, previewCustomerImport } from "./import-actions";
 import { canRequestOwnership } from "./ownership/ownership-access";
 import { RequestOwnershipDialog } from "./ownership/request-ownership-dialog";
 import {
@@ -111,6 +118,26 @@ export default async function CustomersPage({
                 account: filters.account,
               }}
             />
+            {canImportCustomers(me.jobRole) && (
+              <PasteImportDialog
+                title="Paste from sheet"
+                description="Paste companies first, then the customers who work there."
+                kinds={[
+                  {
+                    value: "companies",
+                    label: "Companies",
+                    columns: companyImportFields.map((field) => field.label),
+                  },
+                  {
+                    value: "contacts",
+                    label: "Customers",
+                    columns: contactImportFields.map((field) => field.label),
+                  },
+                ]}
+                preview={previewCustomerImport}
+                save={importCustomers}
+              />
+            )}
             {canAddContact(me.jobRole) && (
               <ContactDialog
                 companies={companies}

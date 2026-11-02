@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { JobRole } from "@/lib/auth/job-role";
+import { isSameMonth } from "@/lib/domain/calendar-grid";
 import { orderTotal } from "@/lib/domain/mof-totals";
 import { firstMondayOfNextMonth, pace } from "@/lib/domain/workdays";
 import type { CalendarDate } from "@/lib/format/date";
@@ -101,9 +102,6 @@ export type SalesInput = {
   targets: ReportTargets;
 };
 
-const inMonth = (day: CalendarDate, month: CalendarDate) =>
-  day.slice(0, 7) === month.slice(0, 7);
-
 /** Who first met each contact, and when: the earliest visit by anyone. */
 function firstVisits(visits: readonly ReportVisit[]): Map<string, ReportVisit> {
   const first = new Map<string, ReportVisit>();
@@ -117,21 +115,21 @@ function firstVisits(visits: readonly ReportVisit[]): Map<string, ReportVisit> {
 function salesFigures(input: SalesInput): z.infer<typeof SalesFigures> {
   const { personId, month } = input;
   const visits = input.visits.filter(
-    (visit) => visit.ownerId === personId && inMonth(visit.day, month),
+    (visit) => visit.ownerId === personId && isSameMonth(visit.day, month),
   );
   const newCustomers = [...firstVisits(input.visits).values()].filter(
-    (first) => first.ownerId === personId && inMonth(first.day, month),
+    (first) => first.ownerId === personId && isSameMonth(first.day, month),
   ).length;
   // No quotation date is stored yet (docs/debt.md): a project added this month that got past lead.
   const quotations = input.projects.filter(
     (project) =>
       project.picId === personId &&
       project.stage !== "lead" &&
-      inMonth(project.createdOn, month),
+      isSameMonth(project.createdOn, month),
   ).length;
   const awarded = input.orders.filter(
     (order) =>
-      order.salespersonId === personId && inMonth(order.loaDate, month),
+      order.salespersonId === personId && isSameMonth(order.loaDate, month),
   );
   return {
     visits: visits.length,
@@ -153,7 +151,7 @@ export function bdStats(input: SalesInput): ReportStats {
     (order) =>
       order.passedBy === input.personId &&
       order.salespersonId !== input.personId &&
-      inMonth(order.loaDate, input.month),
+      isSameMonth(order.loaDate, input.month),
   );
   return {
     kind: "bd",
@@ -186,7 +184,7 @@ export function siteStats(input: SiteInput): ReportStats {
   const logs = input.siteLogs.filter(
     (log) =>
       log.supervisorId === input.personId &&
-      inMonth(log.visitedOn, input.month),
+      isSameMonth(log.visitedOn, input.month),
   );
   // A site visit is one site on one day, however many activities were logged there.
   const siteVisits = new Set(logs.map((log) => `${log.visitedOn}|${log.mofId}`))
@@ -196,7 +194,7 @@ export function siteStats(input: SiteInput): ReportStats {
       (claim) =>
         claim.profileId === input.personId &&
         claim.status !== "rejected" &&
-        inMonth(claim.workDate, input.month),
+        isSameMonth(claim.workDate, input.month),
     )
     .reduce((total, claim) => total + Math.round(claim.hours * 10), 0);
   return {

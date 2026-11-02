@@ -21,8 +21,8 @@ Loop 01 decisions: see `docs/loops/01-foundation/loop.md` (D1-D12).
 ### Findings from loop 01 (2026-11-02)
 - Desktop spike: AskUserQuestion, project output style, project skills, worktree toggle, launch.json preview, `/plugin marketplace add` and raw-URL fetch all pass. Following written steps from a fetched URL is untested: test it end to end in loop 02.
 - GitHub Free private repo has no branch protection or auto-merge (403). The deploy skill waits for `gh pr checks`, then squash-merges; the destructive-migration guard is advisory. Settings deny `git push` to main. GitHub Pro or a public repo closes the gap.
-- Vercel preview links sit behind Vercel login (Deployment Protection), so teammates cannot open them. Decide before Vicky shares a preview.
-- Preview URL is read from the Vercel bot PR comment (GitHub deployments API is empty). Only one Vercel project should exist; delete the duplicate `gq-projects-crm-ym4y`.
+- Vercel preview links sit behind Vercel login (Deployment Protection). Decided 2026-11-02: no shared previews. Vicky and her team preview on localhost; Hobby allows one shareable link per account, made by the owner on request. Admin-only features are tried on the live site right after deploy. Revisit with Vercel Pro (team seats).
+- Preview URL is read from the Vercel bot PR comment (GitHub deployments API is empty). The duplicate Vercel project `gq-projects-crm-ym4y` was deleted 2026-11-02.
 - Skills may need extra allow-list entries (`gh api .../deployments`, `curl -sI`, `lsof`, `kill`, `sleep`) to avoid jargon permission prompts; owner decides.
 - The dev database is shared by all open PRs: a PR missing another PR's applied migration fails `migrate-dev` until rebased.
 - First admins are seeded with `scripts/seed-admin.ts` using the prod secret key from an untracked `.env.seed`; there is no change-password screen yet, so the temporary password stays until one is added.

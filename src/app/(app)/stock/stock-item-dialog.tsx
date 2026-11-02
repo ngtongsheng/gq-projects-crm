@@ -32,6 +32,7 @@ import {
   STOCK_UNITS,
   type StockUnit,
 } from "@/lib/domain/reservation";
+import { isOneOf } from "@/lib/form/one-of";
 import { saveStockItem } from "./actions";
 import type { StockItem } from "./stock-data";
 
@@ -126,7 +127,9 @@ export function StockItemDialog({ item }: { item?: StockItem }) {
                 <FieldLabel htmlFor="stockUnit">Unit</FieldLabel>
                 <Select
                   value={unit}
-                  onValueChange={(value) => setUnit(value as StockUnit)}
+                  onValueChange={(value) => {
+                    if (isOneOf(STOCK_UNITS, value)) setUnit(value);
+                  }}
                   disabled={Boolean(item)}
                 >
                   <SelectTrigger id="stockUnit">

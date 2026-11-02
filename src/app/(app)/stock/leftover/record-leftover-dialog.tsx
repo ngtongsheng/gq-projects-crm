@@ -39,6 +39,7 @@ import {
   type LeftoverUnit,
   suggestLeftoverDestination,
 } from "@/lib/domain/leftover";
+import { isOneOf } from "@/lib/form/one-of";
 import { recordLeftover } from "./actions";
 
 /** Records an item left over at the site. Purchasing arranges the pickup afterwards. */
@@ -136,8 +137,9 @@ export function RecordLeftoverDialog({ mofId }: { mofId: string }) {
                 <Select
                   value={unit}
                   onValueChange={(value) => {
-                    setUnit(value as LeftoverUnit);
-                    suggest(item, value as LeftoverUnit);
+                    if (!isOneOf(LEFTOVER_UNITS, value)) return;
+                    setUnit(value);
+                    suggest(item, value);
                   }}
                 >
                   <SelectTrigger id="leftoverUnit">
@@ -157,9 +159,9 @@ export function RecordLeftoverDialog({ mofId }: { mofId: string }) {
               <FieldLabel htmlFor="leftoverCondition">Condition</FieldLabel>
               <Select
                 value={condition}
-                onValueChange={(value) =>
-                  setCondition(value as LeftoverCondition)
-                }
+                onValueChange={(value) => {
+                  if (isOneOf(LEFTOVER_CONDITIONS, value)) setCondition(value);
+                }}
               >
                 <SelectTrigger id="leftoverCondition">
                   <SelectValue />
@@ -178,7 +180,8 @@ export function RecordLeftoverDialog({ mofId }: { mofId: string }) {
               <Select
                 value={destination}
                 onValueChange={(value) => {
-                  setDestination(value as LeftoverDestination);
+                  if (!isOneOf(LEFTOVER_DESTINATIONS, value)) return;
+                  setDestination(value);
                   setDestinationChosen(true);
                 }}
               >

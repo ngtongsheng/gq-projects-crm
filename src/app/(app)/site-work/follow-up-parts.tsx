@@ -32,6 +32,7 @@ import {
   FOLLOW_UP_OWNERS,
   type FollowUpOwner,
 } from "@/lib/domain/site-log";
+import { isOneOf } from "@/lib/form/one-of";
 import { addFollowUp, setFollowUpDone } from "./actions";
 
 /** Adds an action to a visit, with who owns it and when it is due. */
@@ -93,7 +94,9 @@ export function FollowUpDialog({
                 <FieldLabel htmlFor={`owner-${siteLogId}`}>Owner</FieldLabel>
                 <Select
                   value={owner}
-                  onValueChange={(value) => setOwner(value as FollowUpOwner)}
+                  onValueChange={(value) => {
+                    if (isOneOf(FOLLOW_UP_OWNERS, value)) setOwner(value);
+                  }}
                 >
                   <SelectTrigger id={`owner-${siteLogId}`}>
                     <SelectValue />

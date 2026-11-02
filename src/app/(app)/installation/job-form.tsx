@@ -37,6 +37,7 @@ import {
   type JobType,
   TRANSPORTERS,
 } from "@/lib/domain/delivery-status";
+import { isOneOf } from "@/lib/form/one-of";
 import { saveJob } from "./actions";
 
 export type JobRow = {
@@ -162,7 +163,9 @@ export function JobForm({
             <FieldLabel htmlFor="jobTypeSelect">Job type</FieldLabel>
             <Select
               value={jobType}
-              onValueChange={(value) => setJobType(value as JobType)}
+              onValueChange={(value) => {
+                if (isOneOf(JOB_TYPES, value)) setJobType(value);
+              }}
               disabled={job !== undefined}
             >
               <SelectTrigger id="jobTypeSelect">

@@ -33,6 +33,7 @@ import {
   type BookingPurpose,
   DEFAULT_BOOKING_TIME,
 } from "@/lib/domain/site-booking";
+import { isOneOf } from "@/lib/form/one-of";
 import { requestBooking } from "./booking-actions";
 import type { BookableProject } from "./booking-data";
 
@@ -124,7 +125,9 @@ function BookingForm({
             <FieldLabel htmlFor="bookingPurpose">Purpose</FieldLabel>
             <Select
               value={purpose}
-              onValueChange={(value) => setPurpose(value as BookingPurpose)}
+              onValueChange={(value) => {
+                if (isOneOf(BOOKING_PURPOSES, value)) setPurpose(value);
+              }}
             >
               <SelectTrigger id="bookingPurpose">
                 <SelectValue />

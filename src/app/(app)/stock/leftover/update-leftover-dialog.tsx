@@ -36,6 +36,7 @@ import {
   type LeftoverDestination,
   type LeftoverStatus,
 } from "@/lib/domain/leftover";
+import { isOneOf } from "@/lib/form/one-of";
 import { updateLeftover } from "./actions";
 import type { Leftover } from "./leftover-data";
 
@@ -87,7 +88,9 @@ export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
               <FieldLabel htmlFor={`status-${leftover.id}`}>Status</FieldLabel>
               <Select
                 value={status}
-                onValueChange={(value) => setStatus(value as LeftoverStatus)}
+                onValueChange={(value) => {
+                  if (isOneOf(LEFTOVER_STATUSES, value)) setStatus(value);
+                }}
               >
                 <SelectTrigger id={`status-${leftover.id}`}>
                   <SelectValue />
@@ -107,9 +110,10 @@ export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
               </FieldLabel>
               <Select
                 value={destination}
-                onValueChange={(value) =>
-                  setDestination(value as LeftoverDestination)
-                }
+                onValueChange={(value) => {
+                  if (isOneOf(LEFTOVER_DESTINATIONS, value))
+                    setDestination(value);
+                }}
               >
                 <SelectTrigger id={`destination-${leftover.id}`}>
                   <SelectValue />
@@ -159,9 +163,9 @@ export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
               </FieldLabel>
               <Select
                 value={condition}
-                onValueChange={(value) =>
-                  setCondition(value as LeftoverCondition)
-                }
+                onValueChange={(value) => {
+                  if (isOneOf(LEFTOVER_CONDITIONS, value)) setCondition(value);
+                }}
               >
                 <SelectTrigger id={`condition-${leftover.id}`}>
                   <SelectValue />

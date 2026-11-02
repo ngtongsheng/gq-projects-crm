@@ -62,7 +62,7 @@ export function AppShell({ nav, headerActions, children }: AppShellProps) {
   return (
     <SidebarProvider className="flex-col [--header-height:3.5rem]">
       <header className="sticky top-0 z-40 flex h-(--header-height) items-center gap-3 border-b-[3px] border-mint bg-head px-4 text-head-foreground">
-        <SidebarTrigger className="text-head-muted hover:bg-white/10 hover:text-head-foreground" />
+        <SidebarTrigger className="text-head-muted hover:bg-head-foreground/10 hover:text-head-foreground" />
         <span className="mr-auto truncate font-heading text-lg font-bold tracking-wider uppercase">
           {APP_NAME}
         </span>

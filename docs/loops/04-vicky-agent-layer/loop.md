@@ -27,8 +27,8 @@ dry run; Vicky's first run (loop 02 #06) is the real test. Must land before loop
 |---|---|---|---|---|
 | 01 | Company rules, plain style, Chat profile text | done | – | opus/medium |
 | 02 | Global skills: tdd, diagnosing-bugs, grilling, get-help | done | 01 | sonnet/high |
-| 03 | settings.json + apply.py | in-progress | 01 | opus/medium |
-| 04 | SETUP.md: rtk, gq-setup, apply, Chat profile, about you | todo | 03 | sonnet/high |
+| 03 | settings.json + apply.py | done | 01 | opus/medium |
+| 04 | SETUP.md: rtk, gq-setup, apply, Chat profile, about you | in-progress | 03 | sonnet/high |
 | 05 | Scratch-HOME dry run + fixes | todo | 02, 04 | sonnet/high |
 | 06 | CRM: style copy, CLAUDE.md lines, drift CI, docs, remove CRM get-help | todo | 01, 02 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
@@ -46,3 +46,6 @@ dry run; Vicky's first run (loop 02 #06) is the real test. Must land before loop
 2026-11-02 · #02 · done · gq-setup commit 9d58c6f verified; push pending (owner) · #03
 2026-11-02 · #02 · decision · dropped Codex openai.yaml and hitl-loop.template.sh (needs terminal); option 10 is a guided click-through · plain style says no terminal
 2026-11-02 · #03 · in-progress · delegating (opus/medium)
+2026-11-02 · #03 · done · gq-setup commit 1be5639; scratch-HOME rerun identical, her CLAUDE.md and settings keys survive; push pending (owner) · #04
+2026-11-02 · #03 · decision · SessionStart matcher startup|resume (docs), 20s hook timeout, company hook entry replaces her same-command entry, absolute link paths · per current Claude Code docs
+2026-11-02 · #04 · in-progress · delegating (sonnet/high)

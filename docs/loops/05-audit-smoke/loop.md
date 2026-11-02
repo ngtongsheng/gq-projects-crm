@@ -21,8 +21,8 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 | 01 | Run loop 03 #35 walk-through + Vicky checklist | done | owner: .env.smoke.local | sonnet/high |
 | 02 | Audit + fix: migrations and RLS | done | 01 | opus/medium |
 | 03 | Audit + fix: lib and proxy | done | 01 | opus/medium |
-| 04 | Audit + fix: MOFs | in-progress | 02, 03 | sonnet/high |
-| 05 | Audit + fix: stock, collection, commission | todo | 02, 03 | sonnet/high |
+| 04 | Audit + fix: MOFs | done | 02, 03 | sonnet/high |
+| 05 | Audit + fix: stock, collection, commission | in-progress | 02, 03 | sonnet/high |
 | 06 | Audit + fix: customers, activities, calendar, projects, people | todo | 02, 03 | sonnet/high |
 | 07 | Audit + fix: installation, site work, overtime | todo | 02, 03 | sonnet/high |
 | 08 | Audit + fix: reports, dashboard, shared components, auth, guide, dev | todo | 02, 03 | sonnet/high |
@@ -50,3 +50,6 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 2026-11-02 · #03 · decision · new src/lib/format/quantity.ts for shared 2dp rounding; env.ts kept as plain presence check · no shared helper existed; two plain strings
 2026-11-02 · #03 · done: 6 findings, 4 fixed (abeb511 a5158fd 5c1610c 444bf53), rows 7-8 to #09; 745 tests pass · #04
 2026-11-02 · #04 · in-progress · subagent sonnet/high
+2026-11-02 · #04 · decision · row 13 (installer claim cap app-only) moved from debt to #09 as an additive trigger · D3 fix everything; permission rules belong in the database
+2026-11-02 · #04 · done: rows 10-14, fixed 5696060 9a643b7, row 12-13 to #09, row 14 debt; 746 tests pass · #05
+2026-11-02 · #05 · in-progress · subagent sonnet/high

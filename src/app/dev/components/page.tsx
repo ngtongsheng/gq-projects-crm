@@ -1,10 +1,13 @@
 import { Inbox, LayoutGrid, Users } from "lucide-react";
 import { notFound } from "next/navigation";
 import { AppShell, type NavItem } from "@/components/app/app-shell";
+import type { CalendarEvent } from "@/components/app/calendar-event";
 import { DataTable, type DataTableColumn } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
+import { MonthCalendar } from "@/components/app/month-calendar";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
+import { WeekList } from "@/components/app/week-list";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,6 +43,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { monthWeeks, weekDays } from "@/lib/domain/calendar-grid";
 import { ToastDemo } from "./toast-demo";
 
 const nav: NavItem[] = [
@@ -77,6 +81,40 @@ const columns: DataTableColumn<DemoLead>[] = [
     cell: (lead) => lead.value.toLocaleString("en-US"),
   },
 ];
+
+const demoDay = "2026-11-04";
+const demoEvents = new Map<string, CalendarEvent[]>([
+  [
+    demoDay,
+    [
+      {
+        id: "visit",
+        time: "09:30",
+        title: "Harbour Offices",
+        detail: "Visit · Follow up quotation",
+        tone: "good",
+        href: "/dev/components",
+      },
+      {
+        id: "call",
+        time: "14:00",
+        title: "Greenfield Clinic",
+        detail: "Call · Confirm colours",
+        tone: "info",
+        href: "/dev/components",
+      },
+      {
+        id: "cancelled",
+        time: "16:00",
+        title: "Oak Street Hotel",
+        detail: "Site visit · Measure lobby",
+        tone: "neutral",
+        href: "/dev/components",
+        muted: true,
+      },
+    ],
+  ],
+]);
 
 function Section({
   title,
@@ -205,6 +243,25 @@ export default function ComponentCatalogPage() {
           <Skeleton className="h-4 w-2/3" />
         </div>
       </Section>
+
+      <section className="grid gap-2">
+        <h2 className="font-heading text-base font-medium">MonthCalendar</h2>
+        <MonthCalendar
+          weeks={monthWeeks(demoDay)}
+          month={demoDay}
+          today={demoDay}
+          eventsByDay={demoEvents}
+          addHref={() => "/dev/components"}
+          dayHref={() => "/dev/components"}
+        />
+        <h2 className="font-heading text-base font-medium">WeekList</h2>
+        <WeekList
+          days={weekDays(demoDay)}
+          today={demoDay}
+          eventsByDay={demoEvents}
+          addHref={() => "/dev/components"}
+        />
+      </section>
 
       <Card>
         <CardHeader>

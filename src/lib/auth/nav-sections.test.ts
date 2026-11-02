@@ -103,6 +103,7 @@ describe("sectionsFor", () => {
   it("only lists sections that have a page", () => {
     expect(sectionsFor("sales").map((s) => s.key)).toEqual([
       "dashboard",
+      "salesCalendar",
       "customers",
     ]);
     expect(sectionsFor("site")).toEqual([]);

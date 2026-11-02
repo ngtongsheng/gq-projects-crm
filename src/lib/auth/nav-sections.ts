@@ -62,10 +62,10 @@ const SECTIONS: readonly Section[] = [
   {
     key: "salesCalendar",
     label: "Sales Calendar",
-    href: "/sales-calendar",
+    href: "/calendar",
     icon: CalendarDays,
     allowed: SALES_SIDE,
-    built: false,
+    built: true,
   },
   {
     key: "installation",

@@ -144,6 +144,7 @@ export async function saveActivity(
   }
 
   revalidatePath("/customers", "layout");
+  revalidatePath("/calendar");
   return { error: null };
 }
 
@@ -177,5 +178,6 @@ export async function setActivityStatus(
   }
 
   revalidatePath("/customers", "layout");
+  revalidatePath("/calendar");
   return { error: null };
 }

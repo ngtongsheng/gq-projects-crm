@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { saveActivity } from "./actions";
-import { toMytInput } from "./activity-time";
+import { parseMytInput, toMytInput } from "./activity-time";
 import {
   ActivityStatus,
   ActivityStatusLabel,
@@ -45,6 +45,8 @@ export type EditableActivity = {
   startsAt: string;
   status: ActivityStatus;
 };
+
+export type CustomerOption = { id: string; label: string };
 
 type ActivityDialogProps = {
   contactId: string;
@@ -82,22 +84,46 @@ export function ActivityDialog(props: ActivityDialogProps) {
             With {props.customerName}. Times are Malaysia time.
           </DialogDescription>
         </DialogHeader>
-        <ActivityForm {...props} onSaved={() => setOpen(false)} />
+        <ActivityForm
+          contactId={props.contactId}
+          activity={props.activity}
+          onSaved={() => setOpen(false)}
+        />
       </DialogContent>
     </Dialog>
   );
 }
 
-function ActivityForm({
+type ActivityFormProps = {
+  /** The customer when it is already known, e.g. on the customer page. */
+  contactId?: string;
+  /** Customers to choose from when `contactId` is not known, e.g. on the calendar. */
+  customers?: CustomerOption[];
+  activity?: EditableActivity;
+  /** Starting date and time for a new activity, as a datetime-local value. Defaults to now. */
+  defaultStartsAt?: string;
+  onSaved: () => void;
+};
+
+export function ActivityForm({
   contactId,
+  customers,
   activity,
+  defaultStartsAt,
   onSaved,
-}: ActivityDialogProps & { onSaved: () => void }) {
+}: ActivityFormProps) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [startsAt] = useState(() =>
-    toMytInput(activity?.startsAt ?? new Date()),
+    activity
+      ? toMytInput(activity.startsAt)
+      : (defaultStartsAt ?? toMytInput(new Date())),
   );
+  // A day picked in the future is a plan; today or earlier is something that already happened.
+  const [newStatus] = useState<ActivityStatus>(() => {
+    const picked = parseMytInput(startsAt);
+    return picked && picked > new Date() ? "planned" : "completed";
+  });
   // Completed and cancelled are final, so only a planned activity can pick a new status.
   const statusLocked = activity !== undefined && activity.status !== "planned";
 
@@ -114,11 +140,28 @@ function ActivityForm({
 
   return (
     <form action={save}>
-      <input type="hidden" name="contactId" value={contactId} />
       {activity && (
         <input type="hidden" name="activityId" value={activity.id} />
       )}
+      {!customers && <input type="hidden" name="contactId" value={contactId} />}
       <FieldGroup>
+        {customers && (
+          <Field>
+            <FieldLabel htmlFor="contactId">Customer</FieldLabel>
+            <Select name="contactId" required>
+              <SelectTrigger id="contactId">
+                <SelectValue placeholder="Choose a customer" />
+              </SelectTrigger>
+              <SelectContent>
+                {customers.map((customer) => (
+                  <SelectItem key={customer.id} value={customer.id}>
+                    {customer.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+        )}
         <Field>
           <FieldLabel htmlFor="type">Type</FieldLabel>
           <Select name="type" defaultValue={activity?.type ?? "visit"}>
@@ -170,7 +213,7 @@ function ActivityForm({
             ) : (
               <Select
                 name="status"
-                defaultValue={activity?.status ?? "completed"}
+                defaultValue={activity?.status ?? newStatus}
               >
                 <SelectTrigger id="status">
                   <SelectValue />

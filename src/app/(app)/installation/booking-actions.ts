@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { canAnswerBookings, canBookSiteSupervisor } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
+import { isClockTime } from "@/lib/domain/ot-hours";
 import { BOOKING_PURPOSES } from "@/lib/domain/site-booking";
 import { createClient } from "@/lib/supabase/server";
 
@@ -33,9 +34,7 @@ const bookingForm = z
     supervisorId: z.uuid({ error: "Choose the site supervisor." }),
     purpose: z.enum(BOOKING_PURPOSES, "Choose the purpose."),
     visitOn: z.iso.date("Choose the date."),
-    startTime: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Enter the time as HH:MM."),
+    startTime: z.string().refine(isClockTime, "Enter the time as HH:MM."),
     projectId: z
       .union([
         z.literal(""),

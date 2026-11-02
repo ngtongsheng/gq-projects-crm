@@ -9,6 +9,7 @@ import {
   JOB_STATUSES,
   JOB_TYPES,
 } from "@/lib/domain/delivery-status";
+import { isClockTime } from "@/lib/domain/ot-hours";
 import { createClient } from "@/lib/supabase/server";
 import { mofIdSchema } from "../mofs/schemas";
 
@@ -46,9 +47,7 @@ const jobForm = z
     startTime: z
       .union([
         z.literal(""),
-        z
-          .string()
-          .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Enter the time as HH:MM."),
+        z.string().refine(isClockTime, "Enter the time as HH:MM."),
       ])
       .transform((value) => (value === "" ? null : value)),
     installer: optionalText(100, "Keep the installer under 100 characters."),
@@ -102,19 +101,23 @@ function refusal(error: { code?: string; message?: string }): string | null {
 const usedMessage = (runningNo: string) =>
   `Running no. ${runningNo} is already used by another DO. Check Zoho.`;
 
-async function runningNoTaken(
+/** The message to show when the running no. cannot be used, or null when it is free. */
+async function runningNoProblem(
   supabase: Supabase,
   runningNo: string,
   exceptJobId: string | null,
-) {
+): Promise<string | null> {
   let query = supabase
     .from("delivery_orders")
     .select("id")
     .eq("running_no", runningNo);
   if (exceptJobId) query = query.neq("job_id", exceptJobId);
   const { data, error } = await query;
-  if (error) throw new Error(`Could not check the DO no.: ${error.message}`);
-  return data.length > 0;
+  if (error) {
+    console.error("Could not check the DO no.", error);
+    return TRY_AGAIN;
+  }
+  return data.length > 0 ? usedMessage(runningNo) : null;
 }
 
 /**
@@ -182,11 +185,12 @@ export async function saveJob(formData: FormData): Promise<JobResult> {
 
   const supabase = await createClient();
   if (delivery?.runningNo) {
-    if (
-      await runningNoTaken(supabase, delivery.runningNo, editing ? jobId : null)
-    ) {
-      return { error: usedMessage(delivery.runningNo) };
-    }
+    const problem = await runningNoProblem(
+      supabase,
+      delivery.runningNo,
+      editing ? jobId : null,
+    );
+    if (problem) return { error: problem };
   }
 
   const doColumns = delivery && {

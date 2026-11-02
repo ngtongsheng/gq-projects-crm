@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { parseRm } from "@/lib/format/money";
+import { roundQuantity } from "@/lib/format/quantity";
 import { AccountType } from "../customers/schemas";
 
 // Values mirror the check constraints in the projects migration.
@@ -84,7 +85,8 @@ const amount = z
   .pipe(
     z
       .number("Enter the value as an amount in RM, like 12500.")
-      .min(0, "The value can't be negative."),
+      .min(0, "The value can't be negative.")
+      .max(999_999_999_999, "That value is too large."),
   );
 
 const quantity = z
@@ -97,7 +99,7 @@ const quantity = z
       .min(0, "The quantity can't be negative.")
       .max(9_999_999_999, "That quantity is too large."),
   )
-  .transform((value) => Math.round(value * 100) / 100);
+  .transform(roundQuantity);
 
 const nextActionDate = z.union([
   z.literal("").transform(() => null),

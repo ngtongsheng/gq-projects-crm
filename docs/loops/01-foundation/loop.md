@@ -100,3 +100,4 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 2026-11-02 · #11 · live CI acceptance PASS (subagent): harmless migration PR green + applied to dev, merged -> migrate-prod ok + Vercel prod ok; drop-table PR blocked by guard, passes with owner-approved label, closed unmerged · fixed real bug: typecheck needs `next typegen` in CI (on main)
 2026-11-02 · #11 · decision · preview URL read from Vercel bot PR comment + commit statuses (deployments API empty); skills updated; findings appended to docs/decisions.md for loop 02
 2026-11-02 · #11 · blocked: owner · steps 1-3 need prod secret key (seed admins), a browser sign-in/invite test on prod, and a Desktop preview->deploy cycle · all automatable checks done
+2026-11-02 · vault · /Users/tongshengng/work/vault/sessions/gq-projects-crm/2026-11-02-loop-01-foundation.md

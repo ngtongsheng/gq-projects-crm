@@ -19,6 +19,7 @@ import {
   SITE_ACTIVITY_LABEL,
 } from "@/lib/domain/site-log";
 import { formatDate, formatDateTime, todayMyt } from "@/lib/format/date";
+import { formatQuantity } from "@/lib/format/quantity";
 import { cn } from "@/lib/utils";
 import { LeftoverBadges } from "../../stock/leftover/leftover-badges";
 import { loadLeftovers } from "../../stock/leftover/leftover-data";
@@ -175,7 +176,7 @@ export default async function SiteDetailPage({
                         {leftover.item}
                       </span>
                       <span className="font-mono text-sm tabular-nums">
-                        {leftover.qty.toLocaleString("en-MY")}{" "}
+                        {formatQuantity(leftover.qty)}{" "}
                         {LEFTOVER_UNIT_LABEL[leftover.unit]}
                       </span>
                     </div>

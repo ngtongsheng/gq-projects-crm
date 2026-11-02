@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { STOCK_UNIT_LABEL, type StockUnit } from "@/lib/domain/reservation";
+import { formatQuantity } from "@/lib/format/quantity";
 import { reserveStock } from "./actions";
 
 type ItemOption = {
@@ -121,8 +122,8 @@ export function ReserveStockDialog({
               </Select>
               {item && (
                 <FieldDescription>
-                  {item.available.toLocaleString("en-MY")}{" "}
-                  {STOCK_UNIT_LABEL[item.unit]} available.
+                  {formatQuantity(item.available)} {STOCK_UNIT_LABEL[item.unit]}{" "}
+                  available.
                 </FieldDescription>
               )}
             </Field>

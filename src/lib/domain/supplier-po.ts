@@ -1,5 +1,6 @@
 import type { StatusTone } from "@/components/app/status-badge";
 import { addDays, type CalendarDate } from "@/lib/format/date";
+import { formatQuantity } from "@/lib/format/quantity";
 import { BIG_ORDER_M2, needsSupplierPo, type StockType } from "./mof-totals";
 
 export const SUPPLIER_PO_STATUSES = [
@@ -78,5 +79,5 @@ export function supplierPoReason(
   if (!needsSupplierPo(lines, totalM2)) return null;
   return lines.some((line) => line.stockType !== "stock")
     ? "Needed: an indent or custom made line."
-    : `Needed: a big order (${BIG_ORDER_M2.toLocaleString("en-MY")} m² or more).`;
+    : `Needed: a big order (${formatQuantity(BIG_ORDER_M2)} m² or more).`;
 }

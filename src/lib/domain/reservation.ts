@@ -5,7 +5,7 @@ import {
   daysBetween,
   formatDate,
 } from "@/lib/format/date";
-import { roundQuantity } from "@/lib/format/quantity";
+import { formatQuantity, roundQuantity } from "@/lib/format/quantity";
 
 // Values mirror the check constraints in the stock migration.
 export const STOCK_UNITS = [
@@ -166,7 +166,7 @@ export function supplierMailto(line: {
   projectName: string;
   expiresOn: CalendarDate | null;
 }): string | null {
-  const what = `${line.qty.toLocaleString("en-MY")} ${STOCK_UNIT_LABEL[line.unit]} of ${line.sku}${line.collection ? ` (${line.collection})` : ""}`;
+  const what = `${formatQuantity(line.qty)} ${STOCK_UNIT_LABEL[line.unit]} of ${line.sku}${line.collection ? ` (${line.collection})` : ""}`;
   let subject: string;
   let body: string;
   if (HELD.includes(line.status) && line.expiresOn) {

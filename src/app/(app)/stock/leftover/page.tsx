@@ -17,6 +17,7 @@ import {
   LEFTOVER_UNIT_LABEL,
 } from "@/lib/domain/leftover";
 import { formatDateTime } from "@/lib/format/date";
+import { formatQuantity } from "@/lib/format/quantity";
 import { StockTabs } from "../stock-tabs";
 import { importLeftovers, previewLeftoverImport } from "./import-actions";
 import { LeftoverBadges } from "./leftover-badges";
@@ -128,7 +129,7 @@ export default async function LeftoverPage() {
             header: "Qty",
             numeric: true,
             cell: (leftover) =>
-              `${leftover.qty.toLocaleString("en-MY")} ${LEFTOVER_UNIT_LABEL[leftover.unit]}`,
+              `${formatQuantity(leftover.qty)} ${LEFTOVER_UNIT_LABEL[leftover.unit]}`,
           },
           {
             key: "status",

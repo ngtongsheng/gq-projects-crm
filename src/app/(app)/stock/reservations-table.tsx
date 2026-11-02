@@ -7,6 +7,7 @@ import {
   supplierMailto,
 } from "@/lib/domain/reservation";
 import { formatDate } from "@/lib/format/date";
+import { formatQuantity } from "@/lib/format/quantity";
 import { ReservationActions } from "./reservation-actions";
 import { ReservationBadges } from "./reservation-badges";
 import { type HeldReservation, reservedOnLabel } from "./reservation-filters";
@@ -87,7 +88,7 @@ export function ReservationsTable({
           header: "Qty",
           numeric: true,
           cell: ({ line }) =>
-            `${line.qty.toLocaleString("en-MY")} ${STOCK_UNIT_LABEL[line.unit]}`,
+            `${formatQuantity(line.qty)} ${STOCK_UNIT_LABEL[line.unit]}`,
         },
         {
           key: "status",

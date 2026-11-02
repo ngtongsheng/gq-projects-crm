@@ -264,7 +264,7 @@ export async function loadPendingClaims(
     supabase
       .from("installer_claims")
       .select(
-        "id, claim_type, claim_no, amount, claimed_on, installer_pos:installer_pos_id!inner(installer, po_no, mof_id, mofs!inner(mof_no, project_name))",
+        "id, claim_type, claim_no, amount, claimed_on, installer_pos:installer_po_id!inner(installer, po_no, mof_id, mofs!inner(mof_no, project_name))",
       )
       .is("verified_by", null)
       .neq("claim_type", "deduction")

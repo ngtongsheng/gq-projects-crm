@@ -23,7 +23,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Job roles + per-person settings | todo | - | opus/medium |
+| 01 | Job roles + per-person settings | done | - | opus/medium |
 | 02 | Navigation by job role + page guards | todo | 01 | sonnet/high |
 | 03 | Money, date and area helpers | todo | - | sonnet/high |
 | 04 | Companies + contacts in the database | todo | 01 | opus/medium |
@@ -67,3 +67,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-02 · plan · #33/#35 moved to localhost: preview links are local-only (decisions.md, PR #10)
 2026-11-02 · plan · loop written (35 tasks); mockup customers/companies/calendar parts skimmed only, tasks tell executor to read anchors · /execute-loop
+2026-11-02 · #01 · start · opus/medium subagent
+2026-11-02 · #01 · decision · all person settings edited in one Settings dialog per person; CommissionMode lives in job-role.ts; yearly_target >= 0 check added · fewer controls, stays in listed files
+2026-11-02 · #01 · done · check/typecheck/test pass (96 tests) · PR + merge

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { DataTable } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
+import { CommissionMode, JobRole, JobRoleLabel } from "@/lib/auth/job-role";
 import { requireRole } from "@/lib/auth/require-role";
 import {
   ADMIN_UNAVAILABLE_MESSAGE,
@@ -10,6 +11,7 @@ import {
 } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { AddPersonDialog } from "./add-person-dialog";
+import { PersonSettingsDialog } from "./person-settings-dialog";
 import { RoleSelect } from "./role-select";
 import { roleSchema } from "./schemas";
 
@@ -33,7 +35,9 @@ export default async function PeoplePage() {
   const [{ data: profiles, error }, emails] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, full_name, role, created_at")
+      .select(
+        "id, full_name, role, job_role, arranges_stock, commission_mode, yearly_target, created_at",
+      )
       .order("created_at"),
     emailsById(),
   ]);
@@ -44,6 +48,15 @@ export default async function PeoplePage() {
     name: row.full_name,
     email: emails?.get(row.id) ?? null,
     role: roleSchema.parse(row.role),
+    settings: {
+      userId: row.id,
+      name: row.full_name,
+      jobRole: JobRole.parse(row.job_role),
+      arrangesStock: row.arranges_stock === true,
+      commissionMode: CommissionMode.parse(row.commission_mode),
+      yearlyTarget:
+        row.yearly_target === null ? null : Number(row.yearly_target),
+    },
     joined: new Date(row.created_at),
   }));
 
@@ -89,10 +102,20 @@ export default async function PeoplePage() {
             ),
           },
           {
+            key: "jobRole",
+            header: "Job role",
+            cell: (row) => JobRoleLabel[row.settings.jobRole],
+          },
+          {
             key: "joined",
             header: "Joined",
             numeric: true,
             cell: (row) => joinedFormat.format(row.joined),
+          },
+          {
+            key: "settings",
+            header: "Settings",
+            cell: (row) => <PersonSettingsDialog person={row.settings} />,
           },
         ]}
       />

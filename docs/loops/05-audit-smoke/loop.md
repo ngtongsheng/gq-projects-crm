@@ -25,8 +25,8 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 | 05 | Audit + fix: stock, collection, commission | done | 02, 03 | sonnet/high |
 | 06 | Audit + fix: customers, activities, calendar, projects, people | done | 02, 03 | sonnet/high |
 | 07 | Audit + fix: installation, site work, overtime | done | 02, 03 | sonnet/high |
-| 08 | Audit + fix: reports, dashboard, shared components, auth, guide, dev | in-progress | 02, 03 | sonnet/high |
-| 09 | Cross-module fixes from findings | todo | 04, 05, 06, 07, 08 | opus/medium |
+| 08 | Audit + fix: reports, dashboard, shared components, auth, guide, dev | done | 02, 03 | sonnet/high |
+| 09 | Cross-module fixes from findings | in-progress | 04, 05, 06, 07, 08 | opus/medium |
 | 10 | Smoke test vs prototype: sales side | todo | 09 | sonnet/high |
 | 11 | Smoke test vs prototype: operations side + summary | todo | 10 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
@@ -61,3 +61,6 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 2026-11-02 · #07 · in-progress · subagent sonnet/high
 2026-11-02 · #07 · done: rows 34-37, rows 34-35 fixed in 6091308, rows 36-37 to #09; 759 tests pass · #08
 2026-11-02 · #08 · in-progress · subagent sonnet/high
+2026-11-02 · #08 · decision · shadcn dialog/sheet keep bg-black/10 scrim; sign-in shows service-down message only for no-status/429/5xx · generated files stay as is; no email enumeration
+2026-11-02 · #08 · done: rows 38-47, fixed 64bea5d 6bbc955 1e7ae7f 6a0b80c 91098a0 4043942, row 45 debt, rows 39-tail 47 to #09; 766 tests pass · #09
+2026-11-02 · #09 · in-progress · subagent opus/medium

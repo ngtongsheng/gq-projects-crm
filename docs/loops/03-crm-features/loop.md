@@ -51,7 +51,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 26 | Commission screen + payouts | done | 25 | sonnet/high |
 | 27 | Monthly reports (sales, BD, site) | done | 08, 11, 14, 21 | opus/medium |
 | 28 | Team + director reports | done | 27 | sonnet/high |
-| 29 | Dashboards per role | todo | 11, 14, 20, 24, 27 | sonnet/high |
+| 29 | Dashboards per role | done | 11, 14, 20, 24, 27 | sonnet/high |
 | 30 | CSV export | todo | 05, 14, 22, 23 | sonnet/high |
 | 31 | Paste import: parser + companies | todo | 04 | opus/medium |
 | 32 | Paste import: MOFs, stock, leftover | todo | 31, 13, 22, 23 | sonnet/high |
@@ -156,3 +156,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #28 · start · sonnet/high subagent
 2026-11-02 · #28 · decision · director report = existing bd kind; Sales Director keeps prototype's Director Report entry but sees an empty state (BD reports hidden by RLS) — add to #35 review checklist; no Outstanding column on team reports; routes /reports/team, /reports/director
 2026-11-02 · #28 · done · 667 tests pass · pushed to PR #14
+2026-11-02 · #29 · start · sonnet/high subagent
+2026-11-02 · #29 · decision · purchasing sees no payment figures (RLS); no MD margin tile; team table lacks others' yearly targets (profiles RLS); skipped quotation count, duplicate-project and new-MOFs panels; no charts
+2026-11-02 · #29 · done · 678 tests pass · pushed to PR #14

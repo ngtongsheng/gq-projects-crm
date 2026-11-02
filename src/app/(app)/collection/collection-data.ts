@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { DEFAULT_PAYMENT_THRESHOLD_PCT } from "@/lib/domain/collection";
+import { MOF_STAGES, type MofStageKey } from "@/lib/domain/mof-stages";
 import { orderTotal } from "@/lib/domain/mof-totals";
 import { createClient } from "@/lib/supabase/server";
 
@@ -13,6 +14,9 @@ export type Payment = {
 export type CollectionOrder = {
   id: string;
   mofNo: string;
+  loaDate: string;
+  stage: MofStageKey;
+  invoiceDate: string | null;
   companyName: string;
   projectName: string;
   salespersonId: string;
@@ -27,6 +31,9 @@ const orderRows = z.array(
   z.object({
     id: z.string(),
     mof_no: z.string(),
+    loa_date: z.string(),
+    stage: z.enum(MOF_STAGES),
+    invoice_date: z.string().nullable(),
     company_name: z.string(),
     project_name: z.string(),
     salesperson_id: z.string(),
@@ -54,7 +61,7 @@ export async function loadCollectionOrders(): Promise<CollectionOrder[]> {
   const { data, error } = await supabase
     .from("mofs")
     .select(
-      "id, mof_no, company_name, project_name, salesperson_id, second_salesperson_id, contract_sum, vo_amount, invoice_no, payments(id, amount, received_on, note)",
+      "id, mof_no, loa_date, stage, invoice_date, company_name, project_name, salesperson_id, second_salesperson_id, contract_sum, vo_amount, invoice_no, payments(id, amount, received_on, note)",
     )
     .neq("stage", "cancelled")
     .order("loa_date", { ascending: false })
@@ -64,6 +71,9 @@ export async function loadCollectionOrders(): Promise<CollectionOrder[]> {
   return orderRows.parse(data).map((row) => ({
     id: row.id,
     mofNo: row.mof_no,
+    loaDate: row.loa_date,
+    stage: row.stage,
+    invoiceDate: row.invoice_date,
     companyName: row.company_name,
     projectName: row.project_name,
     salespersonId: row.salesperson_id,

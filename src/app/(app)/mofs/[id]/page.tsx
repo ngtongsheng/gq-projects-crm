@@ -9,12 +9,18 @@ import { canEditRegister, isManager } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { formatMobile } from "@/lib/domain/mobile";
+import { totalAreaM2 } from "@/lib/domain/mof-totals";
+import {
+  SUPPLIER_PO_STATUSES,
+  supplierPoReason,
+} from "@/lib/domain/supplier-po";
 import { formatDateTime, todayMyt } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
 import { createClient } from "@/lib/supabase/server";
 import { AccountType } from "../../customers/schemas";
 import { type MofDraft, MofForm } from "../mof-form";
 import { JobScope, LineUnit, MofStage, StockType } from "../schemas";
+import { SupplierPos } from "./supplier-pos";
 
 export const metadata: Metadata = { title: "MOF" };
 
@@ -93,6 +99,18 @@ const awardedRows = z.array(
       mobile: z.string(),
       companies: z.object({ name: z.string() }),
     }),
+  }),
+);
+
+const supplierPoRows = z.array(
+  z.object({
+    id: z.string(),
+    zoho_no: z.string(),
+    supplier: z.string(),
+    po_date: z.string(),
+    lead_time_days: z.number(),
+    status: z.enum(SUPPLIER_PO_STATUSES),
+    notes: z.string().nullable(),
   }),
 );
 
@@ -298,25 +316,35 @@ export default async function MofPage({
 
   if (!z.uuid().safeParse(id).success) notFound();
 
-  const [mofResult, changesResult, costResult, team] = await Promise.all([
-    supabase
-      .from("mofs")
-      .select(
-        "id, mof_no, loa_date, salesperson_id, second_salesperson_id, project_id, company_name, project_name, loa_no, quote_no, site_address, site_contact_name, site_contact_mobile, office_pic_id, customer_contact, accounts_contact, scope, installer_name, contract_sum, vo_amount, retention_pct, invoice_no, invoice_date, commission_type, delivery_date, stage, latest_update, payment_checked, approvals_in_writing, artwork_signed_off, dos_pre_approved, updated_at, mof_lines(id, product, stock_type, supplier, qty, unit, area_m2, created_at)",
-      )
-      .eq("id", id)
-      .maybeSingle(),
-    supabase
-      .from("mof_total_changes")
-      .select("id, old_total, new_total, reason, changed_by, created_at")
-      .eq("mof_id", id)
-      .order("created_at", { ascending: false }),
-    // Only managers ask; the database hides cost from everyone else anyway.
-    showCost
-      ? supabase.from("mof_costs").select("cost").eq("mof_id", id).maybeSingle()
-      : Promise.resolve({ data: null, error: null }),
-    getTeamDirectory(),
-  ]);
+  const [mofResult, changesResult, costResult, posResult, team] =
+    await Promise.all([
+      supabase
+        .from("mofs")
+        .select(
+          "id, mof_no, loa_date, salesperson_id, second_salesperson_id, project_id, company_name, project_name, loa_no, quote_no, site_address, site_contact_name, site_contact_mobile, office_pic_id, customer_contact, accounts_contact, scope, installer_name, contract_sum, vo_amount, retention_pct, invoice_no, invoice_date, commission_type, delivery_date, stage, latest_update, payment_checked, approvals_in_writing, artwork_signed_off, dos_pre_approved, updated_at, mof_lines(id, product, stock_type, supplier, qty, unit, area_m2, created_at)",
+        )
+        .eq("id", id)
+        .maybeSingle(),
+      supabase
+        .from("mof_total_changes")
+        .select("id, old_total, new_total, reason, changed_by, created_at")
+        .eq("mof_id", id)
+        .order("created_at", { ascending: false }),
+      // Only managers ask; the database hides cost from everyone else anyway.
+      showCost
+        ? supabase
+            .from("mof_costs")
+            .select("cost")
+            .eq("mof_id", id)
+            .maybeSingle()
+        : Promise.resolve({ data: null, error: null }),
+      supabase
+        .from("supplier_pos")
+        .select("id, zoho_no, supplier, po_date, lead_time_days, status, notes")
+        .eq("mof_id", id)
+        .order("po_date"),
+      getTeamDirectory(),
+    ]);
   if (mofResult.error) {
     throw new Error(`Could not load MOF: ${mofResult.error.message}`);
   }
@@ -329,7 +357,30 @@ export default async function MofPage({
   if (costResult.error) {
     throw new Error(`Could not load MOF cost: ${costResult.error.message}`);
   }
+  if (posResult.error) {
+    throw new Error(`Could not load supplier POs: ${posResult.error.message}`);
+  }
   const mof = mofRow.parse(mofResult.data);
+  const pos = supplierPoRows.parse(posResult.data).map((po) => ({
+    id: po.id,
+    zohoNo: po.zoho_no,
+    supplier: po.supplier,
+    poDate: po.po_date,
+    leadTimeDays: po.lead_time_days,
+    status: po.status,
+    notes: text(po.notes),
+  }));
+  const poLines = mof.mof_lines.map((line) => ({
+    stockType: line.stock_type,
+    qty: line.qty,
+    unit: line.unit,
+    areaM2: line.area_m2,
+  }));
+  const supplierSuggestions = [
+    ...new Set(
+      mof.mof_lines.flatMap((line) => (line.supplier ? [line.supplier] : [])),
+    ),
+  ];
   const cost = costRow.parse(costResult.data);
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
   const changes: TotalChange[] = totalChangeRows
@@ -356,6 +407,15 @@ export default async function MofPage({
         awardedProjects={[]}
         canEdit={canEdit}
         cost={showCost ? (cost?.cost ?? null) : undefined}
+      />
+      <SupplierPos
+        mofId={mof.id}
+        mofNo={mof.mof_no}
+        pos={pos}
+        reason={supplierPoReason(poLines, totalAreaM2(poLines))}
+        canEdit={canEdit}
+        today={todayMyt()}
+        supplierSuggestions={supplierSuggestions}
       />
       <Card>
         <CardHeader>

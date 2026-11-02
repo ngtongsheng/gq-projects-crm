@@ -18,12 +18,20 @@ import { canEditRegister } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { isFinalStage, MOF_STAGE_TONE } from "@/lib/domain/mof-stages";
-import { orderTotal } from "@/lib/domain/mof-totals";
+import {
+  needsSupplierPo,
+  orderTotal,
+  totalAreaM2,
+} from "@/lib/domain/mof-totals";
+import {
+  hasLiveSupplierPo,
+  SUPPLIER_PO_STATUSES,
+} from "@/lib/domain/supplier-po";
 import { formatDate } from "@/lib/format/date";
 import { formatRm, sumRm } from "@/lib/format/money";
 import { createClient } from "@/lib/supabase/server";
 import { parseMofFilters, seesOnlyOwnMofs, visibleMofs } from "./mof-filters";
-import { MofStage, MofStageLabel } from "./schemas";
+import { LineUnit, MofStage, MofStageLabel, StockType } from "./schemas";
 import { StageSelect } from "./stage-select";
 
 export const metadata: Metadata = { title: "MOF Register" };
@@ -48,6 +56,15 @@ const mofRows = z.array(
     approvals_in_writing: z.boolean(),
     artwork_signed_off: z.boolean(),
     dos_pre_approved: z.boolean(),
+    mof_lines: z.array(
+      z.object({
+        stock_type: StockType,
+        qty: z.number(),
+        unit: LineUnit,
+        area_m2: z.number(),
+      }),
+    ),
+    supplier_pos: z.array(z.object({ status: z.enum(SUPPLIER_PO_STATUSES) })),
   }),
 );
 
@@ -65,6 +82,8 @@ type RegisterRow = {
   stage: MofStage;
   latestUpdate: string | null;
   ticks: number;
+  /** Needs a supplier PO (indent, custom made or big order) and has none yet. */
+  missingSupplierPo: boolean;
 };
 
 export default async function MofRegisterPage({
@@ -82,7 +101,7 @@ export default async function MofRegisterPage({
     supabase
       .from("mofs")
       .select(
-        "id, mof_no, loa_date, salesperson_id, second_salesperson_id, company_name, project_name, contract_sum, vo_amount, delivery_date, stage, latest_update, payment_checked, approvals_in_writing, artwork_signed_off, dos_pre_approved",
+        "id, mof_no, loa_date, salesperson_id, second_salesperson_id, company_name, project_name, contract_sum, vo_amount, delivery_date, stage, latest_update, payment_checked, approvals_in_writing, artwork_signed_off, dos_pre_approved, mof_lines(stock_type, qty, unit, area_m2), supplier_pos(status)",
       )
       .order("loa_date", { ascending: false })
       .order("mof_no", { ascending: false }),
@@ -94,34 +113,48 @@ export default async function MofRegisterPage({
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
   const personName = (id: string) => nameOf.get(id) ?? "Unnamed";
 
-  const all: RegisterRow[] = mofRows.parse(mofsResult.data).map((row) => ({
-    id: row.id,
-    mofNo: row.mof_no,
-    loaDate: row.loa_date,
-    salespersonId: row.salesperson_id,
-    secondSalespersonId: row.second_salesperson_id,
-    people: [
-      personName(row.salesperson_id),
-      row.second_salesperson_id ? personName(row.second_salesperson_id) : null,
-    ]
-      .filter(Boolean)
-      .join(" + "),
-    companyName: row.company_name,
-    projectName: row.project_name,
-    total: orderTotal({
-      contractSum: row.contract_sum,
-      voAmount: row.vo_amount,
-    }),
-    deliveryDate: row.delivery_date,
-    stage: row.stage,
-    latestUpdate: row.latest_update,
-    ticks: [
-      row.payment_checked,
-      row.approvals_in_writing,
-      row.artwork_signed_off,
-      row.dos_pre_approved,
-    ].filter(Boolean).length,
-  }));
+  const all: RegisterRow[] = mofRows.parse(mofsResult.data).map((row) => {
+    const lines = row.mof_lines.map((line) => ({
+      stockType: line.stock_type,
+      qty: line.qty,
+      unit: line.unit,
+      areaM2: line.area_m2,
+    }));
+    return {
+      id: row.id,
+      mofNo: row.mof_no,
+      loaDate: row.loa_date,
+      salespersonId: row.salesperson_id,
+      secondSalespersonId: row.second_salesperson_id,
+      people: [
+        personName(row.salesperson_id),
+        row.second_salesperson_id
+          ? personName(row.second_salesperson_id)
+          : null,
+      ]
+        .filter(Boolean)
+        .join(" + "),
+      companyName: row.company_name,
+      projectName: row.project_name,
+      total: orderTotal({
+        contractSum: row.contract_sum,
+        voAmount: row.vo_amount,
+      }),
+      deliveryDate: row.delivery_date,
+      stage: row.stage,
+      latestUpdate: row.latest_update,
+      ticks: [
+        row.payment_checked,
+        row.approvals_in_writing,
+        row.artwork_signed_off,
+        row.dos_pre_approved,
+      ].filter(Boolean).length,
+      missingSupplierPo:
+        !isFinalStage(row.stage) &&
+        needsSupplierPo(lines, totalAreaM2(lines)) &&
+        !hasLiveSupplierPo(row.supplier_pos),
+    };
+  });
   const rows = visibleMofs(all, me, filters);
   const filtered = filters.stage !== undefined || filters.person !== undefined;
   const live = rows.filter((row) => row.stage !== "cancelled");
@@ -256,6 +289,11 @@ export default async function MofRegisterPage({
                     <StatusBadge tone={MOF_STAGE_TONE[row.stage]}>
                       {MofStageLabel[row.stage]}
                     </StatusBadge>
+                  </span>
+                )}
+                {row.missingSupplierPo && (
+                  <span>
+                    <StatusBadge tone="warn">No supplier PO</StatusBadge>
                   </span>
                 )}
                 {row.ticks < 4 && !isFinalStage(row.stage) && (

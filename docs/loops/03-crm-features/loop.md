@@ -37,7 +37,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 12 | Order register (MOF) data, private cost | done | 10 | opus/medium |
 | 13 | MOF form | done | 12 | opus/medium |
 | 14 | MOF register list + stages | done | 13 | sonnet/high |
-| 15 | Supplier PO tracking | todo | 14 | sonnet/high |
+| 15 | Supplier PO tracking | done | 14 | sonnet/high |
 | 16 | Installer POs + claims | todo | 14 | sonnet/high |
 | 17 | Delivery + installation jobs, DOs | todo | 14 | sonnet/high |
 | 18 | Installation calendar | todo | 09, 17 | sonnet/high |
@@ -111,3 +111,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #14 · start · sonnet/high subagent
 2026-11-02 · #14 · decision · salesperson 'My Sales' scoping is a view filter only (mofs read-all per #12, cost stays private); open orders may move to any stage; payment warning on leaving pending delivery, non-blocking
 2026-11-02 · #14 · done · 321 tests pass · pushed to PR #14
+2026-11-02 · #15 · start · sonnet/high subagent
+2026-11-02 · #15 · decision · PO number = MOF no + Zoho no built in app (no dash); ETA always PO date + lead time; cancelled POs don't cover an MOF; no origin/m2 fields
+2026-11-02 · #15 · done · 342 tests pass · pushed to PR #14

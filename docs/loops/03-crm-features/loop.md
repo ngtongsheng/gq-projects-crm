@@ -24,8 +24,8 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
 | 01 | Job roles + per-person settings | done | - | opus/medium |
-| 02 | Navigation by job role + page guards | todo | 01 | sonnet/high |
-| 03 | Money, date and area helpers | todo | - | sonnet/high |
+| 02 | Navigation by job role + page guards | done | 01 | sonnet/high |
+| 03 | Money, date and area helpers | in-progress | - | sonnet/high |
 | 04 | Companies + contacts in the database | todo | 01 | opus/medium |
 | 05 | Customer list + add/edit | todo | 02, 03, 04 | sonnet/high |
 | 06 | Customer detail + health flags | todo | 05 | sonnet/high |
@@ -71,3 +71,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #01 · decision · all person settings edited in one Settings dialog per person; CommissionMode lives in job-role.ts; yearly_target >= 0 check added · fewer controls, stays in listed files
 2026-11-02 · #01 · done · check/typecheck/test pass (96 tests) · PR + merge
 2026-11-02 · #01 · decision · merge to main denied by auto-mode classifier (production deploy) · PR #13 left open for owner; later tasks stack on loop/03-crm-features with one draft PR so CI + test-copy migrations still run per push
+2026-11-02 · #02 · start · sonnet/high subagent
+2026-11-02 · #02 · decision · sections carry a built flag (sectionsFor shows built only; guards check role); placeholder hrefs fixed now; / keeps requireRole(staff) · avoids redirect loop for site role
+2026-11-02 · #02 · done · 106 tests pass · pushed to PR #14
+2026-11-02 · #03 · start · sonnet/high subagent

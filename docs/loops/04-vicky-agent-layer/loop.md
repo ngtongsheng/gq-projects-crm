@@ -30,7 +30,7 @@ dry run; Vicky's first run (loop 02 #06) is the real test. Must land before loop
 | 03 | settings.json + apply.py | done | 01 | opus/medium |
 | 04 | SETUP.md: rtk, gq-setup, apply, Chat profile, about you | done | 03 | sonnet/high |
 | 05 | Scratch-HOME dry run + fixes | done | 02, 04 | sonnet/high |
-| 06 | CRM: style copy, CLAUDE.md lines, drift CI, docs, remove CRM get-help | blocked: owner — push gq-setup main, then merge loop/04 | 01, 02 | sonnet/high |
+| 06 | CRM: style copy, CLAUDE.md lines, drift CI, docs, remove CRM get-help | done | 01, 02 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - None during the loop. Afterwards, in loop 02 #06 with Vicky: confirm the Chat profile paste, that the plain style and
@@ -58,3 +58,5 @@ dry run; Vicky's first run (loop 02 #06) is the real test. Must land before loop
 2026-11-02 · #06 · blocked: owner · CRM changes done and verified locally (pnpm check/typecheck/test pass, 72 tests, style diff clean). The new CI drift step fetches gq-setup main from GitHub, which lacks plain.md changes until gq-setup is pushed, so the PR would fail · owner: `git -C ~/work/projects/gq-setup push origin main`, then re-run /execute-loop to merge
 2026-11-02 · #06 · decision · drift step lives in the existing checks job as a named step · task named no job
 2026-11-02 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-02-loop-04-vicky-agent-layer.md
+2026-11-02 · #06 · done · owner pushed gq-setup (3765569); CI drift command now clean against GitHub · merging
+2026-11-02 · merged to main

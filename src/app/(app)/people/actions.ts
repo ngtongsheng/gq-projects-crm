@@ -9,7 +9,11 @@ import {
 } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { inviteMessage } from "./invite-message";
-import { addPersonSchema, changeRoleSchema } from "./schemas";
+import {
+  addPersonSchema,
+  changeRoleSchema,
+  personSettingsSchema,
+} from "./schemas";
 
 export type AddPersonState = {
   error: string | null;
@@ -122,6 +126,55 @@ export async function changeRole(input: unknown): Promise<ChangeRoleResult> {
     .select("id");
   if (error || updated.length === 0) {
     return { error: "Could not change the role. Try again." };
+  }
+
+  revalidatePath("/people");
+  return { error: null };
+}
+
+export type PersonSettingsResult = { error: string | null };
+
+export async function updatePersonSettings(
+  formData: FormData,
+): Promise<PersonSettingsResult> {
+  await requireRole("admin");
+
+  const parsed = personSettingsSchema.safeParse({
+    userId: formData.get("userId"),
+    jobRole: formData.get("jobRole"),
+    arrangesStock: formData.get("arrangesStock"),
+    commissionMode: formData.get("commissionMode"),
+    yearlyTarget: formData.get("yearlyTarget"),
+  });
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    return {
+      error:
+        issue?.path[0] === "yearlyTarget"
+          ? issue.message
+          : "Choose a job role and commission setting.",
+    };
+  }
+  const { userId, jobRole, arrangesStock, commissionMode, yearlyTarget } =
+    parsed.data;
+
+  const supabase = await createClient();
+  const { data: updated, error } = await supabase
+    .from("profiles")
+    .update({
+      job_role: jobRole,
+      arranges_stock: arrangesStock,
+      commission_mode: commissionMode,
+      yearly_target: yearlyTarget,
+    })
+    .eq("id", userId)
+    .select("id");
+  if (error) {
+    console.error("Could not update person settings", error);
+    return { error: "Could not save their settings. Try again." };
+  }
+  if (updated.length === 0) {
+    return { error: "Could not save their settings. Try again." };
   }
 
   revalidatePath("/people");

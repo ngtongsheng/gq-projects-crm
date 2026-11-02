@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getCurrentProfile, type Profile } from "@/lib/auth/current-profile";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { addPerson, changeRole } from "./actions";
+import { addPerson, changeRole, updatePersonSettings } from "./actions";
 
 vi.mock("@/lib/auth/current-profile", () => ({ getCurrentProfile: vi.fn() }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: vi.fn() }));
@@ -24,6 +24,10 @@ const profile = (role: Profile["role"]): Profile => ({
   id: "11111111-1111-4111-8111-111111111111",
   fullName: "Tester",
   role,
+  jobRole: "sales",
+  arrangesStock: false,
+  commissionMode: "standard",
+  yearlyTarget: null,
 });
 
 const OTHER_ID = "22222222-2222-4222-8222-222222222222";
@@ -242,5 +246,93 @@ describe("changeRole", () => {
     fakeUserClient([], 0);
     const result = await changeRole({ userId: OTHER_ID, role: "admin" });
     expect(result.error).toBe("Could not change the role. Try again.");
+  });
+});
+
+const validSettings = {
+  userId: OTHER_ID,
+  jobRole: "site",
+  arrangesStock: "on",
+  commissionMode: "flat_pass_down",
+  yearlyTarget: " 250,000.50 ",
+};
+
+function fakeSettingsClient(updatedRows = 1) {
+  const update = vi.fn(() => ({
+    eq: vi.fn(() => ({
+      select: vi.fn(async () => ({
+        data: Array.from({ length: updatedRows }, () => ({ id: OTHER_ID })),
+        error: null,
+      })),
+    })),
+  }));
+  vi.mocked(createClient).mockResolvedValue({
+    from: vi.fn(() => ({ update })),
+  } as unknown as Awaited<ReturnType<typeof createClient>>);
+  return { update };
+}
+
+describe("updatePersonSettings", () => {
+  beforeEach(() => {
+    vi.mocked(getCurrentProfile).mockReset();
+    vi.mocked(createClient).mockReset();
+  });
+
+  it("rejects staff", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("staff"));
+    await expect(
+      updatePersonSettings(personForm(validSettings)),
+    ).rejects.toThrow("redirect:/");
+    expect(createClient).not.toHaveBeenCalled();
+  });
+
+  it("saves the settings in database columns", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    const { update } = fakeSettingsClient();
+
+    const result = await updatePersonSettings(personForm(validSettings));
+
+    expect(result).toEqual({ error: null });
+    expect(update).toHaveBeenCalledWith({
+      job_role: "site",
+      arranges_stock: true,
+      commission_mode: "flat_pass_down",
+      yearly_target: 250000.5,
+    });
+  });
+
+  it("treats an unchecked box as false and a blank target as none", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    const { update } = fakeSettingsClient();
+    const { arrangesStock: _unchecked, ...rest } = validSettings;
+
+    await updatePersonSettings(personForm({ ...rest, yearlyTarget: "" }));
+
+    expect(update).toHaveBeenCalledWith(
+      expect.objectContaining({ arranges_stock: false, yearly_target: null }),
+    );
+  });
+
+  it.each([
+    ["an unknown job role", { jobRole: "ceo" }],
+    ["an unknown commission setting", { commissionMode: "double" }],
+    ["a malformed person id", { userId: "nope" }],
+    ["a negative target", { yearlyTarget: "-5" }],
+    ["a target with three decimals", { yearlyTarget: "10.555" }],
+    ["a target in words", { yearlyTarget: "lots" }],
+  ])("rejects %s without touching Supabase", async (_label, change) => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    const result = await updatePersonSettings(
+      personForm({ ...validSettings, ...change }),
+    );
+    expect(result.error).not.toBeNull();
+    expect(createClient).not.toHaveBeenCalled();
+  });
+
+  it("reports when nothing was updated", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    fakeSettingsClient(0);
+    const result = await updatePersonSettings(personForm(validSettings));
+    expect(result.error).toBe("Could not save their settings. Try again.");
   });
 });

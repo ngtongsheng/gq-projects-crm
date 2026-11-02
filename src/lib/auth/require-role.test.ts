@@ -13,6 +13,10 @@ const signedInAs = (role: Profile["role"]): Profile => ({
   id: "user-1",
   fullName: "Test User",
   role,
+  jobRole: "sales",
+  arrangesStock: false,
+  commissionMode: "standard",
+  yearlyTarget: null,
 });
 
 describe("requireRole", () => {

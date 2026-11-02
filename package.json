@@ -11,7 +11,8 @@
     "format": "biome format --write",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
-    "guard:migrations": "node scripts/migration-guard.ts"
+    "guard:migrations": "node scripts/migration-guard.ts",
+    "seed:example": "node --env-file=.env.development --env-file=.env.seed.dev scripts/seed-example-data.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

@@ -24,8 +24,8 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 | 04 | Audit + fix: MOFs | done | 02, 03 | sonnet/high |
 | 05 | Audit + fix: stock, collection, commission | done | 02, 03 | sonnet/high |
 | 06 | Audit + fix: customers, activities, calendar, projects, people | done | 02, 03 | sonnet/high |
-| 07 | Audit + fix: installation, site work, overtime | in-progress | 02, 03 | sonnet/high |
-| 08 | Audit + fix: reports, dashboard, shared components, auth, guide, dev | todo | 02, 03 | sonnet/high |
+| 07 | Audit + fix: installation, site work, overtime | done | 02, 03 | sonnet/high |
+| 08 | Audit + fix: reports, dashboard, shared components, auth, guide, dev | in-progress | 02, 03 | sonnet/high |
 | 09 | Cross-module fixes from findings | todo | 04, 05, 06, 07, 08 | opus/medium |
 | 10 | Smoke test vs prototype: sales side | todo | 09 | sonnet/high |
 | 11 | Smoke test vs prototype: operations side + summary | todo | 10 | sonnet/high |
@@ -59,3 +59,5 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 2026-11-02 · #06 · decision · row 31 (company saved before contact) stays debt like row 14; project value capped at the DB column max · partial-write, not a permission rule; matches DB
 2026-11-02 · #06 · done: rows 24-33, fixed 8e8ff2a..76701f7 (7 commits), rows 32-33 to #09; 758 tests pass · #07
 2026-11-02 · #07 · in-progress · subagent sonnet/high
+2026-11-02 · #07 · done: rows 34-37, rows 34-35 fixed in 6091308, rows 36-37 to #09; 759 tests pass · #08
+2026-11-02 · #08 · in-progress · subagent sonnet/high

@@ -32,7 +32,7 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 | 08 | CI workflows | done | 03, 07 | sonnet/high |
 | 09 | Agent rules + plain output style | done | 02 | opus/medium |
 | 10 | Skills: preview, deploy, get-help | done | 08, 09 | opus/medium |
-| 11 | End-to-end smoke | blocked: owner — seed prod admins, test sign-in/invite on prod, run one preview+deploy cycle in Desktop (steps in final report) | 06, 10 | sonnet/high |
+| 11 | End-to-end smoke | done | 06, 10 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - #02: run the Desktop spike checklist in Claude Desktop Code mode on your Mac; paste results into `docs/desktop-findings.md` (or tell the executor).
@@ -105,3 +105,7 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 2026-11-02 · #11 · prod invite flow PASS (subagent, owner consented): add person -> link + WhatsApp text, set-password, staff sees no People, re-sign-in, last-admin guard refuses ("There must be at least one admin."), test user deleted; no leftovers. Staff /people redirect not conclusively observed (stale screenshot) but covered by requireRole tests and middleware
 2026-11-02 · #11 · fix · invite textarea overflowed the dialog (field-sizing-content); now field-sizing-fixed w-full break-all · found in prod test
 2026-11-02 · #11 · note · role dropdown shows the change for ~2s before reverting on the last-admin refusal (minor UX, not fixed)
+2026-11-02 · #11 · preview->deploy cycle PASS via gh/git (subagent, Desktop-only parts not exercised): draft PR #6 checks green + preview URL from bot comment (302 = Deployment Protection), squash-merge -> prod shows change in ~40s, cleanup clean; revert PR #7 same; ~50s push to green checks
+2026-11-02 · #11 · done · prod admin seeded, invite flow verified on prod, CI/deploy cycle verified; owner follow-ups (non-blocking): delete duplicate Vercel project gq-projects-crm-ym4y, decide Deployment Protection for previews, optional skill allow-list entries, rotate Supabase access token, change prod admin password; Desktop behavior of /preview and /deploy untested until loop 02 first run
+2026-11-02 · #11 · note · gh pr ready does not re-run CI (checks run on opened/synchronize/reopened/labeled), so deploy's wait step returns at once; fine
+2026-11-02 · merged to main (final)

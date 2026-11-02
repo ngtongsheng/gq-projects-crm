@@ -12,6 +12,7 @@ import {
   exceedsInstallerPo,
   INSTALLER_CLAIM_TYPES,
 } from "@/lib/domain/installer-claim";
+import { optionalId, optionalText, textField } from "@/lib/form/form-fields";
 import { formatRm, parseRm, sumRm } from "@/lib/format/money";
 import { createClient } from "@/lib/supabase/server";
 import { mofIdSchema } from "./schemas";
@@ -25,27 +26,12 @@ const NOT_PAYER = "Only the MD or HR & Accounts can record a payment.";
 const NOT_FOUND_PO = "Could not find that installer PO. Reload the page.";
 const NOT_FOUND_CLAIM = "Could not find that claim. Reload the page.";
 
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
-
-const optionalId = (value: string) =>
-  value === "" || z.uuid().safeParse(value).success;
-
 const amountField = (message: string) =>
   z
     .string()
     .trim()
     .transform((value) => parseRm(value))
     .pipe(z.number({ error: message }).positive(message));
-
-const optionalText = (max: number, message: string) =>
-  z
-    .string()
-    .trim()
-    .max(max, message)
-    .transform((value) => (value === "" ? null : value));
 
 const installerPoForm = z.object({
   mofId: mofIdSchema,
@@ -73,7 +59,7 @@ export async function saveInstallerPo(
   if (!canEditRegister(me.jobRole)) return { error: NOT_EDITOR };
 
   const poId = textField(formData, "poId");
-  if (!optionalId(poId)) return { error: NOT_FOUND_PO };
+  if (!optionalId().safeParse(poId).success) return { error: NOT_FOUND_PO };
 
   const parsed = installerPoForm.safeParse({
     mofId: textField(formData, "mofId"),
@@ -137,6 +123,10 @@ const installerClaimForm = z.object({
   claimedOn: z.iso.date("Choose the claim date."),
 });
 
+/** Must match the message in the cap_installer_claims trigger. */
+const OVER_PO =
+  "These claims add up to more than the installer PO. If there is extra work, increase the PO amount first.";
+
 const claimRows = z.array(
   z.object({ id: z.string(), claim_type: z.string(), amount: z.number() }),
 );
@@ -150,7 +140,8 @@ export async function saveInstallerClaim(
   if (!canEditRegister(me.jobRole)) return { error: NOT_EDITOR };
 
   const claimId = textField(formData, "claimId");
-  if (!optionalId(claimId)) return { error: NOT_FOUND_CLAIM };
+  if (!optionalId().safeParse(claimId).success)
+    return { error: NOT_FOUND_CLAIM };
 
   const parsed = installerClaimForm.safeParse({
     mofId: textField(formData, "mofId"),
@@ -222,6 +213,10 @@ export async function saveInstallerClaim(
           .select("id");
 
   if (error) {
+    // Another claim saved at the same moment took the PO past its amount; the database says so plainly.
+    if (error.code === "23514" && error.message === OVER_PO) {
+      return { error: OVER_PO };
+    }
     if (error.code === "42501") {
       return {
         error: error.message.includes("paid")

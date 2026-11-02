@@ -1,5 +1,6 @@
 import {
   Banknote,
+  BookOpen,
   Boxes,
   CalendarDays,
   ClipboardList,
@@ -29,7 +30,8 @@ export type SectionKey =
   | "collection"
   | "commission"
   | "reports"
-  | "directorReport";
+  | "directorReport"
+  | "guide";
 
 type Section = {
   key: SectionKey;
@@ -169,6 +171,14 @@ const SECTIONS: readonly Section[] = [
     href: "/reports/director",
     icon: Target,
     allowed: ["md", "director", "bd", "accounts"],
+    built: true,
+  },
+  {
+    key: "guide",
+    label: "Guide",
+    href: "/guide",
+    icon: BookOpen,
+    allowed: [...SALES_SIDE, "site", "support"],
     built: true,
   },
 ];

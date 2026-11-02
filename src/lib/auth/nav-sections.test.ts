@@ -26,6 +26,7 @@ describe("allowedSectionsFor", () => {
       "Commission",
       "Team Reports",
       "Director Report",
+      "Guide",
     ]);
   });
 
@@ -43,6 +44,7 @@ describe("allowedSectionsFor", () => {
       "Commission",
       "Team Reports",
       "Director Report",
+      "Guide",
     ]);
   });
 
@@ -60,6 +62,7 @@ describe("allowedSectionsFor", () => {
       "Collection",
       "Commission",
       "Director Report",
+      "Guide",
     ]);
   });
 
@@ -77,6 +80,7 @@ describe("allowedSectionsFor", () => {
       "Collection",
       "Commission",
       "My Report",
+      "Guide",
     ]);
   });
 
@@ -90,6 +94,7 @@ describe("allowedSectionsFor", () => {
       "Site Work",
       "Overtime",
       "My Report",
+      "Guide",
     ]);
   });
 
@@ -101,6 +106,7 @@ describe("allowedSectionsFor", () => {
       "Site Work",
       "Overtime",
       "Stock",
+      "Guide",
     ]);
   });
 });
@@ -120,6 +126,7 @@ describe("sectionsFor", () => {
       "collection",
       "commission",
       "reports",
+      "guide",
     ]);
     expect(sectionsFor("bd").map((s) => s.key)).toContain("directorReport");
     expect(sectionsFor("bd").map((s) => s.key)).not.toContain("reports");
@@ -128,6 +135,7 @@ describe("sectionsFor", () => {
       "Site Work",
       "Overtime",
       "My Report",
+      "Guide",
     ]);
   });
 });

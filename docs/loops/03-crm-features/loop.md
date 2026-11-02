@@ -55,9 +55,9 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 30 | CSV export | done | 05, 14, 22, 23 | sonnet/high |
 | 31 | Paste import: parser + companies | done | 04 | opus/medium |
 | 32 | Paste import: MOFs, stock, leftover | done | 31, 13, 22, 23 | sonnet/high |
-| 33 | Test-copy example data | blocked: owner — create .env.seed.dev (SUPABASE_SERVICE_ROLE_KEY of gq-crm-dev), run pnpm seed:example, log row counts | 32 | sonnet/high |
+| 33 | Test-copy example data | done | 32 | sonnet/high |
 | 34 | In-app guide | done | 29 | haiku/low |
-| 35 | Walk-through per role on localhost | blocked: waits on #33 (example data + per-role sign-ins) | 33, 34 | sonnet/high |
+| 35 | Walk-through per role on localhost | done | 33, 34 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - #33: if no dev secret is available to the executor, Tong Sheng creates `.env.seed.dev` (test copy only) and runs `pnpm seed:example`.
@@ -178,3 +178,11 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #35 · skipped · depends on #33 seed run
 2026-11-02 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-02-loop-03-crm-features.md
 2026-11-02 · merge · partial loop: not merged (auto mode denies gh pr merge as production deploy); branch pushed, PR #14 draft open
+2026-11-02 · #33 · done · seeded test copy: companies 8, contacts 12, owners 14, ownership_requests 3, activities 12, projects 11, mofs 7, mof_lines 10, mof_costs 7, supplier_pos 6, installer_pos 3, installer_claims 3, jobs 9, DOs 3, bookings 4, site_logs 5, follow_ups 4, ot_claims 5, leftovers 4, stock_items 6, reservations 5, payments 6, payouts 3, monthly_reports 4; 7 role sign-ins; key file deleted
+2026-11-02 · #35 · unblocked · #33 seeded
+2026-11-02 · merge · PR #14 squash-merged to main by owner-approved command; migrate-prod succeeded; main merged back into loop branch
+2026-11-02 · #35 · in-progress · start · sonnet/high subagent
+2026-11-02 · #35 · decision · fixed installer_po_id column name in site-work-data (crashed Site Work/dashboard); app-shell grid minmax fixes 390px overflow; reservations table side-scroll on phone → debt; accounts can still edit MOF form (canEditRegister) → on Vicky's checklist; resize_window didn't resize, 390px checked in a 390px frame
+2026-11-02 · #35 · done · 742 tests pass · pushed to PR #14
+2026-11-02 · vault · session note updated (all done)
+2026-11-02 · merge · merged to main

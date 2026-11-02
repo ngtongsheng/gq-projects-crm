@@ -27,7 +27,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 02 | Navigation by job role + page guards | done | 01 | sonnet/high |
 | 03 | Money, date and area helpers | done | - | sonnet/high |
 | 04 | Companies + contacts in the database | done | 01 | opus/medium |
-| 05 | Customer list + add/edit | todo | 02, 03, 04 | sonnet/high |
+| 05 | Customer list + add/edit | done | 02, 03, 04 | sonnet/high |
 | 06 | Customer detail + health flags | todo | 05 | sonnet/high |
 | 07 | Ownership requests | todo | 05 | sonnet/high |
 | 08 | Activities (visits, calls) | todo | 06 | sonnet/high |
@@ -81,3 +81,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #04 · decision · gap: prototype company reservation (up to 2 salespeople per company, coCheck) not built; no company_owners table · flag for #05/#07
 2026-11-02 · #04 · decision · edit rights md/director (accounts read-only per prototype); companies get rating/account_type/passed_by; md/director may delete contact_owners for #07; mobile normaliser in src/lib/domain/mobile.ts
 2026-11-02 · #04 · done · 144 tests pass · pushed to PR #14
+2026-11-02 · #05 · start · sonnet/high subagent
+2026-11-02 · #05 · decision · team_directory() exposes id+name only; account type/passed-by set by md/director only; accounts read-only; GET-form filters; request-ownership button stub until #07; orphan company possible if contact insert races (unlikely)
+2026-11-02 · #05 · done · 163 tests pass · pushed to PR #14

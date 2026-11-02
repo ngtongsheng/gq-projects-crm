@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { normaliseMobile } from "./mobile";
+import { formatMobile, normaliseMobile } from "./mobile";
 
 test("normalises the usual Malaysian formats to the same digits", () => {
   for (const input of [
@@ -24,4 +24,10 @@ test("rejects numbers that are too short, too long or not Malaysian", () => {
   expect(normaliseMobile("012-3456 78901")).toBeNull();
   expect(normaliseMobile("+65 9123 4567")).toBeNull();
   expect(normaliseMobile("not a number")).toBeNull();
+});
+
+test("formats stored numbers for display and back again", () => {
+  expect(formatMobile("60123456789")).toBe("012-345 6789");
+  expect(formatMobile("601112345678")).toBe("011-123 45678");
+  expect(normaliseMobile(formatMobile("601112345678"))).toBe("601112345678");
 });

@@ -9,3 +9,9 @@ export function normaliseMobile(input: string): string | null {
   else if (digits.startsWith("1")) digits = `60${digits}`;
   return STORED_MOBILE.test(digits) ? digits : null;
 }
+
+/** Shows a stored number the way people write it: 60123456789 becomes 012-345 6789. */
+export function formatMobile(stored: string): string {
+  const national = `0${stored.slice(2)}`;
+  return `${national.slice(0, 3)}-${national.slice(3, 6)} ${national.slice(6)}`;
+}

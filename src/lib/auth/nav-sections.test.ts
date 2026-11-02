@@ -101,7 +101,10 @@ describe("allowedSectionsFor", () => {
 
 describe("sectionsFor", () => {
   it("only lists sections that have a page", () => {
-    expect(sectionsFor("sales").map((s) => s.key)).toEqual(["dashboard"]);
+    expect(sectionsFor("sales").map((s) => s.key)).toEqual([
+      "dashboard",
+      "customers",
+    ]);
     expect(sectionsFor("site")).toEqual([]);
   });
 });

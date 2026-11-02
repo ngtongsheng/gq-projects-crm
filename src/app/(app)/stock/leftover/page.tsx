@@ -14,6 +14,7 @@ import {
   LEFTOVER_UNIT_LABEL,
 } from "@/lib/domain/leftover";
 import { formatDateTime } from "@/lib/format/date";
+import { StockTabs } from "../stock-tabs";
 import { LeftoverBadges } from "./leftover-badges";
 import { loadLeftovers } from "./leftover-data";
 import { UpdateLeftoverDialog } from "./update-leftover-dialog";
@@ -51,6 +52,7 @@ export default async function LeftoverPage() {
             : "Stock left over at sites, from pickup to the supplier's credit note."
         }
       />
+      <StockTabs active="leftover" />
       <DataTable
         rows={leftovers}
         getRowKey={(leftover) => leftover.id}

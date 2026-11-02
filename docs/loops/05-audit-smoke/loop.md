@@ -1,0 +1,41 @@
+# Loop 05: Code audit + smoke test
+Orchestrator: opus/medium
+## Goal
+Loop 03 #35 walk-through is done first. Then every file in `src/` and `supabase/migrations/` is audited against the
+project rules and fixed, and every module is smoke tested on localhost (test copy) against Vicky's prototype
+`docs/mockup/gq-crm-mockup.html`, with every gap fixed. Findings and results are in `findings.md`; the loop PR is merged.
+## Decisions
+| ID | Decision | Why | Rejected |
+|---|---|---|---|
+| D1 | Loop 03 #35 (role walk-through + Vicky checklist) runs first, as task 01 | Owner choice; audit and smoke build on its results | Absorbing #35 into this loop |
+| D2 | Sign-ins come from gitignored `.env.smoke.local`, written by the owner after re-running `pnpm seed:example` | Seed prints passwords once; dev key file was deleted | Owner signing in per role; new reset script |
+| D3 | Fix everything found, including larger refactors; cross-module fixes collected for #09 | Owner choice | Report only; fix small/log big |
+| D4 | A fix needing a drop/rename/retype/delete migration goes on its own branch + PR, task `blocked: owner-approved label`, listed under Owner actions | Migration guard; the label is Tong Sheng's alone | Additive workarounds only |
+| D5 | Smoke test is a manual Claude in Chrome run on `pnpm dev` (test copy), results written down | Lean; no new dependency or CI auth | Playwright e2e |
+| D6 | One branch `loop/05-audit-smoke` in a worktree, one commit per fix, one PR; merge pre-approved once local checks and PR checks are green. If auto mode denies `gh pr merge`, park the merge as an owner action | Loop 03 log: auto mode denied `gh pr merge` as a production deploy; stacking per-task PRs on unmerged ones is messy | Per-task PRs merged one by one |
+| D7 | Audit rules: `assets/audit-checklist.md` (distilled from `~/.agents/AGENTS.md`, `CLAUDE.md`, loop 03 conventions) | One checklist keeps the audits consistent | Each task rereading all rule files |
+| D8 | Admin-only server features (adding people) are out of the local smoke test by design | CLAUDE.md: "can't be tried on your laptop" | Testing on the live app |
+## Tasks
+| # | Task | Status | Depends | Model/Effort |
+|---|---|---|---|---|
+| 01 | Run loop 03 #35 walk-through + Vicky checklist | todo | owner: .env.smoke.local | sonnet/high |
+| 02 | Audit + fix: migrations and RLS | todo | 01 | opus/medium |
+| 03 | Audit + fix: lib and proxy | todo | 01 | opus/medium |
+| 04 | Audit + fix: MOFs | todo | 02, 03 | sonnet/high |
+| 05 | Audit + fix: stock, collection, commission | todo | 02, 03 | sonnet/high |
+| 06 | Audit + fix: customers, activities, calendar, projects, people | todo | 02, 03 | sonnet/high |
+| 07 | Audit + fix: installation, site work, overtime | todo | 02, 03 | sonnet/high |
+| 08 | Audit + fix: reports, dashboard, shared components, auth, guide, dev | todo | 02, 03 | sonnet/high |
+| 09 | Cross-module fixes from findings | todo | 04, 05, 06, 07, 08 | opus/medium |
+| 10 | Smoke test vs prototype: sales side | todo | 09 | sonnet/high |
+| 11 | Smoke test vs prototype: operations side + summary | todo | 10 | sonnet/high |
+<!-- status: todo | in-progress | done | blocked: <reason> -->
+## Owner actions
+- Before #01: create `.env.seed.dev` (test copy only), run `pnpm seed:example`, and write the printed sign-ins to
+  `.env.smoke.local` in the repo root as `SMOKE_<JOBROLE>_EMAIL=` / `SMOKE_<JOBROLE>_PASSWORD=` (md, director, bd,
+  sales, accounts, site, support). Delete `.env.seed.dev` afterwards. The executor copies `.env.smoke.local` into its worktree.
+- Any task blocked per D4: review the PR and add the `owner-approved` label.
+- End: if auto mode denies the merge (D6), merge the loop PR yourself.
+## Log
+<!-- one line per event: YYYY-MM-DD · #NN · result · next -->
+2026-11-02 · plan · loop written (11 tasks) · /execute-loop

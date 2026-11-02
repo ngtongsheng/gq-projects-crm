@@ -32,7 +32,7 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 | 08 | CI workflows | done | 03, 07 | sonnet/high |
 | 09 | Agent rules + plain output style | done | 02 | opus/medium |
 | 10 | Skills: preview, deploy, get-help | done | 08, 09 | opus/medium |
-| 11 | End-to-end smoke | todo | 06, 10 | sonnet/high |
+| 11 | End-to-end smoke | blocked: owner — seed prod admins, test sign-in/invite on prod, run one preview+deploy cycle in Desktop (steps in final report) | 06, 10 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - #02: run the Desktop spike checklist in Claude Desktop Code mode on your Mac; paste results into `docs/desktop-findings.md` (or tell the executor).
@@ -95,3 +95,8 @@ in-repo agent rules/skills that let a non-developer change, preview and deploy v
 2026-11-02 · #10 · note · OWNER DECISION: skills need extra allow entries in .claude/settings.json to avoid jargon permission prompts (gh api .../deployments*, curl -sI https://gq-projects-crm*, lsof -ti tcp:3000, kill *, sleep *). Not added by executor (permission config). Also Vercel Deployment Protection on Hobby may 401 preview links: Vercel > Settings > Deployment Protection
 2026-11-02 · #11 · decision · merge loop branch to main now (#01-#10 done, checks pass) so workflows/Vercel exist on main for #11's live checks; keep worktree/branch for #11, final merge after it · #11 live acceptance requires main
 2026-11-02 · merged to main (interim, before #11)
+2026-11-02 · #11 · in-progress · after interim merge: migrate-prod run succeeded (profiles applied to prod); prod URL https://gq-projects-crm.vercel.app/ -> 307 /sign-in -> 200 (first curl 404 was a few seconds before promotion)
+2026-11-02 · #11 · finding · TWO Vercel projects deploy this repo: `gq-projects-crm` (has env vars, owns the domain) and `gq-projects-crm-ym4y` (duplicate, probably from a second import). Owner should delete the -ym4y project in Vercel (destructive, owner action). Also GitHub deployments API returns [] (Vercel reports via commit statuses), so the preview skill's URL lookup must change
+2026-11-02 · #11 · live CI acceptance PASS (subagent): harmless migration PR green + applied to dev, merged -> migrate-prod ok + Vercel prod ok; drop-table PR blocked by guard, passes with owner-approved label, closed unmerged · fixed real bug: typecheck needs `next typegen` in CI (on main)
+2026-11-02 · #11 · decision · preview URL read from Vercel bot PR comment + commit statuses (deployments API empty); skills updated; findings appended to docs/decisions.md for loop 02
+2026-11-02 · #11 · blocked: owner · steps 1-3 need prod secret key (seed admins), a browser sign-in/invite test on prod, and a Desktop preview->deploy cycle · all automatable checks done

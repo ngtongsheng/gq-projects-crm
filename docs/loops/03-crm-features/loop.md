@@ -35,7 +35,7 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 | 10 | Projects (pipeline) data + form | done | 06 | sonnet/high |
 | 11 | Pipeline board/list | done | 10 | sonnet/high |
 | 12 | Order register (MOF) data, private cost | done | 10 | opus/medium |
-| 13 | MOF form | todo | 12 | opus/medium |
+| 13 | MOF form | done | 12 | opus/medium |
 | 14 | MOF register list + stages | todo | 13 | sonnet/high |
 | 15 | Supplier PO tracking | todo | 14 | sonnet/high |
 | 16 | Installer POs + claims | todo | 14 | sonnet/high |
@@ -105,3 +105,6 @@ is live on main; a per-role walk-through on localhost against the test copy pass
 2026-11-02 · #12 · start · opus/medium subagent
 2026-11-02 · #12 · decision · one MOF per project; mof_no trimmed upper; units/stock types per task (indent merged); mof_lines deletable by register editors; RLS verified on PGlite by subagent
 2026-11-02 · #12 · done · 281 tests pass · pushed to PR #14
+2026-11-02 · #13 · start · opus/medium subagent
+2026-11-02 · #13 · decision · reason required when contract sum or VO changes; blank cost keeps stored; multi-write save not transactional (debt.md); /mofs/new; nav href /mof -> fix in #14
+2026-11-02 · #13 · done · 301 tests pass · pushed to PR #14

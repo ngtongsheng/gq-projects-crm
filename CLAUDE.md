@@ -11,6 +11,9 @@ Tong Sheng (GitHub `ngtongsheng`) built the foundation and owns the accounts. An
 the `get-help` skill.
 
 ## A change, start to finish
+At the start of a session, if `git branch --show-current` prints `main` and `git status --porcelain` is empty, run
+`git pull --ff-only` so you start from the latest CRM and kit. Otherwise leave the folder as it is.
+
 1. **Own space.** Before the first edit of a change, run `git rev-parse --show-toplevel`. Outside `.claude/worktrees/`,
    call EnterWorktree with a short kebab-case name for the change. One change per worktree.
 2. **Build it** to the engineering bar. Run `pnpm check`, `pnpm typecheck` and `pnpm test`; fix until all pass.

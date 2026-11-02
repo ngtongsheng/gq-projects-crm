@@ -21,8 +21,8 @@ Inputs from loop 01 D11 and `docs/decisions.md` ("Loop 02 inputs") still apply: 
 | 01 | Bootstrap probe (fetch-and-follow) | done | – | haiku/low |
 | 02 | gq-setup README (human steps) | done | 01 | sonnet/high |
 | 03 | SETUP.md (Claude-facing setup) | done | 01 | opus/medium |
-| 04 | Dry run on owner's Mac + fixes | todo | 02, 03 | sonnet/high |
-| 05 | Onboarding doc (owner + day-2) | in-progress | 03 | sonnet/high |
+| 04 | Dry run on owner's Mac + fixes | in-progress | 02, 03 | sonnet/high |
+| 05 | Onboarding doc (owner + day-2) | done | 03 | sonnet/high |
 | 06 | First run with Vicky | todo | 04, 05 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
@@ -53,3 +53,6 @@ Inputs from loop 01 D11 and `docs/decisions.md` ("Loop 02 inputs") still apply: 
 2026-11-02 · #01 · done · owner ran probe in Desktop: all 3 steps done, ~/gq-probe/result.txt = SETUP-OK (verified, folder removed); row 7 updated · fetch-and-follow works, no marketplace channel needed (D1)
 2026-11-02 · merge · loop 01 merged to main (e9f3c25); merged into loop/02-setup · #04, #05 unblocked
 2026-11-02 · #05 · in-progress · delegating (sonnet/high)
+2026-11-02 · #05 · done · docs/onboarding.md (invite, first-run script, updates, off-boarding per editor); pnpm check pass
+2026-11-02 · #05 · decision · step 3 gap: CLAUDE.md had no pull at session start → added "git pull --ff-only when on clean main" (matches SETUP.md step 7); invites via repos/.../invitations incl. expired resend; off-boarding also cancels pending invites · spec gaps
+2026-11-02 · #04 · in-progress · delegating executor walk-through (sonnet/high)

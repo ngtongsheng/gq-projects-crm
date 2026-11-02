@@ -27,6 +27,19 @@ Loop 01 decisions: see `docs/loops/01-foundation/loop.md` (D1-D12).
 - The dev database is shared by all open PRs: a PR missing another PR's applied migration fails `migrate-dev` until rebased.
 - First admins are seeded with `scripts/seed-admin.ts` using the prod secret key from an untracked `.env.seed`; there is no change-password screen yet, so the temporary password stays until one is added.
 
+## Loop 04 (Vicky's global agent layer), decided 2026-11-02
+- The company layer (rules, plain style, tdd / diagnosing-bugs / grilling / get-help, settings, apply script) lives in
+  public `ngtongsheng/gq-setup/agent/` and applies to every session on Vicky's Mac, not only this folder. Public
+  because the bare-link setup must fetch it before GitHub sign-in; it holds no secrets, customer data or prices.
+- The apply script runs at setup and on every SessionStart, pulling gq-setup. Risk accepted: whoever can push to
+  gq-setup runs code on her Mac. Only the owner can.
+- Default model is Opus on Pro. It burns the usage limit faster than Sonnet; accepted. Subagents use Sonnet.
+- `get-help` is global, always filing in this private repo with a `from:crm` / `from:other` label. The CRM copy is
+  removed.
+- The CRM keeps a byte-identical copy of `plain.md` so it works without the global layer; CI diffs it against
+  gq-setup `main`. CRM-only wording (glossary words, preview and put-it-live lines) lives in `CLAUDE.md`.
+- Details: `docs/loops/04-vicky-agent-layer/loop.md`.
+
 ## Loop 03
 CRM features: to be grilled after loop 02. Source: Vicky's prototype `docs/mockup/gq-crm-mockup.html` (team roster
 and roles, lead pipeline, customers/designers, site activities, projects + payment claims, purchasing/POs with

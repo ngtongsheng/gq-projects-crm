@@ -46,6 +46,9 @@ Editors get write access (D4): they can push branches and open pull requests, no
 - Tell her: next time, open Claude, **Code** tab, folder `GQ/gq-projects-crm`.
 
 ## 3. Updates (day 2 onward)
+- `get-help`, the plain style, the company rules and the shared skills come from the public gq-setup repo
+  (`agent/`), applied at session start. The CRM keeps only a byte-identical copy of the plain style, which CI checks
+  against gq-setup; to change the style, edit gq-setup first, then copy it here.
 - The kit (`CLAUDE.md`, `.claude/skills`, `.claude/settings.json`) lives in the CRM repo. It reaches her through
   `main`: merge to `main` and it arrives.
 - At the start of each session `CLAUDE.md` tells Claude to run `git pull --ff-only` when the folder is on `main` with

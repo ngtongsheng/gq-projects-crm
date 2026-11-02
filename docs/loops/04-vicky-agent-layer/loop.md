@@ -30,7 +30,7 @@ dry run; Vicky's first run (loop 02 #06) is the real test. Must land before loop
 | 03 | settings.json + apply.py | done | 01 | opus/medium |
 | 04 | SETUP.md: rtk, gq-setup, apply, Chat profile, about you | done | 03 | sonnet/high |
 | 05 | Scratch-HOME dry run + fixes | done | 02, 04 | sonnet/high |
-| 06 | CRM: style copy, CLAUDE.md lines, drift CI, docs, remove CRM get-help | in-progress | 01, 02 | sonnet/high |
+| 06 | CRM: style copy, CLAUDE.md lines, drift CI, docs, remove CRM get-help | blocked: owner — push gq-setup main, then merge loop/04 | 01, 02 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - None during the loop. Afterwards, in loop 02 #06 with Vicky: confirm the Chat profile paste, that the plain style and
@@ -55,3 +55,5 @@ dry run; Vicky's first run (loop 02 #06) is the real test. Must land before loop
 2026-11-02 · #05 · done · scratch-HOME dry run: empty and seeded HOMEs identical across 2 runs (and after About me); hers kept (text, About me, theme, deny, hooks, real tdd dir + warning); hook resolves under scratch HOME; dirty/branch/behind/bad-origin all exit 0 with --quiet; secrets grep clean; one fix, gq-setup 3765569 (pull failure shows git's reason); push pending (owner), gq-setup main 5 ahead of origin · #06
 2026-11-02 · #05 · for loop 02 #06 · confirm in Desktop: @~/GQ import loads; SessionStart hook (startup|resume) fires; rtk hook runs; company model/outputStyle reset each session start (D5); sessions an update takes; Chat tab label (Profile / Your Claude); pbcopy step not run in dry run
 2026-11-02 · #06 · in-progress · delegating (sonnet/high)
+2026-11-02 · #06 · blocked: owner · CRM changes done and verified locally (pnpm check/typecheck/test pass, 72 tests, style diff clean). The new CI drift step fetches gq-setup main from GitHub, which lacks plain.md changes until gq-setup is pushed, so the PR would fail · owner: `git -C ~/work/projects/gq-setup push origin main`, then re-run /execute-loop to merge
+2026-11-02 · #06 · decision · drift step lives in the existing checks job as a named step · task named no job

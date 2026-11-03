@@ -35,3 +35,4 @@ app screen with a screenshot, what it does and who uses it. Docs only; merged to
 2026-11-03 · #03 · blocked: owner · needs the same signed-in session as #02
 2026-11-03 · #04 · skipped · depends on 02, 03
 2026-11-03 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-03-loop-08-readme-features.md
+2026-11-03 · merge · README + loop log merged to main early at owner's request (owner pushed); branch and worktree kept for #02-#04

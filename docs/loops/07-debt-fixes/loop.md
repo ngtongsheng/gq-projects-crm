@@ -19,8 +19,8 @@ and the loop PR is merged. Prototype screens (findings 54, 56-58, 65, 66) are ou
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
 | 01 | PGlite harness + first test | done | - | opus/medium |
-| 02 | Tests for loop 05 database rules | in-progress | 01 | sonnet/high |
-| 03 | Atomic MOF save (14) | todo | 01 | opus/medium |
+| 02 | Tests for loop 05 database rules | done | 01 | sonnet/high |
+| 03 | Atomic MOF save (14) | in-progress | 01 | opus/medium |
 | 04 | Atomic customer + new company save (31) | todo | 01 | sonnet/high |
 | 05 | Payment cap in the database (49) | todo | 01 | sonnet/high |
 | 06 | Payout cap in SQL + parity test (20) | todo | 01 | opus/medium |
@@ -38,3 +38,6 @@ and the loop PR is merged. Prototype screens (findings 54, 56-58, 65, 66) are ou
 2026-11-03 · #01 · done · checks pass, test fails without the guard migration · #02
 2026-11-03 · #01 · decision · actAs(null) = service role, not anon · matches how the guard skips service role
 2026-11-03 · #02 · started · subagent sonnet/high
+2026-11-03 · #02 · done · 96 files, 837 tests pass · #03
+2026-11-03 · #02 · decision · added supabase/tests/fixtures.ts for shared setup · avoids duplication
+2026-11-03 · #03 · started · subagent opus/medium

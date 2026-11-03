@@ -13,7 +13,7 @@ const SCREEN_GUIDE: Record<SectionKey, string> = {
   installation:
     "Installation and delivery dates, and who is free to book a site supervisor.",
   customers:
-    "Customer records and contacts. Sales staff see their own customers; managers see all. Ownership requests are here too.",
+    "Customer records and contacts. Everyone can look up any customer; the owner or a manager changes it, and anyone else can ask for ownership from here.",
   projects: "Projects moving through the pipeline, from first contact to job.",
   mof: "The MOF register: client purchase orders as they come in, then supplier orders and deliveries.",
   siteWork:

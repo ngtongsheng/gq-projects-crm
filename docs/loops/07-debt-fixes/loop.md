@@ -22,8 +22,8 @@ and the loop PR is merged. Prototype screens (findings 54, 56-58, 65, 66) are ou
 | 02 | Tests for loop 05 database rules | done | 01 | sonnet/high |
 | 03 | Atomic MOF save (14) | done | 01 | opus/medium |
 | 04 | Atomic customer + new company save (31) | done | 01 | sonnet/high |
-| 05 | Payment cap in the database (49) | in-progress | 01 | sonnet/high |
-| 06 | Payout cap in SQL + parity test (20) | todo | 01 | opus/medium |
+| 05 | Payment cap in the database (49) | done | 01 | sonnet/high |
+| 06 | Payout cap in SQL + parity test (20) | in-progress | 01 | opus/medium |
 | 07 | Set-password retry (45) + 3 forms keep values (59) | todo | - | sonnet/high |
 | 08 | Stock over-held display (64) | todo | - | sonnet/medium |
 | 09 | Projects own-only for salespeople (55) | todo | 01 | opus/medium |
@@ -47,3 +47,6 @@ and the loop PR is merged. Prototype screens (findings 54, 56-58, 65, 66) are ou
 2026-11-03 · #04 · done · 98 files, 860 tests pass, guard clean · #05
 2026-11-03 · #04 · decision · not-owner update raises 42501, action shows generic retry message · pre-checks already give the specific message
 2026-11-03 · #05 · started · subagent sonnet/high
+2026-11-03 · #05 · done · 99 files, 865 tests pass, guard clean · #06
+2026-11-03 · #05 · decision · payment cap trigger is security definer (execute revoked): accounts lack update on mofs and read on all payments · needed for for-update lock and sum
+2026-11-03 · #06 · started · subagent opus/medium

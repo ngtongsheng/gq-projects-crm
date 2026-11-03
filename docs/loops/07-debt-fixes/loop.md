@@ -23,8 +23,8 @@ and the loop PR is merged. Prototype screens (findings 54, 56-58, 65, 66) are ou
 | 03 | Atomic MOF save (14) | done | 01 | opus/medium |
 | 04 | Atomic customer + new company save (31) | done | 01 | sonnet/high |
 | 05 | Payment cap in the database (49) | done | 01 | sonnet/high |
-| 06 | Payout cap in SQL + parity test (20) | in-progress | 01 | opus/medium |
-| 07 | Set-password retry (45) + 3 forms keep values (59) | todo | - | sonnet/high |
+| 06 | Payout cap in SQL + parity test (20) | done | 01 | opus/medium |
+| 07 | Set-password retry (45) + 3 forms keep values (59) | in-progress | - | sonnet/high |
 | 08 | Stock over-held display (64) | todo | - | sonnet/medium |
 | 09 | Projects own-only for salespeople (55) | todo | 01 | opus/medium |
 | 10 | Final checks, debt.md and decisions.md cleanup | todo | 02, 03, 04, 05, 06, 07, 08, 09 | haiku/low |
@@ -50,3 +50,6 @@ and the loop PR is merged. Prototype screens (findings 54, 56-58, 65, 66) are ou
 2026-11-03 · #05 · done · 99 files, 865 tests pass, guard clean · #06
 2026-11-03 · #05 · decision · payment cap trigger is security definer (execute revoked): accounts lack update on mofs and read on all payments · needed for for-update lock and sum
 2026-11-03 · #06 · started · subagent opus/medium
+2026-11-03 · #06 · done · 100 files, 902 tests pass, 30 parity cases, guard clean · #07
+2026-11-03 · #06 · decision · SQL settings fall back per field (TS falls back all-or-nothing); only differs on corrupt settings · app validation prevents it
+2026-11-03 · #07 · started · subagent sonnet/high

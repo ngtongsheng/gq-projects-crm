@@ -42,12 +42,26 @@ describe("payments", () => {
 });
 
 describe("commission payouts", () => {
-  beforeAll(() => t.actAs("accounts"));
+  // An order paid in full at a standard margin, so RM 300 of commission is payable.
+  let paidMofId: string;
+
+  beforeAll(async () => {
+    paidMofId = await addMof(t, 10_000);
+    await t.db.query(
+      "insert into public.mof_costs (mof_id, cost) values ($1, 6000)",
+      [paidMofId],
+    );
+    await t.db.query(
+      "insert into public.payments (mof_id, amount, received_on) values ($1, 10000, $2)",
+      [paidMofId, today],
+    );
+    await t.actAs("accounts");
+  });
 
   const pay = (paidOn: string) =>
     t.db.query(
       "insert into public.commission_payouts (profile_id, mof_id, amount, paid_on) values ($1, $2, 100, $3)",
-      [t.profileIds.sales, mofId, paidOn],
+      [t.profileIds.sales, paidMofId, paidOn],
     );
 
   it("refuses a payout paid tomorrow", async () => {

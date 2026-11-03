@@ -17,8 +17,8 @@ app screen with a screenshot, what it does and who uses it. Docs only; merged to
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
 | 01 | Rewrite README | done | - | sonnet/medium |
-| 02 | Screenshots + docs/features.md | in-progress | - | sonnet/high |
-| 03 | README demo GIF | todo | 01 | sonnet/medium |
+| 02 | Screenshots + docs/features.md | blocked: owner — allow reading .env.smoke.local (or sign in as director in the Agent Chrome profile on localhost:3000) | - | sonnet/high |
+| 03 | README demo GIF | blocked: owner — same sign-in as #02 | 01 | sonnet/medium |
 | 04 | Final checks, links, PR, merge | todo | 01, 02, 03 | haiku/low |
 ## Owner actions
 - None expected. `.env.smoke.local` exists in the main checkout; copy it into the worktree (gitignored).
@@ -30,3 +30,7 @@ app screen with a screenshot, what it does and who uses it. Docs only; merged to
 2026-11-03 · #01 · done · README 74 lines, pnpm check ok, links ok except features.md (task 02)
 2026-11-03 · #01 · decision · roles line "admin manages people and settings / staff day-to-day" is a guess from CLAUDE.md; docs/desktop-findings.md linked · low risk
 2026-11-03 · #02 · in-progress · delegated to sonnet/high
+2026-11-03 · #02 · blocked: owner · auto-mode classifier denied reading SMOKE_DIRECTOR_*/MD_* from .env.smoke.local (credential materialization); no files changed, dev server and tab closed
+2026-11-03 · #02 · note · viewport looked ~500x667 after resize_window; recheck it is 1440 wide before capture. /mofs needs MD (director not allowed). Sidebar order and role guards are in src/lib/auth/nav-sections.ts
+2026-11-03 · #03 · blocked: owner · needs the same signed-in session as #02
+2026-11-03 · #04 · skipped · depends on 02, 03

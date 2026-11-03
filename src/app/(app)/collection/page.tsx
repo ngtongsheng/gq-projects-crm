@@ -7,8 +7,9 @@ import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
 import { canEnterPayments } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
+import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { summariseCollection } from "@/lib/domain/collection";
-import { todayMyt } from "@/lib/format/date";
+import { formatDate, todayMyt } from "@/lib/format/date";
 import { formatRm, sumRm } from "@/lib/format/money";
 import { seesOnlyOwnMofs } from "../mofs/mof-filters";
 import { loadCollectionOrders, loadPaymentThreshold } from "./collection-data";
@@ -18,10 +19,12 @@ export const metadata: Metadata = { title: "Collection" };
 
 export default async function CollectionPage() {
   const me = await requireSection("collection");
-  const [orders, threshold] = await Promise.all([
+  const [orders, threshold, team] = await Promise.all([
     loadCollectionOrders(),
     loadPaymentThreshold(),
+    getTeamDirectory(),
   ]);
+  const nameOf = new Map(team.map((member) => [member.id, member.name]));
   const canEnter = canEnterPayments(me.jobRole);
   const ownOnly = seesOnlyOwnMofs(me.jobRole);
   const today = todayMyt();
@@ -93,6 +96,14 @@ export default async function CollectionPage() {
             ),
           },
           {
+            key: "salesperson",
+            header: "Salesperson",
+            cell: (row) =>
+              [row.salespersonId, row.secondSalespersonId]
+                .flatMap((id) => (id ? [nameOf.get(id) ?? "Unnamed"] : []))
+                .join(" + "),
+          },
+          {
             key: "invoice",
             header: "Invoice",
             numeric: true,
@@ -102,7 +113,16 @@ export default async function CollectionPage() {
             key: "received",
             header: "Received",
             numeric: true,
-            cell: (row) => formatRm(row.summary.received),
+            cell: (row) => (
+              <div className="flex flex-col items-end">
+                <span>{formatRm(row.summary.received)}</span>
+                {row.payments[0] && (
+                  <span className="text-xs text-muted-foreground">
+                    Last {formatDate(row.payments[0].receivedOn)}
+                  </span>
+                )}
+              </div>
+            ),
           },
           {
             key: "outstanding",

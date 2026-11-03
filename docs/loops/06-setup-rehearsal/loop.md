@@ -17,8 +17,8 @@ the runbook.
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | SETUP.md preflight step (macOS version, admin) + push gq-setup | blocked: owner — run `git -C ~/work/projects/gq-setup push origin main` | – | sonnet/high |
-| 02 | Rehearsal runbook + observation sheet | todo | 01 | sonnet/high |
+| 01 | SETUP.md preflight step (macOS version, admin) + push gq-setup | done | – | sonnet/high |
+| 02 | Rehearsal runbook + observation sheet | in-progress | 01 | sonnet/high |
 | 03 | Owner: run rehearsal in fresh macOS user, fill the sheet | todo | 02 | owner |
 | 04 | Fix rehearsal findings; owner re-pastes link to confirm repair path | todo | 03 | opus/medium |
 | 05 | Meeting runbook in docs/onboarding.md | todo | 04 | sonnet/high |
@@ -38,4 +38,5 @@ the runbook.
 2026-11-03 · #01 · in-progress · subagent sonnet/high
 2026-11-03 · #01 · blocked: owner · preflight step "0b" committed in gq-setup (5b24950, macOS >= 13.5 per nodejs BUILDING.md v24.x, admin check); push to main denied by permissions · owner pushes, then verify `curl -s https://raw.githubusercontent.com/ngtongsheng/gq-setup/main/SETUP.md | grep -c "0b"` >= 1
 2026-11-03 · #01 · decision · orchestrator verified the commit locally (13 added lines, only additions) and did not retry the denied push · live-on-push repo, owner's call
-2026-11-03 · #02-#06 · blocked: depends on #01 · resume with /execute-loop after the push
+2026-11-03 · #01 · done · owner pushed gq-setup 5b24950; raw main shows step 0b · next #02
+2026-11-03 · #02 · in-progress · subagent sonnet/high

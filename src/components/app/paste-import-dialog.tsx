@@ -245,12 +245,7 @@ function PasteImportForm<Kind extends string>({
                   numeric: true,
                   cell: (row) => row.line,
                 },
-                ...checked.headers.map((header, index) => ({
-                  key: `cell-${index}`,
-                  header,
-                  cell: (row: ImportPreview["rows"][number]) =>
-                    row.cells[index] || "–",
-                })),
+                // Status first: with many pasted columns it would sit off screen, hiding the reason a row needs fixing.
                 {
                   key: "status",
                   header: "Status",
@@ -267,6 +262,12 @@ function PasteImportForm<Kind extends string>({
                     </div>
                   ),
                 },
+                ...checked.headers.map((header, index) => ({
+                  key: `cell-${index}`,
+                  header,
+                  cell: (row: ImportPreview["rows"][number]) =>
+                    row.cells[index] || "–",
+                })),
               ]}
             />
           )}

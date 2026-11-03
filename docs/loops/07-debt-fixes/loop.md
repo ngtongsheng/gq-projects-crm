@@ -18,8 +18,8 @@ and the loop PR is merged. Prototype screens (findings 54, 56-58, 65, 66) are ou
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | PGlite harness + first test | todo | - | opus/medium |
-| 02 | Tests for loop 05 database rules | todo | 01 | sonnet/high |
+| 01 | PGlite harness + first test | done | - | opus/medium |
+| 02 | Tests for loop 05 database rules | in-progress | 01 | sonnet/high |
 | 03 | Atomic MOF save (14) | todo | 01 | opus/medium |
 | 04 | Atomic customer + new company save (31) | todo | 01 | sonnet/high |
 | 05 | Payment cap in the database (49) | todo | 01 | sonnet/high |
@@ -34,3 +34,7 @@ and the loop PR is merged. Prototype screens (findings 54, 56-58, 65, 66) are ou
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-03 · plan · loop written (10 tasks) · /execute-loop
+2026-11-03 · #01 · started · subagent opus/medium
+2026-11-03 · #01 · done · checks pass, test fails without the guard migration · #02
+2026-11-03 · #01 · decision · actAs(null) = service role, not anon · matches how the guard skips service role
+2026-11-03 · #02 · started · subagent sonnet/high

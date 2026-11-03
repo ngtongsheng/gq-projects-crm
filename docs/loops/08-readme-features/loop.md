@@ -17,8 +17,8 @@ app screen with a screenshot, what it does and who uses it. Docs only; merged to
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
 | 01 | Rewrite README | done | - | sonnet/medium |
-| 02 | Screenshots + docs/features.md | blocked: owner — allow reading .env.smoke.local (or sign in as director in the Agent Chrome profile on localhost:3000) | - | sonnet/high |
-| 03 | README demo GIF | blocked: owner — same sign-in as #02 | 01 | sonnet/medium |
+| 02 | Screenshots + docs/features.md | blocked: owner — 4 MD-only images missing (mofs, mofs-detail, commission-settings, people); allow reading SMOKE_MD_* or sign in as MD at localhost:3000 | - | sonnet/high |
+| 03 | README demo GIF | in-progress | 01 | sonnet/medium |
 | 04 | Final checks, links, PR, merge | todo | 01, 02, 03 | haiku/low |
 ## Owner actions
 - None expected. `.env.smoke.local` exists in the main checkout; copy it into the worktree (gitignored).
@@ -38,3 +38,8 @@ app screen with a screenshot, what it does and who uses it. Docs only; merged to
 2026-11-03 · merge · README + loop log merged to main early at owner's request (owner pushed); branch and worktree kept for #02-#04
 2026-11-03 · #02 · in-progress · resumed by owner; retry delegated to sonnet/high (check state first)
 2026-11-03 · #02 · blocked: owner · retry denied again by auto-mode classifier (credential materialization) before the subagent started; no sign-in permission or session was set up
+2026-11-03 · #02 · in-progress · owner granted the retry call; delegated to sonnet/high
+2026-11-03 · #02 · partial · 18 of 22 screens captured as director (1440 wide, pnpm check ok), features.md written with all 22 sections; 4 MD-only screens lack images (mofs, mofs-detail, commission-settings, people); classifier denied SMOKE_MD_* read
+2026-11-03 · #02 · decision · reports-director.jpg shows the director's notice view (real report needs MD/BD Director/Accounts); viewport is 1440x723 not 900 (browser chrome); Next.js dev badge visible bottom-left in shots
+2026-11-03 · #03 · in-progress · director session already signed in on localhost:3000, so no credentials needed
+2026-11-03 · #03 · decision · MOF Register is MD-only, so the clip uses Dashboard, Customers (open one), Projects, Sales Calendar instead · director can open all of them

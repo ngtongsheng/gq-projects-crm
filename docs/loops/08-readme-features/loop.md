@@ -46,3 +46,4 @@ app screen with a screenshot, what it does and who uses it. Docs only; merged to
 2026-11-03 · #03 · done · demo.gif 2.2 MB, 1440x723, 12 frames, loops; README placeholder replaced; pnpm check ok
 2026-11-03 · #03 · decision · clip is ~8-12 s, shorter than the 15-20 s target; accepted · re-record only if the owner wants it longer
 2026-11-03 · #04 · skipped · waits on #02 (4 MD-only images)
+2026-11-03 · vault · updated ~/work/vault/sessions/gq-projects-crm/2026-11-03-loop-08-readme-features.md

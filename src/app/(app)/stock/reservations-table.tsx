@@ -46,7 +46,9 @@ export function ReservationsTable({
           key: "when",
           header: "Reserved",
           numeric: true,
-          cell: ({ line }) => reservedOnLabel(line),
+          cell: ({ line }) => (
+            <span className="whitespace-normal">{reservedOnLabel(line)}</span>
+          ),
         },
         {
           key: "who",
@@ -57,7 +59,7 @@ export function ReservationsTable({
           key: "project",
           header: "Client · project",
           cell: ({ line }) => (
-            <div className="flex min-w-40 flex-col">
+            <div className="flex max-w-52 min-w-40 flex-col whitespace-normal">
               <span className="font-medium">{line.companyName}</span>
               <span className="text-xs text-muted-foreground">
                 {line.projectName}
@@ -70,7 +72,7 @@ export function ReservationsTable({
           key: "sku",
           header: "SKU",
           cell: ({ line }) => (
-            <div className="flex min-w-36 flex-col">
+            <div className="flex max-w-48 min-w-36 flex-col whitespace-normal">
               <span className="font-mono text-sm font-medium">{line.sku}</span>
               <span className="text-xs text-muted-foreground">
                 {[line.collection, line.supplier].filter(Boolean).join(" · ")}

@@ -18,7 +18,7 @@ app screen with a screenshot, what it does and who uses it. Docs only; merged to
 |---|---|---|---|---|
 | 01 | Rewrite README | done | - | sonnet/medium |
 | 02 | Screenshots + docs/features.md | blocked: owner — 4 MD-only images missing (mofs, mofs-detail, commission-settings, people); allow reading SMOKE_MD_* or sign in as MD at localhost:3000 | - | sonnet/high |
-| 03 | README demo GIF | in-progress | 01 | sonnet/medium |
+| 03 | README demo GIF | done | 01 | sonnet/medium |
 | 04 | Final checks, links, PR, merge | todo | 01, 02, 03 | haiku/low |
 ## Owner actions
 - None expected. `.env.smoke.local` exists in the main checkout; copy it into the worktree (gitignored).
@@ -43,3 +43,6 @@ app screen with a screenshot, what it does and who uses it. Docs only; merged to
 2026-11-03 · #02 · decision · reports-director.jpg shows the director's notice view (real report needs MD/BD Director/Accounts); viewport is 1440x723 not 900 (browser chrome); Next.js dev badge visible bottom-left in shots
 2026-11-03 · #03 · in-progress · director session already signed in on localhost:3000, so no credentials needed
 2026-11-03 · #03 · decision · MOF Register is MD-only, so the clip uses Dashboard, Customers (open one), Projects, Sales Calendar instead · director can open all of them
+2026-11-03 · #03 · done · demo.gif 2.2 MB, 1440x723, 12 frames, loops; README placeholder replaced; pnpm check ok
+2026-11-03 · #03 · decision · clip is ~8-12 s, shorter than the 15-20 s target; accepted · re-record only if the owner wants it longer
+2026-11-03 · #04 · skipped · waits on #02 (4 MD-only images)

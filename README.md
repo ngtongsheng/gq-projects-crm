@@ -1,6 +1,6 @@
 # GQ Projects CRM
 
-<!-- demo gif: task 03 -->
+![GQ Projects CRM demo](docs/screenshots/demo.gif)
 
 Invite-only internal CRM for GQ Projects, a 17-person carpet sales and installation company. Admins add people; there
 is no public sign-up. The code is also built to be extended by non-developers working with a coding agent, so the

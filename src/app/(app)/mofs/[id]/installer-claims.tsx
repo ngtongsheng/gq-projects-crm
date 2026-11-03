@@ -141,7 +141,7 @@ export function InstallerClaims({
               key: "installer",
               header: "Installer",
               cell: ({ po }) => (
-                <div className="flex flex-col">
+                <div className="flex max-w-72 flex-col whitespace-normal">
                   <span className="font-medium">{po.installer}</span>
                   <span className="text-xs text-muted-foreground">
                     PO <span className="font-mono">{po.poNo}</span> ·{" "}

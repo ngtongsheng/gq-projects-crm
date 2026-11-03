@@ -15,7 +15,7 @@ depends: [01]
 ## Files to touch
 - docs/screenshots/demo.gif, README.md
 ## Steps
-1. `pnpm dev`; tab at 1440x900; sign in; go to sign-in-complete Dashboard.
+1. `pnpm dev`; tab at 1440x900; sign in; land on the Dashboard.
 2. Record: Dashboard, Customers (open one), MOF Register (open one), Sales Calendar. ~15-20 s, pause ~1-2 s per screen.
 3. Export, `mv ~/Downloads/demo.gif docs/screenshots/demo.gif`.
 4. Replace the README placeholder with `![GQ Projects CRM demo](docs/screenshots/demo.gif)`.

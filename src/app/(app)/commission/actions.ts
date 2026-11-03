@@ -17,6 +17,8 @@ const NOT_FOUND_ORDER = "Could not find that order. Reload the page.";
 const NOT_FOUND_PAYOUT =
   "Could not find that payout. It may already be removed. Reload the page.";
 const TRY_AGAIN = "Could not save. Try again.";
+const OVER_PAYABLE = "That is more than the";
+const NOTHING_PAYABLE = "Nothing can be paid out on this order yet.";
 // numeric(14,2) holds 12 digits before the decimal point.
 const MAX_AMOUNT = 999_999_999_999.99;
 
@@ -42,8 +44,8 @@ const payoutForm = z.object({
 
 /**
  * Records commission paid to a person on an order. It can't exceed what is left to pay out, and
- * nothing is payable until the order has reached the claim threshold. The database limits who
- * may write; the amount rule lives here because it depends on the commission rules.
+ * nothing is payable until the order has reached the claim threshold. Checked here for a quick
+ * answer; the database checks it again (cap_commission_payouts) in case two payouts land at once.
  */
 export async function recordPayout(formData: FormData): Promise<PayoutResult> {
   const me = await requireSection("commission");
@@ -71,8 +73,8 @@ export async function recordPayout(formData: FormData): Promise<PayoutResult> {
     return {
       error:
         line.balance.payableNow > 0
-          ? `That is more than the ${formatRm(line.balance.payableNow)} left to pay out.`
-          : "Nothing can be paid out on this order yet.",
+          ? `${OVER_PAYABLE} ${formatRm(line.balance.payableNow)} left to pay out.`
+          : NOTHING_PAYABLE,
     };
   }
 
@@ -85,6 +87,13 @@ export async function recordPayout(formData: FormData): Promise<PayoutResult> {
     note: payout.note,
   });
   if (error) {
+    if (
+      error.code === "23514" &&
+      (error.message.startsWith(OVER_PAYABLE) ||
+        error.message === NOTHING_PAYABLE)
+    ) {
+      return { error: error.message };
+    }
     if (error.code === "42501") return { error: NOT_ALLOWED };
     if (error.code === "23503") return { error: NOT_FOUND_ORDER };
     console.error("Could not record the commission payout", error);

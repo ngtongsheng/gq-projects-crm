@@ -4,13 +4,16 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { setPasswordSchema } from "./schema";
 
-export type SetPasswordState = { error: string | null };
+export type SetPasswordState = {
+  error: string | null;
+  /** True once the link has been spent and the person's session is open, so a retry needs no new link. */
+  linkVerified: boolean;
+};
 
 const LINK_PROBLEM =
   "This link has already been used or has expired. Ask your admin for a new one.";
 
 export async function setPassword(
-  _previous: SetPasswordState,
   formData: FormData,
 ): Promise<SetPasswordState> {
   const parsed = setPasswordSchema.safeParse({
@@ -21,18 +24,26 @@ export async function setPassword(
   });
   if (!parsed.success) {
     const message = parsed.error.issues[0]?.message;
-    return { error: message ?? LINK_PROBLEM };
+    return { error: message ?? LINK_PROBLEM, linkVerified: false };
   }
 
   const supabase = await createClient();
-  // The token is spent here, on submit, so opening or previewing the link is harmless.
-  const { error: linkError } = await supabase.auth.verifyOtp({
-    token_hash: parsed.data.tokenHash,
-    type: parsed.data.type,
-  });
-  if (linkError) {
-    console.error("Could not verify the set-password link", linkError);
-    return { error: LINK_PROBLEM };
+  // Only a retry that the form says follows a verified link may reuse the session. Trusting any
+  // existing session would change a signed-in admin's own password when they open someone's link.
+  const retrying = formData.get("link_verified") === "true";
+  const { data: current } = retrying
+    ? await supabase.auth.getUser()
+    : { data: { user: null } };
+  if (!current.user) {
+    // The token is spent here, on submit, so opening or previewing the link is harmless.
+    const { error: linkError } = await supabase.auth.verifyOtp({
+      token_hash: parsed.data.tokenHash,
+      type: parsed.data.type,
+    });
+    if (linkError) {
+      console.error("Could not verify the set-password link", linkError);
+      return { error: LINK_PROBLEM, linkVerified: false };
+    }
   }
 
   const { error } = await supabase.auth.updateUser({
@@ -40,10 +51,10 @@ export async function setPassword(
   });
   if (error) {
     console.error("Could not save the new password", error);
-    // The link was spent by verifyOtp above, so another try with it would be refused.
     return {
       error:
-        "Could not save your password. This link is now used: ask your admin for a new one.",
+        "Could not save your password. Try again with a different password.",
+      linkVerified: true,
     };
   }
 

@@ -6,6 +6,7 @@ import {
   extendedUntil,
   holdState,
   holdUntil,
+  overHeldQty,
   type ReservationStatus,
   supplierMailto,
 } from "./reservation";
@@ -155,5 +156,21 @@ describe("supplierMailto", () => {
     for (const status of ["requested", "delivered", "cancelled"] as const) {
       expect(supplierMailto({ ...base, status })).toBeNull();
     }
+  });
+});
+
+describe("overHeldQty", () => {
+  it("is the shortfall when on hand is below what is taken", () => {
+    expect(overHeldQty(10, [line("reserved", 25)])).toBe(15);
+  });
+
+  it("is 0 when on hand equals what is taken", () => {
+    expect(overHeldQty(25, [line("reserved", 25)])).toBe(0);
+  });
+
+  it("is 0 when on hand is above what is taken", () => {
+    expect(overHeldQty(30, [line("reserved", 25), line("released", 9)])).toBe(
+      0,
+    );
   });
 });

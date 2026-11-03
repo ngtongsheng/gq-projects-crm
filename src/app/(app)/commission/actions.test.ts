@@ -191,6 +191,14 @@ describe("recordPayout", () => {
 
     expect((await recordPayout(payoutFields())).error).toMatch(/Only the MD/);
   });
+
+  it("shows the database's cap message when a payout landed first", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
+    const message = "That is more than the RM 100.00 left to pay out.";
+    fakeSupabase({ data: null, error: { code: "23514", message } });
+
+    expect(await recordPayout(payoutFields())).toEqual({ error: message });
+  });
 });
 
 describe("removePayout", () => {

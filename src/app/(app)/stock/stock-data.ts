@@ -79,11 +79,14 @@ const reservationRows = z.array(
       collection: z.string().nullable(),
       unit: z.enum(STOCK_UNITS),
     }),
-    projects: z.object({
-      name: z.string(),
-      mofs: z.object({ mof_no: z.string() }).nullable(),
-      contacts: z.object({ companies: z.object({ name: z.string() }) }),
-    }),
+    // Null for a salesperson when the project is someone else's: they read only their own.
+    projects: z
+      .object({
+        name: z.string(),
+        mofs: z.object({ mof_no: z.string() }).nullable(),
+        contacts: z.object({ companies: z.object({ name: z.string() }) }),
+      })
+      .nullable(),
   }),
 );
 
@@ -106,9 +109,9 @@ export async function loadReservations(): Promise<Reservation[]> {
     unit: row.stock_items.unit,
     qty: row.qty,
     projectId: row.project_id,
-    projectName: row.projects.name,
-    companyName: row.projects.contacts.companies.name,
-    mofNo: row.projects.mofs?.mof_no ?? null,
+    projectName: row.projects?.name ?? "Another salesperson's project",
+    companyName: row.projects?.contacts.companies.name ?? "",
+    mofNo: row.projects?.mofs?.mof_no ?? null,
     reservedBy: row.reserved_by,
     status: row.status,
     reservedAt: row.reserved_at,

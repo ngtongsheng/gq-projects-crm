@@ -17,6 +17,8 @@ const NOT_FOUND_MOF = "Could not find that order. Reload the page.";
 const NOT_FOUND_PAYMENT =
   "Could not find that payment. It may already be removed. Reload the page.";
 const TRY_AGAIN = "Could not save. Try again.";
+// Start of the database's own refusal when another payment saved at the same moment took the order past its total.
+const OVER_TOTAL = "That takes payments past the order total";
 // numeric(14,2) holds 12 digits before the decimal point.
 const MAX_AMOUNT = 999_999_999_999.99;
 
@@ -85,7 +87,7 @@ export async function recordPayment(
   const received = sumRm(known.data.payments.map((row) => row.amount));
   if (toCents(received) + toCents(payment.amount) > toCents(invoice)) {
     return {
-      error: `That takes payments past the order total of ${formatRm(invoice)}. If the order total has changed, change it on the MOF first.`,
+      error: `${OVER_TOTAL} of ${formatRm(invoice)}. If the order total has changed, change it on the MOF first.`,
     };
   }
 
@@ -96,6 +98,9 @@ export async function recordPayment(
     note: payment.note,
   });
   if (error) {
+    if (error.code === "23514" && error.message.startsWith(OVER_TOTAL)) {
+      return { error: error.message };
+    }
     if (error.code === "42501") return { error: NOT_ALLOWED };
     if (error.code === "23503") return { error: NOT_FOUND_MOF };
     console.error("Could not record the payment", error);

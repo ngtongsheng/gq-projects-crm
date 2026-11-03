@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import type { CommissionSettings } from "@/lib/domain/commission-settings";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { saveCommissionSettings } from "./actions";
 
 type NumberFieldProps = {
@@ -64,7 +65,7 @@ export function CommissionSettingsForm({
   }
 
   return (
-    <form action={save} className="max-w-2xl">
+    <form onSubmit={submitKeepingValues(save)} className="max-w-2xl">
       <FieldGroup>
         <FieldSet>
           <FieldLegend>Rates by account type (%)</FieldLegend>

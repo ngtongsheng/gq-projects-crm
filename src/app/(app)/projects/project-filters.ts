@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-export type PipelineView = "board" | "list";
-
 // Anything unrecognised falls back to the board with everyone's projects.
 const filterParams = z.object({
   person: z.uuid().optional().catch(undefined),

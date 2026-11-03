@@ -18,17 +18,17 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Run loop 03 #35 walk-through + Vicky checklist | todo | owner: .env.smoke.local | sonnet/high |
-| 02 | Audit + fix: migrations and RLS | todo | 01 | opus/medium |
-| 03 | Audit + fix: lib and proxy | todo | 01 | opus/medium |
-| 04 | Audit + fix: MOFs | todo | 02, 03 | sonnet/high |
-| 05 | Audit + fix: stock, collection, commission | todo | 02, 03 | sonnet/high |
-| 06 | Audit + fix: customers, activities, calendar, projects, people | todo | 02, 03 | sonnet/high |
-| 07 | Audit + fix: installation, site work, overtime | todo | 02, 03 | sonnet/high |
-| 08 | Audit + fix: reports, dashboard, shared components, auth, guide, dev | todo | 02, 03 | sonnet/high |
-| 09 | Cross-module fixes from findings | todo | 04, 05, 06, 07, 08 | opus/medium |
-| 10 | Smoke test vs prototype: sales side | todo | 09 | sonnet/high |
-| 11 | Smoke test vs prototype: operations side + summary | todo | 10 | sonnet/high |
+| 01 | Run loop 03 #35 walk-through + Vicky checklist | done | owner: .env.smoke.local | sonnet/high |
+| 02 | Audit + fix: migrations and RLS | done | 01 | opus/medium |
+| 03 | Audit + fix: lib and proxy | done | 01 | opus/medium |
+| 04 | Audit + fix: MOFs | done | 02, 03 | sonnet/high |
+| 05 | Audit + fix: stock, collection, commission | done | 02, 03 | sonnet/high |
+| 06 | Audit + fix: customers, activities, calendar, projects, people | done | 02, 03 | sonnet/high |
+| 07 | Audit + fix: installation, site work, overtime | done | 02, 03 | sonnet/high |
+| 08 | Audit + fix: reports, dashboard, shared components, auth, guide, dev | done | 02, 03 | sonnet/high |
+| 09 | Cross-module fixes from findings | done | 04, 05, 06, 07, 08 | opus/medium |
+| 10 | Smoke test vs prototype: sales side | done | 09 | sonnet/high |
+| 11 | Smoke test vs prototype: operations side + summary | done | 10 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Before #01: create `.env.seed.dev` (test copy only), run `pnpm seed:example`, and write the printed sign-ins to
@@ -39,3 +39,44 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-02 · plan · loop written (11 tasks) · /execute-loop
+2026-11-02 · #01 · blocked: owner: .env.smoke.local missing in main repo root; task spec says stop the loop · owner writes it, then /execute-loop
+2026-11-02 · #02-#11 · waiting: all depend on #01 · resume after #01
+2026-11-02 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-02-loop-05-audit-smoke.md
+2026-11-02 · #01 · done: loop 03 #35 completed and merged by owner (PR #16, d02e658) · #02
+2026-11-02 · #02 · in-progress · subagent opus/medium
+2026-11-02 · #02 · decision · no in-repo SQL regression test; verified on scratch PGlite, gap logged in debt.md · new dev dependency not in plan
+2026-11-02 · #02 · done: 2 additive migrations (account type guard a45d275, guard fn revokes 593fe28); checks + 742 tests pass · #03
+2026-11-02 · #03 · in-progress · subagent opus/medium
+2026-11-02 · #03 · decision · new src/lib/format/quantity.ts for shared 2dp rounding; env.ts kept as plain presence check · no shared helper existed; two plain strings
+2026-11-02 · #03 · done: 6 findings, 4 fixed (abeb511 a5158fd 5c1610c 444bf53), rows 7-8 to #09; 745 tests pass · #04
+2026-11-02 · #04 · in-progress · subagent sonnet/high
+2026-11-02 · #04 · decision · row 13 (installer claim cap app-only) moved from debt to #09 as an additive trigger · D3 fix everything; permission rules belong in the database
+2026-11-02 · #04 · done: rows 10-14, fixed 5696060 9a643b7, row 12-13 to #09, row 14 debt; 746 tests pass · #05
+2026-11-02 · #05 · in-progress · subagent sonnet/high
+2026-11-02 · #05 · decision · commission payout cap stays app-only (debt row 20), stock/actions.ts not split · loop 03 #26 decision; SQL copy would drift; actions.ts is one concern
+2026-11-02 · #05 · done: rows 15-23, fixed 202066c 7184498 60e4a48, rows 18-19 21-23 to #09; 754 tests pass · #06
+2026-11-02 · #06 · in-progress · subagent sonnet/high
+2026-11-02 · #06 · decision · row 31 (company saved before contact) stays debt like row 14; project value capped at the DB column max · partial-write, not a permission rule; matches DB
+2026-11-02 · #06 · done: rows 24-33, fixed 8e8ff2a..76701f7 (7 commits), rows 32-33 to #09; 758 tests pass · #07
+2026-11-02 · #07 · in-progress · subagent sonnet/high
+2026-11-02 · #07 · done: rows 34-37, rows 34-35 fixed in 6091308, rows 36-37 to #09; 759 tests pass · #08
+2026-11-02 · #08 · in-progress · subagent sonnet/high
+2026-11-02 · #08 · decision · shadcn dialog/sheet keep bg-black/10 scrim; sign-in shows service-down message only for no-status/429/5xx · generated files stay as is; no email enumeration
+2026-11-02 · #08 · done: rows 38-47, fixed 64bea5d 6bbc955 1e7ae7f 6a0b80c 91098a0 4043942, row 45 debt, rows 39-tail 47 to #09; 766 tests pass · #09
+2026-11-02 · #09 · in-progress · subagent opus/medium
+2026-11-02 · #09 · decision · acceptance grep counts the findings legend line (1); table rows with cross-module (#09) = 0 · legend is documentation, intent met
+2026-11-02 · #09 · decision · formatQuantity caps display at 2dp (was up to 3 in MOF lines editor); trigger concurrency (rows 13, 33) relies on row locks, untested with two connections · consistent with DB rounding; PGlite single connection
+2026-11-02 · #09 · done: 15 rows fixed in 12 commits incl. 6 additive migrations; 774 tests pass, guard clean · #10
+2026-11-02 · #10 · blocked: owner — .env.smoke.local missing in main repo root (smoke-method needs per-role sign-ins) · owner writes it, then /execute-loop
+2026-11-02 · #11 · waiting on #10 · -
+2026-11-02 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-02-loop-05-audit-smoke.md (updated)
+2026-11-03 · seed · fix(seed) 47a7eaa: reset clears app-added rows under example records (walk-through data blocked FKs); owner ran seed, .env.smoke.local written
+2026-11-03 · #10 · in-progress · subagent sonnet/high
+2026-11-03 · #10 · decision · plan gap: global deny Read(**/.env.*) blocked .env.smoke.local; owner narrowed the rule · D2 assumed agents could read it
+2026-11-03 · #10 · decision · payment cap (49) app-only + debt, sales reading every project (55) left for owner, prototype gaps 54-58 debt · no SQL harness here; 55 changes who sees what (get-help)
+2026-11-03 · #10 · done: rows 48-59, 6 fixed, 6 debt; 779 tests pass; results in smoke-results.md · #11
+2026-11-03 · #11 · in-progress · subagent sonnet/high
+2026-11-03 · #11 · decision · one-class fixes in shadcn dialog.tsx/select.tsx for overflow; delivery job saves with unticked checks (prototype only warns) · fixes every dialog at once; matches prototype
+2026-11-03 · #11 · done: rows 60-66, 4 fixed (7573b7a c0f8a52 ba2616c), 3 debt; 779 tests pass. Loop total 66 findings: 52 fixed, 14 debt · merge
+2026-11-03 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-02-loop-05-audit-smoke.md
+2026-11-03 · merge · PR #17 checks green (checks, migration-guard, migrate-dev, Vercel) · merged to main

@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { saveActivity } from "./actions";
 import { parseMytInput, toMytInput } from "./activity-time";
 import {
@@ -139,7 +140,7 @@ export function ActivityForm({
   }
 
   return (
-    <form action={save}>
+    <form onSubmit={submitKeepingValues(save)}>
       {activity && (
         <input type="hidden" name="activityId" value={activity.id} />
       )}

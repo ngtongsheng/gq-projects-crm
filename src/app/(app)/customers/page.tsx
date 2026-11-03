@@ -7,7 +7,7 @@ import { DownloadCsvButton } from "@/components/app/download-csv-button";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { PasteImportDialog } from "@/components/app/paste-import-dialog";
-import { StatusBadge, type StatusTone } from "@/components/app/status-badge";
+import { StatusBadge } from "@/components/app/status-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -34,6 +34,7 @@ import { companyImportFields, contactImportFields } from "./customer-import";
 import { importCustomers, previewCustomerImport } from "./import-actions";
 import { canRequestOwnership } from "./ownership/ownership-access";
 import { RequestOwnershipDialog } from "./ownership/request-ownership-dialog";
+import { RatingBadge } from "./rating-badge";
 import {
   AccountType,
   AccountTypeLabel,
@@ -44,14 +45,6 @@ import {
 export const metadata: Metadata = { title: "Customers" };
 
 const ALL = "all";
-
-const ratingTone: Record<number, StatusTone> = {
-  1: "bad",
-  2: "warn",
-  3: "neutral",
-  4: "info",
-  5: "good",
-};
 
 const companyRows = z.array(z.object({ id: z.string(), name: z.string() }));
 
@@ -270,11 +263,7 @@ export default async function CustomersPage({
           {
             key: "rating",
             header: "Rating",
-            cell: (row) => (
-              <StatusBadge tone={ratingTone[row.rating] ?? "neutral"}>
-                {row.rating} · {RatingLabel[row.rating]}
-              </StatusBadge>
-            ),
+            cell: (row) => <RatingBadge rating={row.rating} />,
           },
           {
             key: "account",

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { normaliseMobile } from "@/lib/domain/mobile";
+import { optionalText } from "@/lib/form/form-fields";
 
 // Values mirror the check constraints in the customers migration.
 export const CompanyType = z.enum([
@@ -51,13 +52,6 @@ const rating = z.coerce
   .min(1, "Choose a rating from 1 to 5.")
   .max(5, "Choose a rating from 1 to 5.");
 
-const optionalText = (max: number) =>
-  z
-    .string()
-    .trim()
-    .max(max)
-    .transform((value) => (value === "" ? null : value));
-
 // A blank select posts "".
 const passedBy = z.union([z.literal("").transform(() => null), z.uuid()]);
 
@@ -79,7 +73,6 @@ export const companyFormSchema = z
     notes: optionalText(2000),
   })
   .refine(needsPassedBy, { message: PASSED_BY_MESSAGE, path: ["passedBy"] });
-export type CompanyForm = z.infer<typeof companyFormSchema>;
 
 export const contactFormSchema = z
   .object({

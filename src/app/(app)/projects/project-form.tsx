@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { addDays, todayMyt } from "@/lib/format/date";
 import { AccountType, AccountTypeLabel } from "../customers/schemas";
 import { saveProject } from "./actions";
@@ -135,7 +136,7 @@ function ProjectForm({
   }
 
   return (
-    <form action={save}>
+    <form onSubmit={submitKeepingValues(save)}>
       {project ? (
         <input type="hidden" name="projectId" value={project.id} />
       ) : (

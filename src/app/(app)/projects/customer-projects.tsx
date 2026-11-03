@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/app/empty-state";
 import { StatusBadge, type StatusTone } from "@/components/app/status-badge";
 import { formatDate } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
+import { formatQuantity } from "@/lib/format/quantity";
 import { type EditableProject, ProjectDialog } from "./project-form";
 import { type ProjectStage, ProjectStageLabel } from "./schemas";
 
@@ -64,8 +65,8 @@ export function CustomerProjects({
               </StatusBadge>
             </div>
             <p className="font-mono text-sm tabular-nums">
-              {formatRm(project.value)} ·{" "}
-              {project.qtySqft.toLocaleString("en-MY")} sq ft
+              {formatRm(project.value)} · {formatQuantity(project.qtySqft)} sq
+              ft
             </p>
             <p className="text-xs text-muted-foreground">
               {[project.picName, project.supportName]

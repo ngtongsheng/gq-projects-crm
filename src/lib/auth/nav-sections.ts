@@ -43,8 +43,6 @@ type Section = {
   hrefFor?: (jobRole: JobRole) => string;
   icon: LucideIcon;
   allowed: readonly JobRole[];
-  /** False until the task that builds the page flips it; unbuilt sections stay out of the sidebar. */
-  built: boolean;
 };
 
 const SALES_SIDE: readonly JobRole[] = [
@@ -63,7 +61,6 @@ const SECTIONS: readonly Section[] = [
     href: "/",
     icon: LayoutGrid,
     allowed: [...SALES_SIDE, "support"],
-    built: true,
   },
   {
     key: "salesCalendar",
@@ -71,7 +68,6 @@ const SECTIONS: readonly Section[] = [
     href: "/calendar",
     icon: CalendarDays,
     allowed: SALES_SIDE,
-    built: true,
   },
   {
     key: "installation",
@@ -85,7 +81,6 @@ const SECTIONS: readonly Section[] = [
     href: "/installation",
     icon: Truck,
     allowed: [...SALES_SIDE, "site", "support"],
-    built: true,
   },
   {
     key: "customers",
@@ -93,7 +88,6 @@ const SECTIONS: readonly Section[] = [
     href: "/customers",
     icon: Users,
     allowed: SALES_SIDE,
-    built: true,
   },
   {
     key: "projects",
@@ -101,7 +95,6 @@ const SECTIONS: readonly Section[] = [
     href: "/projects",
     icon: FolderKanban,
     allowed: SALES_SIDE,
-    built: true,
   },
   {
     key: "mof",
@@ -112,7 +105,6 @@ const SECTIONS: readonly Section[] = [
     icon: FileText,
     // The Sales Director sees the team's work elsewhere, so no MOF entry.
     allowed: ["md", "bd", "sales", "accounts", "support"],
-    built: true,
   },
   {
     key: "siteWork",
@@ -120,7 +112,6 @@ const SECTIONS: readonly Section[] = [
     href: "/site-work",
     icon: HardHat,
     allowed: [...SALES_SIDE, "site", "support"],
-    built: true,
   },
   {
     key: "overtime",
@@ -128,7 +119,6 @@ const SECTIONS: readonly Section[] = [
     href: "/overtime",
     icon: Moon,
     allowed: ["md", "director", "bd", "sales", "accounts", "site", "support"],
-    built: true,
   },
   {
     key: "stock",
@@ -136,7 +126,6 @@ const SECTIONS: readonly Section[] = [
     href: "/stock",
     icon: Boxes,
     allowed: [...SALES_SIDE, "support"],
-    built: true,
   },
   {
     key: "collection",
@@ -144,7 +133,6 @@ const SECTIONS: readonly Section[] = [
     href: "/collection",
     icon: Banknote,
     allowed: SALES_SIDE,
-    built: true,
   },
   {
     key: "commission",
@@ -152,7 +140,6 @@ const SECTIONS: readonly Section[] = [
     href: "/commission",
     icon: Percent,
     allowed: SALES_SIDE,
-    built: true,
   },
   {
     key: "reports",
@@ -163,7 +150,6 @@ const SECTIONS: readonly Section[] = [
     icon: ClipboardList,
     // The BD Director's monthly report sits under Director Report, as in the prototype.
     allowed: ["md", "director", "sales", "accounts", "site"],
-    built: true,
   },
   {
     key: "directorReport",
@@ -171,7 +157,6 @@ const SECTIONS: readonly Section[] = [
     href: "/reports/director",
     icon: Target,
     allowed: ["md", "director", "bd", "accounts"],
-    built: true,
   },
   {
     key: "guide",
@@ -179,7 +164,6 @@ const SECTIONS: readonly Section[] = [
     href: "/guide",
     icon: BookOpen,
     allowed: [...SALES_SIDE, "site", "support"],
-    built: true,
   },
 ];
 
@@ -197,15 +181,9 @@ const toNavSection = (section: Section, jobRole: JobRole): NavSection => ({
   icon: section.icon,
 });
 
-/** Every section the role may open, built or not (the prototype's tab list). */
-export const allowedSectionsFor = (jobRole: JobRole): NavSection[] =>
-  SECTIONS.filter((s) => s.allowed.includes(jobRole)).map((s) =>
-    toNavSection(s, jobRole),
-  );
-
-/** The sections to show in the sidebar: allowed for the role and with a page. */
+/** The sections the role may open, in sidebar order. */
 export const sectionsFor = (jobRole: JobRole): NavSection[] =>
-  SECTIONS.filter((s) => s.built && s.allowed.includes(jobRole)).map((s) =>
+  SECTIONS.filter((s) => s.allowed.includes(jobRole)).map((s) =>
     toNavSection(s, jobRole),
   );
 

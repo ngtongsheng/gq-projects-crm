@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
+import { textField } from "@/lib/form/form-fields";
 import { createClient } from "@/lib/supabase/server";
 import {
   canAddContact,
@@ -46,11 +47,6 @@ const duplicateRow = z.object({
   companies: z.object({ name: z.string() }),
   contact_owners: z.array(z.object({ profile_id: z.string() })),
 });
-
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
 
 /** Adds a customer, or changes one when the form carries a contactId. */
 export async function saveContact(

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireSection } from "@/lib/auth/require-section";
+import { textField } from "@/lib/form/form-fields";
 import { createClient } from "@/lib/supabase/server";
 import { AccountType } from "../customers/schemas";
 import {
@@ -17,11 +18,6 @@ export type ProjectResult = { error: string | null };
 const fail = (error: string): ProjectResult => ({ error });
 
 const RELOAD = "Could not find that project. Reload the page.";
-
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
 
 const existingProjectRow = z.object({
   contact_id: z.string(),

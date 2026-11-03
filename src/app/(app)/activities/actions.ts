@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { JobRole } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
+import { textField } from "@/lib/form/form-fields";
 import { createClient } from "@/lib/supabase/server";
 import {
   canEditActivity,
@@ -26,13 +27,21 @@ const existingActivityRow = z.object({
   starts_at: z.string(),
 });
 
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
+type Change = { ok: false; error: string } | { ok: true; startsAt: string };
 
-/** Looks up who owns an activity and where it stands; null when it is gone. */
-async function findActivity(activityId: string) {
+const gone = {
+  ok: false,
+  error: "Could not find that activity. Reload the page.",
+} as const;
+
+/** Everything that must hold before an existing activity moves to `to`. */
+async function checkChange(
+  me: { id: string; jobRole: JobRole },
+  activityId: string,
+  to: ActivityStatus,
+): Promise<Change> {
+  if (!activityIdSchema.safeParse(activityId).success) return gone;
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("activities")
@@ -41,32 +50,11 @@ async function findActivity(activityId: string) {
     .maybeSingle();
   if (error) {
     console.error("Could not load activity", error);
-    throw new Error("Could not load the activity.");
+    return { ok: false, error: "Could not save the activity. Try again." };
   }
-  return data ? existingActivityRow.parse(data) : null;
-}
+  if (!data) return gone;
 
-type Change = { ok: false; error: string } | { ok: true; startsAt: string };
-
-/** Everything that must hold before an existing activity moves to `to`. */
-async function checkChange(
-  me: { id: string; jobRole: JobRole },
-  activityId: string,
-  to: ActivityStatus,
-): Promise<Change> {
-  if (!activityIdSchema.safeParse(activityId).success) {
-    return {
-      ok: false,
-      error: "Could not find that activity. Reload the page.",
-    };
-  }
-  const existing = await findActivity(activityId);
-  if (!existing) {
-    return {
-      ok: false,
-      error: "Could not find that activity. Reload the page.",
-    };
-  }
+  const existing = existingActivityRow.parse(data);
   if (!canEditActivity(me.jobRole, existing.owner_id === me.id)) {
     return {
       ok: false,

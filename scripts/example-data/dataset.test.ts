@@ -3,6 +3,7 @@ import { ReportStats } from "@/lib/domain/report-stats";
 import { buildExampleData } from "./dataset.ts";
 import { exampleId } from "./ids.ts";
 import { TEST_USERS } from "./people.ts";
+import { EXAMPLE_REFERENCES } from "./table-references.ts";
 import type { ExampleTable, People } from "./types.ts";
 
 const people = Object.fromEntries(
@@ -16,31 +17,6 @@ const table = (name: string): ExampleTable => {
   const found = data.tables.find((t) => t.table === name);
   if (!found) throw new Error(`No table ${name}`);
   return found;
-};
-
-// column -> table it must point at, for the tables the example data fills
-const REFERENCES: Record<string, Record<string, string>> = {
-  contacts: { company_id: "companies" },
-  contact_owners: { contact_id: "contacts" },
-  ownership_requests: { contact_id: "contacts" },
-  activities: { contact_id: "contacts" },
-  projects: { contact_id: "contacts" },
-  mofs: { project_id: "projects" },
-  mof_lines: { mof_id: "mofs" },
-  mof_costs: { mof_id: "mofs" },
-  supplier_pos: { mof_id: "mofs" },
-  installer_pos: { mof_id: "mofs" },
-  installer_claims: { installer_po_id: "installer_pos" },
-  jobs: { mof_id: "mofs" },
-  delivery_orders: { mof_id: "mofs", job_id: "jobs" },
-  site_bookings: { project_id: "projects" },
-  site_logs: { mof_id: "mofs" },
-  site_follow_ups: { site_log_id: "site_logs" },
-  ot_claims: { mof_id: "mofs" },
-  leftovers: { mof_id: "mofs" },
-  stock_reservations: { item_id: "stock_items", project_id: "projects" },
-  payments: { mof_id: "mofs" },
-  commission_payouts: { mof_id: "mofs" },
 };
 
 const PROFILE_COLUMNS = [
@@ -84,7 +60,7 @@ describe("example data", () => {
     const seen = new Map<string, Set<unknown>>();
     for (const spec of data.tables) {
       for (const [column, parent] of Object.entries(
-        REFERENCES[spec.table] ?? {},
+        EXAMPLE_REFERENCES[spec.table] ?? {},
       )) {
         const ids = seen.get(parent);
         for (const row of spec.rows) {

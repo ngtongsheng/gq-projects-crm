@@ -11,6 +11,7 @@ import {
   LEFTOVER_STATUSES,
   leftoverProblem,
 } from "@/lib/domain/leftover";
+import { optionalText, textField } from "@/lib/form/form-fields";
 import { parseRm } from "@/lib/format/money";
 import { createClient } from "@/lib/supabase/server";
 import { leftoverRecordSchema } from "./leftover-record-schema";
@@ -24,18 +25,6 @@ const NOT_STOCK =
 const NOT_FOUND_MOF = "Could not find that MOF. Reload the page.";
 const NOT_FOUND_LEFTOVER = "Could not find that item. Reload the page.";
 const TRY_AGAIN = "Could not save. Try again.";
-
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
-
-const optionalText = (max: number, message: string) =>
-  z
-    .string()
-    .trim()
-    .max(max, message)
-    .transform((value) => (value === "" ? null : value));
 
 const creditNoteAmount = z
   .string()

@@ -33,7 +33,9 @@ import {
   OT_CLAIM_TYPES,
   type OtClaimType,
 } from "@/lib/domain/ot-claim";
-import { isClockTime, otHours } from "@/lib/domain/ot-hours";
+import { otHours } from "@/lib/domain/ot-hours";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
+import { isClockTime } from "@/lib/format/clock-time";
 import { submitOtClaim } from "./actions";
 import type { MofOption } from "./overtime-data";
 
@@ -85,7 +87,7 @@ export function OtClaimDialog({ mofs, today }: OtClaimDialogProps) {
             claim or replacement leave, or rejects it.
           </DialogDescription>
         </DialogHeader>
-        <form action={save}>
+        <form onSubmit={submitKeepingValues(save)}>
           <input type="hidden" name="mofId" value={mofId} />
           <input type="hidden" name="claimAs" value={claimAs} />
           <FieldGroup>

@@ -1,16 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { type ReactNode, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Field,
   FieldDescription,
   FieldError,
-  FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -22,9 +20,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { orderTotal } from "@/lib/domain/mof-totals";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { formatRm, parseRm } from "@/lib/format/money";
 import { AccountType, AccountTypeLabel } from "../customers/schemas";
 import { saveMof } from "./actions";
+import {
+  NONE,
+  type Option,
+  OptionalSelect,
+  Row,
+  Section,
+  TextField,
+} from "./mof-form-fields";
 import { type LineDraft, MofLinesEditor } from "./mof-lines-editor";
 import {
   JobScope,
@@ -70,8 +77,6 @@ export type MofDraft = {
   lines: LineDraft[];
 };
 
-type Option = { id: string; name: string };
-
 type MofFormProps = {
   draft: MofDraft;
   team: Option[];
@@ -82,95 +87,8 @@ type MofFormProps = {
   cost?: number | null;
 };
 
-const NONE = "none";
-
 const amountText = (amount: number | null) =>
   amount === null || amount === 0 ? "" : String(amount);
-
-/** A select whose blank choice posts "" through a hidden field. */
-function OptionalSelect({
-  id,
-  name,
-  defaultValue,
-  options,
-  noneLabel,
-}: {
-  id: string;
-  name: string;
-  defaultValue: string;
-  options: Option[];
-  noneLabel: string;
-}) {
-  const [value, setValue] = useState(defaultValue || NONE);
-  return (
-    <>
-      <input type="hidden" name={name} value={value === NONE ? "" : value} />
-      <Select value={value} onValueChange={setValue}>
-        <SelectTrigger id={id}>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={NONE}>{noneLabel}</SelectItem>
-          {options.map((option) => (
-            <SelectItem key={option.id} value={option.id}>
-              {option.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </>
-  );
-}
-
-function TextField({
-  name,
-  label,
-  defaultValue,
-  placeholder,
-  required,
-  type,
-  maxLength = 200,
-}: {
-  name: string;
-  label: string;
-  defaultValue: string;
-  placeholder?: string;
-  required?: boolean;
-  type?: "date";
-  maxLength?: number;
-}) {
-  return (
-    <Field>
-      <FieldLabel htmlFor={name}>{label}</FieldLabel>
-      <Input
-        id={name}
-        name={name}
-        type={type}
-        defaultValue={defaultValue}
-        placeholder={placeholder}
-        required={required}
-        maxLength={type ? undefined : maxLength}
-      />
-    </Field>
-  );
-}
-
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-heading">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <FieldGroup>{children}</FieldGroup>
-      </CardContent>
-    </Card>
-  );
-}
-
-const Row = ({ children }: { children: ReactNode }) => (
-  <div className="grid gap-4 sm:grid-cols-2">{children}</div>
-);
 
 export function MofForm({
   draft,
@@ -212,7 +130,7 @@ export function MofForm({
   }
 
   return (
-    <form action={save}>
+    <form onSubmit={submitKeepingValues(save)}>
       {editing && <input type="hidden" name="mofId" value={draft.id} />}
       <fieldset disabled={!canEdit || pending} className="flex flex-col gap-4">
         <Section title="Order">

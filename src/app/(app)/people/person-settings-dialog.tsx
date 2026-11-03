@@ -27,6 +27,7 @@ import {
   JobRole,
   JobRoleLabel,
 } from "@/lib/auth/job-role";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { updatePersonSettings } from "./actions";
 
 export type PersonSettings = {
@@ -69,7 +70,7 @@ export function PersonSettingsDialog({ person }: { person: PersonSettings }) {
             Their job role decides what they can see and change.
           </DialogDescription>
         </DialogHeader>
-        <form action={save}>
+        <form onSubmit={submitKeepingValues(save)}>
           <input type="hidden" name="userId" value={person.userId} />
           <FieldGroup>
             <Field>

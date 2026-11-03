@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { DataTable } from "@/components/app/data-table";
 import { StatusBadge } from "@/components/app/status-badge";
+import { TargetProgress } from "@/components/app/target-progress";
 import type { Profile } from "@/lib/auth/current-profile";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import {
@@ -9,7 +9,6 @@ import {
   attentionKeysFor,
 } from "@/lib/domain/attention";
 import { salespersonRows, salesTotals } from "@/lib/domain/order-rollup";
-import { achievedTone } from "@/lib/domain/report-stats";
 import { pace as monthPace } from "@/lib/domain/workdays";
 import { todayMyt } from "@/lib/format/date";
 import { formatRm, sumRm } from "@/lib/format/money";
@@ -26,15 +25,17 @@ import { loadDashboardOrders } from "./dashboard-orders";
 import {
   AttentionPanel,
   PaceBar,
-  Panel,
   PanelEmpty,
   StatTile,
   TableSection,
   TileGrid,
 } from "./dashboard-parts";
+import { overdueFollowUpTotal } from "./follow-up-total";
 import { loadOpenProjects } from "./pipeline-data";
+import { ProjectsToChase } from "./projects-to-chase";
 import { loadPurchasingFacts } from "./purchasing-data";
 import { loadTeamSnapshot, type TeamRow } from "./report-snapshot";
+import { TodaysActivities } from "./todays-activities";
 
 /** The team's month for the MD, Sales Director and HR & Accounts: pace against targets and what is slipping. */
 export async function ManagerDashboard({ me }: { me: Profile }) {
@@ -73,9 +74,6 @@ export async function ManagerDashboard({ me }: { me: Profile }) {
   const unpaid = orders.filter((order) => order.outstanding > 0);
   const stale = projects.filter((project) => project.stale);
   const overdue = projects.filter((project) => project.overdue);
-  const chase = projects
-    .filter((project) => project.overdue || project.stale)
-    .sort((a, b) => Number(b.overdue) - Number(a.overdue));
   const bySalesperson = new Map(
     salespersonRows(orders, today).map((row) => [row.personId, row]),
   );
@@ -89,10 +87,7 @@ export async function ManagerDashboard({ me }: { me: Profile }) {
     pendingOvertime: overtime.filter(
       (claim) => claim.status === "pending" && claim.profileId !== me.id,
     ).length,
-    overdueFollowUps: sites.reduce(
-      (total, site) => total + site.overdueFollowUps,
-      0,
-    ),
+    overdueFollowUps: overdueFollowUpTotal(sites),
     claimsToVerify: claims.length,
     overdueSupplierPos: purchasing?.overduePos,
     missingSupplierPos: purchasing?.missingPos,
@@ -147,44 +142,18 @@ export async function ManagerDashboard({ me }: { me: Profile }) {
           context={{ bySalesperson, projects, inactiveOwners }}
         />
       </TableSection>
-      <Panel
-        title="Projects to chase"
-        aside={
-          <Link href="/projects" className="hover:underline">
-            Open Projects
-          </Link>
+      <TodaysActivities
+        title="Today's itinerary"
+        today={today}
+        nameOf={nameOf}
+      />
+      <ProjectsToChase
+        projects={projects}
+        detail={(project) =>
+          `${nameOf.get(project.picId) ?? "Unnamed"} · ${project.companyName} · ${ProjectStageLabel[project.stage]}`
         }
-      >
-        {chase.length === 0 ? (
-          <PanelEmpty>
-            Every open project has a next action date ahead and was updated in
-            the last 14 days.
-          </PanelEmpty>
-        ) : (
-          <ul className="divide-y">
-            {chase.slice(0, 8).map((project) => (
-              <li
-                key={project.id}
-                className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-sm"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium">{project.name}</p>
-                  <p className="truncate text-xs text-muted-foreground">
-                    {nameOf.get(project.picId) ?? "Unnamed"} ·{" "}
-                    {project.companyName} · {ProjectStageLabel[project.stage]}
-                  </p>
-                </div>
-                {project.overdue ? (
-                  <StatusBadge tone="bad">Past next action date</StatusBadge>
-                ) : null}
-                {project.stale ? (
-                  <StatusBadge tone="warn">No update in 14+ days</StatusBadge>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        )}
-      </Panel>
+        overdueLabel={() => "Past next action date"}
+      />
     </div>
   );
 }
@@ -220,21 +189,11 @@ function TeamTable({
           header: "Visits / target",
           numeric: true,
           cell: (row) => (
-            <span className="inline-flex items-center justify-end gap-2">
-              {row.stats.visits} / {row.stats.visitTarget}
-              {row.stats.visitTarget > 0 && (
-                <StatusBadge
-                  tone={achievedTone(
-                    row.stats.visits,
-                    row.stats.visitTarget,
-                    pace,
-                  )}
-                >
-                  {Math.round((row.stats.visits / row.stats.visitTarget) * 100)}
-                  %
-                </StatusBadge>
-              )}
-            </span>
+            <TargetProgress
+              done={row.stats.visits}
+              target={row.stats.visitTarget}
+              pace={pace}
+            />
           ),
         },
         {

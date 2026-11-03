@@ -12,7 +12,6 @@ import {
   reportKindFor,
   type SalesInput,
   salesStats,
-  shiftMonth,
   siteStats,
 } from "./report-stats";
 
@@ -296,13 +295,5 @@ describe("targets and pace", () => {
     expect(ReportStats.safeParse({ kind: "site", visits: 1 }).success).toBe(
       false,
     );
-  });
-});
-
-describe("months", () => {
-  it("steps across year ends", () => {
-    expect(shiftMonth("2026-12-01", 1)).toBe("2027-01-01");
-    expect(shiftMonth("2026-01-01", -1)).toBe("2025-12-01");
-    expect(shiftMonth("2026-11-01", 0)).toBe("2026-11-01");
   });
 });

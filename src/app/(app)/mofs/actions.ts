@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { canEditRegister, isManager } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
+import { textField } from "@/lib/form/form-fields";
 import { createClient } from "@/lib/supabase/server";
 import {
   type MofForm,
@@ -26,11 +27,6 @@ const NOT_EDITOR =
   "Only the MD, Purchasing or HR & Accounts can register or change an MOF.";
 const NOT_MANAGER = "Only the MD and HR & Accounts can see or set the cost.";
 const TRY_AGAIN = "Could not save the MOF. Try again.";
-
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
 
 // The lines editor posts its rows as JSON; an id marks a line that is already saved.
 const postedLines = z.array(

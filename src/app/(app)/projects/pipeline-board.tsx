@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/app/status-badge";
 import type { ProjectFlags } from "@/lib/domain/project-flags";
 import { formatDate } from "@/lib/format/date";
 import { formatRm, sumRm } from "@/lib/format/money";
+import { formatQuantity } from "@/lib/format/quantity";
 import { stageTone } from "./customer-projects";
 import { type ProjectStage, ProjectStageLabel } from "./schemas";
 import { StageSelect } from "./stage-select";
@@ -66,8 +67,7 @@ function ProjectCard({ project }: { project: PipelineProject }) {
         </Link>
       </div>
       <p className="font-mono text-sm tabular-nums">
-        {formatRm(project.value)} · {project.qtySqft.toLocaleString("en-MY")} sq
-        ft
+        {formatRm(project.value)} · {formatQuantity(project.qtySqft)} sq ft
         <span className="text-xs text-muted-foreground">
           {" "}
           · est. commission {formatRm(project.estCommission)}

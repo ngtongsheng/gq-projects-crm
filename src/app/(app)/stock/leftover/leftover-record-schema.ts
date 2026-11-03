@@ -4,6 +4,7 @@ import {
   LEFTOVER_DESTINATIONS,
   LEFTOVER_UNITS,
 } from "@/lib/domain/leftover";
+import { positiveQuantity } from "../quantity-fields";
 
 /** An item left over at a site, as entered by hand or pasted from a sheet. */
 export const leftoverRecordSchema = z.object({
@@ -13,10 +14,7 @@ export const leftoverRecordSchema = z.object({
     .trim()
     .min(1, "Enter the item.")
     .max(200, "Keep the item under 200 characters."),
-  qty: z.coerce
-    .number<string>({ error: "Enter the quantity." })
-    .positive("Enter a quantity above zero.")
-    .max(9_999_999_999, "That quantity is too large."),
+  qty: positiveQuantity,
   unit: z.enum(LEFTOVER_UNITS, "Choose the unit."),
   condition: z.enum(LEFTOVER_CONDITIONS, "Choose the condition."),
   destination: z.enum(LEFTOVER_DESTINATIONS, "Choose where it goes."),

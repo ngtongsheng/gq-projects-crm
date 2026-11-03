@@ -5,6 +5,7 @@ import { z } from "zod";
 import { canEditRegister } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { SUPPLIER_PO_STATUSES } from "@/lib/domain/supplier-po";
+import { textField } from "@/lib/form/form-fields";
 import { createClient } from "@/lib/supabase/server";
 import { mofIdSchema } from "./schemas";
 
@@ -13,11 +14,6 @@ export type SupplierPoResult = { error: string | null };
 const NOT_EDITOR =
   "Only the MD, Purchasing or HR & Accounts can change supplier POs.";
 const TRY_AGAIN = "Could not save the supplier PO. Try again.";
-
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
 
 const supplierPoForm = z.object({
   mofId: mofIdSchema,

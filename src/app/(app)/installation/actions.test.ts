@@ -153,6 +153,19 @@ describe("saveJob", () => {
     expect(calls.map((call) => call.table)).toEqual(["delivery_orders"]);
   });
 
+  it("shows a plain message when the running no. cannot be checked", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    const calls = fakeSupabase([
+      { data: null, error: { code: "08006", message: "connection lost" } },
+    ]);
+
+    const result = await saveJob(form(deliveryFields));
+
+    expect(result).toEqual({ error: "Could not save the job. Try again." });
+    expect(calls.map((call) => call.table)).toEqual(["delivery_orders"]);
+    log.mockRestore();
+  });
+
   it("says so when the job was added but its DO was not", async () => {
     fakeSupabase([
       none,

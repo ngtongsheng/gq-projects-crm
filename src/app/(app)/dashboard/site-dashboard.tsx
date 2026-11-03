@@ -32,6 +32,7 @@ import {
   StatTile,
   TileGrid,
 } from "./dashboard-parts";
+import { overdueFollowUpTotal } from "./follow-up-total";
 import { loadOwnMonth } from "./report-snapshot";
 
 const LOOKAHEAD_DAYS = 14;
@@ -59,10 +60,7 @@ export async function SiteDashboard({ me }: { me: Profile }) {
 
   const attention = attentionItems(me.jobRole, {
     pendingBookings: pendingDays.length,
-    overdueFollowUps: sites.reduce(
-      (total, site) => total + site.overdueFollowUps,
-      0,
-    ),
+    overdueFollowUps: overdueFollowUpTotal(sites),
     claimsToVerify: claims.length,
     ownReport: own?.reportOverdue ? 1 : 0,
   });

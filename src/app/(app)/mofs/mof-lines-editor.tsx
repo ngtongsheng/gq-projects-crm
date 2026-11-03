@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { m2ToSqft, sqftToM2 } from "@/lib/domain/area";
 import { totalAreaM2 } from "@/lib/domain/mof-totals";
+import { formatQuantity } from "@/lib/format/quantity";
 import { LineUnit, LineUnitLabel, StockType, StockTypeLabel } from "./schemas";
 
 /** A product line as typed; `id` is blank until the line is saved. */
@@ -44,8 +45,6 @@ const number = (text: string) => {
   return Number.isFinite(value) && value > 0 ? value : 0;
 };
 
-const shown = (value: number) => value.toLocaleString("en-MY");
-
 const measured = (row: LineDraft) => ({
   qty: number(row.qty),
   unit: row.unit,
@@ -55,9 +54,9 @@ const measured = (row: LineDraft) => ({
 /** What the line comes to in the other unit, so sqft and m² can both be read. */
 function otherUnit(row: LineDraft): string {
   const qty = number(row.qty);
-  if (row.unit === "m2") return `= ${shown(m2ToSqft(qty))} sqft`;
-  if (row.unit === "sqft") return `= ${shown(sqftToM2(qty))} m²`;
-  return `= ${shown(m2ToSqft(number(row.areaM2)))} sqft`;
+  if (row.unit === "m2") return `= ${formatQuantity(m2ToSqft(qty))} sqft`;
+  if (row.unit === "sqft") return `= ${formatQuantity(sqftToM2(qty))} m²`;
+  return `= ${formatQuantity(m2ToSqft(number(row.areaM2)))} sqft`;
 }
 
 /** Product lines of an MOF. Posts the rows as JSON in a hidden `lines` field. */
@@ -229,7 +228,8 @@ export function MofLinesEditor({
         )}
         <span className="font-mono text-sm text-muted-foreground tabular-nums">
           {rows.length} {rows.length === 1 ? "line" : "lines"} ·{" "}
-          {shown(totalM2)} m² ({shown(m2ToSqft(totalM2))} sqft)
+          {formatQuantity(totalM2)} m² ({formatQuantity(m2ToSqft(totalM2))}{" "}
+          sqft)
         </span>
       </div>
     </div>

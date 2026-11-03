@@ -50,7 +50,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
             type="submit"
             variant="ghost"
             size="sm"
-            className="text-head-muted hover:bg-white/10 hover:text-head-foreground"
+            className="text-head-muted hover:bg-head-foreground/10 hover:text-head-foreground"
           >
             Sign out
           </Button>

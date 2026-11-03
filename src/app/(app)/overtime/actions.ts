@@ -9,7 +9,9 @@ import {
   OT_CLAIM_TYPES,
   OT_DECISIONS,
 } from "@/lib/domain/ot-claim";
-import { isClockTime, otHours } from "@/lib/domain/ot-hours";
+import { otHours } from "@/lib/domain/ot-hours";
+import { textField } from "@/lib/form/form-fields";
+import { isClockTime } from "@/lib/format/clock-time";
 import { todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,11 +22,6 @@ const NOT_FOUND_MOF = "Could not find that order. Reload the page.";
 const NOT_FOUND_CLAIM =
   "This claim is already decided, is your own, or was not found. Reload the page.";
 const TRY_AGAIN = "Could not save. Try again.";
-
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
 
 const clock = (message: string) => z.string().refine(isClockTime, message);
 

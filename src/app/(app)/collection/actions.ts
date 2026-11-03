@@ -4,8 +4,10 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { canEnterPayments } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
+import { orderTotal } from "@/lib/domain/mof-totals";
+import { textField } from "@/lib/form/form-fields";
 import { todayMyt } from "@/lib/format/date";
-import { parseRm } from "@/lib/format/money";
+import { formatRm, parseRm, sumRm, toCents } from "@/lib/format/money";
 import { createClient } from "@/lib/supabase/server";
 
 export type CollectionResult = { error: string | null };
@@ -18,10 +20,11 @@ const TRY_AGAIN = "Could not save. Try again.";
 // numeric(14,2) holds 12 digits before the decimal point.
 const MAX_AMOUNT = 999_999_999_999.99;
 
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
+const orderForPayment = z.object({
+  contract_sum: z.number(),
+  vo_amount: z.number(),
+  payments: z.array(z.object({ amount: z.number() })),
+});
 
 const paymentForm = z.object({
   mofId: z.uuid({ error: NOT_FOUND_MOF }),
@@ -64,6 +67,28 @@ export async function recordPayment(
   }
 
   const supabase = await createClient();
+  const { data: order, error: orderError } = await supabase
+    .from("mofs")
+    .select("contract_sum, vo_amount, payments(amount)")
+    .eq("id", payment.mofId)
+    .maybeSingle();
+  if (orderError) {
+    console.error("Could not read the order for a payment", orderError);
+    return { error: TRY_AGAIN };
+  }
+  const known = orderForPayment.safeParse(order);
+  if (!known.success) return { error: NOT_FOUND_MOF };
+  const invoice = orderTotal({
+    contractSum: known.data.contract_sum,
+    voAmount: known.data.vo_amount,
+  });
+  const received = sumRm(known.data.payments.map((row) => row.amount));
+  if (toCents(received) + toCents(payment.amount) > toCents(invoice)) {
+    return {
+      error: `That takes payments past the order total of ${formatRm(invoice)}. If the order total has changed, change it on the MOF first.`,
+    };
+  }
+
   const { error } = await supabase.from("payments").insert({
     mof_id: payment.mofId,
     amount: payment.amount,

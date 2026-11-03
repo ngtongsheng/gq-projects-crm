@@ -11,7 +11,7 @@ import {
   canScheduleJobs,
   canUpdateJobStatus,
 } from "@/lib/auth/job-role";
-import { allowedSectionsFor, canOpenSection } from "@/lib/auth/nav-sections";
+import { canOpenSection, sectionsFor } from "@/lib/auth/nav-sections";
 import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import {
@@ -57,8 +57,8 @@ export default async function InstallationPage({
   const canBook = canBookSiteSupervisor(me.jobRole);
   const answersBookings = canAnswerBookings(me.jobRole);
   const title =
-    allowedSectionsFor(me.jobRole).find((s) => s.key === "installation")
-      ?.label ?? "Installation";
+    sectionsFor(me.jobRole).find((s) => s.key === "installation")?.label ??
+    "Installation";
 
   const weeks = view === "month" ? monthWeeks(params.date) : null;
   const days = weeks ? weeks.flat() : weekDays(params.date);

@@ -3,13 +3,13 @@ import Link from "next/link";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
 import { Button } from "@/components/ui/button";
+import { shiftMonth, startOfMonth } from "@/lib/domain/calendar-grid";
 import {
   canReviewReport,
   monthPace,
   type ReportKind,
   reportDueAt,
   reportFlag,
-  shiftMonth,
 } from "@/lib/domain/report-stats";
 import {
   type CalendarDate,
@@ -52,7 +52,7 @@ export function MonthSwitcher({
   view: ReportsView;
   query?: Record<string, string | undefined>;
 }) {
-  const current = `${view.today.slice(0, 7)}-01`;
+  const current = startOfMonth(view.today);
   return (
     <div className="flex items-center gap-1">
       <Button asChild variant="outline" size="icon" aria-label="Previous month">

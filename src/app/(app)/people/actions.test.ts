@@ -168,12 +168,18 @@ describe("addPerson", () => {
   });
 });
 
-function fakeUserClient(admins: { id: string }[], updatedRows = 1) {
+function fakeUserClient(
+  admins: { id: string }[],
+  updatedRows = 1,
+  updateError: { code: string; message: string } | null = null,
+) {
   const update = vi.fn(() => ({
     eq: vi.fn(() => ({
       select: vi.fn(async () => ({
-        data: Array.from({ length: updatedRows }, () => ({ id: OTHER_ID })),
-        error: null,
+        data: updateError
+          ? null
+          : Array.from({ length: updatedRows }, () => ({ id: OTHER_ID })),
+        error: updateError,
       })),
     })),
   }));
@@ -219,6 +225,20 @@ describe("changeRole", () => {
 
     expect(result).toEqual({ error: "There must be at least one admin." });
     expect(update).not.toHaveBeenCalled();
+  });
+
+  it("explains when the database keeps the last admin", async () => {
+    const me = profile("admin");
+    vi.mocked(getCurrentProfile).mockResolvedValue(me);
+    // The other admin was demoted at the same moment, so the trigger refuses.
+    fakeUserClient([{ id: me.id }, { id: OTHER_ID }], 0, {
+      code: "23514",
+      message: "There must be at least one admin.",
+    });
+
+    const result = await changeRole({ userId: me.id, role: "staff" });
+
+    expect(result).toEqual({ error: "There must be at least one admin." });
   });
 
   it("allows demoting an admin when another admin remains", async () => {

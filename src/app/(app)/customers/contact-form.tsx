@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { type DuplicateContact, saveContact } from "./actions";
 import { RequestOwnershipDialog } from "./ownership/request-ownership-dialog";
 import {
@@ -128,7 +129,7 @@ function ContactForm({
   }
 
   return (
-    <form action={save}>
+    <form onSubmit={submitKeepingValues(save)}>
       {contact && <input type="hidden" name="contactId" value={contact.id} />}
       <FieldGroup>
         <Field>

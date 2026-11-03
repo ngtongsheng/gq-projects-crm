@@ -23,8 +23,15 @@ export async function signIn(
     email: email.trim(),
     password,
   });
-  // One message for every failure so the form never reveals which emails exist.
-  if (error) return { error: "That email and password don't match." };
+  if (error) {
+    // Supabase being down or rate-limiting is not the person's mistake, so say so and log it.
+    if (!error.status || error.status === 429 || error.status >= 500) {
+      console.error("Sign-in did not reach Supabase", error);
+      return { error: "Could not sign in. Try again in a moment." };
+    }
+    // One message for every other failure so the form never reveals which emails exist.
+    return { error: "That email and password don't match." };
+  }
 
   redirect("/");
 }

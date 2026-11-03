@@ -58,6 +58,8 @@ export async function addPerson(
     options: { data: { full_name: fullName } },
   });
   if (error) {
+    if (error.code !== "email_exists")
+      console.error("Could not add person", error);
     return {
       error:
         error.code === "email_exists"
@@ -81,6 +83,7 @@ export async function addPerson(
       .update({ role })
       .eq("id", data.user.id);
     if (roleError) {
+      console.error("Could not make the new person an admin", roleError);
       revalidatePath("/people");
       return {
         error:
@@ -95,6 +98,9 @@ export async function addPerson(
 }
 
 export type ChangeRoleResult = { error: string | null };
+
+/** Must match the message in the keep_one_admin trigger. */
+const LAST_ADMIN = "There must be at least one admin.";
 
 export async function changeRole(input: unknown): Promise<ChangeRoleResult> {
   await requireRole("admin");
@@ -111,12 +117,13 @@ export async function changeRole(input: unknown): Promise<ChangeRoleResult> {
       .from("profiles")
       .select("id")
       .eq("role", "admin");
-    if (error) return { error: "Could not change the role. Try again." };
+    if (error) {
+      console.error("Could not check the admins", error);
+      return { error: "Could not change the role. Try again." };
+    }
     const isLastAdmin =
       admins.length === 1 && admins.some((row) => row.id === userId);
-    if (isLastAdmin) {
-      return { error: "There must be at least one admin." };
-    }
+    if (isLastAdmin) return { error: LAST_ADMIN };
   }
 
   const { data: updated, error } = await supabase
@@ -124,6 +131,11 @@ export async function changeRole(input: unknown): Promise<ChangeRoleResult> {
     .update({ role })
     .eq("id", userId)
     .select("id");
+  // The keep_one_admin trigger refuses when another admin was demoted at the same moment.
+  if (error?.code === "23514" && error.message === LAST_ADMIN) {
+    return { error: LAST_ADMIN };
+  }
+  if (error) console.error("Could not change role", error);
   if (error || updated.length === 0) {
     return { error: "Could not change the role. Try again." };
   }

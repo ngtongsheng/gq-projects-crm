@@ -32,6 +32,7 @@ import {
   INSTALLER_CLAIM_TYPES,
   summariseInstallerPo,
 } from "@/lib/domain/installer-claim";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { formatRm } from "@/lib/format/money";
 import {
   type InstallerResult,
@@ -142,7 +143,7 @@ function InstallerPoForm({
     onSaved,
   );
   return (
-    <form action={submit}>
+    <form onSubmit={submitKeepingValues(submit)}>
       <input type="hidden" name="mofId" value={mofId} />
       {po && <input type="hidden" name="poId" value={po.id} />}
       <FieldGroup>
@@ -295,7 +296,7 @@ function InstallerClaimForm({
     onSaved,
   );
   return (
-    <form action={submit}>
+    <form onSubmit={submitKeepingValues(submit)}>
       <input type="hidden" name="mofId" value={mofId} />
       {claim && <input type="hidden" name="claimId" value={claim.id} />}
       <FieldGroup>
@@ -439,7 +440,7 @@ function InstallerPaymentForm({
     onSaved,
   );
   return (
-    <form action={submit}>
+    <form onSubmit={submitKeepingValues(submit)}>
       <input type="hidden" name="mofId" value={mofId} />
       <input type="hidden" name="claimId" value={claim.id} />
       <FieldGroup>

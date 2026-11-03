@@ -19,6 +19,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { formatDate } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
 import { recordPayout, removePayout } from "./actions";
@@ -56,11 +57,14 @@ export function CommissionDialog({
   const [error, setError] = useState<string | null>(null);
   const formKey = `${mofId}-${personId}`;
 
-  function save(formData: FormData) {
+  function save(formData: FormData, form: HTMLFormElement) {
     startTransition(async () => {
       const result = await recordPayout(formData);
       setError(result.error);
-      if (!result.error) toast.success("Payout recorded.");
+      if (!result.error) {
+        toast.success("Payout recorded.");
+        form.reset();
+      }
     });
   }
 
@@ -132,7 +136,7 @@ export function CommissionDialog({
         )}
 
         {canPay && payableNow > 0 && (
-          <form action={save}>
+          <form onSubmit={submitKeepingValues(save)}>
             <input type="hidden" name="mofId" value={mofId} />
             <input type="hidden" name="profileId" value={personId} />
             <FieldGroup>

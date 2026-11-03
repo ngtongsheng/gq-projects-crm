@@ -30,12 +30,22 @@ export async function setPassword(
     token_hash: parsed.data.tokenHash,
     type: parsed.data.type,
   });
-  if (linkError) return { error: LINK_PROBLEM };
+  if (linkError) {
+    console.error("Could not verify the set-password link", linkError);
+    return { error: LINK_PROBLEM };
+  }
 
   const { error } = await supabase.auth.updateUser({
     password: parsed.data.password,
   });
-  if (error) return { error: "Could not save your password. Try again." };
+  if (error) {
+    console.error("Could not save the new password", error);
+    // The link was spent by verifyOtp above, so another try with it would be refused.
+    return {
+      error:
+        "Could not save your password. This link is now used: ask your admin for a new one.",
+    };
+  }
 
   redirect("/");
 }

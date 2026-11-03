@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { canPayOutCommission } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
+import { textField } from "@/lib/form/form-fields";
 import { todayMyt } from "@/lib/format/date";
 import { formatRm, parseRm, toCents } from "@/lib/format/money";
 import { createClient } from "@/lib/supabase/server";
@@ -18,11 +19,6 @@ const NOT_FOUND_PAYOUT =
 const TRY_AGAIN = "Could not save. Try again.";
 // numeric(14,2) holds 12 digits before the decimal point.
 const MAX_AMOUNT = 999_999_999_999.99;
-
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
 
 const payoutForm = z.object({
   mofId: z.uuid({ error: NOT_FOUND_ORDER }),

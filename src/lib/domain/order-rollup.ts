@@ -1,3 +1,4 @@
+import { isSameMonth } from "@/lib/domain/calendar-grid";
 import { MOF_STAGES, type MofStageKey } from "@/lib/domain/mof-stages";
 import { pace } from "@/lib/domain/workdays";
 import { type CalendarDate, daysBetween } from "@/lib/format/date";
@@ -32,9 +33,7 @@ export function salesTotals(
   today: CalendarDate,
 ): { month: Total; year: Total } {
   return {
-    month: totalOf(
-      orders.filter((order) => order.loaDate.slice(0, 7) === today.slice(0, 7)),
-    ),
+    month: totalOf(orders.filter((order) => isSameMonth(order.loaDate, today))),
     year: totalOf(
       orders.filter((order) => order.loaDate.slice(0, 4) === today.slice(0, 4)),
     ),

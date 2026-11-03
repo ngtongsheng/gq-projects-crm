@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getCurrentProfile } from "@/lib/auth/current-profile";
 import { requireSection } from "@/lib/auth/require-section";
+import { startOfMonth } from "@/lib/domain/calendar-grid";
 import {
   canReviewReport,
   HIGHLIGHT_ROWS,
@@ -12,9 +13,14 @@ import {
   type ReportStats,
   reportKindFor,
 } from "@/lib/domain/report-stats";
+import { optionalText, textField } from "@/lib/form/form-fields";
 import { todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
-import { loadLiveStats, loadReportSettings } from "./report-data";
+import {
+  loadLiveStats,
+  loadReportSettings,
+  type ReportSettings,
+} from "./report-data";
 
 export type ReportResult = { error: string | null; message?: string };
 
@@ -27,18 +33,6 @@ const NOT_REVIEWER = "Only the MD or Sales Director can review reports.";
 const NOT_FOUND_REPORT =
   "This report is not waiting for your review, or you cannot review it (only the MD reviews the BD Director's). Reload the page.";
 const TRY_AGAIN = "Could not save. Try again.";
-
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
-
-const optionalText = (max: number, label: string) =>
-  z
-    .string()
-    .trim()
-    .max(max, `Keep ${label} under ${max} characters.`)
-    .transform((text) => (text === "" ? null : text));
 
 const reportForm = z.object({
   month: z.iso
@@ -56,8 +50,11 @@ const reportForm = z.object({
         .max(300, "Keep each highlight under 300 characters."),
     }),
   ),
-  nextMonthPlan: optionalText(1000, "the plan"),
-  supportNeeded: optionalText(1000, "the support needed"),
+  nextMonthPlan: optionalText(1000, "Keep the plan under 1000 characters."),
+  supportNeeded: optionalText(
+    1000,
+    "Keep the support needed under 1000 characters.",
+  ),
   passDownsConfirmed: z.boolean(),
 });
 
@@ -93,7 +90,7 @@ async function writeReport(
     return { error: parsed.error.issues[0]?.message ?? "Check the details." };
   }
   const form = parsed.data;
-  if (form.month.slice(0, 7) > todayMyt().slice(0, 7)) {
+  if (form.month > startOfMonth(todayMyt())) {
     return {
       error: "You cannot file a report for a month that has not started.",
     };
@@ -102,8 +99,6 @@ async function writeReport(
     (highlight) => highlight.achievement !== "",
   );
 
-  const settings = await loadReportSettings();
-  let stats: ReportStats | null = null;
   if (status === "submitted") {
     if (kind !== "site" && highlights.length < MIN_HIGHLIGHTS) {
       return {
@@ -113,8 +108,19 @@ async function writeReport(
     if (kind === "bd" && !form.passDownsConfirmed) {
       return { error: "Tick the pass-down confirmation before submitting." };
     }
+  }
+
+  let settings: ReportSettings;
+  let stats: ReportStats | null = null;
+  try {
+    settings = await loadReportSettings();
     // Frozen at submit so later changes to projects or the site log do not rewrite the report.
-    stats = await loadLiveStats(kind, me.id, form.month, settings.targets);
+    if (status === "submitted") {
+      stats = await loadLiveStats(kind, me.id, form.month, settings.targets);
+    }
+  } catch (error) {
+    console.error("Could not read the figures for the monthly report", error);
+    return { error: TRY_AGAIN };
   }
 
   const supabase = await createClient();
@@ -167,7 +173,7 @@ export async function submitReport(formData: FormData): Promise<ReportResult> {
 
 const reviewForm = z.object({
   reportId: z.uuid({ error: NOT_FOUND_REPORT }),
-  note: optionalText(500, "the comment"),
+  note: optionalText(500, "Keep the comment under 500 characters."),
 });
 
 /**

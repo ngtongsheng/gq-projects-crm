@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { CommissionMode, JobRole, JobRoleLabel } from "@/lib/auth/job-role";
 import { requireRole } from "@/lib/auth/require-role";
+import { formatDate, todayMyt } from "@/lib/format/date";
 import {
   ADMIN_UNAVAILABLE_MESSAGE,
   createAdminClient,
@@ -16,8 +17,6 @@ import { RoleSelect } from "./role-select";
 import { roleSchema } from "./schemas";
 
 export const metadata: Metadata = { title: "People" };
-
-const joinedFormat = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium" });
 
 /** Emails live in the auth system, which only the service key can read. */
 async function emailsById(): Promise<Map<string, string> | null> {
@@ -57,7 +56,7 @@ export default async function PeoplePage() {
       yearlyTarget:
         row.yearly_target === null ? null : Number(row.yearly_target),
     },
-    joined: new Date(row.created_at),
+    joined: formatDate(todayMyt(new Date(row.created_at))),
   }));
 
   return (
@@ -110,7 +109,7 @@ export default async function PeoplePage() {
             key: "joined",
             header: "Joined",
             numeric: true,
-            cell: (row) => joinedFormat.format(row.joined),
+            cell: (row) => row.joined,
           },
           {
             key: "settings",

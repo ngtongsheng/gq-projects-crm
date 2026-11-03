@@ -197,6 +197,20 @@ describe("saveInstallerClaim", () => {
     expect(calls.every((call) => !call.steps.includes("insert"))).toBe(true);
   });
 
+  it("explains when the database finds the PO already used up", async () => {
+    const overPo =
+      "These claims add up to more than the installer PO. If there is extra work, increase the PO amount first.";
+    // Another claim was saved between the check and this write.
+    fakeSupabase(poAmount(45000), existingClaims(), {
+      data: null,
+      error: { code: "23514", message: overPo },
+    });
+
+    const result = await saveInstallerClaim(claimForm());
+
+    expect(result).toEqual({ error: overPo });
+  });
+
   it("takes a deduction without checking the PO amount", async () => {
     const calls = fakeSupabase(saved);
 

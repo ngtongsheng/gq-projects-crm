@@ -5,6 +5,8 @@ import { z } from "zod";
 import { canAnswerBookings, canBookSiteSupervisor } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { BOOKING_PURPOSES } from "@/lib/domain/site-booking";
+import { optionalText, textField } from "@/lib/form/form-fields";
+import { isClockTime } from "@/lib/format/clock-time";
 import { createClient } from "@/lib/supabase/server";
 
 export type BookingResult = { error: string | null };
@@ -16,26 +18,12 @@ const NOT_FOUND_BOOKING =
   "Could not find that booking, or it was already answered. Reload the page.";
 const TRY_AGAIN = "Could not save the booking. Try again.";
 
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
-
-const optionalText = (max: number, message: string) =>
-  z
-    .string()
-    .trim()
-    .max(max, message)
-    .transform((value) => (value === "" ? null : value));
-
 const bookingForm = z
   .object({
     supervisorId: z.uuid({ error: "Choose the site supervisor." }),
     purpose: z.enum(BOOKING_PURPOSES, "Choose the purpose."),
     visitOn: z.iso.date("Choose the date."),
-    startTime: z
-      .string()
-      .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Enter the time as HH:MM."),
+    startTime: z.string().refine(isClockTime, "Enter the time as HH:MM."),
     projectId: z
       .union([
         z.literal(""),

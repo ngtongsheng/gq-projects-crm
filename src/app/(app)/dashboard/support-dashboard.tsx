@@ -32,6 +32,7 @@ import {
   TableSection,
   TileGrid,
 } from "./dashboard-parts";
+import { overdueFollowUpTotal } from "./follow-up-total";
 import { loadPurchasingFacts } from "./purchasing-data";
 
 const MOF_ATTENTION_KEYS: readonly AttentionKey[] = [
@@ -80,10 +81,7 @@ export async function SupportDashboard({ me }: { me: Profile }) {
     creditNotes: leftovers.filter(
       (item) => creditNoteState(item)?.kind === "pending",
     ).length,
-    overdueFollowUps: sites.reduce(
-      (total, site) => total + site.overdueFollowUps,
-      0,
-    ),
+    overdueFollowUps: overdueFollowUpTotal(sites),
   });
 
   return (

@@ -80,12 +80,12 @@ export function DeliveryJobs({
               header: "Dates",
               numeric: true,
               cell: (row) => (
-                <>
+                <span className="whitespace-normal">
                   {formatDate(row.scheduledOn)}
                   {row.endsOn !== row.scheduledOn &&
                     ` – ${formatDate(row.endsOn)}`}
                   {row.startTime && ` · ${row.startTime}`}
-                </>
+                </span>
               ),
             },
             {
@@ -109,7 +109,7 @@ export function DeliveryJobs({
                 if (!row.order) return "–";
                 const number = deliveryOrderNumber(mofNo, row.order.runningNo);
                 return (
-                  <div className="flex flex-col">
+                  <div className="flex max-w-72 flex-col whitespace-normal">
                     <span className="font-mono font-medium">
                       {number ?? "Not issued"}
                     </span>
@@ -145,7 +145,11 @@ export function DeliveryJobs({
             {
               key: "notes",
               header: "Note",
-              cell: (row) => row.notes || "–",
+              cell: (row) => (
+                <span className="block max-w-56 whitespace-normal">
+                  {row.notes || "–"}
+                </span>
+              ),
             },
             ...(canSchedule
               ? [

@@ -31,12 +31,22 @@ type Result = {
   error: { code?: string; message?: string } | null;
 };
 
-/** Every query resolves with the same result; the first insert payload and the table are recorded. */
-function fakeSupabase(result: Result) {
+type Selected = Promise<Result> & {
+  eq: () => Selected;
+  maybeSingle: () => Promise<Result>;
+};
+
+const ORDER_OF_5000: Result = {
+  data: { contract_sum: 5000, vo_amount: 0, payments: [] },
+  error: null,
+};
+
+/** Writes resolve with `result`, the order read with `order`; the first insert payload and the table are recorded. */
+function fakeSupabase(result: Result, order: Result = ORDER_OF_5000) {
   const record: { table?: string; insert?: unknown; deleted?: string } = {};
   const client = {
     from: vi.fn((table: string) => {
-      record.table = table;
+      if (table !== "mofs") record.table = table;
       const query: Record<string, unknown> = {};
       query.insert = (payload: unknown) => {
         record.insert = payload;
@@ -47,7 +57,13 @@ function fakeSupabase(result: Result) {
         record.deleted = value;
         return query;
       };
-      query.select = () => Promise.resolve(result);
+      query.select = () => {
+        const selected: Selected = Object.assign(Promise.resolve(result), {
+          eq: () => selected,
+          maybeSingle: () => Promise.resolve(order),
+        });
+        return selected;
+      };
       return query;
     }),
   };
@@ -138,6 +154,55 @@ describe("recordPayment", () => {
     const result = await recordPayment(paymentFields({ receivedOn: nextYear }));
 
     expect(result.error).toBe("That date is in the future.");
+  });
+
+  it("refuses a payment that takes the total past the order total", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
+    const record = fakeSupabase(
+      { data: null, error: null },
+      {
+        data: {
+          contract_sum: 4000,
+          vo_amount: 1000,
+          payments: [{ amount: 3500 }],
+        },
+        error: null,
+      },
+    );
+
+    const result = await recordPayment(paymentFields({ amount: "1500.01" }));
+
+    expect(result.error).toMatch(/past the order total of RM 5,000.00/);
+    expect(record.insert).toBeUndefined();
+  });
+
+  it("accepts the payment that settles the order exactly", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
+    const record = fakeSupabase(
+      { data: null, error: null },
+      {
+        data: {
+          contract_sum: 4000,
+          vo_amount: 1000,
+          payments: [{ amount: 3500 }],
+        },
+        error: null,
+      },
+    );
+
+    expect(await recordPayment(paymentFields({ amount: "1500" }))).toEqual({
+      error: null,
+    });
+    expect(record.insert).toMatchObject({ amount: 1500 });
+  });
+
+  it("says when the order is not there to be paid against", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
+    fakeSupabase({ data: null, error: null }, { data: null, error: null });
+
+    expect((await recordPayment(paymentFields())).error).toMatch(
+      /Could not find that order/,
+    );
   });
 
   it("explains when the database refuses", async () => {

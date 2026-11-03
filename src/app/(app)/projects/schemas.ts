@@ -1,5 +1,7 @@
 import { z } from "zod";
+import { optionalId, optionalText } from "@/lib/form/form-fields";
 import { parseRm } from "@/lib/format/money";
+import { roundQuantity } from "@/lib/format/quantity";
 import { AccountType } from "../customers/schemas";
 
 // Values mirror the check constraints in the projects migration.
@@ -68,15 +70,6 @@ export const LeadSourceLabel: Record<LeadSource, string> = {
 };
 
 // A blank select posts "".
-const optionalId = z.union([z.literal("").transform(() => null), z.uuid()]);
-
-const optionalText = (max: number) =>
-  z
-    .string()
-    .trim()
-    .max(max, `Keep this under ${max} characters.`)
-    .transform((value) => (value === "" ? null : value));
-
 const amount = z
   .string()
   .trim()
@@ -84,7 +77,8 @@ const amount = z
   .pipe(
     z
       .number("Enter the value as an amount in RM, like 12500.")
-      .min(0, "The value can't be negative."),
+      .min(0, "The value can't be negative.")
+      .max(999_999_999_999, "That value is too large."),
   );
 
 const quantity = z
@@ -97,7 +91,7 @@ const quantity = z
       .min(0, "The quantity can't be negative.")
       .max(9_999_999_999, "That quantity is too large."),
   )
-  .transform((value) => Math.round(value * 100) / 100);
+  .transform(roundQuantity);
 
 const nextActionDate = z.union([
   z.literal("").transform(() => null),
@@ -119,9 +113,9 @@ export const projectFormSchema = z
     qtySqft: quantity,
     value: amount,
     picId: z.uuid("Choose the person in charge."),
-    supportId: optionalId,
+    supportId: optionalId(),
     commissionType: AccountType,
-    passedBy: optionalId,
+    passedBy: optionalId(),
     nextAction: optionalText(300),
     nextActionDate,
     notes: optionalText(2000),

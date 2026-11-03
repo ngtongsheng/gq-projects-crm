@@ -32,6 +32,8 @@ import {
   FOLLOW_UP_OWNERS,
   type FollowUpOwner,
 } from "@/lib/domain/site-log";
+import { isOneOf } from "@/lib/form/one-of";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { addFollowUp, setFollowUpDone } from "./actions";
 
 /** Adds an action to a visit, with who owns it and when it is due. */
@@ -73,7 +75,7 @@ export function FollowUpDialog({
             Whoever owns it, or a manager, ticks it off when it is done.
           </DialogDescription>
         </DialogHeader>
-        <form action={save}>
+        <form onSubmit={submitKeepingValues(save)}>
           <input type="hidden" name="mofId" value={mofId} />
           <input type="hidden" name="siteLogId" value={siteLogId} />
           <input type="hidden" name="ownerGroup" value={owner} />
@@ -93,7 +95,9 @@ export function FollowUpDialog({
                 <FieldLabel htmlFor={`owner-${siteLogId}`}>Owner</FieldLabel>
                 <Select
                   value={owner}
-                  onValueChange={(value) => setOwner(value as FollowUpOwner)}
+                  onValueChange={(value) => {
+                    if (isOneOf(FOLLOW_UP_OWNERS, value)) setOwner(value);
+                  }}
                 >
                   <SelectTrigger id={`owner-${siteLogId}`}>
                     <SelectValue />

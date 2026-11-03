@@ -1,5 +1,6 @@
 import { type HoldState, isLive } from "@/lib/domain/reservation";
 import { formatDate, todayMyt } from "@/lib/format/date";
+import { roundQuantity } from "@/lib/format/quantity";
 import type { Reservation } from "./stock-data";
 
 export const FILTERS = [
@@ -37,9 +38,11 @@ export function selectReservations(
 
 /** Stock on hand that live holds are keeping back. */
 export const heldQty = (itemId: string, lines: readonly Reservation[]) =>
-  lines
-    .filter((line) => line.itemId === itemId && isLive(line.status))
-    .reduce((sum, line) => sum + line.qty, 0);
+  roundQuantity(
+    lines
+      .filter((line) => line.itemId === itemId && isLive(line.status))
+      .reduce((sum, line) => sum + line.qty, 0),
+  );
 
 /** The day the hold was taken, or the day it was asked for while it waits for confirmation. */
 export const reservedOnLabel = (line: Reservation) =>

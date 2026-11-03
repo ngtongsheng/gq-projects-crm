@@ -2,7 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { canEditStock } from "@/lib/auth/job-role";
+import {
+  canChangeSettings,
+  canEditStock,
+  canRequestStock,
+} from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import {
   canExtendHold,
@@ -12,8 +16,10 @@ import {
   RESERVATION_STATUSES,
   type ReservationStatus,
 } from "@/lib/domain/reservation";
+import { optionalText, textField } from "@/lib/form/form-fields";
 import { todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
+import { positiveQuantity } from "./quantity-fields";
 import { stockItemSchema } from "./stock-item-schema";
 import { loadStockSettings } from "./stock-settings";
 
@@ -29,24 +35,6 @@ const NOT_FOUND_RESERVATION =
   "Could not find that reservation. Reload the page.";
 const CHANGED = "Someone changed this reservation first. Reload the page.";
 const TRY_AGAIN = "Could not save. Try again.";
-const REQUESTERS = ["bd", "sales"] as const;
-
-const textField = (formData: FormData, key: string) => {
-  const value = formData.get(key);
-  return typeof value === "string" ? value : "";
-};
-
-const optionalText = (max: number, message: string) =>
-  z
-    .string()
-    .trim()
-    .max(max, message)
-    .transform((value) => (value === "" ? null : value));
-
-const quantity = z.coerce
-  .number({ error: "Enter the quantity." })
-  .positive("Enter a quantity above zero.")
-  .max(9_999_999_999, "That quantity is too large.");
 
 /** The database message for a hold that takes more than is left; it is already plain words. */
 const tooMuch = (error: { code?: string; message?: string }) =>
@@ -58,7 +46,7 @@ const tooMuch = (error: { code?: string; message?: string }) =>
 const reserveForm = z.object({
   itemId: z.uuid({ error: NOT_FOUND_ITEM }),
   projectId: z.uuid({ error: NOT_FOUND_PROJECT }),
-  qty: quantity,
+  qty: positiveQuantity,
   reservedBy: z.union([z.literal(""), z.uuid()]),
   note: optionalText(300, "Keep the note under 300 characters."),
 });
@@ -70,7 +58,7 @@ const reserveForm = z.object({
 export async function reserveStock(formData: FormData): Promise<StockResult> {
   const me = await requireSection("stock");
   const arranges = canEditStock(me);
-  if (!arranges && !(REQUESTERS as readonly string[]).includes(me.jobRole)) {
+  if (!canRequestStock(me)) {
     return { error: NOT_REQUESTER };
   }
 
@@ -316,7 +304,7 @@ export async function saveStockSettings(
   formData: FormData,
 ): Promise<StockResult> {
   const me = await requireSection("stock");
-  if (me.role !== "admin" && me.jobRole !== "md") {
+  if (!canChangeSettings(me)) {
     return { error: "Only the MD or an admin can change these settings." };
   }
 

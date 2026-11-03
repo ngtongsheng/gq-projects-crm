@@ -1,7 +1,7 @@
 "use client";
 
 import { Copy, UserPlus } from "lucide-react";
-import { useActionState } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { type AddPersonState, addPerson } from "./actions";
 
 const initialState: AddPersonState = { error: null, invite: null };
@@ -63,7 +64,14 @@ export function AddPersonDialog({
 }
 
 function AddPersonForm() {
-  const [state, formAction, pending] = useActionState(addPerson, initialState);
+  const [state, setState] = useState(initialState);
+  const [pending, startTransition] = useTransition();
+
+  function create(formData: FormData) {
+    startTransition(async () => {
+      setState(await addPerson(formData));
+    });
+  }
 
   async function copy(text: string, done: string) {
     try {
@@ -111,7 +119,7 @@ function AddPersonForm() {
   }
 
   return (
-    <form action={formAction}>
+    <form onSubmit={submitKeepingValues(create)}>
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="fullName">Name</FieldLabel>

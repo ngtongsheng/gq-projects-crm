@@ -17,7 +17,6 @@ import {
 
 export type MofResult = { error: string | null; mofId?: string };
 
-type Supabase = Awaited<ReturnType<typeof createClient>>;
 type DbError = { code?: string; message?: string };
 
 const fail = (error: string): MofResult => ({ error });
@@ -96,72 +95,18 @@ const lineColumns = (line: MofLine) => ({
 });
 
 /** A plain message for a refusal from the database; anything else is logged. */
-function dbMessage(error: DbError, context: string): string {
-  if (error.code === "42501") return NOT_EDITOR;
+function dbMessage(error: DbError): string {
+  if (error.code === "42501") {
+    return error.message?.includes("mof_costs") ? NOT_MANAGER : NOT_EDITOR;
+  }
   if (error.code === "23505") {
     return error.message?.includes("project_id")
       ? "That project already has an MOF."
       : "That MOF number is already registered. Check the MOF number.";
   }
-  console.error(context, error);
+  if (error.code === "P0002") return RELOAD;
+  console.error("Could not save MOF", error);
   return TRY_AGAIN;
-}
-
-/** Brings the MOF's saved lines in line with the form: removed lines go, kept ones change, new ones are added. */
-async function saveLines(
-  supabase: Supabase,
-  mofId: string,
-  lines: MofLine[],
-  ids: string[],
-): Promise<string | null> {
-  const keptIds = ids.filter((id) => id !== "");
-  const removal = supabase.from("mof_lines").delete().eq("mof_id", mofId);
-  const { error: removeError } = await (keptIds.length > 0
-    ? removal.not("id", "in", `(${keptIds.join(",")})`)
-    : removal);
-  if (removeError) return dbMessage(removeError, "Could not remove MOF lines");
-
-  const added = [];
-  for (const [index, line] of lines.entries()) {
-    const id = ids[index] ?? "";
-    if (id === "") {
-      added.push({ mof_id: mofId, ...lineColumns(line) });
-      continue;
-    }
-    const { error } = await supabase
-      .from("mof_lines")
-      .update(lineColumns(line))
-      .eq("id", id)
-      .eq("mof_id", mofId);
-    if (error) return dbMessage(error, "Could not update MOF line");
-  }
-  if (added.length > 0) {
-    const { error } = await supabase.from("mof_lines").insert(added);
-    if (error) return dbMessage(error, "Could not add MOF lines");
-  }
-  return null;
-}
-
-/** mof_costs has no update grant on mof_id, so an upsert would be refused: update, then add if there was none. */
-async function saveCost(
-  supabase: Supabase,
-  mofId: string,
-  cost: number,
-): Promise<string | null> {
-  const { data, error } = await supabase
-    .from("mof_costs")
-    .update({ cost })
-    .eq("mof_id", mofId)
-    .select("mof_id");
-  if (error) return dbMessage(error, "Could not update MOF cost");
-  if (data.length > 0) return null;
-  const { error: insertError } = await supabase
-    .from("mof_costs")
-    .insert({ mof_id: mofId, cost });
-  if (!insertError) return null;
-  return insertError.code === "42501"
-    ? NOT_MANAGER
-    : dbMessage(insertError, "Could not add MOF cost");
 }
 
 /** Registers an MOF, or changes one when the form carries a mofId. */
@@ -225,85 +170,56 @@ export async function saveMof(formData: FormData): Promise<MofResult> {
   }
   const form = parsed.data;
   const lineIds = lines.map((line) => line.id ?? "");
+  if (!mofId && lineIds.some((id) => id !== "")) return fail(RELOAD);
   const supabase = await createClient();
 
-  if (!mofId) {
-    if (lineIds.some((id) => id !== "")) return fail(RELOAD);
-    const { data, error } = await supabase
-      .from("mofs")
-      .insert({
-        ...mofColumns(form),
-        contract_sum: form.contractSum,
-        vo_amount: form.voAmount,
-      })
-      .select("id")
-      .single();
-    if (error) return fail(dbMessage(error, "Could not register MOF"));
-    const newId = z.object({ id: z.string() }).parse(data).id;
-    const lineError = await saveLines(supabase, newId, form.lines, lineIds);
-    if (lineError) return fail(lineError);
-    if (cost !== null) {
-      const costError = await saveCost(supabase, newId, cost);
-      if (costError) return fail(costError);
-    }
-    revalidatePath("/mofs");
-    return { error: null, mofId: newId };
-  }
-
-  const { data: existingData, error: loadError } = await supabase
-    .from("mofs")
-    .select("contract_sum, vo_amount")
-    .eq("id", mofId)
-    .maybeSingle();
-  if (loadError) return fail(dbMessage(loadError, "Could not load MOF"));
-  if (!existingData) return fail(RELOAD);
-  const existing = existingMofRow.parse(existingData);
-
-  // Contract sum and VO change only through update_mof_total, which needs a reason.
-  const totalChanged =
-    existing.contract_sum !== form.contractSum ||
-    existing.vo_amount !== form.voAmount;
+  // Contract sum and VO of a saved MOF change only through update_mof_total, which needs a reason.
   let reason = "";
-  if (totalChanged) {
-    const change = mofTotalChangeSchema.safeParse({
-      mofId,
-      contractSum: textField(formData, "contractSum"),
-      voAmount: textField(formData, "voAmount"),
-      reason: textField(formData, "reason"),
-    });
-    if (!change.success) {
-      return fail(change.error.issues[0]?.message ?? "Give the reason.");
+  if (mofId) {
+    const { data: existingData, error: loadError } = await supabase
+      .from("mofs")
+      .select("contract_sum, vo_amount")
+      .eq("id", mofId)
+      .maybeSingle();
+    if (loadError) return fail(dbMessage(loadError));
+    if (!existingData) return fail(RELOAD);
+    const existing = existingMofRow.parse(existingData);
+    if (
+      existing.contract_sum !== form.contractSum ||
+      existing.vo_amount !== form.voAmount
+    ) {
+      const change = mofTotalChangeSchema.safeParse({
+        mofId,
+        contractSum: textField(formData, "contractSum"),
+        voAmount: textField(formData, "voAmount"),
+        reason: textField(formData, "reason"),
+      });
+      if (!change.success) {
+        return fail(change.error.issues[0]?.message ?? "Give the reason.");
+      }
+      reason = change.data.reason;
     }
-    reason = change.data.reason;
   }
 
-  const { data: updated, error: updateError } = await supabase
-    .from("mofs")
-    .update(mofColumns(form))
-    .eq("id", mofId)
-    .select("id");
-  if (updateError) return fail(dbMessage(updateError, "Could not update MOF"));
-  if (updated.length === 0) return fail(NOT_EDITOR);
-
-  const lineError = await saveLines(supabase, mofId, form.lines, lineIds);
-  if (lineError) return fail(lineError);
-
-  if (totalChanged) {
-    const { error } = await supabase.rpc("update_mof_total", {
-      mof_id: mofId,
+  // One call, one transaction: a failure part-way saves nothing.
+  const { data, error } = await supabase.rpc("save_mof", {
+    mof_id: mofId,
+    mof: {
+      ...mofColumns(form),
       contract_sum: form.contractSum,
       vo_amount: form.voAmount,
-      reason,
-    });
-    if (error) return fail(dbMessage(error, "Could not change order total"));
-  }
-
-  if (cost !== null) {
-    const costError = await saveCost(supabase, mofId, cost);
-    if (costError) return fail(costError);
-  }
+    },
+    lines: form.lines.map((line, index) => ({
+      id: lineIds[index] || null,
+      ...lineColumns(line),
+    })),
+    reason,
+    cost,
+  });
+  if (error) return fail(dbMessage(error));
+  const savedId = z.uuid().parse(data);
 
   revalidatePath("/mofs");
-  revalidatePath(`/mofs/${mofId}`);
-  return { error: null, mofId };
+  if (mofId) revalidatePath(`/mofs/${mofId}`);
+  return { error: null, mofId: savedId };
 }

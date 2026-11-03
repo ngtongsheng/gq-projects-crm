@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -9,15 +9,29 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { type SignInState, signIn } from "./actions";
 
 const initialState: SignInState = { error: null };
 
 export function SignInForm() {
-  const [state, formAction, pending] = useActionState(signIn, initialState);
+  const [state, setState] = useState(initialState);
+  const [pending, startTransition] = useTransition();
+
+  function submit(formData: FormData, form: HTMLFormElement) {
+    startTransition(async () => {
+      const result = await signIn(formData);
+      setState(result);
+      // The email stays; the password is typed again.
+      if (result.error) {
+        const password = form.elements.namedItem("password");
+        if (password instanceof HTMLInputElement) password.value = "";
+      }
+    });
+  }
 
   return (
-    <form action={formAction}>
+    <form onSubmit={submitKeepingValues(submit)}>
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>

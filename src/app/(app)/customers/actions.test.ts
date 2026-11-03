@@ -27,20 +27,29 @@ const profile = (jobRole: Profile["jobRole"]): Profile => ({
   yearlyTarget: null,
 });
 
-type Result = { data: unknown; error: { code?: string } | null };
+type Result = {
+  data: unknown;
+  error: { code?: string; message?: string } | null;
+};
 type Call = { table: string; steps: string[]; payload: unknown };
 
-/** Every query on a table answers with the next queued result; calls are recorded. */
+/** Every query on a table answers with the next queued result; calls are recorded. save_contact answers from the "rpc:save_contact" queue. */
 function fakeSupabase(queues: Record<string, Result[]>) {
   const calls: Call[] = [];
   const client = {
-    rpc: vi.fn(async () => ({
-      data: [
-        { id: ME, full_name: "Mei" },
-        { id: ARUN, full_name: "Arun" },
-      ],
-      error: null,
-    })),
+    rpc: vi.fn(async (name: string, payload: unknown) => {
+      if (name === "save_contact") {
+        calls.push({ table: `rpc:${name}`, steps: [], payload });
+        return queues["rpc:save_contact"]?.shift() ?? saved;
+      }
+      return {
+        data: [
+          { id: ME, full_name: "Mei" },
+          { id: ARUN, full_name: "Arun" },
+        ],
+        error: null,
+      };
+    }),
     from: vi.fn((table: string) => {
       const call: Call = { table, steps: [], payload: undefined };
       calls.push(call);
@@ -100,6 +109,10 @@ function form(fields: Record<string, string>) {
 }
 
 const none: Result = { data: null, error: null };
+const saved: Result = { data: CONTACT, error: null };
+
+const savedWith = (calls: Call[]) =>
+  calls.filter((call) => call.table === "rpc:save_contact");
 
 describe("saveContact", () => {
   beforeEach(() => {
@@ -108,41 +121,37 @@ describe("saveContact", () => {
 
   it("adds a customer with the mobile normalised", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
-    const calls = fakeSupabase({
-      contacts: [none, { data: [{ id: CONTACT }], error: null }],
-    });
+    const calls = fakeSupabase({ contacts: [none] });
 
     const result = await saveContact(form({}));
 
     expect(result).toEqual({ error: null, duplicate: null });
-    expect(calls[1]?.payload).toMatchObject({
-      company_id: COMPANY,
-      mobile: "60123456789",
-      account_type: "own",
-      passed_by: null,
+    expect(savedWith(calls)[0]?.payload).toMatchObject({
+      contact_id: null,
+      contact: {
+        company_id: COMPANY,
+        mobile: "60123456789",
+        account_type: "own",
+        passed_by: null,
+      },
+      company: null,
     });
   });
 
   it("keeps account type fixed to own for people who cannot set it", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
-    const calls = fakeSupabase({
-      contacts: [none, { data: [{ id: CONTACT }], error: null }],
-    });
+    const calls = fakeSupabase({ contacts: [none] });
 
     await saveContact(form({ accountType: "pass_down", passedBy: ARUN }));
 
-    expect(calls[1]?.payload).toMatchObject({
-      account_type: "own",
-      passed_by: null,
+    expect(savedWith(calls)[0]?.payload).toMatchObject({
+      contact: { account_type: "own", passed_by: null },
     });
   });
 
-  it("creates a new company inline before the customer", async () => {
+  it("saves a new company in the same call as the customer", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
-    const calls = fakeSupabase({
-      contacts: [none, { data: [{ id: CONTACT }], error: null }],
-      companies: [{ data: { id: COMPANY }, error: null }],
-    });
+    const calls = fakeSupabase({ contacts: [none] });
 
     const result = await saveContact(
       form({
@@ -154,13 +163,63 @@ describe("saveContact", () => {
     );
 
     expect(result.error).toBeNull();
-    const company = calls.find((call) => call.table === "companies");
-    expect(company?.payload).toEqual({
-      name: "Atlas Interiors",
-      company_type: "designer",
-      rating: 4,
+    expect(calls.some((call) => call.table === "companies")).toBe(false);
+    expect(savedWith(calls)).toHaveLength(1);
+    expect(savedWith(calls)[0]?.payload).toMatchObject({
+      company: { name: "Atlas Interiors", company_type: "designer", rating: 4 },
     });
-    expect(calls.at(-1)?.payload).toMatchObject({ company_id: COMPANY });
+  });
+
+  it("names the company when its name is taken", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    fakeSupabase({
+      contacts: [none],
+      "rpc:save_contact": [
+        {
+          data: null,
+          error: {
+            code: "23505",
+            message:
+              'duplicate key value violates unique constraint "companies_name_key"',
+          },
+        },
+      ],
+    });
+
+    const result = await saveContact(
+      form({
+        companyId: "new",
+        newCompanyName: "Atlas Interiors",
+        newCompanyType: "designer",
+      }),
+    );
+
+    expect(result.error).toBe(
+      "A company with that name already exists. Choose it from the list.",
+    );
+  });
+
+  it("names the mobile number when it is taken", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    fakeSupabase({
+      contacts: [none],
+      "rpc:save_contact": [
+        {
+          data: null,
+          error: {
+            code: "23505",
+            message:
+              'duplicate key value violates unique constraint "contacts_mobile_key"',
+          },
+        },
+      ],
+    });
+
+    const result = await saveContact(form({}));
+
+    expect(result.error).toBe(
+      "Another customer already uses that mobile number.",
+    );
   });
 
   it("asks for a company name when adding a new company", async () => {
@@ -203,7 +262,7 @@ describe("saveContact", () => {
         ownedByMe: false,
       },
     });
-    expect(calls.some((call) => call.steps.includes("insert"))).toBe(false);
+    expect(savedWith(calls)).toHaveLength(0);
   });
 
   it("rejects an edit by someone who is neither owner nor manager", async () => {
@@ -226,7 +285,7 @@ describe("saveContact", () => {
     expect(result.error).toBe(
       "Only the owners, the MD or the Sales Director can change this customer.",
     );
-    expect(calls.some((call) => call.steps.includes("update"))).toBe(false);
+    expect(savedWith(calls)).toHaveLength(0);
   });
 
   it("lets an owner edit and leaves their account type untouched", async () => {
@@ -242,7 +301,6 @@ describe("saveContact", () => {
           error: null,
         },
         none,
-        { data: [{ id: CONTACT }], error: null },
       ],
     });
 
@@ -251,7 +309,10 @@ describe("saveContact", () => {
     );
 
     expect(result.error).toBeNull();
-    expect(calls.at(-1)?.payload).toMatchObject({ account_type: "company" });
+    expect(savedWith(calls)[0]?.payload).toMatchObject({
+      contact_id: CONTACT,
+      contact: { account_type: "company" },
+    });
   });
 
   it("lets the MD edit a customer they do not own", async () => {
@@ -267,7 +328,6 @@ describe("saveContact", () => {
           error: null,
         },
         none,
-        { data: [{ id: CONTACT }], error: null },
       ],
     });
 

@@ -43,7 +43,6 @@ const validForm = {
   email: "Mei@Example.com ",
   role: "staff",
 };
-const empty = { error: null, invite: null };
 
 function fakeAdminClient(generateLinkResult: unknown) {
   const profileUpdate = vi.fn(() => ({
@@ -76,7 +75,7 @@ describe("addPerson", () => {
 
   it("rejects staff", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("staff"));
-    await expect(addPerson(empty, personForm(validForm))).rejects.toThrow(
+    await expect(addPerson(personForm(validForm))).rejects.toThrow(
       "redirect:/",
     );
     expect(createAdminClient).not.toHaveBeenCalled();
@@ -84,7 +83,7 @@ describe("addPerson", () => {
 
   it("rejects a signed-out caller", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(null);
-    await expect(addPerson(empty, personForm(validForm))).rejects.toThrow(
+    await expect(addPerson(personForm(validForm))).rejects.toThrow(
       "redirect:/sign-in",
     );
   });
@@ -92,7 +91,6 @@ describe("addPerson", () => {
   it("rejects an invalid email without touching Supabase", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
     const result = await addPerson(
-      empty,
       personForm({ ...validForm, email: "not-an-email" }),
     );
     expect(result.error).toBe("Enter a valid email address.");
@@ -102,14 +100,12 @@ describe("addPerson", () => {
   it("rejects an unknown role and a blank name", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
     const badRole = await addPerson(
-      empty,
       personForm({ ...validForm, role: "owner" }),
     );
     expect(badRole.invite).toBeNull();
     expect(badRole.error).not.toBeNull();
 
     const noName = await addPerson(
-      empty,
       personForm({ ...validForm, fullName: "  " }),
     );
     expect(noName.error).toBe("Enter their name.");
@@ -118,7 +114,7 @@ describe("addPerson", () => {
   it("shows a plain message when the service key is missing", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
     vi.mocked(createAdminClient).mockReturnValue(null);
-    const result = await addPerson(empty, personForm(validForm));
+    const result = await addPerson(personForm(validForm));
     expect(result).toEqual({
       error: "Adding people works on the preview link or the live site.",
       invite: null,
@@ -129,7 +125,7 @@ describe("addPerson", () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
     const { generateLink, profileUpdate } = fakeAdminClient(linkOk);
 
-    const result = await addPerson(empty, personForm(validForm));
+    const result = await addPerson(personForm(validForm));
 
     expect(generateLink).toHaveBeenCalledWith({
       type: "invite",
@@ -148,10 +144,7 @@ describe("addPerson", () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
     const { profileUpdate } = fakeAdminClient(linkOk);
 
-    const result = await addPerson(
-      empty,
-      personForm({ ...validForm, role: "admin" }),
-    );
+    const result = await addPerson(personForm({ ...validForm, role: "admin" }));
 
     expect(profileUpdate).toHaveBeenCalledWith({ role: "admin" });
     expect(result.error).toBeNull();
@@ -160,7 +153,7 @@ describe("addPerson", () => {
   it("explains a duplicate email in plain words", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
     fakeAdminClient({ data: null, error: { code: "email_exists" } });
-    const result = await addPerson(empty, personForm(validForm));
+    const result = await addPerson(personForm(validForm));
     expect(result).toEqual({
       error: "Someone with that email is already added.",
       invite: null,

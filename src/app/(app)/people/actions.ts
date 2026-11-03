@@ -30,10 +30,7 @@ async function requestOrigin(): Promise<string> {
   return `${protocol}://${host}`;
 }
 
-export async function addPerson(
-  _previous: AddPersonState,
-  formData: FormData,
-): Promise<AddPersonState> {
+export async function addPerson(formData: FormData): Promise<AddPersonState> {
   await requireRole("admin");
 
   const parsed = addPersonSchema.safeParse({

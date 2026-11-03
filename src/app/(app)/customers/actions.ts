@@ -33,6 +33,7 @@ const fail = (error: string): SaveContactResult => ({
 });
 
 const UNIQUE_VIOLATION = "23505";
+const COMPANY_NAME_KEY = "companies_name_key";
 const NEW_COMPANY = "new";
 
 const existingContactRow = z.object({
@@ -96,7 +97,7 @@ export async function saveContact(
   const isNewCompany = companyChoice === NEW_COMPANY;
 
   const contact = contactFormSchema.safeParse({
-    // A new company has no id yet; the real one replaces this before saving.
+    // A new company has no id yet; save_contact replaces this with the real one.
     companyId: isNewCompany ? crypto.randomUUID() : companyChoice,
     name: textField(formData, "name"),
     mobile: textField(formData, "mobile"),
@@ -159,31 +160,8 @@ export async function saveContact(
     };
   }
 
-  let companyId = contact.data.companyId;
-  if (newCompany?.success) {
-    const { data, error } = await supabase
-      .from("companies")
-      .insert({
-        name: newCompany.data.name,
-        company_type: newCompany.data.companyType,
-        rating: newCompany.data.rating,
-      })
-      .select("id")
-      .single();
-    if (error?.code === UNIQUE_VIOLATION) {
-      return fail(
-        "A company with that name already exists. Choose it from the list.",
-      );
-    }
-    if (error) {
-      console.error("Could not add company", error);
-      return fail("Could not add the company. Try again.");
-    }
-    companyId = z.object({ id: z.string() }).parse(data).id;
-  }
-
   const row = {
-    company_id: companyId,
+    company_id: contact.data.companyId,
     name: contact.data.name,
     mobile: contact.data.mobile,
     title: contact.data.title,
@@ -193,19 +171,28 @@ export async function saveContact(
     notes: contact.data.notes,
   };
 
-  // RLS hides rows the caller may not edit, which shows up as zero rows changed.
-  const { data: saved, error } = contactId
-    ? await supabase
-        .from("contacts")
-        .update(row)
-        .eq("id", contactId)
-        .select("id")
-    : await supabase.from("contacts").insert(row).select("id");
+  // One call, one transaction: a new company is saved with the customer or not at all.
+  // RLS hides rows the caller may not edit, which the function reports as an error.
+  const { error } = await supabase.rpc("save_contact", {
+    contact_id: contactId,
+    contact: row,
+    company: newCompany?.success
+      ? {
+          name: newCompany.data.name,
+          company_type: newCompany.data.companyType,
+          rating: newCompany.data.rating,
+        }
+      : null,
+  });
   if (error?.code === UNIQUE_VIOLATION) {
-    return fail("Another customer already uses that mobile number.");
+    return fail(
+      error.message.includes(COMPANY_NAME_KEY)
+        ? "A company with that name already exists. Choose it from the list."
+        : "Another customer already uses that mobile number.",
+    );
   }
-  if (error || saved.length === 0) {
-    if (error) console.error("Could not save customer", error);
+  if (error) {
+    console.error("Could not save customer", error);
     return fail("Could not save the customer. Try again.");
   }
 

@@ -18,19 +18,50 @@ and the loop PR is merged. Prototype screens (findings 54, 56-58, 65, 66) are ou
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | PGlite harness + first test | todo | - | opus/medium |
-| 02 | Tests for loop 05 database rules | todo | 01 | sonnet/high |
-| 03 | Atomic MOF save (14) | todo | 01 | opus/medium |
-| 04 | Atomic customer + new company save (31) | todo | 01 | sonnet/high |
-| 05 | Payment cap in the database (49) | todo | 01 | sonnet/high |
-| 06 | Payout cap in SQL + parity test (20) | todo | 01 | opus/medium |
-| 07 | Set-password retry (45) + 3 forms keep values (59) | todo | - | sonnet/high |
-| 08 | Stock over-held display (64) | todo | - | sonnet/medium |
-| 09 | Projects own-only for salespeople (55) | todo | 01 | opus/medium |
-| 10 | Final checks, debt.md and decisions.md cleanup | todo | 02, 03, 04, 05, 06, 07, 08, 09 | haiku/low |
+| 01 | PGlite harness + first test | done | - | opus/medium |
+| 02 | Tests for loop 05 database rules | done | 01 | sonnet/high |
+| 03 | Atomic MOF save (14) | done | 01 | opus/medium |
+| 04 | Atomic customer + new company save (31) | done | 01 | sonnet/high |
+| 05 | Payment cap in the database (49) | done | 01 | sonnet/high |
+| 06 | Payout cap in SQL + parity test (20) | done | 01 | opus/medium |
+| 07 | Set-password retry (45) + 3 forms keep values (59) | done | - | sonnet/high |
+| 08 | Stock over-held display (64) | done | - | sonnet/medium |
+| 09 | Projects own-only for salespeople (55) | done | 01 | opus/medium |
+| 10 | Final checks, debt.md and decisions.md cleanup | done | 02, 03, 04, 05, 06, 07, 08, 09 | haiku/low |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - End: if auto mode denies `gh pr merge` (D7), merge the loop PR yourself.
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-03 · plan · loop written (10 tasks) · /execute-loop
+2026-11-03 · #01 · started · subagent opus/medium
+2026-11-03 · #01 · done · checks pass, test fails without the guard migration · #02
+2026-11-03 · #01 · decision · actAs(null) = service role, not anon · matches how the guard skips service role
+2026-11-03 · #02 · started · subagent sonnet/high
+2026-11-03 · #02 · done · 96 files, 837 tests pass · #03
+2026-11-03 · #02 · decision · added supabase/tests/fixtures.ts for shared setup · avoids duplication
+2026-11-03 · #03 · started · subagent opus/medium
+2026-11-03 · #03 · done · 97 files, 847 tests pass, guard clean · #04
+2026-11-03 · #03 · decision · cost refusal message keyed on error text containing mof_costs; unknown line ids still update nothing (old behaviour kept) · smallest change
+2026-11-03 · #04 · started · subagent sonnet/high
+2026-11-03 · #04 · done · 98 files, 860 tests pass, guard clean · #05
+2026-11-03 · #04 · decision · not-owner update raises 42501, action shows generic retry message · pre-checks already give the specific message
+2026-11-03 · #05 · started · subagent sonnet/high
+2026-11-03 · #05 · done · 99 files, 865 tests pass, guard clean · #06
+2026-11-03 · #05 · decision · payment cap trigger is security definer (execute revoked): accounts lack update on mofs and read on all payments · needed for for-update lock and sum
+2026-11-03 · #06 · started · subagent opus/medium
+2026-11-03 · #06 · done · 100 files, 902 tests pass, 30 parity cases, guard clean · #07
+2026-11-03 · #06 · decision · SQL settings fall back per field (TS falls back all-or-nothing); only differs on corrupt settings · app validation prevents it
+2026-11-03 · #07 · started · subagent sonnet/high
+2026-11-03 · #07 · done · 101 files, 907 tests pass · #08
+2026-11-03 · #07 · decision · session reuse gated by link_verified form flag; unused _previous param removed from 3 actions · stops a signed-in admin changing own password via someone else's link
+2026-11-03 · #08 · started · subagent sonnet/medium
+2026-11-03 · #08 · done · 101 files, 910 tests pass · #09
+2026-11-03 · #08 · decision · over-held counts delivered lines like Available does; stock CSV gets Over-held by column · row never shows 0 available unexplained
+2026-11-03 · #09 · started · subagent opus/medium
+2026-11-03 · #09 · done · 102 files, 917 tests pass, guard clean · #10
+2026-11-03 · #09 · decision · followed D1 (bd and sales) over prototype seeProj (bd only for passed_by); stock page tolerates hidden projects; projects person filter label left as is · smallest change
+2026-11-03 · #10 · started · subagent haiku/low
+2026-11-03 · #10 · done · 102 files, 917 tests pass, guard clean, debt.md grep empty · vault + merge
+2026-11-03 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-03-loop-07-debt-fixes.md
+2026-11-03 · merge · PR opened, awaiting checks · merge to main

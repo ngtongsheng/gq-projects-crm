@@ -212,6 +212,15 @@ describe("recordPayment", () => {
     expect((await recordPayment(paymentFields())).error).toMatch(/Only the MD/);
   });
 
+  it("shows the database's refusal when another payment took the order past its total", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
+    const message =
+      "That takes payments past the order total of RM 5,000.00. If the order total has changed, change it on the MOF first.";
+    fakeSupabase({ data: null, error: { code: "23514", message } });
+
+    expect((await recordPayment(paymentFields())).error).toBe(message);
+  });
+
   it("says when the order is gone", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
     fakeSupabase({ data: null, error: { code: "23503" } });

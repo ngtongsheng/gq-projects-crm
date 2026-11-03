@@ -45,3 +45,11 @@ CRM features: to be grilled after loop 02. Source: Vicky's prototype `docs/mocku
 and roles, lead pipeline, customers/designers, site activities, projects + payment claims, purchasing/POs with
 supplier and warehouse statuses, deliveries, installation schedule and installers, stock/offcuts and returns, staff
 OT claims, guide). The prototype is the spec input, not the data model: grill it into slices.
+
+## Loop 07 (debt fixes), decided 2026-11-03
+- D1: salespeople (bd, sales) see only projects where they are `pic_id`, `support_id` or `passed_by`; md, director,
+  accounts, site and support still see all. Owner's choice, matching the prototype. Enforced by narrowing the
+  projects read policy in SQL and by the projects page. Finding 55 of loop 05.
+- D2: database rules are tested with `@electric-sql/pglite` (devDependency). `supabase/tests/*.test.ts` applies every
+  migration to a fresh in-memory database with a stubbed `auth.uid()` and roles, and runs under `pnpm test`.
+  Closes finding 3 of loop 05.

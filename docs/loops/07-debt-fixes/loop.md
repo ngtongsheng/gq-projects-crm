@@ -27,7 +27,7 @@ and the loop PR is merged. Prototype screens (findings 54, 56-58, 65, 66) are ou
 | 07 | Set-password retry (45) + 3 forms keep values (59) | done | - | sonnet/high |
 | 08 | Stock over-held display (64) | done | - | sonnet/medium |
 | 09 | Projects own-only for salespeople (55) | done | 01 | opus/medium |
-| 10 | Final checks, debt.md and decisions.md cleanup | in-progress | 02, 03, 04, 05, 06, 07, 08, 09 | haiku/low |
+| 10 | Final checks, debt.md and decisions.md cleanup | done | 02, 03, 04, 05, 06, 07, 08, 09 | haiku/low |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - End: if auto mode denies `gh pr merge` (D7), merge the loop PR yourself.
@@ -62,3 +62,4 @@ and the loop PR is merged. Prototype screens (findings 54, 56-58, 65, 66) are ou
 2026-11-03 · #09 · done · 102 files, 917 tests pass, guard clean · #10
 2026-11-03 · #09 · decision · followed D1 (bd and sales) over prototype seeProj (bd only for passed_by); stock page tolerates hidden projects; projects person filter label left as is · smallest change
 2026-11-03 · #10 · started · subagent haiku/low
+2026-11-03 · #10 · done · 102 files, 917 tests pass, guard clean, debt.md grep empty · vault + merge

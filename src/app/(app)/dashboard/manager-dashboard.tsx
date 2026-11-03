@@ -35,6 +35,7 @@ import { loadOpenProjects } from "./pipeline-data";
 import { ProjectsToChase } from "./projects-to-chase";
 import { loadPurchasingFacts } from "./purchasing-data";
 import { loadTeamSnapshot, type TeamRow } from "./report-snapshot";
+import { TodaysActivities } from "./todays-activities";
 
 /** The team's month for the MD, Sales Director and HR & Accounts: pace against targets and what is slipping. */
 export async function ManagerDashboard({ me }: { me: Profile }) {
@@ -141,6 +142,11 @@ export async function ManagerDashboard({ me }: { me: Profile }) {
           context={{ bySalesperson, projects, inactiveOwners }}
         />
       </TableSection>
+      <TodaysActivities
+        title="Today's itinerary"
+        today={today}
+        nameOf={nameOf}
+      />
       <ProjectsToChase
         projects={projects}
         detail={(project) =>

@@ -10,7 +10,9 @@ import { loadDashboardOrders } from "./dashboard-orders";
 import { AttentionPanel, PaceBar, StatTile, TileGrid } from "./dashboard-parts";
 import { loadOpenProjects, projectsOf } from "./pipeline-data";
 import { ProjectsToChase } from "./projects-to-chase";
+import { QuietCustomers } from "./quiet-customers";
 import { loadOwnMonth } from "./report-snapshot";
+import { TodaysActivities } from "./todays-activities";
 
 /** A salesperson's or BD Director's own month: visits, sales and pace, and the deals to chase. */
 export async function SalesDashboard({ me }: { me: Profile }) {
@@ -102,6 +104,10 @@ export async function SalesDashboard({ me }: { me: Profile }) {
           />
         ) : null}
       </TileGrid>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <TodaysActivities title="Today" today={today} personId={me.id} />
+        <QuietCustomers personId={me.id} today={today} />
+      </div>
       <ProjectsToChase
         projects={mine}
         detail={(project) => (

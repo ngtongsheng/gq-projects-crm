@@ -205,7 +205,7 @@ export function JobForm({
             on the MOF first.
           </FieldError>
         )}
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           <Field>
             <FieldLabel htmlFor="scheduledOn">Start date</FieldLabel>
             <Input
@@ -280,11 +280,13 @@ export function JobForm({
               <Field>
                 <FieldLabel htmlFor="runningNo">DO no.</FieldLabel>
                 <div className="flex items-center gap-2">
-                  <span className="font-mono font-medium">{mofNo}</span>
+                  <span className="font-mono font-medium whitespace-nowrap">
+                    {mofNo}
+                  </span>
                   <Input
                     id="runningNo"
                     name="runningNo"
-                    className="font-mono"
+                    className="min-w-0 font-mono"
                     inputMode="numeric"
                     maxLength={4}
                     placeholder="5563"

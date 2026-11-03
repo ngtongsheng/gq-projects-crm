@@ -6,6 +6,7 @@ import {
   holdLabel,
   holdState,
   isLive,
+  overHeldQty,
   RESERVATION_STATUS_LABEL,
   STOCK_UNIT_LABEL,
 } from "@/lib/domain/reservation";
@@ -28,19 +29,28 @@ export async function GET(request: NextRequest) {
 
   if (params.get("view") === "items") {
     const items = await loadStockItems();
+    const itemLines = (itemId: string) =>
+      reservations.filter((line) => line.itemId === itemId);
     return csvResponse(
       "stock-items",
-      ["SKU", "Collection", "Supplier", "On hand", "Held", "Available", "Unit"],
+      [
+        "SKU",
+        "Collection",
+        "Supplier",
+        "On hand",
+        "Held",
+        "Available",
+        "Over-held by",
+        "Unit",
+      ],
       items.map((item) => [
         item.sku,
         item.collection,
         item.supplier,
         item.qty,
         heldQty(item.id, reservations),
-        availableQty(
-          item.qty,
-          reservations.filter((line) => line.itemId === item.id),
-        ),
+        availableQty(item.qty, itemLines(item.id)),
+        overHeldQty(item.qty, itemLines(item.id)),
         STOCK_UNIT_LABEL[item.unit],
       ]),
     );

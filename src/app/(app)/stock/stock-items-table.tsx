@@ -1,7 +1,11 @@
 import { Boxes } from "lucide-react";
 import { DataTable } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
-import { availableQty, STOCK_UNIT_LABEL } from "@/lib/domain/reservation";
+import {
+  availableQty,
+  overHeldQty,
+  STOCK_UNIT_LABEL,
+} from "@/lib/domain/reservation";
 import { formatQuantity } from "@/lib/format/quantity";
 import { heldQty } from "./reservation-filters";
 import type { Reservation, StockItem } from "./stock-data";
@@ -63,16 +67,24 @@ export function StockItemsTable({
           key: "available",
           header: "Available",
           numeric: true,
-          cell: (item) => (
-            <span className="font-semibold">
-              {formatQuantity(
-                availableQty(
-                  item.qty,
-                  reservations.filter((line) => line.itemId === item.id),
-                ),
-              )}
-            </span>
-          ),
+          cell: (item) => {
+            const lines = reservations.filter(
+              (line) => line.itemId === item.id,
+            );
+            const over = overHeldQty(item.qty, lines);
+            return (
+              <div className="flex flex-col items-end">
+                <span className="font-semibold">
+                  {formatQuantity(availableQty(item.qty, lines))}
+                </span>
+                {over > 0 ? (
+                  <span className="text-xs text-warn">
+                    over-held by {formatQuantity(over)}
+                  </span>
+                ) : null}
+              </div>
+            );
+          },
         },
         {
           key: "actions",

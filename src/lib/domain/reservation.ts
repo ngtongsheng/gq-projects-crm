@@ -70,18 +70,28 @@ const HELD: readonly ReservationStatus[] = ["reserved", "po_issued"];
 
 export const isLive = (status: ReservationStatus) => LIVE.includes(status);
 
-/**
- * What can still be promised: the stock on hand less live holds (an expired hold stays live
- * until released) and delivered lines, which are sold. Never below zero.
- */
-export function availableQty(
-  qty: number,
-  reservations: readonly { status: ReservationStatus; qty: number }[],
-): number {
-  const taken = reservations
+type QtyLine = { status: ReservationStatus; qty: number };
+
+/** Live holds (an expired hold stays live until released) plus delivered lines, which are sold. */
+const takenQty = (reservations: readonly QtyLine[]) =>
+  reservations
     .filter((line) => isLive(line.status) || line.status === "delivered")
     .reduce((sum, line) => sum + line.qty, 0);
-  return Math.max(0, roundQuantity(qty - taken));
+
+/** What can still be promised: the stock on hand less what is taken. Never below zero. */
+export function availableQty(
+  qty: number,
+  reservations: readonly QtyLine[],
+): number {
+  return Math.max(0, roundQuantity(qty - takenQty(reservations)));
+}
+
+/** How far the lines taken exceed the stock on hand, or 0. Happens when on hand is corrected down. */
+export function overHeldQty(
+  qty: number,
+  reservations: readonly QtyLine[],
+): number {
+  return Math.max(0, roundQuantity(takenQty(reservations) - qty));
 }
 
 export type HoldState =

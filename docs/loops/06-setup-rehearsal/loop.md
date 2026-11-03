@@ -18,8 +18,8 @@ the runbook.
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
 | 01 | SETUP.md preflight step (macOS version, admin) + push gq-setup | done | – | sonnet/high |
-| 02 | Rehearsal runbook + observation sheet | in-progress | 01 | sonnet/high |
-| 03 | Owner: run rehearsal in fresh macOS user, fill the sheet | todo | 02 | owner |
+| 02 | Rehearsal runbook + observation sheet | done | 01 | sonnet/high |
+| 03 | Owner: run rehearsal in fresh macOS user, fill the sheet | blocked: owner — run rehearsal per assets/rehearsal-runbook.md, fill assets/rehearsal-sheet.md | 02 | owner |
 | 04 | Fix rehearsal findings; owner re-pastes link to confirm repair path | todo | 03 | opus/medium |
 | 05 | Meeting runbook in docs/onboarding.md | todo | 04 | sonnet/high |
 | 06 | Owner: Vicky's test-copy admin, wake test copy, clean up rehearsal | todo | 05 | owner |
@@ -40,3 +40,7 @@ the runbook.
 2026-11-03 · #01 · decision · orchestrator verified the commit locally (13 added lines, only additions) and did not retry the denied push · live-on-push repo, owner's call
 2026-11-03 · #01 · done · owner pushed gq-setup 5b24950; raw main shows step 0b · next #02
 2026-11-03 · #02 · in-progress · subagent sonnet/high
+2026-11-03 · #02 · done · rehearsal-runbook.md (27 steps) + rehearsal-sheet.md; B1-B12 all covered, pnpm check passes
+2026-11-03 · #02 · decision · rehearsal user named `gqtest`; added "Whole session" row for B6; runbook's example sign-in is a placeholder, owner picks a seeded admin
+2026-11-03 · #03 · blocked: owner · run the rehearsal in a fresh macOS admin user; #04-#06 wait on the filled sheet
+2026-11-03 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-03-loop-06-setup-rehearsal.md

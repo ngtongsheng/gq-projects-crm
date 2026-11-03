@@ -63,3 +63,4 @@ and the loop PR is merged. Prototype screens (findings 54, 56-58, 65, 66) are ou
 2026-11-03 · #09 · decision · followed D1 (bd and sales) over prototype seeProj (bd only for passed_by); stock page tolerates hidden projects; projects person filter label left as is · smallest change
 2026-11-03 · #10 · started · subagent haiku/low
 2026-11-03 · #10 · done · 102 files, 917 tests pass, guard clean, debt.md grep empty · vault + merge
+2026-11-03 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-03-loop-07-debt-fixes.md

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -9,20 +9,33 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { type SetPasswordState, setPassword } from "./actions";
 
-const initialState: SetPasswordState = { error: null };
+const initialState: SetPasswordState = { error: null, linkVerified: false };
 
 type SetPasswordFormProps = { tokenHash: string; type: string };
 
 export function SetPasswordForm({ tokenHash, type }: SetPasswordFormProps) {
-  const [state, formAction, pending] = useActionState(
-    setPassword,
-    initialState,
-  );
+  const [state, setState] = useState(initialState);
+  const [pending, startTransition] = useTransition();
+
+  function save(formData: FormData, form: HTMLFormElement) {
+    startTransition(async () => {
+      const result = await setPassword(formData);
+      setState(result);
+      // Both fields are passwords, so a refused save clears them.
+      if (result.error) form.reset();
+    });
+  }
 
   return (
-    <form action={formAction}>
+    <form onSubmit={submitKeepingValues(save)}>
+      <input
+        type="hidden"
+        name="link_verified"
+        value={String(state.linkVerified)}
+      />
       <input type="hidden" name="token_hash" value={tokenHash} />
       <input type="hidden" name="type" value={type} />
       <FieldGroup>

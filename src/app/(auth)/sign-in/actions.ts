@@ -5,10 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export type SignInState = { error: string | null };
 
-export async function signIn(
-  _previous: SignInState,
-  formData: FormData,
-): Promise<SignInState> {
+export async function signIn(formData: FormData): Promise<SignInState> {
   const email = formData.get("email");
   const password = formData.get("password");
   if (typeof email !== "string" || typeof password !== "string") {

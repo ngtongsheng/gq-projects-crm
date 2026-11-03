@@ -24,8 +24,8 @@ and the loop PR is merged. Prototype screens (findings 54, 56-58, 65, 66) are ou
 | 04 | Atomic customer + new company save (31) | done | 01 | sonnet/high |
 | 05 | Payment cap in the database (49) | done | 01 | sonnet/high |
 | 06 | Payout cap in SQL + parity test (20) | done | 01 | opus/medium |
-| 07 | Set-password retry (45) + 3 forms keep values (59) | in-progress | - | sonnet/high |
-| 08 | Stock over-held display (64) | todo | - | sonnet/medium |
+| 07 | Set-password retry (45) + 3 forms keep values (59) | done | - | sonnet/high |
+| 08 | Stock over-held display (64) | in-progress | - | sonnet/medium |
 | 09 | Projects own-only for salespeople (55) | todo | 01 | opus/medium |
 | 10 | Final checks, debt.md and decisions.md cleanup | todo | 02, 03, 04, 05, 06, 07, 08, 09 | haiku/low |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
@@ -53,3 +53,6 @@ and the loop PR is merged. Prototype screens (findings 54, 56-58, 65, 66) are ou
 2026-11-03 · #06 · done · 100 files, 902 tests pass, 30 parity cases, guard clean · #07
 2026-11-03 · #06 · decision · SQL settings fall back per field (TS falls back all-or-nothing); only differs on corrupt settings · app validation prevents it
 2026-11-03 · #07 · started · subagent sonnet/high
+2026-11-03 · #07 · done · 101 files, 907 tests pass · #08
+2026-11-03 · #07 · decision · session reuse gated by link_verified form flag; unused _previous param removed from 3 actions · stops a signed-in admin changing own password via someone else's link
+2026-11-03 · #08 · started · subagent sonnet/medium

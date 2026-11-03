@@ -21,8 +21,8 @@ and the loop PR is merged. Prototype screens (findings 54, 56-58, 65, 66) are ou
 | 01 | PGlite harness + first test | done | - | opus/medium |
 | 02 | Tests for loop 05 database rules | done | 01 | sonnet/high |
 | 03 | Atomic MOF save (14) | done | 01 | opus/medium |
-| 04 | Atomic customer + new company save (31) | in-progress | 01 | sonnet/high |
-| 05 | Payment cap in the database (49) | todo | 01 | sonnet/high |
+| 04 | Atomic customer + new company save (31) | done | 01 | sonnet/high |
+| 05 | Payment cap in the database (49) | in-progress | 01 | sonnet/high |
 | 06 | Payout cap in SQL + parity test (20) | todo | 01 | opus/medium |
 | 07 | Set-password retry (45) + 3 forms keep values (59) | todo | - | sonnet/high |
 | 08 | Stock over-held display (64) | todo | - | sonnet/medium |
@@ -44,3 +44,6 @@ and the loop PR is merged. Prototype screens (findings 54, 56-58, 65, 66) are ou
 2026-11-03 · #03 · done · 97 files, 847 tests pass, guard clean · #04
 2026-11-03 · #03 · decision · cost refusal message keyed on error text containing mof_costs; unknown line ids still update nothing (old behaviour kept) · smallest change
 2026-11-03 · #04 · started · subagent sonnet/high
+2026-11-03 · #04 · done · 98 files, 860 tests pass, guard clean · #05
+2026-11-03 · #04 · decision · not-owner update raises 42501, action shows generic retry message · pre-checks already give the specific message
+2026-11-03 · #05 · started · subagent sonnet/high

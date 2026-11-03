@@ -17,7 +17,7 @@ the runbook.
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | SETUP.md preflight step (macOS version, admin) + push gq-setup | todo | – | sonnet/high |
+| 01 | SETUP.md preflight step (macOS version, admin) + push gq-setup | blocked: owner — run `git -C ~/work/projects/gq-setup push origin main` | – | sonnet/high |
 | 02 | Rehearsal runbook + observation sheet | todo | 01 | sonnet/high |
 | 03 | Owner: run rehearsal in fresh macOS user, fill the sheet | todo | 02 | owner |
 | 04 | Fix rehearsal findings; owner re-pastes link to confirm repair path | todo | 03 | opus/medium |
@@ -28,9 +28,14 @@ the runbook.
 - #03: create a fresh macOS admin user, sign in to Claude Desktop there, run the rehearsal per
   `assets/rehearsal-runbook.md` (written by #02), fill `assets/rehearsal-sheet.md`. Make the throwaway GitHub account
   during setup step 5 and send its invite (onboarding.md section 1) when setup step 7 asks.
+- #01: run `git -C ~/work/projects/gq-setup push origin main`, then `curl -s https://raw.githubusercontent.com/ngtongsheng/gq-setup/main/SETUP.md | grep -c "0b"` must print 1 or more. Then re-run /execute-loop.
 - #04: after fixes are pushed, paste the setup link again in the rehearsal user; confirm every step reports "already
   done" or passes.
 - #06: steps in `tasks/06-owner-meeting-prep.md`.
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-03 · plan · loop written · /execute-loop docs/loops/06-setup-rehearsal
+2026-11-03 · #01 · in-progress · subagent sonnet/high
+2026-11-03 · #01 · blocked: owner · preflight step "0b" committed in gq-setup (5b24950, macOS >= 13.5 per nodejs BUILDING.md v24.x, admin check); push to main denied by permissions · owner pushes, then verify `curl -s https://raw.githubusercontent.com/ngtongsheng/gq-setup/main/SETUP.md | grep -c "0b"` >= 1
+2026-11-03 · #01 · decision · orchestrator verified the commit locally (13 added lines, only additions) and did not retry the denied push · live-on-push repo, owner's call
+2026-11-03 · #02-#06 · blocked: depends on #01 · resume with /execute-loop after the push

@@ -28,7 +28,7 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 | 08 | Audit + fix: reports, dashboard, shared components, auth, guide, dev | done | 02, 03 | sonnet/high |
 | 09 | Cross-module fixes from findings | done | 04, 05, 06, 07, 08 | opus/medium |
 | 10 | Smoke test vs prototype: sales side | done | 09 | sonnet/high |
-| 11 | Smoke test vs prototype: operations side + summary | in-progress | 10 | sonnet/high |
+| 11 | Smoke test vs prototype: operations side + summary | done | 10 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Before #01: create `.env.seed.dev` (test copy only), run `pnpm seed:example`, and write the printed sign-ins to
@@ -76,3 +76,5 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 2026-11-03 · #10 · decision · payment cap (49) app-only + debt, sales reading every project (55) left for owner, prototype gaps 54-58 debt · no SQL harness here; 55 changes who sees what (get-help)
 2026-11-03 · #10 · done: rows 48-59, 6 fixed, 6 debt; 779 tests pass; results in smoke-results.md · #11
 2026-11-03 · #11 · in-progress · subagent sonnet/high
+2026-11-03 · #11 · decision · one-class fixes in shadcn dialog.tsx/select.tsx for overflow; delivery job saves with unticked checks (prototype only warns) · fixes every dialog at once; matches prototype
+2026-11-03 · #11 · done: rows 60-66, 4 fixed (7573b7a c0f8a52 ba2616c), 3 debt; 779 tests pass. Loop total 66 findings: 52 fixed, 14 debt · merge

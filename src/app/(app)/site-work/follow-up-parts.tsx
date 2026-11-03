@@ -33,6 +33,7 @@ import {
   type FollowUpOwner,
 } from "@/lib/domain/site-log";
 import { isOneOf } from "@/lib/form/one-of";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { addFollowUp, setFollowUpDone } from "./actions";
 
 /** Adds an action to a visit, with who owns it and when it is due. */
@@ -74,7 +75,7 @@ export function FollowUpDialog({
             Whoever owns it, or a manager, ticks it off when it is done.
           </DialogDescription>
         </DialogHeader>
-        <form action={save}>
+        <form onSubmit={submitKeepingValues(save)}>
           <input type="hidden" name="mofId" value={mofId} />
           <input type="hidden" name="siteLogId" value={siteLogId} />
           <input type="hidden" name="ownerGroup" value={owner} />

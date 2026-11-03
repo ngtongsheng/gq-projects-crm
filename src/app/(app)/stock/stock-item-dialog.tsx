@@ -33,6 +33,7 @@ import {
   type StockUnit,
 } from "@/lib/domain/reservation";
 import { isOneOf } from "@/lib/form/one-of";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { saveStockItem } from "./actions";
 import type { StockItem } from "./stock-data";
 
@@ -75,7 +76,7 @@ export function StockItemDialog({ item }: { item?: StockItem }) {
             One line per SKU. Quantity is what is on hand.
           </DialogDescription>
         </DialogHeader>
-        <form action={save}>
+        <form onSubmit={submitKeepingValues(save)}>
           <input type="hidden" name="itemId" value={item?.id ?? ""} />
           <input type="hidden" name="unit" value={unit} />
           <FieldGroup>

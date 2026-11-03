@@ -40,6 +40,7 @@ import {
   suggestLeftoverDestination,
 } from "@/lib/domain/leftover";
 import { isOneOf } from "@/lib/form/one-of";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { recordLeftover } from "./actions";
 
 /** Records an item left over at the site. Purchasing arranges the pickup afterwards. */
@@ -98,7 +99,7 @@ export function RecordLeftoverDialog({ mofId }: { mofId: string }) {
             pickup.
           </DialogDescription>
         </DialogHeader>
-        <form action={save}>
+        <form onSubmit={submitKeepingValues(save)}>
           <input type="hidden" name="mofId" value={mofId} />
           <input type="hidden" name="unit" value={unit} />
           <input type="hidden" name="condition" value={condition} />

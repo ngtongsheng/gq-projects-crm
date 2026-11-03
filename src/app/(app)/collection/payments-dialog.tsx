@@ -19,6 +19,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { formatDate } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
 import { recordPayment, removePayment } from "./actions";
@@ -48,11 +49,14 @@ export function PaymentsDialog({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  function save(formData: FormData) {
+  function save(formData: FormData, form: HTMLFormElement) {
     startTransition(async () => {
       const result = await recordPayment(formData);
       setError(result.error);
-      if (!result.error) toast.success("Payment recorded.");
+      if (!result.error) {
+        toast.success("Payment recorded.");
+        form.reset();
+      }
     });
   }
 
@@ -118,7 +122,7 @@ export function PaymentsDialog({
         )}
 
         {canEnter && (
-          <form action={save}>
+          <form onSubmit={submitKeepingValues(save)}>
             <input type="hidden" name="mofId" value={mofId} />
             <FieldGroup>
               <div className="grid grid-cols-2 gap-4">

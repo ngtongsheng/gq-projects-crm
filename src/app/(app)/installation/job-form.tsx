@@ -38,6 +38,7 @@ import {
   TRANSPORTERS,
 } from "@/lib/domain/delivery-status";
 import { isOneOf } from "@/lib/form/one-of";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { saveJob } from "./actions";
 
 export type JobRow = {
@@ -148,7 +149,7 @@ export function JobForm({
   }
 
   return (
-    <form action={save}>
+    <form onSubmit={submitKeepingValues(save)}>
       <input type="hidden" name="mofId" value={mofId} />
       {job && <input type="hidden" name="jobId" value={job.id} />}
       <input type="hidden" name="jobType" value={jobType} />

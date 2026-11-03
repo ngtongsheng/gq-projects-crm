@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { HIGHLIGHT_ROWS, type ReportKind } from "@/lib/domain/report-stats";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { type ReportResult, saveReportDraft, submitReport } from "./actions";
 import type { Highlight } from "./report-data";
 
@@ -44,10 +45,12 @@ export function ReportForm(props: ReportFormProps) {
         if (!result.error && result.message) toast.success(result.message);
       });
   }
+  const saveDraft = run(saveReportDraft);
+  const submit = run(submitReport);
 
   return (
     <form
-      action={run(saveReportDraft)}
+      onSubmit={submitKeepingValues(saveDraft)}
       className="rounded-xl border bg-card p-4"
     >
       <input type="hidden" name="month" value={props.month} />
@@ -116,9 +119,12 @@ export function ReportForm(props: ReportFormProps) {
             Save draft
           </Button>
           <Button
-            type="submit"
-            formAction={run(submitReport)}
+            type="button"
             disabled={pending}
+            onClick={(event) => {
+              const form = event.currentTarget.form;
+              if (form) submit(new FormData(form));
+            }}
           >
             Submit report
           </Button>

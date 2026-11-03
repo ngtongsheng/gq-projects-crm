@@ -20,6 +20,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { saveStockSettings } from "./actions";
 import type { StockSettings } from "./stock-settings";
 
@@ -55,7 +56,7 @@ export function StockSettingsDialog({ settings }: { settings: StockSettings }) {
             Apply to holds confirmed or extended from now on.
           </DialogDescription>
         </DialogHeader>
-        <form action={save}>
+        <form onSubmit={submitKeepingValues(save)}>
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="holdDays">Hold (days)</FieldLabel>

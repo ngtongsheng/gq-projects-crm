@@ -34,6 +34,7 @@ import {
   DEFAULT_BOOKING_TIME,
 } from "@/lib/domain/site-booking";
 import { isOneOf } from "@/lib/form/one-of";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { requestBooking } from "./booking-actions";
 import type { BookableProject } from "./booking-data";
 
@@ -96,7 +97,7 @@ function BookingForm({
   }
 
   return (
-    <form action={save}>
+    <form onSubmit={submitKeepingValues(save)}>
       <input type="hidden" name="supervisorId" value={supervisor} />
       <input type="hidden" name="purpose" value={purpose} />
       <input

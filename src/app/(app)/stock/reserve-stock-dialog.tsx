@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { STOCK_UNIT_LABEL, type StockUnit } from "@/lib/domain/reservation";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { formatQuantity } from "@/lib/format/quantity";
 import { reserveStock } from "./actions";
 
@@ -101,7 +102,7 @@ export function ReserveStockDialog({
               : "Whoever arranges stock checks it and confirms. You will see it turn to Reserved."}
           </DialogDescription>
         </DialogHeader>
-        <form action={save}>
+        <form onSubmit={submitKeepingValues(save)}>
           <input type="hidden" name="itemId" value={itemId} />
           <input type="hidden" name="projectId" value={projectId} />
           <input type="hidden" name="reservedBy" value={reservedBy} />

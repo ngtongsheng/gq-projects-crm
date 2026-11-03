@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { orderTotal } from "@/lib/domain/mof-totals";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { formatRm, parseRm } from "@/lib/format/money";
 import { AccountType, AccountTypeLabel } from "../customers/schemas";
 import { saveMof } from "./actions";
@@ -129,7 +130,7 @@ export function MofForm({
   }
 
   return (
-    <form action={save}>
+    <form onSubmit={submitKeepingValues(save)}>
       {editing && <input type="hidden" name="mofId" value={draft.id} />}
       <fieldset disabled={!canEdit || pending} className="flex flex-col gap-4">
         <Section title="Order">

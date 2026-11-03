@@ -37,6 +37,7 @@ import {
   type LeftoverStatus,
 } from "@/lib/domain/leftover";
 import { isOneOf } from "@/lib/form/one-of";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { updateLeftover } from "./actions";
 import type { Leftover } from "./leftover-data";
 
@@ -78,7 +79,7 @@ export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
             {leftover.mofNo} · {leftover.projectName}
           </DialogDescription>
         </DialogHeader>
-        <form action={save}>
+        <form onSubmit={submitKeepingValues(save)}>
           <input type="hidden" name="leftoverId" value={leftover.id} />
           <input type="hidden" name="status" value={status} />
           <input type="hidden" name="condition" value={condition} />

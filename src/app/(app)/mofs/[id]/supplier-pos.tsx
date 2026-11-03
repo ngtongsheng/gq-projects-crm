@@ -40,6 +40,7 @@ import {
   supplierPoEta,
   supplierPoNumber,
 } from "@/lib/domain/supplier-po";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { formatDate } from "@/lib/format/date";
 import { saveSupplierPo } from "../supplier-po-actions";
 
@@ -140,7 +141,7 @@ function SupplierPoForm({
   }
 
   return (
-    <form action={save}>
+    <form onSubmit={submitKeepingValues(save)}>
       <input type="hidden" name="mofId" value={mofId} />
       {po && <input type="hidden" name="poId" value={po.id} />}
       <FieldGroup>

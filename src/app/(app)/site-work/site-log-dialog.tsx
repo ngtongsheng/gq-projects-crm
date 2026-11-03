@@ -35,6 +35,7 @@ import {
   type SiteActivity,
 } from "@/lib/domain/site-log";
 import { isOneOf } from "@/lib/form/one-of";
+import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { addSiteLog } from "./actions";
 
 type SiteLogDialogProps = {
@@ -76,7 +77,7 @@ export function SiteLogDialog({ mofId, today }: SiteLogDialogProps) {
             Add follow-up actions to the visit once it is saved.
           </DialogDescription>
         </DialogHeader>
-        <form action={save}>
+        <form onSubmit={submitKeepingValues(save)}>
           <input type="hidden" name="mofId" value={mofId} />
           <input type="hidden" name="activity" value={activity} />
           <FieldGroup>

@@ -120,31 +120,47 @@ function form(
   return data;
 }
 
-const ok: Result = { data: null, error: null };
-const inserted: Result = { data: { id: MOF }, error: null };
+const saved: Result = { data: MOF, error: null };
 const existing = (contractSum = 12500, voAmount = 0): Result => ({
   data: { contract_sum: contractSum, vo_amount: voAmount },
   error: null,
 });
-const updated: Result = { data: [{ id: MOF }], error: null };
-const noRows: Result = { data: [], error: null };
-const refused: Result = { data: null, error: { code: "42501" } };
+const refused = (message = ""): Result => ({
+  data: null,
+  error: { code: "42501", message },
+});
 
-const tables = (calls: Call[]) => calls.map((call) => call.table);
+type SavePayload = {
+  mof_id: string | null;
+  mof: Record<string, unknown>;
+  lines: Record<string, unknown>[];
+  reason: string;
+  cost: number | null;
+};
+
+/** The one save_mof call; there must be exactly one. */
+function savePayload(calls: Call[]): SavePayload {
+  const saves = calls.filter((call) => call.table === "rpc:save_mof");
+  expect(saves).toHaveLength(1);
+  return saves[0]?.payload as SavePayload;
+}
 
 describe("saveMof: register a new MOF", () => {
   beforeEach(() => {
     vi.mocked(getCurrentProfile).mockReset();
   });
 
-  it("registers the MOF with its lines in m2", async () => {
+  it("registers the MOF with its lines in m2 in one call", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("support"));
-    const calls = fakeSupabase([inserted, ok, ok]);
+    const calls = fakeSupabase([saved]);
 
     const result = await saveMof(form());
 
     expect(result).toEqual({ error: null, mofId: MOF });
-    expect(calls[0]?.payload).toMatchObject({
+    expect(calls).toHaveLength(1);
+    const payload = savePayload(calls);
+    expect(payload.mof_id).toBeNull();
+    expect(payload.mof).toMatchObject({
       mof_no: "MOF-2611",
       salesperson_id: SALES,
       contract_sum: 12500,
@@ -153,9 +169,9 @@ describe("saveMof: register a new MOF", () => {
       payment_checked: true,
       approvals_in_writing: false,
     });
-    expect(calls[2]?.payload).toEqual([
+    expect(payload.lines).toEqual([
       {
-        mof_id: MOF,
+        id: null,
         product: "Carpet Tile",
         stock_type: "indent",
         supplier: "Unijoy",
@@ -164,7 +180,7 @@ describe("saveMof: register a new MOF", () => {
         area_m2: 92.9,
       },
     ]);
-    expect(tables(calls)).not.toContain("mof_costs");
+    expect(payload.cost).toBeNull();
   });
 
   it("refuses a salesperson", async () => {
@@ -179,15 +195,12 @@ describe("saveMof: register a new MOF", () => {
 
   it("lets HR & Accounts set the cost", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("accounts"));
-    const calls = fakeSupabase([inserted, ok, ok, noRows, ok]);
+    const calls = fakeSupabase([saved]);
 
     const result = await saveMof(form({ cost: "RM 8,000" }));
 
     expect(result.error).toBeNull();
-    expect(calls[4]).toMatchObject({
-      table: "mof_costs",
-      payload: { mof_id: MOF, cost: 8000 },
-    });
+    expect(savePayload(calls).cost).toBe(8000);
   });
 
   it("reports a MOF number already registered", async () => {
@@ -199,6 +212,18 @@ describe("saveMof: register a new MOF", () => {
     const result = await saveMof(form());
 
     expect(result.error).toMatch(/already registered/);
+  });
+
+  it("asks to try again when the save fails part-way", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    fakeSupabase([
+      { data: null, error: { code: "23514", message: "mof_lines_check" } },
+    ]);
+
+    const result = await saveMof(form());
+
+    expect(result.error).toBe("Could not save the MOF. Try again.");
   });
 });
 
@@ -222,7 +247,12 @@ describe("saveMof: cost is for managers only", () => {
 
   it("reports the database refusing a cost", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
-    fakeSupabase([existing(), updated, ok, ok, noRows, refused]);
+    fakeSupabase([
+      existing(),
+      refused(
+        'new row violates row-level security policy for table "mof_costs"',
+      ),
+    ]);
 
     const result = await saveMof(form({ mofId: MOF, cost: "8000" }));
 
@@ -231,12 +261,12 @@ describe("saveMof: cost is for managers only", () => {
 
   it("leaves the cost alone when it is blank", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
-    const calls = fakeSupabase([existing(), updated, ok, ok]);
+    const calls = fakeSupabase([existing(), saved]);
 
     const result = await saveMof(form({ mofId: MOF, cost: "" }));
 
     expect(result.error).toBeNull();
-    expect(tables(calls)).not.toContain("mof_costs");
+    expect(savePayload(calls).cost).toBeNull();
   });
 });
 
@@ -257,8 +287,8 @@ describe("saveMof: order total", () => {
     expect(calls).toHaveLength(1);
   });
 
-  it("changes the total through update_mof_total with the reason", async () => {
-    const calls = fakeSupabase([existing(), updated, ok, ok, ok]);
+  it("sends the new total with the reason", async () => {
+    const calls = fakeSupabase([existing(), saved]);
 
     const result = await saveMof(
       form({
@@ -269,26 +299,20 @@ describe("saveMof: order total", () => {
     );
 
     expect(result.error).toBeNull();
-    expect(calls[1]?.payload).not.toHaveProperty("contract_sum");
-    expect(calls[1]?.payload).not.toHaveProperty("vo_amount");
-    expect(calls[4]).toMatchObject({
-      table: "rpc:update_mof_total",
-      payload: {
-        mof_id: MOF,
-        contract_sum: 12500,
-        vo_amount: -400,
-        reason: "CN-0412: 40 m² returned",
-      },
+    expect(savePayload(calls)).toMatchObject({
+      mof_id: MOF,
+      mof: { contract_sum: 12500, vo_amount: -400 },
+      reason: "CN-0412: 40 m² returned",
     });
   });
 
   it("needs no reason when the total is unchanged", async () => {
-    const calls = fakeSupabase([existing(), updated, ok, ok]);
+    const calls = fakeSupabase([existing(), saved]);
 
     const result = await saveMof(form({ mofId: MOF }));
 
     expect(result.error).toBeNull();
-    expect(tables(calls)).not.toContain("rpc:update_mof_total");
+    expect(savePayload(calls).reason).toBe("");
   });
 });
 
@@ -298,8 +322,8 @@ describe("saveMof: product lines", () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
   });
 
-  it("removes dropped lines, changes kept ones and adds new ones", async () => {
-    const calls = fakeSupabase([existing(), updated, ok, ok, ok]);
+  it("marks kept lines by id and new ones without", async () => {
+    const calls = fakeSupabase([existing(), saved]);
 
     const result = await saveMof(
       form({ mofId: MOF }, [
@@ -314,15 +338,9 @@ describe("saveMof: product lines", () => {
     );
 
     expect(result.error).toBeNull();
-    expect(calls[2]).toMatchObject({ table: "mof_lines" });
-    expect(calls[2]?.steps).toEqual(["delete", "eq", "not"]);
-    expect(calls[2]?.args).toContain(`(${LINE})`);
-    expect(calls[3]?.payload).toMatchObject({ qty: 250, area_m2: 250 });
-    expect(calls[3]?.args).toEqual(
-      expect.arrayContaining(["id", LINE, "mof_id", MOF]),
-    );
-    expect(calls[4]?.payload).toEqual([
-      expect.objectContaining({ mof_id: MOF, unit: "roll", area_m2: 120.5 }),
+    expect(savePayload(calls).lines).toEqual([
+      expect.objectContaining({ id: LINE, qty: 250, area_m2: 250 }),
+      expect.objectContaining({ id: null, unit: "roll", area_m2: 120.5 }),
     ]);
   });
 
@@ -375,8 +393,16 @@ describe("saveMof: existing MOF", () => {
     expect(result.error).toMatch(/Reload/);
   });
 
+  it("reports a MOF removed while saving", async () => {
+    fakeSupabase([existing(), { data: null, error: { code: "P0002" } }]);
+
+    const result = await saveMof(form({ mofId: MOF }));
+
+    expect(result.error).toMatch(/Reload/);
+  });
+
   it("reports a change the database refused", async () => {
-    fakeSupabase([existing(), noRows]);
+    fakeSupabase([existing(), refused()]);
 
     const result = await saveMof(form({ mofId: MOF }));
 

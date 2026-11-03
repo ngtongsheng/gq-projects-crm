@@ -79,3 +79,4 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 2026-11-03 · #11 · decision · one-class fixes in shadcn dialog.tsx/select.tsx for overflow; delivery job saves with unticked checks (prototype only warns) · fixes every dialog at once; matches prototype
 2026-11-03 · #11 · done: rows 60-66, 4 fixed (7573b7a c0f8a52 ba2616c), 3 debt; 779 tests pass. Loop total 66 findings: 52 fixed, 14 debt · merge
 2026-11-03 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-02-loop-05-audit-smoke.md
+2026-11-03 · merge · PR #17 checks green (checks, migration-guard, migrate-dev, Vercel) · merged to main

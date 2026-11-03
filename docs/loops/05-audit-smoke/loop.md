@@ -27,8 +27,8 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 | 07 | Audit + fix: installation, site work, overtime | done | 02, 03 | sonnet/high |
 | 08 | Audit + fix: reports, dashboard, shared components, auth, guide, dev | done | 02, 03 | sonnet/high |
 | 09 | Cross-module fixes from findings | done | 04, 05, 06, 07, 08 | opus/medium |
-| 10 | Smoke test vs prototype: sales side | in-progress | 09 | sonnet/high |
-| 11 | Smoke test vs prototype: operations side + summary | todo | 10 | sonnet/high |
+| 10 | Smoke test vs prototype: sales side | done | 09 | sonnet/high |
+| 11 | Smoke test vs prototype: operations side + summary | in-progress | 10 | sonnet/high |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Before #01: create `.env.seed.dev` (test copy only), run `pnpm seed:example`, and write the printed sign-ins to
@@ -70,5 +70,9 @@ project rules and fixed, and every module is smoke tested on localhost (test cop
 2026-11-02 · #10 · blocked: owner — .env.smoke.local missing in main repo root (smoke-method needs per-role sign-ins) · owner writes it, then /execute-loop
 2026-11-02 · #11 · waiting on #10 · -
 2026-11-02 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-02-loop-05-audit-smoke.md (updated)
-2026-11-03 · seed · fix(seed) 8e7d675..HEAD: reset clears app-added rows under example records (walk-through data blocked FKs); owner ran seed, .env.smoke.local written
+2026-11-03 · seed · fix(seed) 47a7eaa: reset clears app-added rows under example records (walk-through data blocked FKs); owner ran seed, .env.smoke.local written
 2026-11-03 · #10 · in-progress · subagent sonnet/high
+2026-11-03 · #10 · decision · plan gap: global deny Read(**/.env.*) blocked .env.smoke.local; owner narrowed the rule · D2 assumed agents could read it
+2026-11-03 · #10 · decision · payment cap (49) app-only + debt, sales reading every project (55) left for owner, prototype gaps 54-58 debt · no SQL harness here; 55 changes who sees what (get-help)
+2026-11-03 · #10 · done: rows 48-59, 6 fixed, 6 debt; 779 tests pass; results in smoke-results.md · #11
+2026-11-03 · #11 · in-progress · subagent sonnet/high

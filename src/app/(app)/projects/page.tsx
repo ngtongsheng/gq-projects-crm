@@ -122,7 +122,11 @@ export default async function ProjectsPage({
     <div className="flex flex-col gap-4">
       <PageHeader
         title="Projects"
-        description="Every deal by stage. Add a project from the customer's page."
+        description={
+          me.jobRole === "bd" || me.jobRole === "sales"
+            ? "Your deals by stage: the ones you lead, support or passed down. Add a project from the customer's page."
+            : "Every deal by stage. Add a project from the customer's page."
+        }
       />
       <form action="/projects" className="flex flex-wrap items-center gap-2">
         <input type="hidden" name="view" value={filters.view} />

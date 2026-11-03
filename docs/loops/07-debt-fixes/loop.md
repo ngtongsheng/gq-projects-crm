@@ -26,8 +26,8 @@ and the loop PR is merged. Prototype screens (findings 54, 56-58, 65, 66) are ou
 | 06 | Payout cap in SQL + parity test (20) | done | 01 | opus/medium |
 | 07 | Set-password retry (45) + 3 forms keep values (59) | done | - | sonnet/high |
 | 08 | Stock over-held display (64) | done | - | sonnet/medium |
-| 09 | Projects own-only for salespeople (55) | in-progress | 01 | opus/medium |
-| 10 | Final checks, debt.md and decisions.md cleanup | todo | 02, 03, 04, 05, 06, 07, 08, 09 | haiku/low |
+| 09 | Projects own-only for salespeople (55) | done | 01 | opus/medium |
+| 10 | Final checks, debt.md and decisions.md cleanup | in-progress | 02, 03, 04, 05, 06, 07, 08, 09 | haiku/low |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - End: if auto mode denies `gh pr merge` (D7), merge the loop PR yourself.
@@ -59,3 +59,6 @@ and the loop PR is merged. Prototype screens (findings 54, 56-58, 65, 66) are ou
 2026-11-03 · #08 · done · 101 files, 910 tests pass · #09
 2026-11-03 · #08 · decision · over-held counts delivered lines like Available does; stock CSV gets Over-held by column · row never shows 0 available unexplained
 2026-11-03 · #09 · started · subagent opus/medium
+2026-11-03 · #09 · done · 102 files, 917 tests pass, guard clean · #10
+2026-11-03 · #09 · decision · followed D1 (bd and sales) over prototype seeProj (bd only for passed_by); stock page tolerates hidden projects; projects person filter label left as is · smallest change
+2026-11-03 · #10 · started · subagent haiku/low

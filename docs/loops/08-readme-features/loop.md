@@ -16,8 +16,8 @@ app screen with a screenshot, what it does and who uses it. Docs only; merged to
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Rewrite README | todo | - | sonnet/medium |
-| 02 | Screenshots + docs/features.md | todo | - | sonnet/high |
+| 01 | Rewrite README | done | - | sonnet/medium |
+| 02 | Screenshots + docs/features.md | in-progress | - | sonnet/high |
 | 03 | README demo GIF | todo | 01 | sonnet/medium |
 | 04 | Final checks, links, PR, merge | todo | 01, 02, 03 | haiku/low |
 ## Owner actions
@@ -25,3 +25,8 @@ app screen with a screenshot, what it does and who uses it. Docs only; merged to
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-03 · plan · loop written · /execute-loop
+2026-11-03 · #01 · in-progress · delegated to sonnet/medium
+2026-11-03 · planner · closed w5:t0 after planner answered YES · -
+2026-11-03 · #01 · done · README 74 lines, pnpm check ok, links ok except features.md (task 02)
+2026-11-03 · #01 · decision · roles line "admin manages people and settings / staff day-to-day" is a guess from CLAUDE.md; docs/desktop-findings.md linked · low risk
+2026-11-03 · #02 · in-progress · delegated to sonnet/high

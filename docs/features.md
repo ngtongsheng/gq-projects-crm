@@ -101,11 +101,15 @@ change it.
 
 Used by: MD, BD Director, Sales, HR & Accounts, Purchasing.
 
+![MOF Register table with stage, checks and order totals](screenshots/mofs.jpg)
+
 ## MOF detail
 One MOF with its products, contract sum and variation orders, supplier purchase orders, delivery jobs and
 installer claims. A new MOF is registered here once the PO or LOA is received.
 
 Used by: MD, BD Director, Sales, HR & Accounts, Purchasing.
+
+![MOF detail form with order, site and contact sections](screenshots/mofs-detail.jpg)
 
 ## Site Work
 Open orders with how far each site has got, plus installer claims waiting to be verified. Accounts pays only
@@ -169,6 +173,8 @@ The rules every commission is worked out from. Per-person exceptions are set on 
 
 Used by: MD and admins.
 
+![Commission settings with rates, margin rule and late collection cuts](screenshots/commission-settings.jpg)
+
 ## Team Reports
 Monthly reports for the whole team, for salespeople and for site supervisors, with figures taken from the
 calendar, projects and MOFs. They freeze when a report is submitted. Managers open a report to review it.
@@ -184,7 +190,7 @@ Team Reports.
 
 Used by: MD, Sales Director, BD Director, HR & Accounts.
 
-![Director Report as the Sales Director sees it, pointing to Team Reports](screenshots/reports-director.jpg)
+![Director Report listing each director's monthly report and its status](screenshots/reports-director.jpg)
 
 ## Guide
 A short in-app list of the screens the signed-in role can open and what each is for.
@@ -198,3 +204,5 @@ Admins add people, set their job role, commission mode and yearly target. Admin-
 service key show a "can't be tried on your laptop" message on a local copy.
 
 Used by: admins.
+
+![People list with role, job role and settings per person](screenshots/people.jpg)

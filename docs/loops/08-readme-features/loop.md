@@ -17,9 +17,9 @@ app screen with a screenshot, what it does and who uses it. Docs only; merged to
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
 | 01 | Rewrite README | done | - | sonnet/medium |
-| 02 | Screenshots + docs/features.md | blocked: owner — 4 MD-only images missing (mofs, mofs-detail, commission-settings, people); allow reading SMOKE_MD_* or sign in as MD at localhost:3000 | - | sonnet/high |
+| 02 | Screenshots + docs/features.md | done | - | sonnet/high |
 | 03 | README demo GIF | done | 01 | sonnet/medium |
-| 04 | Final checks, links, PR, merge | todo | 01, 02, 03 | haiku/low |
+| 04 | Final checks, links, PR, merge | in-progress | 01, 02, 03 | haiku/low |
 ## Owner actions
 - None expected. `.env.smoke.local` exists in the main checkout; copy it into the worktree (gitignored).
 ## Log
@@ -47,3 +47,6 @@ app screen with a screenshot, what it does and who uses it. Docs only; merged to
 2026-11-03 · #03 · decision · clip is ~8-12 s, shorter than the 15-20 s target; accepted · re-record only if the owner wants it longer
 2026-11-03 · #04 · skipped · waits on #02 (4 MD-only images)
 2026-11-03 · vault · updated ~/work/vault/sessions/gq-projects-crm/2026-11-03-loop-08-readme-features.md
+2026-11-04 · #02 · in-progress · owner consented in chat to using the dev test credentials SMOKE_MD_* (and an admin sign-in if present) on localhost; delegating the 4 missing images
+2026-11-04 · #02 · done · all 22 screens have an image; 22 jpgs 1440 wide; reports-director re-captured as MD; /people opens for MD; pnpm check ok
+2026-11-04 · #04 · in-progress · orchestrator runs final checks and merge itself (git steps are orchestrator-only)

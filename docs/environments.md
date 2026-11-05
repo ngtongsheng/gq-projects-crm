@@ -41,8 +41,8 @@ Admins are created once per environment by `scripts/seed-admin.ts`, never by a m
 
 `pnpm seed:example` fills the test copy (`gq-crm-dev`) with fictional records for every module and creates one test sign-in per job role (`test-md@example.invalid`, `test-director@`, `test-bd@`, `test-sales@`, `test-accounts@`, `test-site@`, `test-support@`). It refuses to run unless the URL is the test copy, so it cannot touch the live app.
 
-1. Create `.env.seed.dev` (gitignored by `.env*`) with one line: `SUPABASE_SERVICE_ROLE_KEY=<secret key of gq-crm-dev>`. The URL comes from `.env.development`.
-2. Run `pnpm seed:example`. It prints row counts and each sign-in's password once; passwords change on every run and are never stored.
+1. Create `.env.seed.dev` (gitignored by `.env*`) with `SUPABASE_SERVICE_ROLE_KEY=<secret key of gq-crm-dev>`. Optional second line `SEED_TEST_PASSWORD='<password>'` (in single quotes, because `#` starts a comment) gives every test sign-in that same password (share it privately; never commit it). The URL comes from `.env.development`.
+2. Run `pnpm seed:example`. It prints row counts and each sign-in's password once; without `SEED_TEST_PASSWORD` the passwords change on every run and are never stored.
 3. Safe to re-run: example rows have fixed ids, and a run deletes only those before adding them again. Records the team added by hand stay, but a re-run stops with a message if one points at an example order.
 4. Delete `.env.seed.dev` when done.
 

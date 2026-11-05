@@ -448,9 +448,8 @@ export function buildMoney({ people, today }: BuildContext): ExampleTable[] {
     [string, keyof BuildContext["people"], string, number, number]
   > = [
     // key, person, mof, amount, days ago
-    ["pout1", "bd", "m5", 1590, 150],
-    ["pout2", "sales", "m4", 1355, 45],
-    ["pout3", "sales", "m1", 2400, 7],
+    ["pout1", "bd", "m5", 477, 150],
+    ["pout2", "sales", "m4", 731.7, 45],
   ];
   const payouts: Row[] = payoutSeeds.map(([key, person, mof, amount, ago]) => ({
     id: exampleId("commission_payouts", key),

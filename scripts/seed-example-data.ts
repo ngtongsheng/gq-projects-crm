@@ -35,7 +35,7 @@ console.log("Example rows added:");
 for (const [table, count] of Object.entries(counts)) {
   if (count > 0) console.log(`  ${table}: ${count}`);
 }
-console.log("\nTest sign-ins (passwords shown once, new on every run):");
+console.log("\nTest sign-ins:");
 for (const { jobRole, email, password } of signIns) {
   console.log(`  ${jobRole.padEnd(9)} ${email}  ${password}`);
 }

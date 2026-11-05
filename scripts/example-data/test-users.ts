@@ -8,7 +8,8 @@ export type TestSignIn = { email: string; jobRole: JobRole; password: string };
 
 /**
  * Creates (or resets the password of) one sign-in per job role and sets their profile.
- * Passwords are fresh on every run and only returned here, never stored.
+ * Every sign-in gets `SEED_TEST_PASSWORD` when it is set (so a team can share one test password
+ * kept out of git); otherwise a fresh random one per run, only returned here, never stored.
  */
 export async function ensureTestUsers(
   supabase: SupabaseClient,
@@ -21,7 +22,8 @@ export async function ensureTestUsers(
   const signIns: TestSignIn[] = [];
 
   for (const user of TEST_USERS) {
-    const password = randomBytes(12).toString("base64url");
+    const password =
+      process.env.SEED_TEST_PASSWORD || randomBytes(12).toString("base64url");
     const found = existing.users.find((u) => u.email === user.email);
     const { data, error } = found
       ? await supabase.auth.admin.updateUserById(found.id, {

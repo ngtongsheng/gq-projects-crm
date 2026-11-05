@@ -9,9 +9,14 @@ import { createClient } from "@/lib/supabase/server";
 import {
   canAddContact,
   canEditContact,
+  canRateCompany,
   canSetAccountType,
 } from "./contact-access";
-import { companyFormSchema, contactFormSchema } from "./schemas";
+import {
+  companyFormSchema,
+  companyRatingSchema,
+  contactFormSchema,
+} from "./schemas";
 
 export type DuplicateContact = {
   contactId: string;
@@ -102,7 +107,6 @@ export async function saveContact(
     name: textField(formData, "name"),
     mobile: textField(formData, "mobile"),
     title: textField(formData, "title"),
-    rating: textField(formData, "rating"),
     accountType: canChooseAccount
       ? textField(formData, "accountType")
       : (kept?.accountType ?? "own"),
@@ -128,6 +132,16 @@ export async function saveContact(
     : null;
   if (newCompany && !newCompany.success) {
     return fail(newCompany.error.issues[0]?.message ?? "Check the company.");
+  }
+
+  // An existing company's rating is the MD's or Sales Director's to change.
+  const ratingChoice = textField(formData, "rating");
+  const newRating =
+    !isNewCompany && canRateCompany(me.jobRole) && ratingChoice !== ""
+      ? companyRatingSchema.safeParse(ratingChoice)
+      : null;
+  if (newRating && !newRating.success) {
+    return fail(newRating.error.issues[0]?.message ?? "Choose a rating.");
   }
 
   const duplicateQuery = supabase
@@ -165,7 +179,6 @@ export async function saveContact(
     name: contact.data.name,
     mobile: contact.data.mobile,
     title: contact.data.title,
-    rating: contact.data.rating,
     account_type: contact.data.accountType,
     passed_by: contact.data.passedBy,
     notes: contact.data.notes,
@@ -173,16 +186,21 @@ export async function saveContact(
 
   // One call, one transaction: a new company is saved with the customer or not at all.
   // RLS hides rows the caller may not edit, which the function reports as an error.
+  // A company object with only a rating changes the rating of the company already chosen.
+  let companyPart: Record<string, unknown> | null = null;
+  if (newCompany?.success) {
+    companyPart = {
+      name: newCompany.data.name,
+      company_type: newCompany.data.companyType,
+      rating: newCompany.data.rating,
+    };
+  } else if (newRating?.success) {
+    companyPart = { rating: newRating.data };
+  }
   const { error } = await supabase.rpc("save_contact", {
     contact_id: contactId,
     contact: row,
-    company: newCompany?.success
-      ? {
-          name: newCompany.data.name,
-          company_type: newCompany.data.companyType,
-          rating: newCompany.data.rating,
-        }
-      : null,
+    company: companyPart,
   });
   if (error?.code === UNIQUE_VIOLATION) {
     return fail(

@@ -46,7 +46,6 @@ export type EditableContact = {
   /** Written the way people type it, e.g. 012-345 6789. */
   mobile: string;
   title: string;
-  rating: number;
   accountType: AccountType;
   passedBy: string;
   notes: string;
@@ -55,10 +54,12 @@ export type EditableContact = {
 type ContactDialogProps = {
   /** Present when editing; absent when adding. */
   contact?: EditableContact;
-  companies: { id: string; name: string }[];
+  companies: { id: string; name: string; rating: number }[];
   team: { id: string; name: string }[];
   /** MD and Sales Director choose the account type; everyone else adds own-effort accounts. */
   canSetAccountType: boolean;
+  /** MD and Sales Director change the rating of a company that already exists. */
+  canRateCompany: boolean;
   /** Salespeople who hit a customer someone else owns can ask for it. */
   canRequestOwnership: boolean;
 };
@@ -105,6 +106,7 @@ function ContactForm({
   companies,
   team,
   canSetAccountType,
+  canRateCompany,
   canRequestOwnership,
   onSaved,
 }: ContactDialogProps & { onSaved: () => void }) {
@@ -112,6 +114,7 @@ function ContactForm({
   const [error, setError] = useState<string | null>(null);
   const [duplicate, setDuplicate] = useState<DuplicateContact | null>(null);
   const [companyId, setCompanyId] = useState(contact?.companyId ?? "");
+  const chosenCompany = companies.find((company) => company.id === companyId);
   const [accountType, setAccountType] = useState<AccountType>(
     contact?.accountType ?? "own",
   );
@@ -208,21 +211,39 @@ function ContactForm({
             canRequestOwnership={canRequestOwnership}
           />
         )}
-        <Field>
-          <FieldLabel htmlFor="rating">Rating</FieldLabel>
-          <Select name="rating" defaultValue={String(contact?.rating ?? 3)}>
-            <SelectTrigger id="rating">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(RatingLabel).map(([value, label]) => (
-                <SelectItem key={value} value={value}>
-                  {value} · {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
+        {companyId !== "" &&
+          (companyId === NEW_COMPANY || canRateCompany ? (
+            <Field key={companyId}>
+              <FieldLabel htmlFor="rating">Company rating</FieldLabel>
+              <Select
+                name="rating"
+                defaultValue={String(chosenCompany?.rating ?? 3)}
+              >
+                <SelectTrigger id="rating">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(RatingLabel).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {value} · {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+          ) : (
+            <Field>
+              <FieldLabel>Company rating</FieldLabel>
+              <p className="text-sm">
+                {chosenCompany
+                  ? `${chosenCompany.rating} · ${RatingLabel[chosenCompany.rating]}`
+                  : "–"}
+              </p>
+              <FieldDescription>
+                Only the MD or Sales Director change a company's rating.
+              </FieldDescription>
+            </Field>
+          ))}
         {canSetAccountType ? (
           <>
             <Field>

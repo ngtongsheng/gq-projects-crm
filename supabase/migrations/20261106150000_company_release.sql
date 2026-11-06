@@ -3,6 +3,9 @@
 -- the whole company (whole_company), and approving it makes the requester the owner of all the
 -- company's customers. A company added in the last 90 days is not released. Nothing moves by
 -- itself, and nothing is deleted: owners are replaced only when a request is approved.
+--
+-- This file adds the new pieces. The database rule that refuses a whole-company request while
+-- the company is not released replaces an existing policy, so it is in the next file.
 
 -- The same rule the app shows as "Released". Security definer so the answer does not depend on
 -- which customers or activities the caller may read.
@@ -34,26 +37,6 @@ alter table public.ownership_requests
   add column whole_company boolean not null default false;
 
 grant insert (whole_company) on table public.ownership_requests to authenticated;
-
--- Asking for a whole company is allowed only while it is released.
-drop policy "ownership requests: salespeople ask for customers they do not own"
-  on public.ownership_requests;
-
-create policy "ownership requests: salespeople ask for customers they do not own"
-  on public.ownership_requests for insert
-  to authenticated
-  with check (
-    requested_by = (select auth.uid())
-    and status = 'pending'
-    and (select public.has_job_role('bd', 'sales'))
-    and not public.is_contact_owner(contact_id)
-    and (
-      not whole_company
-      or public.company_is_released(
-        (select c.company_id from public.contacts c where c.id = contact_id)
-      )
-    )
-  );
 
 -- Approve replaces the owners with the requester; for a whole-company request, on every
 -- customer of the company that is not archived.

@@ -287,6 +287,12 @@ function mofImportSchema(
           officePicId: "",
           customerContact: cells.customerContact,
           accountsContact: cells.accountsContact,
+          // The paste has one contact column each; the separate boxes are for the form.
+          customerName: "",
+          customerMobile: "",
+          accountsName: "",
+          accountsMobile: "",
+          accountsEmail: "",
           scope,
           installerName: cells.installer,
           contractSum: cells.contractSum,

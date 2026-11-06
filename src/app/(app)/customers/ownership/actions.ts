@@ -18,6 +18,7 @@ const NO_DATA_FOUND = "P0002";
 export async function requestOwnership(
   contactId: string,
   reason: string,
+  wholeCompany = false,
 ): Promise<OwnershipResult> {
   const me = await requireSection("customers");
   if (!canRequestOwnership(me.jobRole, false)) {
@@ -33,13 +34,18 @@ export async function requestOwnership(
   const { error } = await supabase.from("ownership_requests").insert({
     contact_id: parsed.data.contactId,
     reason: parsed.data.reason,
+    whole_company: wholeCompany,
   });
   if (error?.code === UNIQUE_VIOLATION) {
     return fail("You already have a request open for this customer.");
   }
-  // The policy refuses customers the person already owns.
+  // The policy refuses customers the person already owns, and a company that is not released.
   if (error?.code === INSUFFICIENT_PRIVILEGE) {
-    return fail("You already own this customer.");
+    return fail(
+      wholeCompany
+        ? "This company is not released: someone has visited it in the last 3 months, or you own this customer."
+        : "You already own this customer.",
+    );
   }
   if (error) {
     console.error("Could not save ownership request", error);

@@ -20,6 +20,8 @@ type RequestOwnershipDialogProps = {
   customerName: string;
   /** Owners' names, so the person knows who the director will ask. */
   ownerNames: string[];
+  /** The company's name when it is released: the request then covers all its customers. */
+  wholeCompany?: string | null;
 };
 
 // No <form> here: this dialog also opens from inside the add-customer form.
@@ -27,6 +29,7 @@ export function RequestOwnershipDialog({
   contactId,
   customerName,
   ownerNames,
+  wholeCompany = null,
 }: RequestOwnershipDialogProps) {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
@@ -35,7 +38,11 @@ export function RequestOwnershipDialog({
 
   function send() {
     startTransition(async () => {
-      const result = await requestOwnership(contactId, reason);
+      const result = await requestOwnership(
+        contactId,
+        reason,
+        wholeCompany !== null,
+      );
       setError(result.error);
       if (!result.error) {
         toast.success("Request sent. The director will review it.");
@@ -49,15 +56,20 @@ export function RequestOwnershipDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button type="button" size="sm" variant="outline">
-          Request ownership
+          {wholeCompany ? "Request company" : "Request ownership"}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Request ownership of {customerName}</DialogTitle>
+          <DialogTitle>
+            Request ownership of {wholeCompany ?? customerName}
+          </DialogTitle>
           <DialogDescription>
             {ownerNames.length > 0
               ? `Now with ${ownerNames.join(" + ")}. `
+              : ""}
+            {wholeCompany
+              ? "Nobody has visited this company for 3 months, so it is released. The request covers all its customers. "
               : ""}
             The MD or Sales Director decides. If approved, you become the owner.
           </DialogDescription>

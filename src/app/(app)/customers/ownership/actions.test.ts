@@ -55,7 +55,35 @@ describe("requestOwnership", () => {
     expect(db.insert).toHaveBeenCalledWith({
       contact_id: CONTACT,
       reason: "I met her first",
+      whole_company: false,
     });
+  });
+
+  it("saves a request for a whole released company", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    const db = fakeSupabase();
+
+    const result = await requestOwnership(
+      CONTACT,
+      "Not visited for months",
+      true,
+    );
+
+    expect(result).toEqual({ error: null });
+    expect(db.insert).toHaveBeenCalledWith({
+      contact_id: CONTACT,
+      reason: "Not visited for months",
+      whole_company: true,
+    });
+  });
+
+  it("explains when the company is not released", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    fakeSupabase({ error: { code: "42501", message: "row-level security" } });
+
+    const result = await requestOwnership(CONTACT, "Mine now", true);
+
+    expect(result.error).toMatch(/not released/);
   });
 
   it("asks for a reason", async () => {

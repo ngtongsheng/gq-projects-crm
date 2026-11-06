@@ -92,7 +92,9 @@ export default async function CustomersPage({
   const requestedCompanyIds = new Set(
     allCustomers
       .filter((customer) =>
-        pending.some((row) => row.whole_company && row.contact_id === customer.id),
+        pending.some(
+          (row) => row.whole_company && row.contact_id === customer.id,
+        ),
       )
       .map((customer) => customer.companyId),
   );
@@ -105,7 +107,8 @@ export default async function CustomersPage({
   // Company first, so a company's customers sit together.
   const rows = filterCustomers(customers, filters).toSorted(
     (a, b) =>
-      a.companyName.localeCompare(b.companyName) || a.name.localeCompare(b.name),
+      a.companyName.localeCompare(b.companyName) ||
+      a.name.localeCompare(b.name),
   );
   const isFiltered =
     filters.q !== "" ||
@@ -121,7 +124,7 @@ export default async function CustomersPage({
     <div className="flex flex-col gap-4">
       <PageHeader
         title="Customers"
-        description="Kept by company. The mobile number decides who owns a customer."
+        description="Kept by company. The mobile number decides who owns a customer. A company nobody has visited for 3 months is released: any salesperson can ask for it."
         actions={
           <>
             <DownloadCsvButton
@@ -213,6 +216,17 @@ export default async function CustomersPage({
             ))}
           </SelectContent>
         </Select>
+        <Select name="released" defaultValue={filters.released ?? ALL}>
+          <SelectTrigger aria-label="Released companies" className="w-48">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All companies</SelectItem>
+            <SelectItem value="yes">
+              Released only ({releasedCompanies})
+            </SelectItem>
+          </SelectContent>
+        </Select>
         <Button type="submit" variant="outline">
           <Search data-icon="inline-start" />
           Search
@@ -239,6 +253,21 @@ export default async function CustomersPage({
         }
         columns={[
           {
+            key: "company",
+            header: "Company",
+            cell: (row) => (
+              <div className="flex flex-col items-start gap-0.5">
+                <span className="font-medium">{row.companyName}</span>
+                <span className="text-xs text-muted-foreground">
+                  {CompanyTypeLabel[row.companyType]}
+                </span>
+                {row.released && (
+                  <StatusBadge tone="warn">Released</StatusBadge>
+                )}
+              </div>
+            ),
+          },
+          {
             key: "name",
             header: "Customer",
             cell: (row) => (
@@ -254,18 +283,6 @@ export default async function CustomersPage({
             key: "position",
             header: "Position",
             cell: (row) => row.title || "–",
-          },
-          {
-            key: "company",
-            header: "Company",
-            cell: (row) => (
-              <div className="flex flex-col">
-                <span>{row.companyName}</span>
-                <span className="text-xs text-muted-foreground">
-                  {CompanyTypeLabel[row.companyType]}
-                </span>
-              </div>
-            ),
           },
           {
             key: "mobile",
@@ -320,6 +337,7 @@ export default async function CustomersPage({
                   contactId={row.id}
                   customerName={row.name}
                   ownerNames={row.ownerNames}
+                  wholeCompany={row.released ? row.companyName : null}
                 />
               );
             },

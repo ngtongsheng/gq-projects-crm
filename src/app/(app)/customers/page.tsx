@@ -33,7 +33,11 @@ import { filterCustomers, parseCustomerFilters } from "./customer-filters";
 import { CustomerHealthBadge } from "./customer-health-badge";
 import { companyImportFields, contactImportFields } from "./customer-import";
 import { importCustomers, previewCustomerImport } from "./import-actions";
-import { canRequestOwnership } from "./ownership/ownership-access";
+import {
+  canDecideOwnership,
+  canRequestOwnership,
+} from "./ownership/ownership-access";
+import { ReassignDialog } from "./ownership/reassign-dialog";
 import { RequestOwnershipDialog } from "./ownership/request-ownership-dialog";
 import { RatingBadge } from "./rating-badge";
 import {
@@ -110,6 +114,13 @@ export default async function CustomersPage({
       a.companyName.localeCompare(b.companyName) ||
       a.name.localeCompare(b.name),
   );
+  // The MD and Sales Director hand customers to someone else; how many sit at each company tells them what "all" covers.
+  const canReassign = canDecideOwnership(me.jobRole);
+  const customersAt = new Map<string, number>();
+  for (const customer of allCustomers) {
+    const companyId = customer.editable.companyId;
+    customersAt.set(companyId, (customersAt.get(companyId) ?? 0) + 1);
+  }
   const isFiltered =
     filters.q !== "" ||
     filters.owner !== undefined ||
@@ -317,19 +328,34 @@ export default async function CustomersPage({
             key: "edit",
             header: "",
             cell: (row) => {
+              const reassign = canReassign ? (
+                <ReassignDialog
+                  contactId={row.id}
+                  customerName={row.name}
+                  companyName={row.companyName}
+                  companyCustomers={
+                    customersAt.get(row.editable.companyId) ?? 1
+                  }
+                  ownerNames={row.ownerNames}
+                  team={team}
+                />
+              ) : null;
               if (row.canEdit) {
                 return (
-                  <ContactDialog
-                    contact={row.editable}
-                    companies={companies}
-                    team={team}
-                    canSetAccountType={canSetAccountType(me.jobRole)}
-                    canRateCompany={canRateCompany(me.jobRole)}
-                    canRequestOwnership={false}
-                  />
+                  <div className="flex flex-wrap gap-2">
+                    <ContactDialog
+                      contact={row.editable}
+                      companies={companies}
+                      team={team}
+                      canSetAccountType={canSetAccountType(me.jobRole)}
+                      canRateCompany={canRateCompany(me.jobRole)}
+                      canRequestOwnership={false}
+                    />
+                    {reassign}
+                  </div>
                 );
               }
-              if (!row.canRequest) return null;
+              if (!row.canRequest) return reassign;
               return row.requested ? (
                 <StatusBadge tone="warn">Requested</StatusBadge>
               ) : (

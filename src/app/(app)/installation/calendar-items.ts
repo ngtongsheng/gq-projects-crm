@@ -9,9 +9,11 @@ import {
   BOOKING_PURPOSE_LABEL,
   BOOKING_STATUS_TONE,
 } from "@/lib/domain/site-booking";
+import { SITE_ACTIVITY_LABEL } from "@/lib/domain/site-log";
 import type { CalendarDate } from "@/lib/format/date";
 import type { CalendarBooking } from "./booking-data";
 import type { CalendarJob } from "./calendar-jobs";
+import type { CalendarSiteVisit } from "./site-visit-data";
 
 /** A job on the calendar: the compact event for the grid, plus the job for the list card. */
 export type JobEvent = CalendarEvent & {
@@ -27,11 +29,19 @@ export type BookingEvent = CalendarEvent & {
   booking: CalendarBooking;
 };
 
-export type CalendarItem = JobEvent | BookingEvent;
+/** A visit a Site Supervisor has logged, with the visit for the list card. */
+export type VisitEvent = CalendarEvent & {
+  kind: "visit";
+  startTime: string;
+  visit: CalendarSiteVisit;
+};
+
+export type CalendarItem = JobEvent | BookingEvent | VisitEvent;
 
 type CalendarItemsInput = {
   jobs: readonly CalendarJob[];
   bookings: readonly CalendarBooking[];
+  visits?: readonly CalendarSiteVisit[];
   from: CalendarDate;
   to: CalendarDate;
   supervisorName: (id: string) => string;
@@ -51,6 +61,7 @@ const byStartTime = (a: CalendarItem, b: CalendarItem) => {
 export function calendarItems({
   jobs,
   bookings,
+  visits = [],
   from,
   to,
   supervisorName,
@@ -90,6 +101,20 @@ export function calendarItems({
       href: hrefFor(booking.visitOn),
       muted: booking.status === "declined",
       booking,
+    });
+  }
+  for (const visit of visits) {
+    if (visit.visitedOn < from || visit.visitedOn > to) continue;
+    add(visit.visitedOn, {
+      kind: "visit",
+      id: `visit-${visit.id}`,
+      time: "Visited",
+      startTime: "",
+      title: `${visit.mofNo} · ${visit.companyName}`,
+      detail: `${SITE_ACTIVITY_LABEL[visit.activity]} · ${supervisorName(visit.supervisorId)}`,
+      tone: "good",
+      href: `/site-work/${visit.mofId}`,
+      visit,
     });
   }
   for (const [day, items] of byDay) byDay.set(day, items.toSorted(byStartTime));

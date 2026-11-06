@@ -66,6 +66,48 @@ describe("calendarItems", () => {
     });
   });
 
+  it("shows a logged site visit on its day with the activity and who did it", () => {
+    const items = calendarItems({
+      jobs: [],
+      bookings: [],
+      visits: [
+        {
+          id: "v1",
+          supervisorId: "sup",
+          visitedOn: "2026-11-10",
+          activity: "inspection",
+          mofId: "mof-1",
+          mofNo: "P1515",
+          companyName: "Acme",
+          projectName: "Level 3",
+        },
+        {
+          id: "v2",
+          supervisorId: "sup",
+          visitedOn: "2026-11-20",
+          activity: "handover",
+          mofId: "mof-1",
+          mofNo: "P1515",
+          companyName: "Acme",
+          projectName: "Level 3",
+        },
+      ],
+      from: "2026-11-09",
+      to: "2026-11-15",
+      supervisorName: () => "Awal",
+      hrefFor: (day) => `/installation?date=${day}`,
+    });
+
+    expect(items.get("2026-11-10")).toHaveLength(1);
+    expect(items.get("2026-11-10")?.[0]).toMatchObject({
+      id: "visit-v1",
+      title: "P1515 · Acme",
+      detail: "Inspection · Awal",
+      href: "/site-work/mof-1",
+    });
+    expect(items.has("2026-11-20")).toBe(false);
+  });
+
   it("fades a declined booking and ignores one outside the range", () => {
     const items = run(
       [],

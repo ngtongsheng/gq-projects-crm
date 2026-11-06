@@ -42,6 +42,7 @@ import { BookingDialog } from "../installation/booking-form";
 import { calendarItems } from "../installation/calendar-items";
 import { loadCalendarJobs } from "../installation/calendar-jobs";
 import { forSupervisor } from "../installation/schedule-filters";
+import { loadCalendarSiteVisits } from "../installation/site-visit-data";
 import { AddActivityDialog } from "./add-activity-dialog";
 import { calendarHref, parseCalendarParams, stepDate } from "./calendar-params";
 
@@ -138,13 +139,19 @@ export default async function SalesCalendarPage({
 
   // The site supervisors' schedule beside the diary, so a salesperson sees where they are and can book one.
   const canBook = canBookSiteSupervisor(me.jobRole);
-  const [allJobs, allBookings, supervisors, projects] = await Promise.all([
-    loadCalendarJobs(from, to, null),
-    loadCalendarBookings(from, to, null),
-    canBook ? loadSiteSupervisors() : Promise.resolve([]),
-    canBook ? loadBookableProjects(me) : Promise.resolve([]),
-  ]);
+  const [allJobs, allBookings, allVisits, supervisors, projects] =
+    await Promise.all([
+      loadCalendarJobs(from, to, null),
+      loadCalendarBookings(from, to, null),
+      loadCalendarSiteVisits(from, to, null),
+      canBook ? loadSiteSupervisors() : Promise.resolve([]),
+      canBook ? loadBookableProjects(me) : Promise.resolve([]),
+    ]);
   const supervisorWork = forSupervisor(allJobs, allBookings, params.sup);
+  const visits =
+    params.sup === undefined
+      ? allVisits
+      : allVisits.filter((visit) => visit.supervisorId === params.sup);
   const supervisorName = (id: string) =>
     id === "" ? "No supervisor yet" : (nameOf.get(id) ?? "Unnamed");
 
@@ -177,6 +184,7 @@ export default async function SalesCalendarPage({
   const supervisorItems = calendarItems({
     jobs: supervisorWork.jobs,
     bookings: supervisorWork.bookings,
+    visits,
     from,
     to,
     supervisorName,

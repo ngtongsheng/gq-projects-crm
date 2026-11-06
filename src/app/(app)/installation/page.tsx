@@ -46,6 +46,7 @@ import { loadCalendarJobs } from "./calendar-jobs";
 import { JobList } from "./job-list";
 import { loadMofOptions } from "./mof-options";
 import { forSalesperson } from "./schedule-filters";
+import { loadCalendarSiteVisits } from "./site-visit-data";
 
 export const metadata: Metadata = { title: "Installation" };
 
@@ -76,19 +77,30 @@ export default async function InstallationPage({
 
   // A Site Supervisor sees their own jobs and bookings; everyone else sees the whole schedule.
   const ownOnly = me.jobRole === "site" ? me.id : null;
-  const [allJobs, allBookings, team, mofs, supervisors, projects, pendingDays] =
-    await Promise.all([
-      loadCalendarJobs(from, to, ownOnly),
-      loadCalendarBookings(from, to, ownOnly),
-      getTeamDirectory(),
-      canSchedule && params.add ? loadMofOptions() : Promise.resolve(null),
-      canBook ? loadSiteSupervisors() : Promise.resolve([]),
-      canBook ? loadBookableProjects(me) : Promise.resolve([]),
-      answersBookings ? loadPendingBookingDays(me.id) : Promise.resolve([]),
-    ]);
+  const [
+    allJobs,
+    allBookings,
+    allVisits,
+    team,
+    mofs,
+    supervisors,
+    projects,
+    pendingDays,
+  ] = await Promise.all([
+    loadCalendarJobs(from, to, ownOnly),
+    loadCalendarBookings(from, to, ownOnly),
+    loadCalendarSiteVisits(from, to, ownOnly),
+    getTeamDirectory(),
+    canSchedule && params.add ? loadMofOptions() : Promise.resolve(null),
+    canBook ? loadSiteSupervisors() : Promise.resolve([]),
+    canBook ? loadBookableProjects(me) : Promise.resolve([]),
+    answersBookings ? loadPendingBookingDays(me.id) : Promise.resolve([]),
+  ]);
 
   // Everyone sees the whole schedule; a salesperson can narrow it to the jobs they sold.
   const { jobs, bookings } = forSalesperson(allJobs, allBookings, params.who);
+  // A visit has no salesperson of its own, so it shows only while the whole schedule is shown.
+  const visits = params.who ? [] : allVisits;
   const canFilter = me.jobRole !== "site";
 
   const keep = { view, who: params.who };
@@ -100,6 +112,7 @@ export default async function InstallationPage({
   const eventsByDay = calendarItems({
     jobs,
     bookings,
+    visits,
     from,
     to,
     supervisorName: (id) => nameOf.get(id) ?? "Unnamed",
@@ -274,7 +287,8 @@ export default async function InstallationPage({
       <p className="text-sm text-muted-foreground">
         Jobs: green = done · amber = in progress · blue = scheduled · grey =
         postponed. Site supervisor bookings: amber = waiting for an answer ·
-        green = confirmed · grey = declined.
+        green = confirmed · grey = declined. Green &quot;Visited&quot; entries
+        are site visits already logged.
       </p>
       {params.add && mofs && (
         <AddJobDialog

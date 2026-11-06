@@ -8,6 +8,7 @@ import {
   JOB_TYPE_LABEL,
   missingDeliveryChecks,
 } from "@/lib/domain/delivery-status";
+import { SITE_ACTIVITY_LABEL } from "@/lib/domain/site-log";
 import { type CalendarDate, formatDate } from "@/lib/format/date";
 import { cn } from "@/lib/utils";
 import { BookingCard } from "./booking-card";
@@ -15,6 +16,7 @@ import type { CalendarItem } from "./calendar-items";
 import type { CalendarJob } from "./calendar-jobs";
 import { JobDialog } from "./job-form";
 import { JobStatusSelect } from "./job-status-select";
+import type { CalendarSiteVisit } from "./site-visit-data";
 
 type Team = { id: string; name: string }[];
 
@@ -50,7 +52,12 @@ export function JobList({
     <WeekList
       {...list}
       renderEvent={(event) =>
-        event.kind === "booking" ? (
+        event.kind === "visit" ? (
+          <VisitCard
+            visit={event.visit}
+            supervisor={nameOf.get(event.visit.supervisorId) ?? "Unnamed"}
+          />
+        ) : event.kind === "booking" ? (
           <BookingCard
             booking={event.booking}
             supervisor={nameOf.get(event.booking.supervisorId) ?? "Unnamed"}
@@ -76,6 +83,34 @@ export function JobList({
         )
       }
     />
+  );
+}
+
+function VisitCard({
+  visit,
+  supervisor,
+}: {
+  visit: CalendarSiteVisit;
+  supervisor: string;
+}) {
+  return (
+    <div className="flex min-w-0 flex-col gap-1 rounded-md border bg-card p-3 text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="text-xs text-muted-foreground">Site visit logged</span>
+        <StatusBadge tone="good">
+          {SITE_ACTIVITY_LABEL[visit.activity]}
+        </StatusBadge>
+      </div>
+      <Link
+        href={`/site-work/${visit.mofId}`}
+        className="font-medium hover:underline"
+      >
+        {visit.mofNo} · {visit.companyName}
+      </Link>
+      <p className="text-muted-foreground">
+        {visit.projectName} · {supervisor}
+      </p>
+    </div>
   );
 }
 

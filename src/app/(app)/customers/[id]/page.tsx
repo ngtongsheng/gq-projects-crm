@@ -5,10 +5,11 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 import { PageHeader } from "@/components/app/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { isManager } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { customerHealth } from "@/lib/domain/customer-health";
 import { formatMobile } from "@/lib/domain/mobile";
-import { todayMyt } from "@/lib/format/date";
+import { formatDateTime, todayMyt } from "@/lib/format/date";
 import { canLogActivity } from "../../activities/activity-access";
 import { ActivityDialog } from "../../activities/activity-form";
 import { CustomerActivities } from "../../activities/customer-activities";
@@ -19,6 +20,7 @@ import { ProjectDialog } from "../../projects/project-form";
 import { canEditContact, canSetAccountType } from "../contact-access";
 import { ContactDialog } from "../contact-form";
 import { CustomerHealthBadge } from "../customer-health-badge";
+import { loadOwnershipChanges } from "../ownership/history-data";
 import { RatingBadge } from "../rating-badge";
 import { AccountTypeLabel, CompanyTypeLabel } from "../schemas";
 import { loadCustomerDetail } from "./customer-detail";
@@ -77,6 +79,10 @@ export default async function CustomerPage({
     ),
     todayMyt(),
   );
+  // Who owned this customer before: shown to managers, the only people the database lets read it.
+  const ownershipChanges = isManager(me.jobRole)
+    ? await loadOwnershipChanges(customer.id, nameOf)
+    : [];
 
   return (
     <div className="flex flex-col gap-4">
@@ -183,6 +189,33 @@ export default async function CustomerPage({
           </CardContent>
         </Card>
       </div>
+      {ownershipChanges.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-heading">Ownership history</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="flex flex-col gap-3 text-sm">
+              {ownershipChanges.map((change) => (
+                <li key={change.id} className="flex flex-col">
+                  <span>
+                    <span className="font-medium">
+                      {change.from.join(" + ") || "No owner"}
+                    </span>
+                    {" → "}
+                    <span className="font-medium">{change.to.join(" + ")}</span>
+                    {change.wholeCompany ? " (whole company)" : ""}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {formatDateTime(change.at)} by {change.changedBy}:{" "}
+                    {change.reason}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2">
           <CardTitle className="font-heading">Activities</CardTitle>

@@ -39,7 +39,7 @@ export function CustomerActivities({
       <EmptyState
         icon={CalendarCheck}
         title="No activities yet"
-        description="Visits, calls and meetings with this customer will show here."
+        description="Visits and meetings with this customer will show here."
       />
     );
   }

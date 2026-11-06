@@ -33,8 +33,9 @@ import { parseMytInput, toMytInput } from "./activity-time";
 import {
   ActivityStatus,
   ActivityStatusLabel,
-  ActivityType,
+  type ActivityType,
   ActivityTypeLabel,
+  activityTypesToChoose,
 } from "./schemas";
 
 export type EditableActivity = {
@@ -170,7 +171,7 @@ export function ActivityForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {ActivityType.options.map((type) => (
+              {activityTypesToChoose(activity?.type).map((type) => (
                 <SelectItem key={type} value={type}>
                   {ActivityTypeLabel[type]}
                 </SelectItem>

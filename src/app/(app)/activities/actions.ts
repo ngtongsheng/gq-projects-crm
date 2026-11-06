@@ -94,6 +94,13 @@ export async function saveActivity(
   const activityId = textField(formData, "activityId") || null;
   const supabase = await createClient();
 
+  // Earlier calls stay and can be edited; a new one is not logged.
+  if (!activityId && form.type === "call") {
+    return fail(
+      "Calls are no longer logged. Choose a visit, site visit, walk-in or online meeting.",
+    );
+  }
+
   if (!activityId) {
     const { error } = await supabase.from("activities").insert({
       contact_id: form.contactId,

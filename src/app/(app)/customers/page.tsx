@@ -278,10 +278,16 @@ export default async function CustomersPage({
                 <span className="text-xs text-muted-foreground">
                   {CompanyTypeLabel[row.companyType]}
                 </span>
-                {row.released && (
+                {row.released ? (
                   <StatusBadge tone="bad">
-                    Not visited for 3 months · released
+                    {row.daysWithoutVisit} days no visit · ready to reassign
                   </StatusBadge>
+                ) : (
+                  <span className="text-xs text-muted-foreground">
+                    {row.everVisited
+                      ? `${row.daysWithoutVisit} ${row.daysWithoutVisit === 1 ? "day" : "days"} since last visit`
+                      : "No visit yet"}
+                  </span>
                 )}
               </div>
             ),

@@ -40,6 +40,36 @@ export function releasedCompanyIds(input: {
   );
 }
 
+/** The latest completed visit day for each company, from its customers' visits (any order). */
+export function lastVisitByCompany(
+  contacts: readonly { id: string; companyId: string }[],
+  visits: readonly { contactId: string; day: CalendarDate }[],
+): Map<string, CalendarDate> {
+  const companyOf = new Map(
+    contacts.map((contact) => [contact.id, contact.companyId]),
+  );
+  const latest = new Map<string, CalendarDate>();
+  for (const visit of visits) {
+    const companyId = companyOf.get(visit.contactId);
+    if (companyId === undefined) continue;
+    const known = latest.get(companyId);
+    if (known === undefined || visit.day > known)
+      latest.set(companyId, visit.day);
+  }
+  return latest;
+}
+
+/**
+ * How many days a company has gone without a completed visit. Counted from the company's last
+ * visit, or from the day it was added when it has never been visited.
+ */
+export function daysWithoutVisit(
+  company: { addedOn: CalendarDate; lastVisit: CalendarDate | null },
+  today: CalendarDate,
+): number {
+  return daysBetween(company.lastVisit ?? company.addedOn, today);
+}
+
 /**
  * Whether a company is released: its customers have had no completed visit or site visit for
  * 90 days, and the company itself is older than that. `lastVisit` is the latest such visit across

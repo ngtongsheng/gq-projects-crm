@@ -1,11 +1,48 @@
 import { describe, expect, it } from "vitest";
 import {
+  daysWithoutVisit,
   isReleased,
+  lastVisitByCompany,
   releaseCutoff,
   releasedCompanyIds,
 } from "./company-release";
 
 const TODAY = "2026-11-06";
+
+describe("daysWithoutVisit", () => {
+  it("counts from the last visit", () => {
+    expect(
+      daysWithoutVisit(
+        { addedOn: "2025-01-01", lastVisit: "2026-07-09" },
+        TODAY,
+      ),
+    ).toBe(120);
+  });
+
+  it("counts from the day the company was added when it was never visited", () => {
+    expect(
+      daysWithoutVisit({ addedOn: "2026-10-27", lastVisit: null }, TODAY),
+    ).toBe(10);
+  });
+});
+
+describe("lastVisitByCompany", () => {
+  it("gives each company the latest visit across its customers", () => {
+    const contacts = [
+      { id: "a1", companyId: "A" },
+      { id: "a2", companyId: "A" },
+      { id: "b1", companyId: "B" },
+    ];
+    const latest = lastVisitByCompany(contacts, [
+      { contactId: "a1", day: "2026-05-01" },
+      { contactId: "a2", day: "2026-08-01" },
+      { contactId: "a1", day: "2026-06-01" },
+      { contactId: "gone", day: "2026-09-01" },
+    ]);
+    expect(latest.get("A")).toBe("2026-08-01");
+    expect(latest.has("B")).toBe(false);
+  });
+});
 
 describe("isReleased", () => {
   it("keeps a company visited within 90 days", () => {

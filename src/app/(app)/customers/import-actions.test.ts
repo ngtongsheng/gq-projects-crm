@@ -93,12 +93,12 @@ describe("importCustomers", () => {
     const result = await importCustomers({
       kind: "contacts",
       text: tsv(
-        ["Company", "Name", "Mobile", "Owners", "Rating"],
-        ["Acme Design", "Lim", "012-999 8888", "Arun", "VIP"],
-        ["Acme Design", "Bad number", "123", "", ""],
-        ["Nowhere Sdn Bhd", "Ghost", "013-111 2222", "", ""],
-        ["Acme Design", "Owner forged", "014-111 2222", "Mallory", ""],
-        ["Acme Design", "Tan again", "+60 12-345 6789", "", ""],
+        ["Company", "Name", "Mobile", "Owners"],
+        ["Acme Design", "Lim", "012-999 8888", "Arun"],
+        ["Acme Design", "Bad number", "123", ""],
+        ["Nowhere Sdn Bhd", "Ghost", "013-111 2222", ""],
+        ["Acme Design", "Owner forged", "014-111 2222", "Mallory"],
+        ["Acme Design", "Tan again", "+60 12-345 6789", ""],
       ),
       onDuplicate: "skip",
     });
@@ -115,7 +115,6 @@ describe("importCustomers", () => {
             name: "Lim",
             mobile: "60129998888",
             title: null,
-            rating: 5,
             notes: null,
             account_type: "own",
             passed_by: null,

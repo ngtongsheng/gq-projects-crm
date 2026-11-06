@@ -51,6 +51,7 @@ const rating = z.coerce
   .int()
   .min(1, "Choose a rating from 1 to 5.")
   .max(5, "Choose a rating from 1 to 5.");
+export const companyRatingSchema = rating;
 
 // A blank select posts "".
 const passedBy = z.union([z.literal("").transform(() => null), z.uuid()]);
@@ -85,7 +86,6 @@ export const contactFormSchema = z
         z.string("Enter a full Malaysian mobile number, like 012-345 6789."),
       ),
     title: optionalText(100),
-    rating,
     accountType: AccountType,
     passedBy,
     notes: optionalText(2000),

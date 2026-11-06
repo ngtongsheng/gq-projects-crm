@@ -16,7 +16,11 @@ import { lastCompletedDay } from "../../activities/last-activity";
 import { CustomerProjects } from "../../projects/customer-projects";
 import { canChoosePic, canCreateProject } from "../../projects/project-access";
 import { ProjectDialog } from "../../projects/project-form";
-import { canEditContact, canSetAccountType } from "../contact-access";
+import {
+  canEditContact,
+  canRateCompany,
+  canSetAccountType,
+} from "../contact-access";
 import { ContactDialog } from "../contact-form";
 import { CustomerHealthBadge } from "../customer-health-badge";
 import { RatingBadge } from "../rating-badge";
@@ -101,7 +105,6 @@ export default async function CustomerPage({
                 name: customer.name,
                 mobile: formatMobile(customer.mobile),
                 title: customer.title ?? "",
-                rating: customer.rating,
                 accountType: customer.account_type,
                 passedBy: customer.passed_by ?? "",
                 notes: customer.notes ?? "",
@@ -109,6 +112,7 @@ export default async function CustomerPage({
               companies={companies}
               team={team}
               canSetAccountType={canSetAccountType(me.jobRole)}
+              canRateCompany={canRateCompany(me.jobRole)}
               canRequestOwnership={false}
             />
           ) : undefined
@@ -136,8 +140,8 @@ export default async function CustomerPage({
                 {customer.passed_by &&
                   ` · passed down by ${nameOf.get(customer.passed_by) ?? "Unnamed"}`}
               </Field>
-              <Field label="Rating">
-                <RatingBadge rating={customer.rating} />
+              <Field label="Company rating">
+                <RatingBadge rating={customer.companies.rating} />
               </Field>
               <Field label="Health">
                 <CustomerHealthBadge health={health} />

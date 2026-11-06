@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import type { Profile } from "@/lib/auth/current-profile";
-import { canEditRegister, isManager } from "@/lib/auth/job-role";
+import { canEditRegister, canSeeMofCost } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import {
@@ -31,7 +31,7 @@ function specFor(
   me: Profile,
 ): PasteImportSpec<MofImportContext, MofKey, MofImportRow> {
   // Cost is for managers only; for anyone else a Cost column is not imported.
-  const fields = mofImportFields(isManager(me.jobRole));
+  const fields = mofImportFields(canSeeMofCost(me.jobRole));
   return {
     kind: "mofs",
     allowed: canEditRegister(me.jobRole),

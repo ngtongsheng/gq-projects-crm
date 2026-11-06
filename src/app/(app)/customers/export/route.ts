@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
       "Company type",
       "Mobile",
       "Owners",
-      "Rating",
+      "Company rating",
       "Account type",
       "Activity",
     ],

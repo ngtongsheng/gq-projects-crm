@@ -16,13 +16,13 @@ const customerRow = z.object({
   name: z.string(),
   mobile: z.string(),
   title: z.string().nullable(),
-  rating: z.number().int(),
   account_type: AccountType,
   passed_by: z.string().nullable(),
   notes: z.string().nullable(),
   companies: z.object({
     name: z.string(),
     company_type: CompanyType,
+    rating: z.number().int(),
     address: z.string().nullable(),
   }),
   contact_owners: z.array(z.object({ profile_id: z.string() })),
@@ -37,7 +37,9 @@ const colleagueRows = z.array(
   }),
 );
 
-const companyRows = z.array(z.object({ id: z.string(), name: z.string() }));
+const companyRows = z.array(
+  z.object({ id: z.string(), name: z.string(), rating: z.number().int() }),
+);
 
 const activityRows = z.array(
   z.object({
@@ -75,7 +77,7 @@ export async function loadCustomerDetail(me: Profile, id: string) {
   const { data, error } = await supabase
     .from("contacts")
     .select(
-      "id, company_id, name, mobile, title, rating, account_type, passed_by, notes, companies(name, company_type, address), contact_owners(profile_id)",
+      "id, company_id, name, mobile, title, account_type, passed_by, notes, companies(name, company_type, rating, address), contact_owners(profile_id)",
     )
     .eq("id", id)
     .is("archived_at", null)
@@ -98,7 +100,7 @@ export async function loadCustomerDetail(me: Profile, id: string) {
       .neq("id", customer.id)
       .is("archived_at", null)
       .order("name"),
-    supabase.from("companies").select("id, name").order("name"),
+    supabase.from("companies").select("id, name, rating").order("name"),
     supabase
       .from("activities")
       .select("id, owner_id, type, purpose, outcome, starts_at, status")

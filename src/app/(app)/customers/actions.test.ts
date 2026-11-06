@@ -138,6 +138,28 @@ describe("saveContact", () => {
     });
   });
 
+  it("lets the MD change the rating of an existing company", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
+    const calls = fakeSupabase({ contacts: [none] });
+
+    const result = await saveContact(form({ rating: "5" }));
+
+    expect(result.error).toBeNull();
+    expect(savedWith(calls)[0]?.payload).toMatchObject({
+      company: { rating: 5 },
+    });
+  });
+
+  it("refuses a company rating outside 1 to 5", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
+    const calls = fakeSupabase({ contacts: [none] });
+
+    const result = await saveContact(form({ rating: "9" }));
+
+    expect(result.error).toBe("Choose a rating from 1 to 5.");
+    expect(savedWith(calls)).toHaveLength(0);
+  });
+
   it("keeps account type fixed to own for people who cannot set it", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
     const calls = fakeSupabase({ contacts: [none] });

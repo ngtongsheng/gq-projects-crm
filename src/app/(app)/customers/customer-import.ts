@@ -63,7 +63,6 @@ export const contactImportFields = [
     required: true,
   },
   { key: "title", label: "Position", aliases: ["Title", "Designation"] },
-  { key: "rating", label: "Rating" },
   { key: "accountType", label: "Account type", aliases: ["Account"] },
   { key: "passedBy", label: "Passed by", aliases: ["Passed down by"] },
   { key: "owners", label: "Owners", aliases: ["Owner", "PIC", "Salesperson"] },
@@ -85,12 +84,10 @@ function matchRating(value: string): string | undefined {
 type Issues = string[];
 
 function readShared(
-  cells: { rating: string; accountType: string; passedBy: string },
+  cells: { accountType: string; passedBy: string },
   team: readonly TeamMember[],
   issues: Issues,
 ) {
-  const rating = matchRating(cells.rating);
-  if (!rating) issues.push("Rating must be 1 to 5, or a label like VIP.");
   const accountType =
     cells.accountType === ""
       ? ""
@@ -100,7 +97,7 @@ function readShared(
   }
   const passedBy =
     cells.passedBy === "" ? "" : personId(cells.passedBy, team, issues);
-  return { rating: rating ?? "", accountType: accountType ?? "", passedBy };
+  return { accountType: accountType ?? "", passedBy };
 }
 
 export function companyImportSchema(team: readonly TeamMember[]) {
@@ -116,11 +113,14 @@ export function companyImportSchema(team: readonly TeamMember[]) {
               CompanyTypeLabel,
             );
       if (!companyType) issues.push(`"${cells.companyType}" is not a type.`);
+      const rating = matchRating(cells.rating);
+      if (!rating) issues.push("Rating must be 1 to 5, or a label like VIP.");
       const shared = readShared(cells, team, issues);
       if (issues.length > 0) return rejectIssues(issues, ctx);
       return {
         name: cells.name,
         companyType: companyType ?? "others",
+        rating: rating ?? "",
         ...shared,
         address: cells.address,
         notes: cells.notes,
@@ -280,7 +280,6 @@ export function importPayload({ kind, plan }: CustomerImportPlan): Payload[] {
       name: contact.name,
       mobile: contact.mobile,
       title: contact.title,
-      rating: contact.rating,
       notes: contact.notes,
     };
     const account = {
@@ -299,7 +298,6 @@ export function importPayload({ kind, plan }: CustomerImportPlan): Payload[] {
               name: true,
               mobile: true,
               title: has("title"),
-              rating: has("rating"),
               notes: has("notes"),
             }),
             ...(has("accountType", "passedBy") ? account : {}),

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { companyFormSchema, contactFormSchema } from "./schemas";
+import {
+  companyFormSchema,
+  companyRatingSchema,
+  contactFormSchema,
+} from "./schemas";
 
 const COMPANY_ID = "33333333-3333-4333-8333-333333333333";
 const PASSER_ID = "44444444-4444-4444-8444-444444444444";
@@ -9,7 +13,6 @@ const contact = (overrides: Record<string, string> = {}) => ({
   name: " Aisha Rahman ",
   mobile: "012-345 6789",
   title: "",
-  rating: "4",
   accountType: "own",
   passedBy: "",
   notes: "",
@@ -34,7 +37,6 @@ describe("contactFormSchema", () => {
       name: "Aisha Rahman",
       mobile: "60123456789",
       title: null,
-      rating: 4,
       accountType: "own",
       passedBy: null,
       notes: null,
@@ -47,10 +49,14 @@ describe("contactFormSchema", () => {
     ).toBe(false);
   });
 
-  it.each(["0", "6", "3.5", "", "abc"])("rejects rating %j", (rating) => {
-    expect(contactFormSchema.safeParse(contact({ rating })).success).toBe(
-      false,
-    );
+  it.each([
+    "0",
+    "6",
+    "3.5",
+    "",
+    "abc",
+  ])("rejects company rating %j", (rating) => {
+    expect(companyRatingSchema.safeParse(rating).success).toBe(false);
   });
 
   it.each(["", "pass", "staff"])("rejects account type %j", (accountType) => {

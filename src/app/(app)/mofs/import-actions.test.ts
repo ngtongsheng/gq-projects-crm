@@ -239,7 +239,7 @@ describe("importMofs", () => {
     expect(result.preview?.rows[0]?.action).toBe("invalid");
   });
 
-  it("takes the cost column from managers only", async () => {
+  it("takes the cost column from the MD, Purchasing and HR & Accounts", async () => {
     const columns = [...head, "Contract sum", "Product", "Cost"];
     const row = [
       "MOF-400",
@@ -261,9 +261,11 @@ describe("importMofs", () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("support"));
     const asPurchasing = fakeSupabase();
     const preview = await previewMofImport(request(tsv(columns, row)));
-    expect(preview.preview?.ignored).toEqual(["Cost"]);
+    expect(preview.preview?.ignored).toEqual([]);
     await importMofs(request(tsv(columns, row)));
-    expect(JSON.stringify(asPurchasing[0]?.rows)).not.toContain("cost");
+    expect(asPurchasing[0]?.rows).toEqual([
+      expect.objectContaining({ cost: 640 }),
+    ]);
   });
 });
 

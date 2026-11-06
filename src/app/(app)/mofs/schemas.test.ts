@@ -36,6 +36,11 @@ const mof = (overrides: Record<string, unknown> = {}) => ({
   officePicId: "",
   customerContact: "",
   accountsContact: "",
+  customerName: "",
+  customerMobile: "",
+  accountsName: "",
+  accountsMobile: "",
+  accountsEmail: "",
   scope: "s_and_l",
   installerName: "Leong",
   contractSum: "RM 12,500",
@@ -97,6 +102,37 @@ describe("mofFormSchema", () => {
       approvalsInWriting: false,
       lines: [{ areaM2: 250 }],
     });
+  });
+
+  it("keeps the customer and accounts contacts in separate fields", () => {
+    const parsed = mofFormSchema.parse(
+      mof({
+        customerName: " Aiman Rahim ",
+        customerMobile: "012-555 0101",
+        accountsName: "Siti",
+        accountsMobile: "013-555 0202",
+        accountsEmail: " accounts@meridian.example ",
+      }),
+    );
+    expect(parsed).toMatchObject({
+      customerName: "Aiman Rahim",
+      customerMobile: "012-555 0101",
+      accountsName: "Siti",
+      accountsMobile: "013-555 0202",
+      accountsEmail: "accounts@meridian.example",
+    });
+  });
+
+  it("leaves blank contact boxes empty and refuses a bad accounts email", () => {
+    expect(mofFormSchema.parse(mof())).toMatchObject({
+      customerName: null,
+      accountsEmail: null,
+    });
+    expect(
+      errorPaths(
+        mofFormSchema.safeParse(mof({ accountsEmail: "not an email" })),
+      ),
+    ).toEqual(["accountsEmail"]);
   });
 
   it("needs a contract sum and at least one line", () => {

@@ -232,8 +232,18 @@ describe("saveMof: cost is for managers only", () => {
     vi.mocked(getCurrentProfile).mockReset();
   });
 
+  it("lets Purchasing set the cost", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("support"));
+    const calls = fakeSupabase([saved]);
+
+    const result = await saveMof(form({ cost: "RM 8,000" }));
+
+    expect(result.error).toBeNull();
+    expect(savePayload(calls).cost).toBe(8000);
+  });
+
   it.each([
-    ["Purchasing", "support"],
+    ["a business developer", "bd"],
     ["a salesperson", "sales"],
   ] as const)("refuses a cost from %s before writing anything", async (_label, jobRole) => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile(jobRole));

@@ -1,8 +1,7 @@
 "use client";
 
-import { Copy, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,9 +25,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { JobRole, JobRoleLabel } from "@/lib/auth/job-role";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { type AddPersonState, addPerson } from "./actions";
+import { InviteShare } from "./invite-share";
 
 const initialState: AddPersonState = { error: null, invite: null };
 
@@ -50,7 +50,9 @@ export function AddPersonDialog({
         <DialogHeader>
           <DialogTitle>Add person</DialogTitle>
           <DialogDescription>
-            You get a link to send them. They use it once to set a password.
+            You get a link to send them. Add their WhatsApp number to open
+            WhatsApp with the message ready. They use the link once to set a
+            password.
           </DialogDescription>
         </DialogHeader>
         {unavailableMessage ? (
@@ -73,47 +75,11 @@ function AddPersonForm() {
     });
   }
 
-  async function copy(text: string, done: string) {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast.success(done);
-    } catch {
-      toast.error("Could not copy. Select the text and copy it by hand.");
-    }
-  }
-
   if (state.invite) {
     return (
       <div className="flex flex-col gap-3">
         {state.error && <FieldError>{state.error}</FieldError>}
-        <Field>
-          <FieldLabel htmlFor="invite-message">
-            Message to send on WhatsApp
-          </FieldLabel>
-          <Textarea
-            id="invite-message"
-            className="field-sizing-fixed w-full break-all"
-            readOnly
-            rows={5}
-            value={state.invite.message}
-          />
-        </Field>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            onClick={() => copy(state.invite?.message ?? "", "Message copied.")}
-          >
-            <Copy data-icon="inline-start" />
-            Copy message
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => copy(state.invite?.link ?? "", "Link copied.")}
-          >
-            Copy link only
-          </Button>
-        </div>
+        <InviteShare invite={state.invite} />
       </div>
     );
   }
@@ -136,17 +102,45 @@ function AddPersonForm() {
           />
         </Field>
         <Field>
-          <FieldLabel htmlFor="role">Role</FieldLabel>
-          <Select name="role" defaultValue="staff">
-            <SelectTrigger id="role">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="staff">Staff</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-            </SelectContent>
-          </Select>
+          <FieldLabel htmlFor="mobile">WhatsApp number (optional)</FieldLabel>
+          <Input
+            id="mobile"
+            name="mobile"
+            type="tel"
+            inputMode="tel"
+            placeholder="012-345 6789"
+            autoComplete="off"
+          />
         </Field>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field>
+            <FieldLabel htmlFor="jobRole">Job role</FieldLabel>
+            <Select name="jobRole" defaultValue="sales">
+              <SelectTrigger id="jobRole">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {JobRole.options.map((jobRole) => (
+                  <SelectItem key={jobRole} value={jobRole}>
+                    {JobRoleLabel[jobRole]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="role">Admin or staff</FieldLabel>
+            <Select name="role" defaultValue="staff">
+              <SelectTrigger id="role">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="staff">Staff</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+        </div>
         {state.error && <FieldError>{state.error}</FieldError>}
         <Button type="submit" disabled={pending}>
           {pending ? "Adding..." : "Create link"}

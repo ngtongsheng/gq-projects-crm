@@ -107,13 +107,16 @@ describe("save_mof: a new MOF", () => {
     expect(await mofsNumbered(mof.mof_no)).toBe(1);
   });
 
-  it("refuses a cost from Purchasing and keeps nothing", async () => {
+  it("lets Purchasing save a cost with the MOF", async () => {
     const mof = mofFields();
+    const id = await saveMof("support", { mof, lines: [line()], cost: 800 });
 
-    await expect(
-      saveMof("support", { mof, lines: [line()], cost: 800 }),
-    ).rejects.toThrow(/mof_costs/);
-    expect(await mofsNumbered(mof.mof_no)).toBe(0);
+    expect(
+      await count(
+        "select count(*) as n from public.mof_costs where mof_id = $1",
+        [id],
+      ),
+    ).toBe(1);
   });
 
   it("refuses a salesperson", async () => {
@@ -203,16 +206,21 @@ describe("save_mof: an existing MOF", () => {
     ).rejects.toThrow(/Give the reason/);
   });
 
-  it("refuses a cost from Purchasing", async () => {
+  it("lets Purchasing add a cost to a saved MOF", async () => {
     const { id, mof, lineId } = await registered();
 
-    await expect(
-      saveMof("support", {
-        mofId: id,
-        mof,
-        lines: [line({ id: lineId })],
-        cost: 800,
-      }),
-    ).rejects.toThrow(/mof_costs/);
+    await saveMof("support", {
+      mofId: id,
+      mof,
+      lines: [line({ id: lineId })],
+      cost: 800,
+    });
+
+    expect(
+      await count(
+        "select count(*) as n from public.mof_costs where mof_id = $1",
+        [id],
+      ),
+    ).toBe(1);
   });
 });

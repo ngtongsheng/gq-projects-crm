@@ -118,8 +118,22 @@ export const mofFormSchema = z
     siteContactName: optionalText(200),
     siteContactMobile: optionalText(50),
     officePicId: optionalId(),
+    // The old one-line contacts are kept as they were on saved MOFs.
     customerContact: optionalText(200),
     accountsContact: optionalText(200),
+    customerName: optionalText(200),
+    customerMobile: optionalText(50),
+    accountsName: optionalText(200),
+    accountsMobile: optionalText(50),
+    accountsEmail: z
+      .string()
+      .trim()
+      .pipe(
+        z.union([
+          z.literal("").transform(() => null),
+          z.email("Enter a valid email address for the accounts contact."),
+        ]),
+      ),
     scope: JobScope,
     installerName: optionalText(100),
     contractSum,

@@ -1,4 +1,4 @@
-import { FileText, Plus, Search } from "lucide-react";
+import { Calculator, FileText, Plus, Search } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DataTable } from "@/components/app/data-table";
@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { canEditRegister, isManager } from "@/lib/auth/job-role";
+import { canEditRegister, canSeeMofCost } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { isFinalStage, MOF_STAGE_TONE } from "@/lib/domain/mof-stages";
@@ -61,6 +61,14 @@ export default async function MofRegisterPage({
               path="/mofs/export"
               query={{ stage: filters.stage, person: filters.person }}
             />
+            {canSeeMofCost(me.jobRole) && (
+              <Button asChild variant="outline">
+                <Link href="/mofs/summary">
+                  <Calculator data-icon="inline-start" />
+                  Summary
+                </Link>
+              </Button>
+            )}
             {canEdit && (
               <PasteImportDialog
                 title="Paste MOFs from sheet"
@@ -69,7 +77,7 @@ export default async function MofRegisterPage({
                   {
                     value: "mofs",
                     label: "MOFs",
-                    columns: mofImportFields(isManager(me.jobRole)).map(
+                    columns: mofImportFields(canSeeMofCost(me.jobRole)).map(
                       (field) => field.label,
                     ),
                   },

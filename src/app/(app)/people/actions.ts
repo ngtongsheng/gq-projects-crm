@@ -8,16 +8,17 @@ import {
   createAdminClient,
 } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { inviteMessage } from "./invite-message";
+import { buildInvite, type Invite } from "./invite-message";
 import {
   addPersonSchema,
   changeRoleSchema,
+  newLinkSchema,
   personSettingsSchema,
 } from "./schemas";
 
 export type AddPersonState = {
   error: string | null;
-  invite: { link: string; message: string } | null;
+  invite: Invite | null;
 };
 
 async function requestOrigin(): Promise<string> {
@@ -37,6 +38,8 @@ export async function addPerson(formData: FormData): Promise<AddPersonState> {
     fullName: formData.get("fullName"),
     email: formData.get("email"),
     role: formData.get("role"),
+    jobRole: formData.get("jobRole") ?? undefined,
+    mobile: formData.get("mobile") ?? "",
   });
   if (!parsed.success) {
     return {
@@ -44,7 +47,7 @@ export async function addPerson(formData: FormData): Promise<AddPersonState> {
       invite: null,
     };
   }
-  const { fullName, email, role } = parsed.data;
+  const { fullName, email, role, jobRole, mobile } = parsed.data;
 
   const admin = createAdminClient();
   if (!admin) return { error: ADMIN_UNAVAILABLE_MESSAGE, invite: null };
@@ -71,20 +74,20 @@ export async function addPerson(formData: FormData): Promise<AddPersonState> {
     token_hash: data.properties.hashed_token,
     type: data.properties.verification_type,
   })}`;
-  const invite = { link, message: inviteMessage(fullName, link) };
+  const invite = buildInvite(fullName, link, mobile);
 
-  // The sign-up trigger always creates staff; promote when asked.
-  if (role === "admin") {
+  // The sign-up trigger always creates a salesperson on staff; set what was asked.
+  if (role === "admin" || jobRole !== "sales") {
     const { error: roleError } = await admin
       .from("profiles")
-      .update({ role })
+      .update({ ...(role === "admin" ? { role } : {}), job_role: jobRole })
       .eq("id", data.user.id);
     if (roleError) {
-      console.error("Could not make the new person an admin", roleError);
+      console.error("Could not set the new person's roles", roleError);
       revalidatePath("/people");
       return {
         error:
-          "They were added as staff, but making them an admin failed. Change their role in the list.",
+          "They were added, but their role could not be set. Change it in the list.",
         invite,
       };
     }
@@ -92,6 +95,56 @@ export async function addPerson(formData: FormData): Promise<AddPersonState> {
 
   revalidatePath("/people");
   return { error: null, invite };
+}
+
+/** A fresh set-password link for someone already added: lost link, or a forgotten password. The old link stops working. */
+export async function newSignInLink(userId: string): Promise<AddPersonState> {
+  await requireRole("admin");
+
+  const parsed = newLinkSchema.safeParse({ userId });
+  if (!parsed.success) {
+    return {
+      error: "Could not find that person. Reload the page.",
+      invite: null,
+    };
+  }
+
+  const admin = createAdminClient();
+  if (!admin) return { error: ADMIN_UNAVAILABLE_MESSAGE, invite: null };
+
+  const { data: found, error: findError } = await admin.auth.admin.getUserById(
+    parsed.data.userId,
+  );
+  const email = found?.user?.email;
+  if (findError || !email) {
+    console.error("Could not find the person's email", findError);
+    return {
+      error: "Could not find that person. Reload the page.",
+      invite: null,
+    };
+  }
+
+  const { data, error } = await admin.auth.admin.generateLink({
+    type: "recovery",
+    email,
+  });
+  if (error) {
+    console.error("Could not make a new link", error);
+    return {
+      error: "Could not make a new link. Try again in a moment.",
+      invite: null,
+    };
+  }
+
+  const link = `${await requestOrigin()}/set-password?${new URLSearchParams({
+    token_hash: data.properties.hashed_token,
+    type: data.properties.verification_type,
+  })}`;
+  const fullName =
+    typeof found.user.user_metadata?.full_name === "string"
+      ? found.user.user_metadata.full_name
+      : "there";
+  return { error: null, invite: buildInvite(fullName, link, null) };
 }
 
 export type ChangeRoleResult = { error: string | null };

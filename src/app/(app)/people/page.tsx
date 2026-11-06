@@ -12,9 +12,11 @@ import {
 } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { AddPersonDialog } from "./add-person-dialog";
+import { NewLinkDialog } from "./new-link-dialog";
 import { PersonSettingsDialog } from "./person-settings-dialog";
 import { RoleSelect } from "./role-select";
 import { roleSchema } from "./schemas";
+import { SignInAsButton } from "./sign-in-as-button";
 
 export const metadata: Metadata = { title: "People" };
 
@@ -114,7 +116,19 @@ export default async function PeoplePage() {
           {
             key: "settings",
             header: "Settings",
-            cell: (row) => <PersonSettingsDialog person={row.settings} />,
+            cell: (row) => (
+              <div className="flex flex-wrap gap-2">
+                <PersonSettingsDialog person={row.settings} />
+                <NewLinkDialog
+                  userId={row.id}
+                  name={row.name}
+                  unavailableMessage={emails ? null : ADMIN_UNAVAILABLE_MESSAGE}
+                />
+                {me.jobRole === "md" && row.id !== me.id && (
+                  <SignInAsButton userId={row.id} name={row.name} />
+                )}
+              </div>
+            ),
           },
         ]}
       />

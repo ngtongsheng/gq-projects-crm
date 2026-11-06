@@ -59,6 +59,11 @@ export type MofDraft = {
   officePicId: string;
   customerContact: string;
   accountsContact: string;
+  customerName: string;
+  customerMobile: string;
+  accountsName: string;
+  accountsMobile: string;
+  accountsEmail: string;
   scope: JobScope;
   installerName: string;
   contractSum: number | null;
@@ -86,6 +91,17 @@ type MofFormProps = {
   /** Present only for managers; the page never loads cost for anyone else. */
   cost?: number | null;
 };
+
+/** Saved values of fields the form no longer shows, sent back unchanged with every save. */
+function HiddenValues({ values }: { values: Record<string, string> }) {
+  return (
+    <>
+      {Object.entries(values).map(([name, value]) => (
+        <input key={name} type="hidden" name={name} value={value} />
+      ))}
+    </>
+  );
+}
 
 const amountText = (amount: number | null) =>
   amount === null || amount === 0 ? "" : String(amount);
@@ -231,67 +247,72 @@ export function MofForm({
               required
             />
           </Row>
-          <Row>
-            <TextField
-              name="loaNo"
-              label="LOA / PO no."
-              defaultValue={draft.loaNo}
-              maxLength={100}
-            />
-            <TextField
-              name="quoteNo"
-              label="Quotation no."
-              defaultValue={draft.quoteNo}
-              maxLength={100}
-            />
-          </Row>
+          {/* Not asked for any more; saved values are carried along so a change never blanks them. */}
+          <HiddenValues
+            values={{
+              loaNo: draft.loaNo,
+              quoteNo: draft.quoteNo,
+              siteAddress: draft.siteAddress,
+              siteContactName: draft.siteContactName,
+              siteContactMobile: draft.siteContactMobile,
+              officePicId: draft.officePicId,
+              customerContact: draft.customerContact,
+              accountsContact: draft.accountsContact,
+            }}
+          />
         </Section>
 
-        <Section title="Site and contacts">
-          <TextField
-            name="siteAddress"
-            label="Site address"
-            defaultValue={draft.siteAddress}
-            maxLength={500}
-          />
+        <Section title="Customer and accounts">
           <Row>
             <TextField
-              name="siteContactName"
-              label="Site contact"
-              defaultValue={draft.siteContactName}
-              placeholder="Name"
+              name="customerName"
+              label="Customer name"
+              defaultValue={draft.customerName}
+              maxLength={200}
             />
             <TextField
-              name="siteContactMobile"
-              label="Site contact no."
-              defaultValue={draft.siteContactMobile}
+              name="customerMobile"
+              label="Customer mobile"
+              type="tel"
+              defaultValue={draft.customerMobile}
+              placeholder="012-345 6789"
               maxLength={50}
             />
           </Row>
           <Row>
             <TextField
-              name="customerContact"
-              label="Customer contact"
-              defaultValue={draft.customerContact}
-              placeholder="Name (mobile)"
+              name="accountsName"
+              label="Accounts name"
+              defaultValue={draft.accountsName}
+              maxLength={200}
             />
             <TextField
-              name="accountsContact"
-              label="Accounts contact"
-              defaultValue={draft.accountsContact}
+              name="accountsMobile"
+              label="Accounts mobile"
+              type="tel"
+              defaultValue={draft.accountsMobile}
+              placeholder="012-345 6789"
+              maxLength={50}
             />
           </Row>
           <Row>
-            <Field>
-              <FieldLabel htmlFor="officePicId">Office PIC</FieldLabel>
-              <OptionalSelect
-                id="officePicId"
-                name="officePicId"
-                defaultValue={draft.officePicId}
-                options={team}
-                noneLabel="Not set"
-              />
-            </Field>
+            <TextField
+              name="accountsEmail"
+              label="Accounts email"
+              type="email"
+              defaultValue={draft.accountsEmail}
+              maxLength={200}
+            />
+            <span />
+          </Row>
+          {(draft.customerContact || draft.accountsContact) && (
+            <FieldDescription>
+              Earlier contact notes:
+              {draft.customerContact && ` customer ${draft.customerContact}.`}
+              {draft.accountsContact && ` accounts ${draft.accountsContact}.`}
+            </FieldDescription>
+          )}
+          <Row>
             <Field>
               <FieldLabel htmlFor="scope">Job scope</FieldLabel>
               <Select name="scope" defaultValue={draft.scope}>
@@ -344,20 +365,25 @@ export function MofForm({
                 required
               />
             </Field>
-            <Field>
-              <FieldLabel htmlFor="voAmount">
-                Variation orders / (omissions) (RM)
-              </FieldLabel>
-              <Input
-                id="voAmount"
-                name="voAmount"
-                inputMode="decimal"
-                className="font-mono tabular-nums"
-                placeholder="Negative for an omission or credit note"
-                value={voAmount}
-                onChange={(event) => setVoAmount(event.target.value)}
-              />
-            </Field>
+            {editing ? (
+              <Field>
+                <FieldLabel htmlFor="voAmount">
+                  Variation orders / (omissions) (RM)
+                </FieldLabel>
+                <Input
+                  id="voAmount"
+                  name="voAmount"
+                  inputMode="decimal"
+                  className="font-mono tabular-nums"
+                  placeholder="Negative for an omission or credit note"
+                  value={voAmount}
+                  onChange={(event) => setVoAmount(event.target.value)}
+                />
+              </Field>
+            ) : (
+              // A new MOF starts with none; a later price change is recorded when editing it.
+              <input type="hidden" name="voAmount" value="0" />
+            )}
           </Row>
           <p className="text-sm">
             Order total (contract + VO):{" "}
@@ -484,21 +510,30 @@ export function MofForm({
               maxLength={300}
             />
           </Row>
-          <p className="text-sm font-medium">
-            Before proceeding · tick when done
-          </p>
-          {(
-            Object.keys(
-              PreProceedCheckLabel,
-            ) as (keyof typeof PreProceedCheckLabel)[]
-          ).map((check, index) => (
-            <Field key={check} orientation="horizontal">
-              <Checkbox id={check} name={check} defaultChecked={draft[check]} />
-              <FieldLabel htmlFor={check} className="font-normal">
-                {index + 1}. {PreProceedCheckLabel[check]}
-              </FieldLabel>
-            </Field>
-          ))}
+          {/* Ticked later, when a delivery is due: not asked when registering a new MOF. */}
+          {editing && (
+            <>
+              <p className="text-sm font-medium">
+                Before proceeding · tick when done
+              </p>
+              {(
+                Object.keys(
+                  PreProceedCheckLabel,
+                ) as (keyof typeof PreProceedCheckLabel)[]
+              ).map((check, index) => (
+                <Field key={check} orientation="horizontal">
+                  <Checkbox
+                    id={check}
+                    name={check}
+                    defaultChecked={draft[check]}
+                  />
+                  <FieldLabel htmlFor={check} className="font-normal">
+                    {index + 1}. {PreProceedCheckLabel[check]}
+                  </FieldLabel>
+                </Field>
+              ))}
+            </>
+          )}
         </Section>
 
         {error && <FieldError>{error}</FieldError>}

@@ -51,7 +51,9 @@ const companyRows = z.array(
   z.object({ id: z.string(), name: z.string(), rating: z.number().int() }),
 );
 
-const pendingRequestRows = z.array(z.object({ contact_id: z.string() }));
+const pendingRequestRows = z.array(
+  z.object({ contact_id: z.string(), whole_company: z.boolean() }),
+);
 
 export default async function CustomersPage({
   searchParams,
@@ -68,7 +70,7 @@ export default async function CustomersPage({
       supabase.from("companies").select("id, name, rating").order("name"),
       supabase
         .from("ownership_requests")
-        .select("contact_id")
+        .select("contact_id, whole_company")
         .eq("requested_by", me.id)
         .eq("status", "pending"),
       getTeamDirectory(),
@@ -84,25 +86,45 @@ export default async function CustomersPage({
     );
   }
   const companies = companyRows.parse(companiesResult.data);
-  const requestedIds = new Set(
-    pendingRequestRows.parse(pendingResult.data).map((row) => row.contact_id),
+  const pending = pendingRequestRows.parse(pendingResult.data);
+  const requestedIds = new Set(pending.map((row) => row.contact_id));
+  // A request for a whole company covers every customer there.
+  const requestedCompanyIds = new Set(
+    allCustomers
+      .filter((customer) =>
+        pending.some(
+          (row) => row.whole_company && row.contact_id === customer.id,
+        ),
+      )
+      .map((customer) => customer.companyId),
   );
   const customers = allCustomers.map((customer) => ({
     ...customer,
-    requested: requestedIds.has(customer.id),
+    requested:
+      requestedIds.has(customer.id) ||
+      (customer.released && requestedCompanyIds.has(customer.companyId)),
   }));
-  const rows = filterCustomers(customers, filters);
+  // Company first, so a company's customers sit together.
+  const rows = filterCustomers(customers, filters).toSorted(
+    (a, b) =>
+      a.companyName.localeCompare(b.companyName) ||
+      a.name.localeCompare(b.name),
+  );
   const isFiltered =
     filters.q !== "" ||
     filters.owner !== undefined ||
     filters.rating !== undefined ||
-    filters.account !== undefined;
+    filters.account !== undefined ||
+    filters.released !== undefined;
+  const releasedCompanies = new Set(
+    customers.filter((customer) => customer.released).map((c) => c.companyId),
+  ).size;
 
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
         title="Customers"
-        description="Kept by company. The mobile number decides who owns a customer."
+        description="Kept by company. The mobile number decides who owns a customer. A company nobody has visited for 3 months is released: any salesperson can ask for it."
         actions={
           <>
             <DownloadCsvButton
@@ -194,6 +216,17 @@ export default async function CustomersPage({
             ))}
           </SelectContent>
         </Select>
+        <Select name="released" defaultValue={filters.released ?? ALL}>
+          <SelectTrigger aria-label="Released companies" className="w-48">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All companies</SelectItem>
+            <SelectItem value="yes">
+              Released only ({releasedCompanies})
+            </SelectItem>
+          </SelectContent>
+        </Select>
         <Button type="submit" variant="outline">
           <Search data-icon="inline-start" />
           Search
@@ -220,6 +253,21 @@ export default async function CustomersPage({
         }
         columns={[
           {
+            key: "company",
+            header: "Company",
+            cell: (row) => (
+              <div className="flex flex-col items-start gap-0.5">
+                <span className="font-medium">{row.companyName}</span>
+                <span className="text-xs text-muted-foreground">
+                  {CompanyTypeLabel[row.companyType]}
+                </span>
+                {row.released && (
+                  <StatusBadge tone="warn">Released</StatusBadge>
+                )}
+              </div>
+            ),
+          },
+          {
             key: "name",
             header: "Customer",
             cell: (row) => (
@@ -235,18 +283,6 @@ export default async function CustomersPage({
             key: "position",
             header: "Position",
             cell: (row) => row.title || "–",
-          },
-          {
-            key: "company",
-            header: "Company",
-            cell: (row) => (
-              <div className="flex flex-col">
-                <span>{row.companyName}</span>
-                <span className="text-xs text-muted-foreground">
-                  {CompanyTypeLabel[row.companyType]}
-                </span>
-              </div>
-            ),
           },
           {
             key: "mobile",
@@ -301,6 +337,7 @@ export default async function CustomersPage({
                   contactId={row.id}
                   customerName={row.name}
                   ownerNames={row.ownerNames}
+                  wholeCompany={row.released ? row.companyName : null}
                 />
               );
             },

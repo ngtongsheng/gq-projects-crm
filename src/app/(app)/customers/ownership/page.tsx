@@ -38,6 +38,7 @@ const requestRows = z.array(
     id: z.string(),
     reason: z.string(),
     status: RequestStatus,
+    whole_company: z.boolean(),
     requested_by: z.string(),
     decided_by: z.string().nullable(),
     decided_at: z.string().nullable(),
@@ -60,7 +61,7 @@ export default async function OwnershipRequestsPage() {
     supabase
       .from("ownership_requests")
       .select(
-        "id, reason, status, requested_by, decided_by, decided_at, created_at, contacts(id, name, companies(name), contact_owners(profile_id))",
+        "id, reason, status, whole_company, requested_by, decided_by, decided_at, created_at, contacts(id, name, companies(name), contact_owners(profile_id))",
       )
       .order("created_at", { ascending: false })
       .limit(100),
@@ -79,6 +80,7 @@ export default async function OwnershipRequestsPage() {
     contactId: row.contacts.id,
     customer: row.contacts.name,
     company: row.contacts.companies.name,
+    wholeCompany: row.whole_company,
     owners: row.contacts.contact_owners.map((owner) =>
       personName(owner.profile_id),
     ),
@@ -100,7 +102,7 @@ export default async function OwnershipRequestsPage() {
         title={canDecide ? "Ownership requests" : "My requests"}
         description={
           canDecide
-            ? `${waiting.length} waiting. Approving makes the requester the owner of the customer.`
+            ? `${waiting.length} waiting. Approving makes the requester the owner of the customer, or of every customer at the company for a whole-company request.`
             : canOpenOwnershipRequests(me.jobRole)
               ? "Customers you asked to own, and what was decided."
               : "Ownership requests across the team."
@@ -135,6 +137,9 @@ export default async function OwnershipRequestsPage() {
                 <span className="text-xs text-muted-foreground">
                   {row.company}
                 </span>
+                {row.wholeCompany && (
+                  <StatusBadge tone="warn">Whole company</StatusBadge>
+                )}
               </div>
             ),
           },

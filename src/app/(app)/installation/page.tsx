@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/select";
 import {
   canAnswerBookings,
-  canBookSiteSupervisor,
   canScheduleJobs,
   canUpdateJobStatus,
 } from "@/lib/auth/job-role";
@@ -34,18 +33,12 @@ import {
   stepDate,
 } from "../calendar/calendar-params";
 import { AddJobDialog } from "./add-job-dialog";
-import {
-  loadBookableProjects,
-  loadCalendarBookings,
-  loadPendingBookingDays,
-  loadSiteSupervisors,
-} from "./booking-data";
-import { BookingDialog } from "./booking-form";
+import { loadCalendarBookings, loadPendingBookingDays } from "./booking-data";
 import { calendarItems } from "./calendar-items";
 import { loadCalendarJobs } from "./calendar-jobs";
 import { JobList } from "./job-list";
 import { loadMofOptions } from "./mof-options";
-import { forSalesperson } from "./schedule-filters";
+import { forJobTypes, forSalesperson } from "./schedule-filters";
 import { loadCalendarSiteVisits } from "./site-visit-data";
 
 export const metadata: Metadata = { title: "Installation" };
@@ -53,6 +46,9 @@ export const metadata: Metadata = { title: "Installation" };
 const PATH = "/installation";
 const ALL = "all";
 const NOUN = { one: "job", many: "jobs" };
+// The installation calendar is about the work itself. Measurements, supervisor bookings and
+// logged visits belong on the Calendar, except for a Site Supervisor, whose own diary this is.
+const INSTALLATION_JOB_TYPES = ["installation", "delivery"] as const;
 
 export default async function InstallationPage({
   searchParams,
@@ -64,7 +60,6 @@ export default async function InstallationPage({
   const { view } = params;
   const today = todayMyt();
   const canSchedule = canScheduleJobs(me.jobRole);
-  const canBook = canBookSiteSupervisor(me.jobRole);
   const answersBookings = canAnswerBookings(me.jobRole);
   const title =
     sectionsFor(me.jobRole).find((s) => s.key === "installation")?.label ??
@@ -77,28 +72,22 @@ export default async function InstallationPage({
 
   // A Site Supervisor sees their own jobs and bookings; everyone else sees the whole schedule.
   const ownOnly = me.jobRole === "site" ? me.id : null;
-  const [
-    allJobs,
-    allBookings,
-    allVisits,
-    team,
-    mofs,
-    supervisors,
-    projects,
-    pendingDays,
-  ] = await Promise.all([
-    loadCalendarJobs(from, to, ownOnly),
-    loadCalendarBookings(from, to, ownOnly),
-    loadCalendarSiteVisits(from, to, ownOnly),
-    getTeamDirectory(),
-    canSchedule && params.add ? loadMofOptions() : Promise.resolve(null),
-    canBook ? loadSiteSupervisors() : Promise.resolve([]),
-    canBook ? loadBookableProjects(me) : Promise.resolve([]),
-    answersBookings ? loadPendingBookingDays(me.id) : Promise.resolve([]),
-  ]);
+  const [allJobs, allBookings, allVisits, team, mofs, pendingDays] =
+    await Promise.all([
+      loadCalendarJobs(from, to, ownOnly),
+      ownOnly ? loadCalendarBookings(from, to, ownOnly) : Promise.resolve([]),
+      ownOnly ? loadCalendarSiteVisits(from, to, ownOnly) : Promise.resolve([]),
+      getTeamDirectory(),
+      canSchedule && params.add ? loadMofOptions() : Promise.resolve(null),
+      answersBookings ? loadPendingBookingDays(me.id) : Promise.resolve([]),
+    ]);
 
-  // Everyone sees the whole schedule; a salesperson can narrow it to the jobs they sold.
-  const { jobs, bookings } = forSalesperson(allJobs, allBookings, params.who);
+  // A salesperson can narrow the schedule to the jobs they sold.
+  const { jobs, bookings } = forSalesperson(
+    ownOnly ? allJobs : forJobTypes(allJobs, INSTALLATION_JOB_TYPES),
+    allBookings,
+    params.who,
+  );
   // A visit has no salesperson of its own, so it shows only while the whole schedule is shown.
   const visits = params.who ? [] : allVisits;
   const canFilter = me.jobRole !== "site";
@@ -172,13 +161,6 @@ export default async function InstallationPage({
                 <Link href={href({ ...here, view: "week" })}>Week</Link>
               </Button>
             </div>
-            {canBook && supervisors.length > 0 && (
-              <BookingDialog
-                supervisors={supervisors}
-                projects={projects}
-                defaultDate={today}
-              />
-            )}
             {addHref && (
               <Button asChild size="sm">
                 <Link href={addHref(today)}>
@@ -286,9 +268,9 @@ export default async function InstallationPage({
       )}
       <p className="text-sm text-muted-foreground">
         Jobs: green = done · amber = in progress · blue = scheduled · grey =
-        postponed. Site supervisor bookings: amber = waiting for an answer ·
-        green = confirmed · grey = declined. Green &quot;Visited&quot; entries
-        are site visits already logged.
+        postponed.
+        {ownOnly &&
+          " Site supervisor bookings: amber = waiting for an answer · green = confirmed · grey = declined. Green “Visited” entries are site visits already logged."}
       </p>
       {params.add && mofs && (
         <AddJobDialog
@@ -296,6 +278,7 @@ export default async function InstallationPage({
           mofs={mofs}
           team={team}
           closeHref={href(here)}
+          jobTypes={INSTALLATION_JOB_TYPES}
         />
       )}
     </div>

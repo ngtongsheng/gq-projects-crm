@@ -73,6 +73,8 @@ type JobDialogProps = {
   missingChecks: string[];
   /** The day to start on when scheduling a new job, e.g. the calendar day clicked. */
   defaultDate?: string;
+  /** The job types that can be chosen for a new job; all of them when unset. */
+  jobTypes?: readonly JobType[];
 };
 
 const NONE = "none";
@@ -123,12 +125,13 @@ export function JobForm({
   defaultInstaller,
   missingChecks,
   defaultDate,
+  jobTypes = JOB_TYPES,
   onSaved,
 }: JobDialogProps & { onSaved: () => void }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [jobType, setJobType] = useState<JobType>(
-    job?.jobType ?? "installation",
+    job?.jobType ?? jobTypes[0] ?? "installation",
   );
   const [startDate, setStartDate] = useState(
     job?.scheduledOn ?? defaultDate ?? "",
@@ -173,7 +176,7 @@ export function JobForm({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {JOB_TYPES.map((type) => (
+                {jobTypes.map((type) => (
                   <SelectItem key={type} value={type}>
                     {JOB_TYPE_LABEL[type]}
                   </SelectItem>

@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { JobType } from "@/lib/domain/delivery-status";
 import { formatDate } from "@/lib/format/date";
 import { JobForm } from "./job-form";
 
@@ -35,6 +36,8 @@ type AddJobDialogProps = {
   team: { id: string; name: string }[];
   /** The calendar address without the add day; closing goes back to it. */
   closeHref: string;
+  /** The job types this calendar schedules. */
+  jobTypes: readonly JobType[];
 };
 
 /** Open whenever the address carries an add day; pick the MOF, then fill in the job. */
@@ -43,6 +46,7 @@ export function AddJobDialog({
   mofs,
   team,
   closeHref,
+  jobTypes,
 }: AddJobDialogProps) {
   const router = useRouter();
   const [mofId, setMofId] = useState("");
@@ -82,6 +86,7 @@ export function AddJobDialog({
             defaultInstaller={mof.installer}
             missingChecks={mof.missingChecks}
             defaultDate={date}
+            jobTypes={jobTypes}
             onSaved={close}
           />
         )}

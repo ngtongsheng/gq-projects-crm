@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { forSalesperson, forSupervisor } from "./schedule-filters";
+import { forJobTypes, forSalesperson, forSupervisor } from "./schedule-filters";
 
 const DANIEL = "11111111-1111-4111-8111-111111111111";
 const PRIYA = "22222222-2222-4222-8222-222222222222";
@@ -68,5 +68,22 @@ describe("forSupervisor", () => {
     const result = forSupervisor(jobs, bookings, "none");
     expect(result.jobs).toEqual([]);
     expect(result.bookings).toEqual([]);
+  });
+});
+
+describe("forJobTypes", () => {
+  const typed = [
+    { id: "a", jobType: "installation" },
+    { id: "b", jobType: "delivery" },
+    { id: "c", jobType: "site_measurement" },
+  ];
+
+  it("keeps only the jobs of the given types", () => {
+    expect(
+      forJobTypes(typed, ["installation", "delivery"]).map((j) => j.id),
+    ).toEqual(["a", "b"]);
+    expect(forJobTypes(typed, ["site_measurement"]).map((j) => j.id)).toEqual([
+      "c",
+    ]);
   });
 });

@@ -26,6 +26,14 @@ export function forSalesperson<
   };
 }
 
+/** The jobs of the given types, so each calendar shows only its own kind of work. */
+export function forJobTypes<J extends { jobType: string }>(
+  jobs: readonly J[],
+  types: readonly string[],
+): J[] {
+  return jobs.filter((job) => types.includes(job.jobType));
+}
+
 /**
  * The site supervisors whose work is shown: one person, "none" for nobody, or everyone when
  * unset. A job with no supervisor yet shows only when everyone is shown.

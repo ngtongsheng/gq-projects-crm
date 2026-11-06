@@ -9,7 +9,7 @@ describe("sectionsFor", () => {
   it("gives the MD every section, with manager wording", () => {
     expect(labels("md")).toEqual([
       "Dashboard",
-      "Sales Calendar",
+      "Calendar",
       "Installation",
       "Customers",
       "Projects",
@@ -28,7 +28,7 @@ describe("sectionsFor", () => {
   it("leaves MOF out for the Sales Director", () => {
     expect(labels("director")).toEqual([
       "Dashboard",
-      "Sales Calendar",
+      "Calendar",
       "Installation",
       "Customers",
       "Projects",
@@ -46,7 +46,7 @@ describe("sectionsFor", () => {
   it("gives the BD Director My Sales, no personal report", () => {
     expect(labels("bd")).toEqual([
       "Dashboard",
-      "Sales Calendar",
+      "Calendar",
       "Installation",
       "Customers",
       "Projects",
@@ -64,7 +64,7 @@ describe("sectionsFor", () => {
   it("gives sales My Sales and My Report, no Director Report", () => {
     expect(labels("sales")).toEqual([
       "Dashboard",
-      "Sales Calendar",
+      "Calendar",
       "Installation",
       "Customers",
       "Projects",

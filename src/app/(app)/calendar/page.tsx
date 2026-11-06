@@ -41,14 +41,18 @@ import {
 import { BookingDialog } from "../installation/booking-form";
 import { calendarItems } from "../installation/calendar-items";
 import { loadCalendarJobs } from "../installation/calendar-jobs";
-import { forSupervisor } from "../installation/schedule-filters";
+import { forJobTypes, forSupervisor } from "../installation/schedule-filters";
 import { loadCalendarSiteVisits } from "../installation/site-visit-data";
 import { AddActivityDialog } from "./add-activity-dialog";
 import { calendarHref, parseCalendarParams, stepDate } from "./calendar-params";
 
-export const metadata: Metadata = { title: "Sales Calendar" };
+export const metadata: Metadata = { title: "Calendar" };
 
 const ALL = "all";
+// Calls and online meetings are not kept on the calendar; earlier ones stay on the customer.
+const SALES_VISIT_TYPES: ActivityType[] = ["visit", "site_visit", "walk_in"];
+// Installation and delivery jobs live on the Installation calendar, not here.
+const SUPERVISOR_JOB_TYPES = ["site_measurement"];
 
 const activityRows = z.array(
   z.object({
@@ -111,6 +115,7 @@ export default async function SalesCalendarPage({
     .select(
       "id, contact_id, owner_id, type, purpose, starts_at, status, contacts(name, companies(name)), activity_attendees(profile_id)",
     )
+    .in("type", SALES_VISIT_TYPES)
     .gte("starts_at", `${from}T00:00:00+08:00`)
     .lt("starts_at", `${addDays(to, 1)}T00:00:00+08:00`)
     .order("starts_at");
@@ -147,7 +152,11 @@ export default async function SalesCalendarPage({
       canBook ? loadSiteSupervisors() : Promise.resolve([]),
       canBook ? loadBookableProjects(me) : Promise.resolve([]),
     ]);
-  const supervisorWork = forSupervisor(allJobs, allBookings, params.sup);
+  const supervisorWork = forSupervisor(
+    forJobTypes(allJobs, SUPERVISOR_JOB_TYPES),
+    allBookings,
+    params.sup,
+  );
   const visits =
     params.sup === undefined
       ? allVisits
@@ -188,7 +197,13 @@ export default async function SalesCalendarPage({
     from,
     to,
     supervisorName,
-    hrefFor: (day) => `/installation?view=week&date=${day}`,
+    hrefFor: (day) =>
+      calendarHref({
+        view: "week",
+        date: day,
+        who: params.who,
+        sup: params.sup,
+      }),
   });
   for (const [day, items] of supervisorItems) {
     const events = items.map((item): CalendarEvent => {
@@ -233,7 +248,7 @@ export default async function SalesCalendarPage({
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Sales Calendar"
+        title="Calendar"
         description={`${visitsDone} visits done · ${planned} planned this ${weeks ? "month" : "week"}${showOwner && manager ? " · whole team" : ""} · ${supervisorEvents} site supervisor ${supervisorEvents === 1 ? "entry" : "entries"}`}
         actions={
           <>
@@ -372,10 +387,11 @@ export default async function SalesCalendarPage({
       )}
       <p className="text-sm text-muted-foreground">
         Green = completed · Blue = planned · Grey = cancelled. Only completed
-        visits and site visits count toward the 50-visit target; walk-ins and
-        online meetings keep a customer active. Site supervisor entries show the
-        supervisor&apos;s name: a job in the colour of its status, or a booking
-        (amber = waiting for an answer, green = confirmed, grey = declined).
+        visits and site visits count toward the 50-visit target. Site supervisor
+        entries show the supervisor&apos;s name: a site measurement in the
+        colour of its status, or a booking (amber = waiting for an answer, green
+        = confirmed, grey = declined). Installation and delivery are on the
+        Installation calendar.
       </p>
       {params.add && customers && (
         <AddActivityDialog

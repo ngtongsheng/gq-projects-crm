@@ -9,6 +9,8 @@ export type FilterableCustomer = {
   rating: number;
   accountType: AccountType;
   ownerIds: string[];
+  /** Company released after 90 days without a visit. */
+  released?: boolean;
 };
 
 // The filter form posts "all" for "no filter"; anything unrecognised also means no filter.
@@ -17,6 +19,8 @@ const filterParams = z.object({
   owner: z.uuid().optional().catch(undefined),
   rating: z.coerce.number().int().min(1).max(5).optional().catch(undefined),
   account: AccountType.optional().catch(undefined),
+  /** "yes" shows only released companies. */
+  released: z.literal("yes").optional().catch(undefined),
 });
 export type CustomerFilters = z.infer<typeof filterParams>;
 
@@ -28,6 +32,7 @@ export function parseCustomerFilters(
     owner: params.owner,
     rating: params.rating,
     account: params.account,
+    released: params.released,
   });
 }
 
@@ -44,6 +49,7 @@ export function filterCustomers<Row extends FilterableCustomer>(
     if (filters.owner && !row.ownerIds.includes(filters.owner)) return false;
     if (filters.rating && row.rating !== filters.rating) return false;
     if (filters.account && row.accountType !== filters.account) return false;
+    if (filters.released && !row.released) return false;
     if (!query) return true;
     // Digits-only search matches any way of writing the number, e.g. 012-345.
     const matchesMobile =

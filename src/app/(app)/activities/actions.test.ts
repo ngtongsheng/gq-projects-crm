@@ -105,6 +105,28 @@ describe("saveActivity", () => {
     });
   });
 
+  it("no longer logs a new call", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    const calls = fakeSupabase([]);
+
+    const result = await saveActivity(form({ type: "call" }));
+
+    expect(result.error).toMatch(/Calls are no longer logged/);
+    expect(calls).toHaveLength(0);
+  });
+
+  it("still lets an earlier call be edited", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    const calls = fakeSupabase([existing(ME, "planned"), updated]);
+
+    const result = await saveActivity(
+      form({ type: "call", activityId: ACTIVITY, status: "planned" }),
+    );
+
+    expect(result.error).toBeNull();
+    expect(calls.at(-1)?.payload).toMatchObject({ type: "call" });
+  });
+
   it("refuses a completed activity dated in the future", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
     const calls = fakeSupabase([]);

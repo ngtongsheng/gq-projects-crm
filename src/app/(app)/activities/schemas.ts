@@ -11,6 +11,15 @@ export const ActivityType = z.enum([
 ]);
 export type ActivityType = z.infer<typeof ActivityType>;
 
+/**
+ * What can be chosen for a new activity. Calls are no longer logged; earlier ones stay on the
+ * record and can still be edited, which is why "call" stays a valid type.
+ */
+export const activityTypesToChoose = (
+  current?: ActivityType,
+): readonly ActivityType[] =>
+  ActivityType.options.filter((type) => type !== "call" || current === "call");
+
 export const ActivityTypeLabel: Record<ActivityType, string> = {
   visit: "Visit",
   site_visit: "Site visit",

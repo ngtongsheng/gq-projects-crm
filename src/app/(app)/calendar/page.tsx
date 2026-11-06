@@ -335,7 +335,7 @@ export default async function SalesCalendarPage({
       )}
       <p className="text-sm text-muted-foreground">
         Green = completed · Blue = planned · Grey = cancelled. Only completed
-        visits and site visits count toward the 50-visit target; calls and
+        visits and site visits count toward the 50-visit target; walk-ins and
         online meetings keep a customer active. Site supervisor entries show the
         supervisor&apos;s name: a job in the colour of its status, or a booking
         (amber = waiting for an answer, green = confirmed, grey = declined).

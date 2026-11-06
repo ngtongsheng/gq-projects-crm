@@ -5,6 +5,7 @@ export type AttentionKey =
   | "overdueProjects"
   | "staleProjects"
   | "inactiveCustomers"
+  | "releasedCompanies"
   | "lateReports"
   | "ownReport"
   | "pendingOvertime"
@@ -61,6 +62,12 @@ const RULES: Record<AttentionKey, Rule> = {
     href: () => "/customers",
     label: (n) =>
       `${plural(n, "customer", "customers")} with no activity in over 90 days`,
+  },
+  releasedCompanies: {
+    tone: "bad",
+    href: () => "/customers?released=yes",
+    label: (n) =>
+      `${plural(n, "company", "companies")} nobody has visited for 3 months`,
   },
   lateReports: {
     tone: "bad",
@@ -129,6 +136,7 @@ const RULES: Record<AttentionKey, Rule> = {
 const KEYS_BY_ROLE: Record<JobRole, readonly AttentionKey[]> = {
   md: [
     "ownershipRequests",
+    "releasedCompanies",
     "lateReports",
     "overdueProjects",
     "staleProjects",
@@ -142,6 +150,7 @@ const KEYS_BY_ROLE: Record<JobRole, readonly AttentionKey[]> = {
   ],
   director: [
     "ownershipRequests",
+    "releasedCompanies",
     "lateReports",
     "overdueProjects",
     "staleProjects",

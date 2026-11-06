@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { isReleased, releaseCutoff } from "./company-release";
+import {
+  isReleased,
+  releaseCutoff,
+  releasedCompanyIds,
+} from "./company-release";
 
 const TODAY = "2026-11-06";
 
@@ -32,6 +36,62 @@ describe("isReleased", () => {
     expect(isReleased({ addedOn: "2026-05-01", lastVisit: null }, TODAY)).toBe(
       true,
     );
+  });
+});
+
+describe("releasedCompanyIds", () => {
+  const contacts = [
+    { id: "a1", companyId: "kept" },
+    { id: "a2", companyId: "kept" },
+    { id: "b1", companyId: "idle" },
+    { id: "c1", companyId: "new" },
+    { id: "d1", companyId: "never-added" },
+  ];
+  const companyAddedOn = new Map([
+    ["kept", "2025-01-01"],
+    ["idle", "2025-01-01"],
+    ["new", "2026-10-15"],
+  ]);
+
+  it("releases the companies with no recent visit, keeps visited and new ones", () => {
+    const released = releasedCompanyIds({
+      contacts,
+      visitedContactIds: ["a2"],
+      companyAddedOn,
+      today: TODAY,
+    });
+    expect([...released].sort()).toEqual(["idle"]);
+  });
+
+  it("counts a company once however many customers it has", () => {
+    const released = releasedCompanyIds({
+      contacts,
+      visitedContactIds: [],
+      companyAddedOn,
+      today: TODAY,
+    });
+    expect([...released].sort()).toEqual(["idle", "kept"]);
+  });
+
+  it("leaves out a company whose date is unknown rather than releasing it", () => {
+    const released = releasedCompanyIds({
+      contacts: [{ id: "x", companyId: "mystery" }],
+      visitedContactIds: [],
+      companyAddedOn: new Map(),
+      today: TODAY,
+    });
+    expect(released.size).toBe(0);
+  });
+
+  it("has nothing released when there are no customers", () => {
+    expect(
+      releasedCompanyIds({
+        contacts: [],
+        visitedContactIds: [],
+        companyAddedOn,
+        today: TODAY,
+      }).size,
+    ).toBe(0);
   });
 });
 

@@ -9,6 +9,38 @@ export function releaseCutoff(today: CalendarDate): CalendarDate {
 }
 
 /**
+ * The companies that are released right now. Only companies with a live customer count.
+ * `visitedContactIds` are the customers with a completed visit or site visit inside the last 90
+ * days; one such visit keeps the whole company.
+ */
+export function releasedCompanyIds(input: {
+  contacts: readonly { id: string; companyId: string }[];
+  visitedContactIds: Iterable<string>;
+  companyAddedOn: ReadonlyMap<string, CalendarDate>;
+  today: CalendarDate;
+}): Set<string> {
+  const companyOf = new Map(
+    input.contacts.map((contact) => [contact.id, contact.companyId]),
+  );
+  const kept = new Set(
+    [...input.visitedContactIds].flatMap((id) => companyOf.get(id) ?? []),
+  );
+  return new Set(
+    [...new Set(companyOf.values())].filter(
+      (companyId) =>
+        !kept.has(companyId) &&
+        isReleased(
+          {
+            addedOn: input.companyAddedOn.get(companyId) ?? input.today,
+            lastVisit: null,
+          },
+          input.today,
+        ),
+    ),
+  );
+}
+
+/**
  * Whether a company is released: its customers have had no completed visit or site visit for
  * 90 days, and the company itself is older than that. `lastVisit` is the latest such visit across
  * all its customers, or null when none is known.

@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { isManager } from "@/lib/auth/job-role";
+import { canBookSiteSupervisor, isManager } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import {
@@ -33,6 +33,15 @@ import {
   ActivityType,
   ActivityTypeLabel,
 } from "../activities/schemas";
+import {
+  loadBookableProjects,
+  loadCalendarBookings,
+  loadSiteSupervisors,
+} from "../installation/booking-data";
+import { BookingDialog } from "../installation/booking-form";
+import { calendarItems } from "../installation/calendar-items";
+import { loadCalendarJobs } from "../installation/calendar-jobs";
+import { forSupervisor } from "../installation/schedule-filters";
 import { AddActivityDialog } from "./add-activity-dialog";
 import { calendarHref, parseCalendarParams, stepDate } from "./calendar-params";
 
@@ -108,6 +117,18 @@ export default async function SalesCalendarPage({
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
   const showOwner = personId === undefined;
 
+  // The site supervisors' schedule beside the diary, so a salesperson sees where they are and can book one.
+  const canBook = canBookSiteSupervisor(me.jobRole);
+  const [allJobs, allBookings, supervisors, projects] = await Promise.all([
+    loadCalendarJobs(from, to, null),
+    loadCalendarBookings(from, to, null),
+    canBook ? loadSiteSupervisors() : Promise.resolve([]),
+    canBook ? loadBookableProjects(me) : Promise.resolve([]),
+  ]);
+  const supervisorWork = forSupervisor(allJobs, allBookings, params.sup);
+  const supervisorName = (id: string) =>
+    id === "" ? "No supervisor yet" : (nameOf.get(id) ?? "Unnamed");
+
   const eventsByDay = new Map<string, CalendarEvent[]>();
   for (const activity of activities) {
     const day = activityDay(activity.starts_at);
@@ -124,6 +145,37 @@ export default async function SalesCalendarPage({
     };
     eventsByDay.set(day, [...(eventsByDay.get(day) ?? []), event]);
   }
+  const supervisorItems = calendarItems({
+    jobs: supervisorWork.jobs,
+    bookings: supervisorWork.bookings,
+    from,
+    to,
+    supervisorName,
+    hrefFor: (day) => `/installation?view=week&date=${day}`,
+  });
+  for (const [day, items] of supervisorItems) {
+    const events = items.map((item): CalendarEvent => {
+      const { id, time, title, detail, tone, href, muted } = item;
+      return {
+        id,
+        // A job's title names the MOF; add who is on it. A booking's title already names them.
+        time:
+          item.kind === "job"
+            ? `${time} · ${supervisorName(item.job.siteSupervisorId)}`
+            : time,
+        title,
+        detail,
+        tone,
+        href,
+        muted,
+      };
+    });
+    eventsByDay.set(day, [...(eventsByDay.get(day) ?? []), ...events]);
+  }
+  const supervisorEvents = [...supervisorItems.values()].reduce(
+    (total, items) => total + items.length,
+    0,
+  );
 
   const visitsDone = activities.filter(
     (a) =>
@@ -135,7 +187,7 @@ export default async function SalesCalendarPage({
   const periodTitle = weeks
     ? formatMonthTitle(params.date)
     : `${formatDate(from)} – ${formatDate(to)}`;
-  const keep = { view, who: params.who };
+  const keep = { view, who: params.who, sup: params.sup };
   const here = { ...keep, date: params.date };
   const addHref = canAdd
     ? (date: string) => calendarHref({ ...here, add: date })
@@ -145,24 +197,35 @@ export default async function SalesCalendarPage({
     <div className="flex flex-col gap-4">
       <PageHeader
         title="Sales Calendar"
-        description={`${visitsDone} visits done · ${planned} planned this ${weeks ? "month" : "week"}${showOwner && manager ? " · whole team" : ""}`}
+        description={`${visitsDone} visits done · ${planned} planned this ${weeks ? "month" : "week"}${showOwner && manager ? " · whole team" : ""} · ${supervisorEvents} site supervisor ${supervisorEvents === 1 ? "entry" : "entries"}`}
         actions={
-          <div className="inline-flex gap-1">
-            <Button
-              asChild
-              size="sm"
-              variant={view === "month" ? "default" : "outline"}
-            >
-              <Link href={calendarHref({ ...here, view: "month" })}>Month</Link>
-            </Button>
-            <Button
-              asChild
-              size="sm"
-              variant={view === "week" ? "default" : "outline"}
-            >
-              <Link href={calendarHref({ ...here, view: "week" })}>Week</Link>
-            </Button>
-          </div>
+          <>
+            {canBook && supervisors.length > 0 && (
+              <BookingDialog
+                supervisors={supervisors}
+                projects={projects}
+                defaultDate={today}
+              />
+            )}
+            <div className="inline-flex gap-1">
+              <Button
+                asChild
+                size="sm"
+                variant={view === "month" ? "default" : "outline"}
+              >
+                <Link href={calendarHref({ ...here, view: "month" })}>
+                  Month
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="sm"
+                variant={view === "week" ? "default" : "outline"}
+              >
+                <Link href={calendarHref({ ...here, view: "week" })}>Week</Link>
+              </Button>
+            </div>
+          </>
         }
       />
       <div className="flex flex-wrap items-center gap-2">
@@ -200,6 +263,9 @@ export default async function SalesCalendarPage({
               <input type="hidden" name="view" value="week" />
             )}
             <input type="hidden" name="date" value={params.date} />
+            {params.sup && (
+              <input type="hidden" name="sup" value={params.sup} />
+            )}
             <Select name="who" defaultValue={params.who ?? ALL}>
               <SelectTrigger aria-label="Salesperson" className="w-44">
                 <SelectValue />
@@ -211,6 +277,37 @@ export default async function SalesCalendarPage({
                     {member.name}
                   </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+            <Button type="submit" variant="outline">
+              Show
+            </Button>
+          </form>
+        )}
+        {supervisors.length > 0 && (
+          <form
+            action="/calendar"
+            className={`${manager ? "" : "ml-auto "}flex items-center gap-2`}
+          >
+            {view === "week" && (
+              <input type="hidden" name="view" value="week" />
+            )}
+            <input type="hidden" name="date" value={params.date} />
+            {params.who && (
+              <input type="hidden" name="who" value={params.who} />
+            )}
+            <Select name="sup" defaultValue={params.sup ?? ALL}>
+              <SelectTrigger aria-label="Site supervisor" className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>All site supervisors</SelectItem>
+                {supervisors.map((supervisor) => (
+                  <SelectItem key={supervisor.id} value={supervisor.id}>
+                    {supervisor.name}
+                  </SelectItem>
+                ))}
+                <SelectItem value="none">Hide site supervisors</SelectItem>
               </SelectContent>
             </Select>
             <Button type="submit" variant="outline">
@@ -239,7 +336,9 @@ export default async function SalesCalendarPage({
       <p className="text-sm text-muted-foreground">
         Green = completed · Blue = planned · Grey = cancelled. Only completed
         visits and site visits count toward the 50-visit target; calls and
-        online meetings keep a customer active.
+        online meetings keep a customer active. Site supervisor entries show the
+        supervisor&apos;s name: a job in the colour of its status, or a booking
+        (amber = waiting for an answer, green = confirmed, grey = declined).
       </p>
       {params.add && customers && (
         <AddActivityDialog

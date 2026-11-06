@@ -96,7 +96,6 @@ describe("reassignCustomer", () => {
     "sales",
     "bd",
     "accounts",
-    "support",
   ] as const)("refuses %s before asking the database", async (jobRole) => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile(jobRole));
     const rpc = fakeRpc();

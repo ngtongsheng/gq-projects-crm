@@ -34,6 +34,7 @@ import {
 } from "./dashboard-parts";
 import { overdueFollowUpTotal } from "./follow-up-total";
 import { loadPurchasingFacts } from "./purchasing-data";
+import { UnijoyTile } from "./unijoy-tile";
 
 const MOF_ATTENTION_KEYS: readonly AttentionKey[] = [
   "overdueSupplierPos",
@@ -93,6 +94,7 @@ export async function SupportDashboard({ me }: { me: Profile }) {
           value={totals.month.count}
           note={`${formatRm(totals.month.value)} in orders`}
         />
+        <UnijoyTile me={me} today={today} />
         <StatTile
           label="Sales this year"
           value={formatRm(totals.year.value)}

@@ -64,7 +64,14 @@ export async function SalesDashboard({ me }: { me: Profile }) {
             label="New customers met"
             value={stats.newCustomers}
             note="First completed visit this month"
-          />
+          >
+            <PaceBar
+              done={stats.newCustomers}
+              target={stats.newCustomerTarget}
+              pace={paceNow}
+              label="New customers against target"
+            />
+          </StatTile>
         ) : null}
         <StatTile
           label="Awarded this month"

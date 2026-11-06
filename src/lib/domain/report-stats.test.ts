@@ -60,7 +60,7 @@ describe("sales figures", () => {
         ],
       }),
     );
-    expect(stats).toMatchObject({ newCustomers: 1 });
+    expect(stats).toMatchObject({ newCustomers: 1, newCustomerTarget: 5 });
   });
 
   it("counts quotations and awarded orders for the month", () => {
@@ -275,10 +275,24 @@ describe("targets and pace", () => {
   it("falls back to the default targets for missing or bad settings", () => {
     expect(ReportTargets.parse({ salesVisits: 40, shootings: "x" })).toEqual({
       salesVisits: 40,
+      newCustomers: 5,
       siteVisits: 50,
       shootings: 5,
       handovers: 5,
     });
+  });
+
+  it("reads a report filed before the new customers target as the usual 5", () => {
+    const { newCustomerTarget } = ReportStats.parse({
+      kind: "sales",
+      visits: 12,
+      visitTarget: 50,
+      newCustomers: 3,
+      quotations: 2,
+      awardedCount: 1,
+      awardedValue: 1000,
+    }) as { newCustomerTarget: number };
+    expect(newCustomerTarget).toBe(5);
   });
 
   it("colours achievement against where you should be by now", () => {

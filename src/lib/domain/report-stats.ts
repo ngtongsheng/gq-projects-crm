@@ -32,6 +32,8 @@ export function canReviewReport(jobRole: JobRole, kind: ReportKind): boolean {
 
 export const ReportTargets = z.object({
   salesVisits: z.number().nonnegative().catch(50),
+  /** New customers each salesperson meets in a month. */
+  newCustomers: z.number().nonnegative().catch(5),
   siteVisits: z.number().nonnegative().catch(50),
   shootings: z.number().nonnegative().catch(5),
   handovers: z.number().nonnegative().catch(5),
@@ -42,6 +44,8 @@ const SalesFigures = z.object({
   visits: z.number(),
   visitTarget: z.number(),
   newCustomers: z.number(),
+  // Reports filed before this target existed carry none; they read as the usual 5.
+  newCustomerTarget: z.number().default(5),
   quotations: z.number(),
   awardedCount: z.number(),
   awardedValue: z.number(),
@@ -135,6 +139,7 @@ function salesFigures(input: SalesInput): z.infer<typeof SalesFigures> {
     visits: visits.length,
     visitTarget: input.targets.salesVisits,
     newCustomers,
+    newCustomerTarget: input.targets.newCustomers,
     quotations,
     awardedCount: awarded.length,
     awardedValue: sumRm(awarded.map(orderTotal)),

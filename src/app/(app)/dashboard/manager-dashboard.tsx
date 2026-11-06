@@ -71,6 +71,10 @@ export async function ManagerDashboard({ me }: { me: Profile }) {
     (total, row) => total + row.stats.newCustomers,
     0,
   );
+  const newCustomerTarget = team.rows.reduce(
+    (total, row) => total + row.stats.newCustomerTarget,
+    0,
+  );
   const totals = salesTotals(orders, today);
   const unpaid = orders.filter((order) => order.outstanding > 0);
   const stale = projects.filter((project) => project.stale);
@@ -136,7 +140,14 @@ export async function ManagerDashboard({ me }: { me: Profile }) {
           label="New customers this month"
           value={newCustomers}
           note="First completed visit this month"
-        />
+        >
+          <PaceBar
+            done={newCustomers}
+            target={newCustomerTarget}
+            pace={paceNow}
+            label="Team new customers against target"
+          />
+        </StatTile>
         <StatTile
           label="Open pipeline"
           value={formatRm(sumRm(projects.map((project) => project.value)))}

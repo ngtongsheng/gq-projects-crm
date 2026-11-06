@@ -36,6 +36,7 @@ const STATS: ReportStats = {
   visits: 12,
   visitTarget: 50,
   newCustomers: 3,
+  newCustomerTarget: 5,
   quotations: 2,
   awardedCount: 1,
   awardedValue: 1000,

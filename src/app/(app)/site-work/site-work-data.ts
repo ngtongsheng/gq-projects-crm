@@ -157,6 +157,25 @@ export async function loadActiveSites(today: string): Promise<SiteSummary[]> {
   });
 }
 
+const todayJobRows = z.array(z.object({ mof_id: z.string() }));
+
+/** The orders a Site Supervisor has a job on today: scheduled to them and running today, not postponed. */
+export async function loadTodaysSiteIds(
+  supervisorId: string,
+  today: string,
+): Promise<string[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("jobs")
+    .select("mof_id")
+    .eq("site_supervisor_id", supervisorId)
+    .lte("scheduled_on", today)
+    .gte("ends_on", today)
+    .neq("status", "postponed");
+  if (error) throw new Error(`Could not load today's jobs: ${error.message}`);
+  return [...new Set(todayJobRows.parse(data).map((row) => row.mof_id))];
+}
+
 const siteRows = z.array(
   z.object({ ...mofFields, site_logs: z.array(logRow) }),
 );

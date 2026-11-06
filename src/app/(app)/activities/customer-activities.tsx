@@ -14,6 +14,8 @@ import {
 export type CustomerActivity = {
   id: string;
   ownerName: string;
+  /** Colleagues invited along; the activity counts for them too. */
+  withNames: string[];
   type: ActivityType;
   purpose: string;
   outcome: string | null;
@@ -72,6 +74,9 @@ export function CustomerActivities({
             )}
             <p className="text-xs text-muted-foreground">
               {activity.ownerName}
+              {activity.withNames.length > 0
+                ? ` with ${activity.withNames.join(" and ")}`
+                : ""}
             </p>
           </div>
           {activity.canEdit && (

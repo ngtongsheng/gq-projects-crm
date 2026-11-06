@@ -16,6 +16,8 @@ const ME = "11111111-1111-4111-8111-111111111111";
 const ARUN = "22222222-2222-4222-8222-222222222222";
 const CONTACT = "44444444-4444-4444-8444-444444444444";
 const ACTIVITY = "55555555-5555-4555-8555-555555555555";
+const SENIOR = "66666666-6666-4666-8666-666666666666";
+const JUNIOR = "77777777-7777-4777-8777-777777777777";
 
 const profile = (jobRole: Profile["jobRole"]): Profile => ({
   id: ME,
@@ -39,11 +41,21 @@ function fakeSupabase(results: Result[]) {
       calls.push(call);
       const result = results.shift() ?? { data: null, error: null };
       const query: Record<string, unknown> = {};
-      for (const step of ["select", "insert", "update", "eq", "maybeSingle"]) {
+      for (const step of [
+        "select",
+        "insert",
+        "update",
+        "delete",
+        "eq",
+        "maybeSingle",
+        "single",
+      ]) {
         query[step] = (payload?: unknown) => {
           call.steps.push(step);
           if (step === "insert" || step === "update") call.payload = payload;
-          if (step === "maybeSingle") return Promise.resolve(result);
+          if (step === "maybeSingle" || step === "single") {
+            return Promise.resolve(result);
+          }
           // insert resolves directly; update/select chains resolve at the end.
           return Object.assign(Promise.resolve(result), query);
         };
@@ -57,7 +69,10 @@ function fakeSupabase(results: Result[]) {
   return calls;
 }
 
-function form(fields: Record<string, string>) {
+function form(
+  fields: Record<string, string>,
+  more: { invitesShown?: string; attendeeIds?: string[] } = {},
+) {
   const data = new FormData();
   for (const [key, value] of Object.entries({
     contactId: CONTACT,
@@ -70,6 +85,8 @@ function form(fields: Record<string, string>) {
   })) {
     data.set(key, value);
   }
+  if (more.invitesShown) data.set("invitesShown", more.invitesShown);
+  for (const id of more.attendeeIds ?? []) data.append("attendeeIds", id);
   return data;
 }
 
@@ -90,7 +107,7 @@ describe("saveActivity", () => {
 
   it("logs an activity under the signed-in person, in Malaysia time", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
-    const calls = fakeSupabase([{ data: null, error: null }]);
+    const calls = fakeSupabase([{ data: { id: ACTIVITY }, error: null }]);
 
     const result = await saveActivity(form({}));
 
@@ -103,6 +120,92 @@ describe("saveActivity", () => {
       starts_at: "2026-10-01T02:00:00.000Z",
       status: "completed",
     });
+  });
+
+  it("invites the colleagues ticked in the form", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    const calls = fakeSupabase([
+      { data: { id: ACTIVITY }, error: null },
+      { data: null, error: null },
+      { data: null, error: null },
+    ]);
+
+    const result = await saveActivity(
+      form({}, { invitesShown: "yes", attendeeIds: [SENIOR, SENIOR, JUNIOR] }),
+    );
+
+    expect(result.error).toBeNull();
+    expect(calls.map((call) => call.steps[0])).toEqual([
+      "insert",
+      "delete",
+      "insert",
+    ]);
+    expect(calls[2]?.payload).toEqual([
+      { activity_id: ACTIVITY, profile_id: SENIOR },
+      { activity_id: ACTIVITY, profile_id: JUNIOR },
+    ]);
+  });
+
+  it("leaves the invitations alone when the form did not show the list", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    const calls = fakeSupabase([{ data: { id: ACTIVITY }, error: null }]);
+
+    await saveActivity(form({}, { attendeeIds: [SENIOR] }));
+
+    expect(calls).toHaveLength(1);
+  });
+
+  it("uninvites everyone when the list was shown and nobody is ticked", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    const calls = fakeSupabase([
+      existing(ME, "planned"),
+      updated,
+      { data: null, error: null },
+    ]);
+
+    const result = await saveActivity(
+      form(
+        { activityId: ACTIVITY, status: "planned" },
+        { invitesShown: "yes" },
+      ),
+    );
+
+    expect(result.error).toBeNull();
+    expect(calls.map((call) => call.steps[0])).toEqual([
+      "select",
+      "update",
+      "delete",
+    ]);
+  });
+
+  it("says the activity was saved but the invitations were not", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    fakeSupabase([
+      { data: { id: ACTIVITY }, error: null },
+      { data: null, error: null },
+      { data: null, error: { code: "42501" } },
+    ]);
+
+    const result = await saveActivity(
+      form({}, { invitesShown: "yes", attendeeIds: [SENIOR] }),
+    );
+
+    expect(result.error).toMatch(
+      /saved, but the invitations could not be saved/,
+    );
+  });
+
+  it("refuses an invitation that is not a real person", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    const calls = fakeSupabase([]);
+
+    const result = await saveActivity(
+      form({}, { invitesShown: "yes", attendeeIds: ["nobody"] }),
+    );
+
+    expect(result.error).toBe("Choose who to invite from the list.");
+    expect(calls).toHaveLength(0);
   });
 
   it("refuses a completed activity dated in the future", async () => {

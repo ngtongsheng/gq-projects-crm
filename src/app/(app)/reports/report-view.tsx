@@ -25,6 +25,8 @@ import { ReportFigures } from "./report-figures";
 import { ReportForm } from "./report-form";
 import type { ReportsView } from "./report-params";
 import { ReviewForm } from "./review-form";
+import { SiteItinerary } from "./site-itinerary";
+import { loadSiteMonthlyReport } from "./site-report-data";
 
 export const KIND_LABEL: Record<ReportKind, string> = {
   sales: "Sales monthly report",
@@ -173,6 +175,10 @@ export async function ReportView({
     report.status === "submitted" &&
     canReviewReport(view.me.jobRole, kind);
   const name = view.nameOf.get(personId) ?? "Unnamed";
+  const siteReport =
+    kind === "site"
+      ? await loadSiteMonthlyReport(personId, name, view.month, view.nameOf)
+      : null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -221,6 +227,16 @@ export async function ReportView({
               : "Counted from the calendar, projects and MOFs. Frozen when you submit."}
         </p>
       </section>
+
+      {siteReport && (
+        <SiteItinerary
+          report={siteReport}
+          pdfHref={`/reports/site-pdf?${new URLSearchParams({
+            month: view.month.slice(0, 7),
+            ...(own ? {} : { person: personId }),
+          })}`}
+        />
+      )}
 
       {editable ? (
         <ReportForm

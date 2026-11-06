@@ -42,10 +42,19 @@ type SiteLogDialogProps = {
   mofId: string;
   /** Malaysia date, so the default matches the server. */
   today: string;
+  /** Names the project in the dialog when it opens from a list of projects. */
+  projectName?: string;
+  /** A smaller button, for a card in a list. */
+  compact?: boolean;
 };
 
 /** Logs a site visit: what was done, notes, whether the measurement and handover came through. */
-export function SiteLogDialog({ mofId, today }: SiteLogDialogProps) {
+export function SiteLogDialog({
+  mofId,
+  today,
+  projectName,
+  compact = false,
+}: SiteLogDialogProps) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -65,16 +74,17 @@ export function SiteLogDialog({ mofId, today }: SiteLogDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">
+        <Button size="sm" variant={compact ? "outline" : "default"}>
           <Plus data-icon="inline-start" />
-          Log a visit
+          {compact ? "Log visit" : "Log a visit"}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Log a site visit</DialogTitle>
           <DialogDescription>
-            Add follow-up actions to the visit once it is saved.
+            {projectName ? `${projectName}. ` : ""}Add follow-up actions to the
+            visit once it is saved.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submitKeepingValues(save)}>

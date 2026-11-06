@@ -175,6 +175,40 @@ export async function loadSummary(): Promise<SummaryRow[]> {
   });
 }
 
+/** The LOA years there are MOFs in, newest first, always including this year. */
+export function summaryYears(
+  rows: readonly SummaryRow[],
+  thisYear: number,
+): number[] {
+  return [
+    ...new Set([
+      thisYear,
+      ...rows.map((row) => Number(row.loaDate.slice(0, 4))),
+    ]),
+  ].sort((a, b) => b - a);
+}
+
+/** The year asked for ("all" for every year); anything else falls back to this year. */
+export function parseSummaryYear(
+  asked: string | string[] | undefined,
+  years: readonly number[],
+  thisYear: number,
+): number | null {
+  if (asked === "all") return null;
+  const year = Number(asked);
+  return years.includes(year) ? year : thisYear;
+}
+
+/** The MOFs registered (by LOA date) in a year; every MOF when no year is chosen. */
+export function inYear(
+  rows: readonly SummaryRow[],
+  year: number | null,
+): SummaryRow[] {
+  return year === null
+    ? [...rows]
+    : rows.filter((row) => row.loaDate.startsWith(`${year}-`));
+}
+
 /** Footer figures. Margin counts only MOFs that have a cost, so a missing cost never inflates it. */
 export function summaryTotals(rows: readonly SummaryRow[]): SummaryTotals {
   const live = rows.filter((row) => row.stage !== "cancelled");

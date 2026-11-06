@@ -19,11 +19,17 @@ import { canSeeMofCost } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { MOF_STAGE_TONE } from "@/lib/domain/mof-stages";
-import { formatDate } from "@/lib/format/date";
+import { formatDate, todayMyt } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
 import { filterMofs, parseMofFilters } from "../mof-filters";
 import { JobScopeLabel, MofStage, MofStageLabel } from "../schemas";
-import { loadSummary, summaryTotals } from "./summary-data";
+import {
+  inYear,
+  loadSummary,
+  parseSummaryYear,
+  summaryTotals,
+  summaryYears,
+} from "./summary-data";
 
 export const metadata: Metadata = { title: "MOF Summary" };
 
@@ -40,9 +46,13 @@ export default async function MofSummaryPage({
   const me = await requireSection("mof");
   if (!canSeeMofCost(me.jobRole)) redirect("/not-allowed");
 
-  const filters = parseMofFilters(await searchParams);
+  const params = await searchParams;
+  const filters = parseMofFilters(params);
   const [all, team] = await Promise.all([loadSummary(), getTeamDirectory()]);
-  const rows = filterMofs(all, filters);
+  const thisYear = Number(todayMyt().slice(0, 4));
+  const years = summaryYears(all, thisYear);
+  const year = parseSummaryYear(params.year, years, thisYear);
+  const rows = filterMofs(inYear(all, year), filters);
   const totals = summaryTotals(rows);
   const filtered = filters.stage !== undefined || filters.person !== undefined;
 
@@ -61,7 +71,11 @@ export default async function MofSummaryPage({
         actions={
           <DownloadCsvButton
             path="/mofs/summary/export"
-            query={{ stage: filters.stage, person: filters.person }}
+            query={{
+              stage: filters.stage,
+              person: filters.person,
+              year: year === null ? "all" : String(year),
+            }}
           />
         }
       />
@@ -69,6 +83,19 @@ export default async function MofSummaryPage({
         action="/mofs/summary"
         className="flex flex-wrap items-center gap-2"
       >
+        <Select name="year" defaultValue={year === null ? ALL : String(year)}>
+          <SelectTrigger aria-label="Year" className="w-32">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {years.map((option) => (
+              <SelectItem key={option} value={String(option)}>
+                {option}
+              </SelectItem>
+            ))}
+            <SelectItem value={ALL}>All years</SelectItem>
+          </SelectContent>
+        </Select>
         <Select name="stage" defaultValue={filters.stage ?? ALL}>
           <SelectTrigger aria-label="Stage" className="w-56">
             <SelectValue />

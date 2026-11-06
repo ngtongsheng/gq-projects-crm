@@ -180,7 +180,7 @@ export default async function SiteDetailPage({
                         {LEFTOVER_UNIT_LABEL[leftover.unit]}
                       </span>
                     </div>
-                    <LeftoverBadges leftover={leftover} />
+                    <LeftoverBadges leftover={leftover} today={today} />
                   </li>
                 ))}
               </ul>

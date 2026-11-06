@@ -92,6 +92,8 @@ export async function ManagerDashboard({ me }: { me: Profile }) {
     overdueSupplierPos: purchasing?.overduePos,
     missingSupplierPos: purchasing?.missingPos,
     unsignedDos: purchasing?.unsignedDos,
+    leftoversToPickUp: purchasing?.pickupsWaiting,
+    leftoversLate: purchasing?.pickupsLate,
   });
 
   return (

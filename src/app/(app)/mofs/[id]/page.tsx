@@ -130,7 +130,8 @@ export default async function MofPage({
         secondSalespersonId: blankIfNull(source.support_id),
         companyName: source.contacts.companies.name,
         projectName: source.name,
-        customerContact: `${source.contacts.name} (${formatMobile(source.contacts.mobile)})`,
+        customerName: source.contacts.name,
+        customerMobile: formatMobile(source.contacts.mobile),
         contractSum: source.value > 0 ? source.value : null,
         commissionType: source.commission_type,
       } satisfies Partial<MofDraft>);
@@ -155,7 +156,7 @@ export default async function MofPage({
       supabase
         .from("mofs")
         .select(
-          "id, mof_no, loa_date, salesperson_id, second_salesperson_id, project_id, company_name, project_name, loa_no, quote_no, site_address, site_contact_name, site_contact_mobile, office_pic_id, customer_contact, accounts_contact, scope, installer_name, contract_sum, vo_amount, retention_pct, invoice_no, invoice_date, commission_type, delivery_date, stage, latest_update, payment_checked, approvals_in_writing, artwork_signed_off, dos_pre_approved, updated_at, mof_lines(id, product, stock_type, supplier, qty, unit, area_m2, created_at)",
+          "id, mof_no, loa_date, salesperson_id, second_salesperson_id, project_id, company_name, project_name, loa_no, quote_no, site_address, site_contact_name, site_contact_mobile, office_pic_id, customer_contact, accounts_contact, customer_name, customer_mobile, accounts_name, accounts_mobile, accounts_email, scope, installer_name, contract_sum, vo_amount, retention_pct, invoice_no, invoice_date, commission_type, delivery_date, stage, latest_update, payment_checked, approvals_in_writing, artwork_signed_off, dos_pre_approved, updated_at, mof_lines(id, product, stock_type, supplier, qty, unit, area_m2, created_at)",
         )
         .eq("id", id)
         .maybeSingle(),

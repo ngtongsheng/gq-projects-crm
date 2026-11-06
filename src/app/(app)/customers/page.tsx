@@ -24,6 +24,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   canAddContact,
   canImportCustomers,
+  canRateCompany,
   canSetAccountType,
 } from "./contact-access";
 import { ContactDialog } from "./contact-form";
@@ -46,7 +47,9 @@ export const metadata: Metadata = { title: "Customers" };
 
 const ALL = "all";
 
-const companyRows = z.array(z.object({ id: z.string(), name: z.string() }));
+const companyRows = z.array(
+  z.object({ id: z.string(), name: z.string(), rating: z.number().int() }),
+);
 
 const pendingRequestRows = z.array(z.object({ contact_id: z.string() }));
 
@@ -62,7 +65,7 @@ export default async function CustomersPage({
   const [allCustomers, companiesResult, pendingResult, team] =
     await Promise.all([
       loadCustomers(me),
-      supabase.from("companies").select("id, name").order("name"),
+      supabase.from("companies").select("id, name, rating").order("name"),
       supabase
         .from("ownership_requests")
         .select("contact_id")
@@ -136,6 +139,7 @@ export default async function CustomersPage({
                 companies={companies}
                 team={team}
                 canSetAccountType={canSetAccountType(me.jobRole)}
+                canRateCompany={canRateCompany(me.jobRole)}
                 canRequestOwnership={canRequestOwnership(me.jobRole, false)}
               />
             )}
@@ -219,20 +223,18 @@ export default async function CustomersPage({
             key: "name",
             header: "Customer",
             cell: (row) => (
-              <div className="flex flex-col">
-                <Link
-                  href={`/customers/${row.id}`}
-                  className="font-medium hover:underline"
-                >
-                  {row.name}
-                </Link>
-                {row.title && (
-                  <span className="text-xs text-muted-foreground">
-                    {row.title}
-                  </span>
-                )}
-              </div>
+              <Link
+                href={`/customers/${row.id}`}
+                className="font-medium hover:underline"
+              >
+                {row.name}
+              </Link>
             ),
+          },
+          {
+            key: "position",
+            header: "Position",
+            cell: (row) => row.title || "–",
           },
           {
             key: "company",
@@ -262,7 +264,7 @@ export default async function CustomersPage({
           },
           {
             key: "rating",
-            header: "Rating",
+            header: "Company rating",
             cell: (row) => <RatingBadge rating={row.rating} />,
           },
           {
@@ -286,6 +288,7 @@ export default async function CustomersPage({
                     companies={companies}
                     team={team}
                     canSetAccountType={canSetAccountType(me.jobRole)}
+                    canRateCompany={canRateCompany(me.jobRole)}
                     canRequestOwnership={false}
                   />
                 );

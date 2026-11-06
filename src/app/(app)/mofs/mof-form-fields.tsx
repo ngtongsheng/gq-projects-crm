@@ -66,7 +66,7 @@ export function TextField({
   defaultValue: string;
   placeholder?: string;
   required?: boolean;
-  type?: "date";
+  type?: "date" | "tel" | "email";
   maxLength?: number;
 }) {
   return (
@@ -79,7 +79,7 @@ export function TextField({
         defaultValue={defaultValue}
         placeholder={placeholder}
         required={required}
-        maxLength={type ? undefined : maxLength}
+        maxLength={type === "date" ? undefined : maxLength}
       />
     </Field>
   );

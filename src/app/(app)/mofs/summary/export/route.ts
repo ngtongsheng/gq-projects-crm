@@ -3,20 +3,31 @@ import type { NextRequest } from "next/server";
 import { canSeeMofCost } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { csvResponse } from "@/lib/format/csv-response";
-import { formatDate } from "@/lib/format/date";
+import { formatDate, todayMyt } from "@/lib/format/date";
 import { filterMofs, parseMofFilters } from "../../mof-filters";
 import { JobScopeLabel, MofStageLabel } from "../../schemas";
-import { loadSummary } from "../summary-data";
+import {
+  inYear,
+  loadSummary,
+  parseSummaryYear,
+  summaryYears,
+} from "../summary-data";
 
 /** The MOF summary as CSV: the same rows as the page for these filters. Cost and margin included. */
 export async function GET(request: NextRequest) {
   const me = await requireSection("mof");
   if (!canSeeMofCost(me.jobRole)) redirect("/not-allowed");
 
-  const filters = parseMofFilters(
-    Object.fromEntries(request.nextUrl.searchParams),
+  const params = Object.fromEntries(request.nextUrl.searchParams);
+  const filters = parseMofFilters(params);
+  const all = await loadSummary();
+  const thisYear = Number(todayMyt().slice(0, 4));
+  const year = parseSummaryYear(
+    params.year,
+    summaryYears(all, thisYear),
+    thisYear,
   );
-  const rows = filterMofs(await loadSummary(), filters);
+  const rows = filterMofs(inYear(all, year), filters);
 
   return csvResponse(
     "mof-summary",

@@ -11,7 +11,7 @@ import {
   canEnterPayments,
   canScheduleJobs,
   canSeeInstallerClaims,
-  isManager,
+  canSeeMofCost,
 } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
@@ -111,7 +111,7 @@ export default async function MofPage({
   const me = await requireSection("mof");
   const { id } = await params;
   const canEdit = canEditRegister(me.jobRole);
-  const showCost = isManager(me.jobRole);
+  const showCost = canSeeMofCost(me.jobRole);
   const supabase = await createClient();
 
   if (id === NEW) {

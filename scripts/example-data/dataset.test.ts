@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { ReportStats } from "@/lib/domain/report-stats";
 import { buildExampleData } from "./dataset.ts";
 import { exampleId } from "./ids.ts";
-import { TEST_USERS } from "./people.ts";
+import { EXTRA_SITE_SUPERVISORS, TEST_USERS } from "./people.ts";
 import { EXAMPLE_REFERENCES } from "./table-references.ts";
 import type { ExampleTable, People } from "./types.ts";
 
@@ -176,5 +176,17 @@ describe("test sign-ins", () => {
       "support",
     ]);
     for (const u of TEST_USERS) expect(u.email).toMatch(/@example\.invalid$/);
+  });
+
+  it("adds two more Site Supervisors with their own unusable emails", () => {
+    expect(EXTRA_SITE_SUPERVISORS).toHaveLength(2);
+    const emails = [...TEST_USERS, ...EXTRA_SITE_SUPERVISORS].map(
+      (u) => u.email,
+    );
+    expect(new Set(emails).size).toBe(emails.length);
+    for (const u of EXTRA_SITE_SUPERVISORS) {
+      expect(u.jobRole).toBe("site");
+      expect(u.email).toMatch(/@example\.invalid$/);
+    }
   });
 });

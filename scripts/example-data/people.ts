@@ -69,3 +69,26 @@ export const TEST_USERS: TestUser[] = [
     arrangesStock: true,
   },
 ];
+
+/**
+ * More sign-ins for trying a team of Site Supervisors. They get no example records of their own;
+ * Raj Kumar keeps the example jobs and visits.
+ */
+export const EXTRA_SITE_SUPERVISORS: TestUser[] = [
+  {
+    jobRole: "site",
+    email: "test-site2@example.invalid",
+    fullName: "Hafiz Rahman",
+    role: "staff",
+    yearlyTarget: null,
+    arrangesStock: false,
+  },
+  {
+    jobRole: "site",
+    email: "test-site3@example.invalid",
+    fullName: "Kevin Tan",
+    role: "staff",
+    yearlyTarget: null,
+    arrangesStock: false,
+  },
+];

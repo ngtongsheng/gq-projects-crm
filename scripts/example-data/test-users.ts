@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { JobRole } from "../../src/lib/auth/job-role.ts";
-import { TEST_USERS } from "./people.ts";
+import { EXTRA_SITE_SUPERVISORS, TEST_USERS } from "./people.ts";
 import type { People } from "./types.ts";
 
 export type TestSignIn = { email: string; jobRole: JobRole; password: string };
@@ -20,7 +20,7 @@ export async function ensureTestUsers(
   const people: Partial<People> = {};
   const signIns: TestSignIn[] = [];
 
-  for (const user of TEST_USERS) {
+  for (const user of [...TEST_USERS, ...EXTRA_SITE_SUPERVISORS]) {
     const password = randomBytes(12).toString("base64url");
     const found = existing.users.find((u) => u.email === user.email);
     const { data, error } = found
@@ -56,7 +56,9 @@ export async function ensureTestUsers(
       );
     }
 
-    people[user.jobRole] = data.user.id;
+    if (!EXTRA_SITE_SUPERVISORS.includes(user)) {
+      people[user.jobRole] = data.user.id;
+    }
     signIns.push({ email: user.email, jobRole: user.jobRole, password });
   }
 

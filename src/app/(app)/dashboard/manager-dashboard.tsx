@@ -34,6 +34,7 @@ import { overdueFollowUpTotal } from "./follow-up-total";
 import { loadOpenProjects } from "./pipeline-data";
 import { ProjectsToChase } from "./projects-to-chase";
 import { loadPurchasingFacts } from "./purchasing-data";
+import { countReleasedCompanies } from "./released-companies";
 import { loadTeamSnapshot, type TeamRow } from "./report-snapshot";
 import { TodaysActivities } from "./todays-activities";
 import { UnijoyTile } from "./unijoy-tile";
@@ -52,13 +53,14 @@ export async function ManagerDashboard({ me }: { me: Profile }) {
       getTeamDirectory(),
       loadPurchasingFacts(today),
     ]);
-  const [requests, overtime, sites, claims] = await Promise.all([
+  const [requests, overtime, sites, claims, released] = await Promise.all([
     wants("ownershipRequests") && canDecideOwnership(me.jobRole)
       ? countPendingOwnershipRequests()
       : 0,
     wants("pendingOvertime") ? loadOtClaims() : [],
     wants("overdueFollowUps") ? loadActiveSites(today) : [],
     wants("claimsToVerify") ? loadPendingClaims(me) : [],
+    wants("releasedCompanies") ? countReleasedCompanies(today) : 0,
   ]);
   const nameOf = new Map(names.map((member) => [member.id, member.name]));
   const paceNow = monthPace(today);
@@ -86,6 +88,7 @@ export async function ManagerDashboard({ me }: { me: Profile }) {
 
   const attention = attentionItems(me.jobRole, {
     ownershipRequests: requests,
+    releasedCompanies: released,
     lateReports: team.lateReports,
     overdueProjects: overdue.length,
     staleProjects: stale.length,

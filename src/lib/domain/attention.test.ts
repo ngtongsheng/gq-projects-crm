@@ -19,6 +19,26 @@ const facts = {
   creditNotes: 1,
 };
 
+test("the MD and Sales Director see companies nobody has visited for 3 months, in red; salespeople do not", () => {
+  const withReleased = { releasedCompanies: 3 };
+  for (const role of ["md", "director"] as const) {
+    expect(
+      attentionItems(role, withReleased).find(
+        (item) => item.key === "releasedCompanies",
+      ),
+    ).toMatchObject({
+      count: 3,
+      href: "/customers?released=yes",
+      tone: "bad",
+      label: "3 companies nobody has visited for 3 months",
+    });
+  }
+  expect(attentionItems("sales", withReleased)).toEqual([]);
+  expect(attentionItems("md", { releasedCompanies: 1 })[0].label).toBe(
+    "1 company nobody has visited for 3 months",
+  );
+});
+
 test("each role sees only the kinds it acts on, with counts and links", () => {
   const sales = attentionItems("sales", facts);
   expect(sales.map((item) => item.key)).toEqual([

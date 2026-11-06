@@ -1,7 +1,10 @@
 import { z } from "zod";
 import type { Profile } from "@/lib/auth/current-profile";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
-import { isReleased, releaseCutoff } from "@/lib/domain/company-release";
+import {
+  releaseCutoff,
+  releasedCompanyIds,
+} from "@/lib/domain/company-release";
 import { customerHealth } from "@/lib/domain/customer-health";
 import { formatMobile } from "@/lib/domain/mobile";
 import { todayMyt } from "@/lib/format/date";
@@ -44,24 +47,24 @@ export async function loadCustomers(me: Profile) {
   const today = todayMyt();
   const [contactsResult, lastActivity, team, visitsResult, companiesResult] =
     await Promise.all([
-    supabase
-      .from("contacts")
-      .select(
-        "id, company_id, name, mobile, title, account_type, passed_by, notes, companies(name, company_type, rating), contact_owners(profile_id)",
-      )
-      .is("archived_at", null)
-      .order("name"),
-    getLastCompletedDays(supabase),
-    getTeamDirectory(),
-    // Completed visits and site visits in the last 90 days: what keeps a company from being released.
-    supabase
-      .from("activities")
-      .select("contact_id, starts_at")
-      .eq("status", "completed")
-      .in("type", ["visit", "site_visit"])
-      .gte("starts_at", `${releaseCutoff(today)}T00:00:00+08:00`),
-    supabase.from("companies").select("id, created_at"),
-  ]);
+      supabase
+        .from("contacts")
+        .select(
+          "id, company_id, name, mobile, title, account_type, passed_by, notes, companies(name, company_type, rating), contact_owners(profile_id)",
+        )
+        .is("archived_at", null)
+        .order("name"),
+      getLastCompletedDays(supabase),
+      getTeamDirectory(),
+      // Completed visits and site visits in the last 90 days: what keeps a company from being released.
+      supabase
+        .from("activities")
+        .select("contact_id, starts_at")
+        .eq("status", "completed")
+        .in("type", ["visit", "site_visit"])
+        .gte("starts_at", `${releaseCutoff(today)}T00:00:00+08:00`),
+      supabase.from("companies").select("id, created_at"),
+    ]);
   if (contactsResult.error) {
     throw new Error(
       `Could not load customers: ${contactsResult.error.message}`,
@@ -71,24 +74,28 @@ export async function loadCustomers(me: Profile) {
     throw new Error(`Could not load visits: ${visitsResult.error.message}`);
   }
   if (companiesResult.error) {
-    throw new Error(`Could not load companies: ${companiesResult.error.message}`);
+    throw new Error(
+      `Could not load companies: ${companiesResult.error.message}`,
+    );
   }
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
 
   const contacts = contactRows.parse(contactsResult.data);
-  const companyOfContact = new Map(
-    contacts.map((row) => [row.id, row.company_id]),
-  );
-  const recentlyVisited = new Set(
-    visitRows
+  const releasedCompanies = releasedCompanyIds({
+    contacts: contacts.map((row) => ({
+      id: row.id,
+      companyId: row.company_id,
+    })),
+    visitedContactIds: visitRows
       .parse(visitsResult.data)
-      .flatMap((visit) => companyOfContact.get(visit.contact_id) ?? []),
-  );
-  const addedOn = new Map(
-    companyRows
-      .parse(companiesResult.data)
-      .map((company) => [company.id, activityDay(company.created_at)]),
-  );
+      .map((visit) => visit.contact_id),
+    companyAddedOn: new Map(
+      companyRows
+        .parse(companiesResult.data)
+        .map((company) => [company.id, activityDay(company.created_at)]),
+    ),
+    today,
+  });
 
   return contacts.map((row) => {
     const ownerIds = row.contact_owners.map((owner) => owner.profile_id);
@@ -96,12 +103,7 @@ export async function loadCustomers(me: Profile) {
       id: row.id,
       companyId: row.company_id,
       /** No completed visit to the company for 90 days: open for other salespeople to ask for. */
-      released:
-        !recentlyVisited.has(row.company_id) &&
-        isReleased(
-          { addedOn: addedOn.get(row.company_id) ?? today, lastVisit: null },
-          today,
-        ),
+      released: releasedCompanies.has(row.company_id),
       name: row.name,
       title: row.title,
       mobile: row.mobile,

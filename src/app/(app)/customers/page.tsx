@@ -268,12 +268,20 @@ export default async function CustomersPage({
             header: "Company",
             cell: (row) => (
               <div className="flex flex-col items-start gap-0.5">
-                <span className="font-medium">{row.companyName}</span>
+                <span
+                  className={
+                    row.released ? "font-medium text-bad" : "font-medium"
+                  }
+                >
+                  {row.companyName}
+                </span>
                 <span className="text-xs text-muted-foreground">
                   {CompanyTypeLabel[row.companyType]}
                 </span>
                 {row.released && (
-                  <StatusBadge tone="warn">Released</StatusBadge>
+                  <StatusBadge tone="bad">
+                    Not visited for 3 months · released
+                  </StatusBadge>
                 )}
               </div>
             ),

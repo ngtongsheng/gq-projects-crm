@@ -30,6 +30,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { saveActivity } from "./actions";
 import { parseMytInput, toMytInput } from "./activity-time";
+import { InviteColleagues } from "./invite-colleagues";
 import {
   ActivityStatus,
   ActivityStatusLabel,
@@ -179,6 +180,7 @@ export function ActivityForm({
             </SelectContent>
           </Select>
         </Field>
+        <InviteColleagues activityId={activity?.id ?? null} />
         <Field>
           <FieldLabel htmlFor="purpose">Purpose</FieldLabel>
           <Input

@@ -143,6 +143,12 @@ const visitRows = z.array(
   }),
 );
 
+const attendedRows = z.array(
+  z.object({
+    activities: z.object({ contact_id: z.string(), starts_at: z.string() }),
+  }),
+);
+
 const projectRows = z.array(
   z.object({ pic_id: z.string(), stage: z.string(), created_at: z.string() }),
 );
@@ -176,13 +182,32 @@ async function loadSalesStats(
     .lt("starts_at", to);
   if (mine.error)
     throw new Error(`Could not load visits: ${mine.error.message}`);
+  // Visits a colleague invited this person to count as theirs, so both have the activity.
+  const attended = await supabase
+    .from("activity_attendees")
+    .select("activities!inner(contact_id, starts_at)")
+    .eq("profile_id", personId)
+    .eq("activities.status", "completed")
+    .in("activities.type", VISIT_TYPES)
+    .lt("activities.starts_at", to);
+  if (attended.error) {
+    throw new Error(`Could not load invited visits: ${attended.error.message}`);
+  }
+  const attendedVisits = attendedRows.parse(attended.data).map((row) => ({
+    contactId: row.activities.contact_id,
+    day: todayMyt(new Date(row.activities.starts_at)),
+    startsAt: row.activities.starts_at,
+  }));
   const contactIds = [
-    ...new Set(
-      z
+    ...new Set([
+      ...z
         .array(z.object({ contact_id: z.string() }))
         .parse(mine.data)
         .map((row) => row.contact_id),
-    ),
+      ...attendedVisits
+        .filter((visit) => visit.startsAt >= from)
+        .map((visit) => visit.contactId),
+    ]),
   ];
 
   // Earlier visits to the same contacts decide who met them first.
@@ -220,11 +245,19 @@ async function loadSalesStats(
     personId,
     month,
     targets,
-    visits: visitRows.parse(visits.data).map((row) => ({
-      contactId: row.contact_id,
-      ownerId: row.owner_id,
-      day: todayMyt(new Date(row.starts_at)),
-    })),
+    visits: [
+      ...visitRows.parse(visits.data).map((row) => ({
+        contactId: row.contact_id,
+        ownerId: row.owner_id,
+        day: todayMyt(new Date(row.starts_at)),
+      })),
+      // After the owners' own rows, so whoever logged a first visit keeps meeting the customer first.
+      ...attendedVisits.map((visit) => ({
+        contactId: visit.contactId,
+        ownerId: personId,
+        day: visit.day,
+      })),
+    ],
     projects: projectRows.parse(projects.data).map((row) => ({
       picId: row.pic_id,
       stage: row.stage,

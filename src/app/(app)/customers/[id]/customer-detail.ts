@@ -50,6 +50,7 @@ const activityRows = z.array(
     outcome: z.string().nullable(),
     starts_at: z.string(),
     status: ActivityStatus,
+    activity_attendees: z.array(z.object({ profile_id: z.string() })),
   }),
 );
 
@@ -103,7 +104,9 @@ export async function loadCustomerDetail(me: Profile, id: string) {
     supabase.from("companies").select("id, name, rating").order("name"),
     supabase
       .from("activities")
-      .select("id, owner_id, type, purpose, outcome, starts_at, status")
+      .select(
+        "id, owner_id, type, purpose, outcome, starts_at, status, activity_attendees(profile_id)",
+      )
       .eq("contact_id", customer.id)
       .order("starts_at", { ascending: false }),
     supabase
@@ -145,6 +148,9 @@ export async function loadCustomerDetail(me: Profile, id: string) {
     .map((row) => ({
       id: row.id,
       ownerName: nameOf.get(row.owner_id) ?? "Unnamed",
+      withNames: row.activity_attendees.map(
+        (attendee) => nameOf.get(attendee.profile_id) ?? "Unnamed",
+      ),
       type: row.type,
       purpose: row.purpose,
       outcome: row.outcome,

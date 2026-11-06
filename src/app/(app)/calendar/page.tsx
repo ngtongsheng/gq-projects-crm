@@ -62,6 +62,7 @@ const activityRows = z.array(
       name: z.string(),
       companies: z.object({ name: z.string() }),
     }),
+    activity_attendees: z.array(z.object({ profile_id: z.string() })),
   }),
 );
 
@@ -93,15 +94,33 @@ export default async function SalesCalendarPage({
   const to = days[days.length - 1];
 
   const supabase = await createClient();
+  // Activities a person was invited to count as theirs, so they show on their calendar too.
+  const invitedTo = personId
+    ? await supabase
+        .from("activity_attendees")
+        .select("activity_id")
+        .eq("profile_id", personId)
+    : null;
+  if (invitedTo?.error) {
+    throw new Error(`Could not load invitations: ${invitedTo.error.message}`);
+  }
+  const invitedIds = (invitedTo?.data ?? []).map((row) => row.activity_id);
   let activityQuery = supabase
     .from("activities")
     .select(
-      "id, contact_id, owner_id, type, purpose, starts_at, status, contacts(name, companies(name))",
+      "id, contact_id, owner_id, type, purpose, starts_at, status, contacts(name, companies(name)), activity_attendees(profile_id)",
     )
     .gte("starts_at", `${from}T00:00:00+08:00`)
     .lt("starts_at", `${addDays(to, 1)}T00:00:00+08:00`)
     .order("starts_at");
-  if (personId) activityQuery = activityQuery.eq("owner_id", personId);
+  if (personId) {
+    activityQuery =
+      invitedIds.length > 0
+        ? activityQuery.or(
+            `owner_id.eq.${personId},id.in.(${invitedIds.join(",")})`,
+          )
+        : activityQuery.eq("owner_id", personId);
+  }
 
   const [activityResult, team, customers] = await Promise.all([
     activityQuery,
@@ -134,11 +153,21 @@ export default async function SalesCalendarPage({
     const day = activityDay(activity.starts_at);
     const clock = toMytInput(activity.starts_at).slice(11);
     const owner = nameOf.get(activity.owner_id) ?? "Unnamed";
+    const guests = activity.activity_attendees.map(
+      (attendee) => nameOf.get(attendee.profile_id) ?? "Unnamed",
+    );
+    // Whose it is, and who is along: invited people see who asked them, owners see who comes.
+    const together =
+      personId && personId !== activity.owner_id
+        ? ` · invited by ${owner}`
+        : guests.length > 0
+          ? ` · with ${guests.join(" and ")}`
+          : "";
     const event: CalendarEvent = {
       id: activity.id,
       time: showOwner ? `${clock} · ${owner}` : clock,
       title: activity.contacts.companies.name,
-      detail: `${ActivityTypeLabel[activity.type]} · ${activity.purpose}`,
+      detail: `${ActivityTypeLabel[activity.type]} · ${activity.purpose}${together}`,
       tone: activityStatusTone[activity.status],
       href: `/customers/${activity.contact_id}`,
       muted: activity.status === "cancelled",

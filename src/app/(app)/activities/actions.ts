@@ -70,6 +70,46 @@ async function checkChange(
   return { ok: true, startsAt: existing.starts_at };
 }
 
+const attendeeIdsSchema = z
+  .array(z.uuid({ error: "Choose who to invite from the list." }))
+  .max(8, "Invite at most 8 colleagues.")
+  .transform((ids) => [...new Set(ids)]);
+
+const INVITE_PROBLEM =
+  "The activity was saved, but the invitations could not be saved. Open it to try again.";
+
+/**
+ * Makes `ids` the people invited to the activity: the ones left out are uninvited, new ones are
+ * invited. Returns a message when it fails, null when it worked. The database refuses anyone who is
+ * not a salesperson or director, and the owner themselves.
+ */
+async function setAttendees(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  activityId: string,
+  ids: readonly string[],
+): Promise<string | null> {
+  const removed = await supabase
+    .from("activity_attendees")
+    .delete()
+    .eq("activity_id", activityId);
+  if (removed.error) {
+    console.error("Could not clear the invitations", removed.error);
+    return INVITE_PROBLEM;
+  }
+  if (ids.length === 0) return null;
+  const added = await supabase.from("activity_attendees").insert(
+    ids.map((profileId) => ({
+      activity_id: activityId,
+      profile_id: profileId,
+    })),
+  );
+  if (added.error) {
+    console.error("Could not save the invitations", added.error);
+    return INVITE_PROBLEM;
+  }
+  return null;
+}
+
 /** Logs or plans an activity, or changes one when the form carries an activityId. */
 export async function saveActivity(
   formData: FormData,
@@ -100,21 +140,33 @@ export async function saveActivity(
       "Calls are no longer logged. Choose a visit, site visit, walk-in or online meeting.",
     );
   }
+  // Who is invited along. Left untouched when the form never showed the list.
+  const invitesShown = formData.get("invitesShown") === "yes";
+  const attendees = attendeeIdsSchema.safeParse(formData.getAll("attendeeIds"));
+  if (!attendees.success) {
+    return fail(attendees.error.issues[0]?.message ?? "Check who is invited.");
+  }
+  let savedId = activityId;
 
   if (!activityId) {
-    const { error } = await supabase.from("activities").insert({
-      contact_id: form.contactId,
-      owner_id: me.id,
-      type: form.type,
-      purpose: form.purpose,
-      outcome: form.outcome,
-      starts_at: form.startsAt.toISOString(),
-      status: form.status,
-    });
-    if (error) {
+    const { data, error } = await supabase
+      .from("activities")
+      .insert({
+        contact_id: form.contactId,
+        owner_id: me.id,
+        type: form.type,
+        purpose: form.purpose,
+        outcome: form.outcome,
+        starts_at: form.startsAt.toISOString(),
+        status: form.status,
+      })
+      .select("id")
+      .single();
+    if (error || !data) {
       console.error("Could not save activity", error);
       return fail("Could not save the activity. Try again.");
     }
+    savedId = z.object({ id: z.string() }).parse(data).id;
   } else {
     const checked = await checkChange(me, activityId, form.status);
     if (!checked.ok) return fail(checked.error);
@@ -135,6 +187,15 @@ export async function saveActivity(
     }
     if (data.length === 0) {
       return fail("Only the person who owns this activity can change it.");
+    }
+  }
+
+  if (savedId && invitesShown) {
+    const invited = await setAttendees(supabase, savedId, attendees.data);
+    if (invited) {
+      revalidatePath("/customers", "layout");
+      revalidatePath("/calendar");
+      return fail(invited);
     }
   }
 

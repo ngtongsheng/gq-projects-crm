@@ -15,8 +15,10 @@ import {
   LEFTOVER_CONDITION_LABEL,
   LEFTOVER_DESTINATION_LABEL,
   LEFTOVER_UNIT_LABEL,
+  PICKUP_LATE_AFTER_DAYS,
+  pickupCounts,
 } from "@/lib/domain/leftover";
-import { formatDateTime } from "@/lib/format/date";
+import { formatDateTime, todayMyt } from "@/lib/format/date";
 import { formatQuantity } from "@/lib/format/quantity";
 import { StockTabs } from "../stock-tabs";
 import { importLeftovers, previewLeftoverImport } from "./import-actions";
@@ -36,14 +38,17 @@ export default async function LeftoverPage() {
   const canEdit = canEditStock(me);
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
 
-  const waitingForPickup = leftovers.filter(
-    (leftover) => leftover.status === "pending_pickup",
-  ).length;
+  const today = todayMyt();
+  const { waiting: waitingForPickup, late: waitingLong } = pickupCounts(
+    leftovers,
+    today,
+  );
   const waitingForCreditNote = leftovers.filter(
     (leftover) => creditNoteState(leftover)?.kind === "pending",
   ).length;
   const summary = [
-    waitingForPickup > 0 && `${waitingForPickup} waiting for pickup`,
+    waitingForPickup > 0 &&
+      `${waitingForPickup} waiting for pickup${waitingLong > 0 ? ` (${waitingLong} for more than ${PICKUP_LATE_AFTER_DAYS} days)` : ""}`,
     waitingForCreditNote > 0 &&
       `${waitingForCreditNote} waiting for a supplier credit note`,
   ].filter(Boolean);
@@ -106,6 +111,11 @@ export default async function LeftoverPage() {
                     {leftover.note}
                   </span>
                 )}
+                {leftover.transport && (
+                  <span className="text-xs text-muted-foreground">
+                    Transport: {leftover.transport}
+                  </span>
+                )}
               </div>
             ),
           },
@@ -134,7 +144,9 @@ export default async function LeftoverPage() {
           {
             key: "status",
             header: "Status",
-            cell: (leftover) => <LeftoverBadges leftover={leftover} />,
+            cell: (leftover) => (
+              <LeftoverBadges leftover={leftover} today={today} />
+            ),
           },
           {
             key: "recorded",

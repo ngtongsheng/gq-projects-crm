@@ -10,12 +10,19 @@ const po = (poDate: string) => ({
   lead_time_days: 30,
 });
 
-function fakeSupabase(orders: unknown[]) {
+function fakeSupabase(orders: unknown[], leftovers: unknown[] = []) {
   const from = vi.fn((table: string) => {
     if (table === "mofs") {
       return {
         select: () => ({
           neq: async () => ({ data: orders, error: null }),
+        }),
+      };
+    }
+    if (table === "leftovers") {
+      return {
+        select: () => ({
+          eq: async () => ({ data: leftovers, error: null }),
         }),
       };
     }
@@ -31,6 +38,32 @@ function fakeSupabase(orders: unknown[]) {
     from,
   } as unknown as Awaited<ReturnType<typeof createClient>>);
 }
+
+describe("loadPurchasingFacts: leftover stock waiting for pickup", () => {
+  it("counts the items waiting and the ones that have waited over 3 days", async () => {
+    fakeSupabase(
+      [],
+      [
+        { status: "pending_pickup", created_at: "2026-11-05T03:00:00+00:00" },
+        { status: "pending_pickup", created_at: "2026-10-20T03:00:00+00:00" },
+      ],
+    );
+
+    const facts = await loadPurchasingFacts("2026-11-06");
+
+    expect(facts.pickupsWaiting).toBe(2);
+    expect(facts.pickupsLate).toBe(1);
+  });
+
+  it("is zero when nothing waits", async () => {
+    fakeSupabase([]);
+
+    const facts = await loadPurchasingFacts("2026-11-06");
+
+    expect(facts.pickupsWaiting).toBe(0);
+    expect(facts.pickupsLate).toBe(0);
+  });
+});
 
 describe("loadPurchasingFacts: POs issued this month", () => {
   it("counts only the supplier POs dated in the month of today", async () => {

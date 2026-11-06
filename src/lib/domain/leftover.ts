@@ -1,5 +1,6 @@
 import type { StatusTone } from "@/components/app/status-badge";
 import { canEditStock, type JobRole } from "@/lib/auth/job-role";
+import { type CalendarDate, daysBetween, todayMyt } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
 
 // Values mirror the check constraints in the leftovers migration.
@@ -63,6 +64,28 @@ export const LEFTOVER_STATUS_TONE: Record<LeftoverStatus, StatusTone> = {
   left_with_client: "neutral",
   disposed: "neutral",
 };
+
+/** A leftover still waiting for pickup after this many days is shown in red. */
+export const PICKUP_LATE_AFTER_DAYS = 3;
+
+/** Whole days an item has waited since it was recorded; never negative. */
+export function daysWaiting(recordedOn: string, today: CalendarDate): number {
+  return Math.max(0, daysBetween(todayMyt(new Date(recordedOn)), today));
+}
+
+/** How many leftovers wait for pickup, and how many have waited longer than a few days. */
+export function pickupCounts(
+  items: readonly { status: string; recordedOn: string }[],
+  today: CalendarDate,
+): { waiting: number; late: number } {
+  const waiting = items.filter((item) => item.status === "pending_pickup");
+  return {
+    waiting: waiting.length,
+    late: waiting.filter(
+      (item) => daysWaiting(item.recordedOn, today) > PICKUP_LATE_AFTER_DAYS,
+    ).length,
+  };
+}
 
 /**
  * Who may record leftover stock (SQL: the insert policy on leftovers). Site supervisors

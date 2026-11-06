@@ -180,9 +180,39 @@ describe("updateLeftover", () => {
       destination: "supplier",
       status: "returned_to_supplier",
       note: null,
+      transport: null,
       credit_note_no: "CN-2026-0412",
       credit_note_amount: 1234.5,
     });
+  });
+
+  it("saves how the stock is getting back", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("support"));
+    const calls = fakeSupabase({
+      data: [{ id: LEFTOVER, mof_id: MOF }],
+      error: null,
+    });
+
+    const result = await updateLeftover(
+      updateFields({ transport: "  Lalamove booked, Tuesday 10am " }),
+    );
+
+    expect(result).toEqual({ error: null });
+    expect(calls[0]?.payload).toMatchObject({
+      transport: "Lalamove booked, Tuesday 10am",
+    });
+  });
+
+  it("keeps the transport note under 120 characters", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("support"));
+    const calls = fakeSupabase({ data: [], error: null });
+
+    const result = await updateLeftover(
+      updateFields({ transport: "x".repeat(121) }),
+    );
+
+    expect(result.error).toBe("Keep the transport note under 120 characters.");
+    expect(calls).toHaveLength(0);
   });
 
   it("does not need the credit note to mark an item returned", async () => {

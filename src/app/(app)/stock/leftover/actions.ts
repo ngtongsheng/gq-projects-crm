@@ -53,6 +53,7 @@ const updateForm = z.object({
   ),
   creditNoteAmount,
   note: optionalText(300, "Keep the note under 300 characters."),
+  transport: optionalText(120, "Keep the transport note under 120 characters."),
 });
 
 /** Records an item left over at a site, waiting for pickup. The database checks the job role again. */
@@ -114,6 +115,7 @@ export async function updateLeftover(
     creditNoteNo: textField(formData, "creditNoteNo"),
     creditNoteAmount: textField(formData, "creditNoteAmount"),
     note: textField(formData, "note"),
+    transport: textField(formData, "transport"),
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Check the details." };
@@ -131,6 +133,7 @@ export async function updateLeftover(
       destination: leftover.destination,
       status: leftover.status,
       note: leftover.note,
+      transport: leftover.transport,
       credit_note_no: leftover.creditNoteNo,
       credit_note_amount: leftover.creditNoteAmount,
     })

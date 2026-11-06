@@ -23,6 +23,8 @@ export type Leftover = {
   destination: LeftoverDestination;
   status: LeftoverStatus;
   note: string;
+  /** How it is getting back, e.g. "Lalamove booked, Tuesday 10am"; empty until arranged. */
+  transport: string;
   creditNoteNo: string | null;
   creditNoteAmount: number | null;
   recordedOn: string;
@@ -40,6 +42,7 @@ const rows = z.array(
     destination: z.enum(LEFTOVER_DESTINATIONS),
     status: z.enum(LEFTOVER_STATUSES),
     note: z.string().nullable(),
+    transport: z.string().nullable(),
     credit_note_no: z.string().nullable(),
     credit_note_amount: z.number().nullable(),
     created_at: z.string(),
@@ -54,7 +57,7 @@ export async function loadLeftovers(mofId?: string): Promise<Leftover[]> {
   let query = supabase
     .from("leftovers")
     .select(
-      "id, mof_id, item, qty, unit, condition, destination, status, note, credit_note_no, credit_note_amount, created_at, created_by, mofs(mof_no, project_name)",
+      "id, mof_id, item, qty, unit, condition, destination, status, note, transport, credit_note_no, credit_note_amount, created_at, created_by, mofs(mof_no, project_name)",
     )
     .order("created_at", { ascending: false });
   if (mofId) query = query.eq("mof_id", mofId);
@@ -75,6 +78,7 @@ export async function loadLeftovers(mofId?: string): Promise<Leftover[]> {
       destination: row.destination,
       status: row.status,
       note: row.note ?? "",
+      transport: row.transport ?? "",
       creditNoteNo: row.credit_note_no,
       creditNoteAmount: row.credit_note_amount,
       recordedOn: row.created_at,

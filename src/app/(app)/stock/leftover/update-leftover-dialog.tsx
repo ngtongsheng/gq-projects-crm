@@ -181,6 +181,18 @@ export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
               </Select>
             </Field>
             <Field>
+              <FieldLabel htmlFor={`transport-${leftover.id}`}>
+                Transport
+              </FieldLabel>
+              <Input
+                id={`transport-${leftover.id}`}
+                name="transport"
+                defaultValue={leftover.transport}
+                maxLength={120}
+                placeholder="e.g. Lalamove booked, Tuesday 10am"
+              />
+            </Field>
+            <Field>
               <FieldLabel htmlFor={`note-${leftover.id}`}>Note</FieldLabel>
               <Input
                 id={`note-${leftover.id}`}

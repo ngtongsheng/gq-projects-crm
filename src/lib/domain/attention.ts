@@ -16,7 +16,9 @@ export type AttentionKey =
   | "missingSupplierPos"
   | "unsignedDos"
   | "stockHolds"
-  | "creditNotes";
+  | "creditNotes"
+  | "leftoversToPickUp"
+  | "leftoversLate";
 
 /** How many things need attention, per kind. A missing kind counts as none. */
 export type AttentionFacts = Partial<Record<AttentionKey, number>>;
@@ -124,6 +126,18 @@ const RULES: Record<AttentionKey, Rule> = {
     label: (n) =>
       `${plural(n, "stock hold", "stock holds")} waiting, expiring or expired`,
   },
+  leftoversToPickUp: {
+    tone: "warn",
+    href: () => "/stock/leftover",
+    label: (n) =>
+      `${plural(n, "leftover item", "leftover items")} from sites waiting for pickup: arrange transport`,
+  },
+  leftoversLate: {
+    tone: "bad",
+    href: () => "/stock/leftover",
+    label: (n) =>
+      `${plural(n, "leftover item has", "leftover items have")} waited more than 3 days for pickup`,
+  },
   creditNotes: {
     tone: "info",
     href: () => "/stock/leftover",
@@ -147,6 +161,8 @@ const KEYS_BY_ROLE: Record<JobRole, readonly AttentionKey[]> = {
     "overdueSupplierPos",
     "missingSupplierPos",
     "unsignedDos",
+    "leftoversLate",
+    "leftoversToPickUp",
   ],
   director: [
     "ownershipRequests",
@@ -166,6 +182,8 @@ const KEYS_BY_ROLE: Record<JobRole, readonly AttentionKey[]> = {
     "overdueSupplierPos",
     "missingSupplierPos",
     "unsignedDos",
+    "leftoversLate",
+    "leftoversToPickUp",
     "stockHolds",
     "creditNotes",
     "overdueFollowUps",

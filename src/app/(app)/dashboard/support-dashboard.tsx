@@ -40,6 +40,8 @@ const MOF_ATTENTION_KEYS: readonly AttentionKey[] = [
   "overdueSupplierPos",
   "missingSupplierPos",
   "unsignedDos",
+  "leftoversLate",
+  "leftoversToPickUp",
   "stockHolds",
   "creditNotes",
 ];
@@ -74,6 +76,8 @@ export async function SupportDashboard({ me }: { me: Profile }) {
     overdueSupplierPos: purchasing.overduePos,
     missingSupplierPos: purchasing.missingPos,
     unsignedDos: purchasing.unsignedDos,
+    leftoversToPickUp: purchasing.pickupsWaiting,
+    leftoversLate: purchasing.pickupsLate,
     stockHolds: settings
       ? reservations.filter(
           (line) => holdState(line, today, settings.warningDays) !== null,

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { isSameMonth } from "@/lib/domain/calendar-grid";
+import { pickupCounts } from "@/lib/domain/leftover";
 import { needsSupplierPo, totalAreaM2 } from "@/lib/domain/mof-totals";
 import {
   hasLiveSupplierPo,
@@ -26,6 +27,10 @@ export type PurchasingFacts = {
   unsignedDos: number;
   /** Supplier POs dated this month, on orders that are not cancelled. */
   posIssuedThisMonth: number;
+  /** Leftover stock recorded at a site and still waiting to be picked up. */
+  pickupsWaiting: number;
+  /** Of those, how many have waited more than a few days. */
+  pickupsLate: number;
 };
 
 const mofRows = z.array(
@@ -54,7 +59,7 @@ export async function loadPurchasingFacts(
   today: CalendarDate,
 ): Promise<PurchasingFacts> {
   const supabase = await createClient();
-  const [mofs, unsigned] = await Promise.all([
+  const [mofs, unsigned, pickups] = await Promise.all([
     supabase
       .from("mofs")
       .select(
@@ -66,10 +71,17 @@ export async function loadPurchasingFacts(
       .select("id", { count: "exact", head: true })
       .eq("signed_returned", false)
       .not("delivered_on", "is", null),
+    supabase
+      .from("leftovers")
+      .select("status, created_at")
+      .eq("status", "pending_pickup"),
   ]);
   if (mofs.error) throw new Error(`Could not load MOFs: ${mofs.error.message}`);
   if (unsigned.error) {
     throw new Error(`Could not load DOs: ${unsigned.error.message}`);
+  }
+  if (pickups.error) {
+    throw new Error(`Could not load leftover stock: ${pickups.error.message}`);
   }
 
   const orders = mofRows.parse(mofs.data);
@@ -102,6 +114,14 @@ export async function loadPurchasingFacts(
     );
   }).length;
 
+  const { waiting: pickupsWaiting, late: pickupsLate } = pickupCounts(
+    z
+      .array(z.object({ status: z.string(), created_at: z.string() }))
+      .parse(pickups.data)
+      .map((row) => ({ status: row.status, recordedOn: row.created_at })),
+    today,
+  );
+
   return {
     poStatuses,
     overduePos: poStatuses.reduce((total, row) => total + row.late, 0),
@@ -109,5 +129,7 @@ export async function loadPurchasingFacts(
     unsignedDos: unsigned.count ?? 0,
     posIssuedThisMonth: pos.filter((po) => isSameMonth(po.poDate, today))
       .length,
+    pickupsWaiting,
+    pickupsLate,
   };
 }

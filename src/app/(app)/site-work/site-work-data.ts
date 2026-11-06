@@ -119,7 +119,7 @@ const summaryRows = z.array(
   }),
 );
 
-/** Orders that are not closed or cancelled, with the latest visit and open follow-ups. */
+/** Orders still being worked on (not completed, closed or cancelled), with the latest visit and open follow-ups. */
 export async function loadActiveSites(today: string): Promise<SiteSummary[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -127,7 +127,7 @@ export async function loadActiveSites(today: string): Promise<SiteSummary[]> {
     .select(
       `${mofColumns}, site_logs(visited_on, activity, site_follow_ups(due_on, done_at))`,
     )
-    .not("stage", "in", "(closed,cancelled)")
+    .not("stage", "in", "(completed_payment_pending,closed,cancelled)")
     .order("mof_no", { ascending: false });
   if (error) throw new Error(`Could not load sites: ${error.message}`);
 

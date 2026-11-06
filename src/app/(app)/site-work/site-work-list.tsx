@@ -4,15 +4,11 @@ import { HardHat, Search } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { EmptyState } from "@/components/app/empty-state";
-import { StatusBadge } from "@/components/app/status-badge";
 import { Input } from "@/components/ui/input";
-import { MOF_STAGE_LABEL, MOF_STAGE_TONE } from "@/lib/domain/mof-stages";
-import { SITE_ACTIVITY_LABEL } from "@/lib/domain/site-log";
 import { searchSites, splitToday } from "@/lib/domain/site-search";
-import { formatDate } from "@/lib/format/date";
+import { siteStagePercent } from "@/lib/domain/site-stage";
 import { SiteLogDialog } from "./site-log-dialog";
 import type { SiteSummary } from "./site-work-data";
-import { StageProgress } from "./stage-progress";
 
 function SiteCard({
   site,
@@ -24,54 +20,30 @@ function SiteCard({
   canLog: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-xl border bg-card p-4">
+    <div className="flex items-center justify-between gap-3 rounded-xl border bg-card p-4">
       <Link
         href={`/site-work/${site.id}`}
-        className="flex flex-col gap-3 hover:opacity-80"
+        className="flex min-w-0 flex-1 items-baseline justify-between gap-3 hover:opacity-80"
       >
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <div className="flex min-w-0 flex-col">
-            <span className="font-heading font-semibold">
-              {site.projectName}
-            </span>
-            <span className="text-sm text-muted-foreground">
-              <span className="font-mono">{site.mofNo}</span> ·{" "}
-              {site.companyName}
-            </span>
-          </div>
-          <StatusBadge tone={MOF_STAGE_TONE[site.mofStage]}>
-            {MOF_STAGE_LABEL[site.mofStage]}
-          </StatusBadge>
-        </div>
-        <StageProgress stage={site.siteStage} />
-      </Link>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-          <span>
-            {site.lastVisit
-              ? `Last visit: ${SITE_ACTIVITY_LABEL[site.lastVisit.activity]}, ${formatDate(site.lastVisit.visitedOn)}`
-              : "No visits logged yet"}
+        <span className="min-w-0 truncate">
+          <span className="font-mono text-sm text-muted-foreground">
+            {site.mofNo}
           </span>
-          {site.openFollowUps > 0 && (
-            <span
-              className={site.overdueFollowUps > 0 ? "text-bad" : undefined}
-            >
-              {site.openFollowUps} open follow-up
-              {site.openFollowUps === 1 ? "" : "s"}
-              {site.overdueFollowUps > 0 &&
-                `, ${site.overdueFollowUps} overdue`}
-            </span>
-          )}
-        </div>
-        {canLog && (
-          <SiteLogDialog
-            mofId={site.id}
-            today={today}
-            projectName={`${site.mofNo} · ${site.projectName}`}
-            compact
-          />
-        )}
-      </div>
+          {" - "}
+          <span className="font-heading font-semibold">{site.projectName}</span>
+        </span>
+        <span className="font-mono text-muted-foreground tabular-nums">
+          {siteStagePercent(site.siteStage)}%
+        </span>
+      </Link>
+      {canLog && (
+        <SiteLogDialog
+          mofId={site.id}
+          today={today}
+          projectName={`${site.mofNo} · ${site.projectName}`}
+          compact
+        />
+      )}
     </div>
   );
 }
@@ -143,7 +115,7 @@ export function SiteWorkList({
             description={
               query
                 ? "Try a different word, or clear the box."
-                : "Orders appear here until they are closed or cancelled."
+                : "Orders appear here until they are completed, closed or cancelled."
             }
           />
         </div>

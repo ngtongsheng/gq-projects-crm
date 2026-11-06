@@ -19,6 +19,8 @@ const calendarJobRows = z.array(
       installer_name: z.string().nullable(),
       payment_checked: z.boolean(),
       dos_pre_approved: z.boolean(),
+      salesperson_id: z.string(),
+      second_salesperson_id: z.string().nullable(),
     }),
   }),
 );
@@ -32,6 +34,9 @@ export type CalendarJob = JobRow & {
   mofInstaller: string;
   paymentChecked: boolean;
   dosPreApproved: boolean;
+  /** The salespeople on the MOF, so the schedule can be filtered by who sold it. */
+  salespersonId: string;
+  secondSalespersonId: string | null;
 };
 
 /**
@@ -47,7 +52,7 @@ export async function loadCalendarJobs(
   let query = supabase
     .from("jobs")
     .select(
-      `${JOB_COLUMNS}, mof_id, mofs(mof_no, company_name, project_name, installer_name, payment_checked, dos_pre_approved)`,
+      `${JOB_COLUMNS}, mof_id, mofs(mof_no, company_name, project_name, installer_name, payment_checked, dos_pre_approved, salesperson_id, second_salesperson_id)`,
     )
     .lte("scheduled_on", to)
     .gte("ends_on", from)
@@ -87,5 +92,7 @@ export async function loadCalendarJobs(
     mofInstaller: job.mofs.installer_name ?? "",
     paymentChecked: job.mofs.payment_checked,
     dosPreApproved: job.mofs.dos_pre_approved,
+    salespersonId: job.mofs.salesperson_id,
+    secondSalespersonId: job.mofs.second_salesperson_id,
   }));
 }

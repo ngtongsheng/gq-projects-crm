@@ -6,6 +6,13 @@ import { MonthCalendar } from "@/components/app/month-calendar";
 import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   canAnswerBookings,
   canBookSiteSupervisor,
   canScheduleJobs,
@@ -38,10 +45,12 @@ import { calendarItems } from "./calendar-items";
 import { loadCalendarJobs } from "./calendar-jobs";
 import { JobList } from "./job-list";
 import { loadMofOptions } from "./mof-options";
+import { forSalesperson } from "./schedule-filters";
 
 export const metadata: Metadata = { title: "Installation" };
 
 const PATH = "/installation";
+const ALL = "all";
 const NOUN = { one: "job", many: "jobs" };
 
 export default async function InstallationPage({
@@ -67,7 +76,7 @@ export default async function InstallationPage({
 
   // A Site Supervisor sees their own jobs and bookings; everyone else sees the whole schedule.
   const ownOnly = me.jobRole === "site" ? me.id : null;
-  const [jobs, bookings, team, mofs, supervisors, projects, pendingDays] =
+  const [allJobs, allBookings, team, mofs, supervisors, projects, pendingDays] =
     await Promise.all([
       loadCalendarJobs(from, to, ownOnly),
       loadCalendarBookings(from, to, ownOnly),
@@ -78,7 +87,11 @@ export default async function InstallationPage({
       answersBookings ? loadPendingBookingDays(me.id) : Promise.resolve([]),
     ]);
 
-  const keep = { view };
+  // Everyone sees the whole schedule; a salesperson can narrow it to the jobs they sold.
+  const { jobs, bookings } = forSalesperson(allJobs, allBookings, params.who);
+  const canFilter = me.jobRole !== "site";
+
+  const keep = { view, who: params.who };
   const here = { ...keep, date: params.date };
   const href = (next: Parameters<typeof calendarHref>[0]) =>
     calendarHref(next, PATH);
@@ -90,7 +103,7 @@ export default async function InstallationPage({
     from,
     to,
     supervisorName: (id) => nameOf.get(id) ?? "Unnamed",
-    hrefFor: (day) => href({ view: "week", date: day }),
+    hrefFor: (day) => href({ ...keep, view: "week", date: day }),
   });
 
   // The month grid needs room, so a phone gets a list of the days that have jobs instead.
@@ -200,6 +213,30 @@ export default async function InstallationPage({
         <Button asChild size="sm" variant="ghost">
           <Link href={href(keep)}>Today</Link>
         </Button>
+        {canFilter && (
+          <form action={PATH} className="ml-auto flex items-center gap-2">
+            {view === "week" && (
+              <input type="hidden" name="view" value="week" />
+            )}
+            <input type="hidden" name="date" value={params.date} />
+            <Select name="who" defaultValue={params.who ?? ALL}>
+              <SelectTrigger aria-label="Salesperson" className="w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>All salespeople</SelectItem>
+                {team.map((member) => (
+                  <SelectItem key={member.id} value={member.id}>
+                    {member.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button type="submit" variant="outline">
+              Show
+            </Button>
+          </form>
+        )}
       </div>
       {weeks ? (
         <>

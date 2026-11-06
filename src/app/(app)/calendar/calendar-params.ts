@@ -12,6 +12,10 @@ const calendarParams = z.object({
   view: z.enum(["month", "week"]).catch("month"),
   date: calendarDate.optional().catch(undefined),
   who: z.uuid().optional().catch(undefined),
+  sup: z
+    .union([z.literal("none"), z.uuid()])
+    .optional()
+    .catch(undefined),
   add: calendarDate.optional().catch(undefined),
 });
 
@@ -21,6 +25,8 @@ export type CalendarParams = {
   date: CalendarDate;
   /** Whose activities to show; undefined means everyone. */
   who?: string;
+  /** Which site supervisor's jobs to show beside the activities: one person, "none", or (unset) everyone. */
+  sup?: string;
   /** The day an "add activity" dialog is open for, if any. */
   add?: CalendarDate;
 };
@@ -33,6 +39,7 @@ export function parseCalendarParams(
     view: params.view,
     date: params.date,
     who: params.who,
+    sup: params.sup,
     add: params.add,
   });
   return { ...parsed, date: parsed.date ?? today };
@@ -47,6 +54,7 @@ export function calendarHref(
   if (params.view && params.view !== "month") query.set("view", params.view);
   if (params.date) query.set("date", params.date);
   if (params.who) query.set("who", params.who);
+  if (params.sup) query.set("sup", params.sup);
   if (params.add) query.set("add", params.add);
   const text = query.toString();
   return text ? `${path}?${text}` : path;

@@ -31,6 +31,15 @@ test("ignores values that are not a view, a real date or a person", () => {
   ).toEqual({ view: "month", date: TODAY, who: undefined, add: undefined });
 });
 
+test("reads a site supervisor, none, or falls back to everyone", () => {
+  expect(parseCalendarParams({ sup: ARUN }, TODAY).sup).toBe(ARUN);
+  expect(parseCalendarParams({ sup: "none" }, TODAY).sup).toBe("none");
+  expect(parseCalendarParams({ sup: "raj" }, TODAY).sup).toBeUndefined();
+  expect(calendarHref({ view: "week", sup: ARUN })).toBe(
+    `/calendar?view=week&sup=${ARUN}`,
+  );
+});
+
 test("steps a month or a week", () => {
   expect(stepDate("month", "2026-12-20", 1)).toBe("2027-01-01");
   expect(stepDate("month", "2026-11-20", -1)).toBe("2026-10-01");

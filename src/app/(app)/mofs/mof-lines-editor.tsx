@@ -3,6 +3,7 @@
 import { Plus, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { m2ToSqft, sqftToM2 } from "@/lib/domain/area";
 import { totalAreaM2 } from "@/lib/domain/mof-totals";
+import { isUnijoy, UNIJOY } from "@/lib/domain/unijoy";
 import { formatQuantity } from "@/lib/format/quantity";
 import { LineUnit, LineUnitLabel, StockType, StockTypeLabel } from "./schemas";
 
@@ -132,16 +134,33 @@ export function MofLinesEditor({
               <FieldLabel htmlFor={id("supplier")}>Supplier</FieldLabel>
               <Input
                 id={id("supplier")}
-                value={row.supplier}
+                value={isUnijoy(row.supplier) ? UNIJOY : row.supplier}
                 onChange={(event) =>
                   change(row.key, { supplier: event.target.value })
                 }
-                placeholder="e.g. Unijoy"
+                placeholder="Other supplier, if any"
                 maxLength={100}
+                disabled={isUnijoy(row.supplier)}
               />
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id={id("unijoy")}
+                  checked={isUnijoy(row.supplier)}
+                  onCheckedChange={(checked) =>
+                    change(row.key, {
+                      supplier: checked === true ? UNIJOY : "",
+                    })
+                  }
+                />
+                <FieldLabel htmlFor={id("unijoy")} className="font-normal">
+                  From Unijoy
+                </FieldLabel>
+              </div>
             </Field>
             <Field>
-              <FieldLabel htmlFor={id("qty")}>Qty</FieldLabel>
+              <FieldLabel htmlFor={id("qty")}>
+                {isUnijoy(row.supplier) ? "Qty" : "Qty (optional)"}
+              </FieldLabel>
               <Input
                 id={id("qty")}
                 value={row.qty}

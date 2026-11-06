@@ -36,6 +36,7 @@ import { ProjectsToChase } from "./projects-to-chase";
 import { loadPurchasingFacts } from "./purchasing-data";
 import { loadTeamSnapshot, type TeamRow } from "./report-snapshot";
 import { TodaysActivities } from "./todays-activities";
+import { UnijoyTile } from "./unijoy-tile";
 
 /** The team's month for the MD, Sales Director and HR & Accounts: pace against targets and what is slipping. */
 export async function ManagerDashboard({ me }: { me: Profile }) {
@@ -128,6 +129,7 @@ export async function ManagerDashboard({ me }: { me: Profile }) {
           value={totals.month.count}
           note={`${totals.month.count === 1 ? "MOF" : "MOFs"} registered this month`}
         />
+        <UnijoyTile me={me} today={today} />
         <StatTile label="Team visits this month" value={visits}>
           <PaceBar
             done={visits}

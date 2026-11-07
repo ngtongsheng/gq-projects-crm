@@ -40,8 +40,8 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 | 08 | Ship-queue skill | done | 06 | sonnet/high |
 | 09 | Test-copy kit (connect, db:test-copy, test sign-ins) | done | 04 | sonnet/high |
 | 10 | help-bundle and get-help attachment | done | 05 | sonnet/high |
-| 11 | Consolidate and ship PRs 21-31 | in-progress | 01, 02, 06 | opus/medium |
-| 12 | Docs and plain note for Vicky | todo (waits on #11) | 01-11, 13 | sonnet/high |
+| 11 | Consolidate and ship PRs 21-31 | done (31 left open: owner) | 01, 02, 06 | opus/medium |
+| 12 | Docs and plain note for Vicky | in-progress | 01-11, 13 | sonnet/high |
 | 13 | Windows path in SETUP.md | done | 05 | opus/medium |
 
 ## Owner actions
@@ -106,3 +106,8 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 2026-11-07 · #02/#03 · post-merge · data-loss-approved label created; backup.yml run green, artifact prod-backup 26 KB; health.yml green; simulate_failure opened #39 assigned to owner (closed). owner-approved label kept until #11 PRs merge
 2026-11-07 · #11 · decision · refused push → deploy writes `vicky-approved-<branch>` marker in git dir + get-help; owner adds an allow rule on main; next session pulls it and ship-queue reruns deploy · she never types a command; approval survives without a PR
 2026-11-07 · #11 · in-progress · opus/medium
+2026-11-07 · #11 · done · merged 21, 28, 25, 27, 23, 29 (squash, merge-main + plain push, no force); migrate-prod 42365403990, 42365931102, 42366343488, 42366747685 success (dump first); live 307; issues 22/24/26/32 closed
+2026-11-07 · #11 · decision · merged 21/25/27/23 with red migrate-dev · dev already had 120000-130000 + 150000-190000 from PRs 30/31, so `db push` refuses; 110000-130000 already ran on dev; 140000 checked by hand, no data deleted, prod dumped first, applied cleanly
+2026-11-07 · #11 · decision · PR 31 left open (draft) · its 5 migrations (150000-190000) have no screens on any branch; 150000 rewrites decide_ownership_request on live
+2026-11-07 · #11 · owner · decide PR 31 + dev history drift: migrate-dev fails on every future migration PR until dev matches main (ship 31, or `supabase migration repair --status reverted` 150000-190000 on dev + drop those objects)
+2026-11-07 · #12 · in-progress · sonnet/high

@@ -60,12 +60,12 @@ Workflows live in `.github/workflows/`. Node and pnpm versions come from `mise.t
 
 | Workflow | Trigger | Jobs |
 |---|---|---|
-| `checks.yml` | pull request (also on label add/remove) | `checks` (biome, typecheck, test, build), `migration-guard` (label `owner-approved` sets `OWNER_APPROVED`), `migrate-dev` (needs the guard; pushes to `gq-crm-dev` only when the PR changes `supabase/migrations/`, otherwise does nothing) |
+| `checks.yml` | pull request (also on label add/remove) | `checks` (biome, typecheck, test, build), `migration-guard` (label `data-loss-approved` sets `DATA_LOSS_APPROVED`), `migrate-dev` (needs the guard; pushes to `gq-crm-dev` only when the PR changes `supabase/migrations/`, otherwise does nothing) |
 | `migrate-prod.yml` | push to `main` touching `supabase/migrations/**` | `migrate-prod` (`supabase db push` to `gq-crm-prod`, one run at a time, never cancelled) |
 
 Vercel deploys from its own GitHub integration, not from these workflows. Migrations and the Vercel prod build run in parallel on merge (see `docs/debt.md`).
 
-Repo settings already applied: delete branch on merge on, label `owner-approved` created.
+Repo settings already applied: delete branch on merge on, label `data-loss-approved` created.
 
 ## After first merge
 
@@ -88,5 +88,5 @@ The workflows must exist on `main` before PR checks can run, so these are done a
    }
    JSON
    ```
-3. Verify with a harmless migration PR: all three jobs green, `pnpm exec supabase migration list` shows it on dev; a PR with `drop table` fails `migration-guard` and passes after the `owner-approved` label; merging applies it to prod and Vercel deploys.
+3. Verify with a harmless migration PR: all three jobs green, `pnpm exec supabase migration list` shows it on dev; a PR with `drop table` fails `migration-guard` and passes after the `data-loss-approved` label; merging applies it to prod and Vercel deploys.
 4. The first merge carries `20261101120000_profiles.sql`. It was applied to dev by hand with its history row, so `migrate-dev` is a no-op there; `migrate-prod` applies it to prod on that merge.

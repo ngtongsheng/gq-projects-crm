@@ -11,6 +11,7 @@
     "format": "biome format --write",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
+    "free-port": "node scripts/agent/free-port.mjs",
     "guard:migrations": "node scripts/migration-guard.ts",
     "seed:example": "node --env-file=.env.development --env-file=.env.seed.dev scripts/seed-example-data.ts"
   },

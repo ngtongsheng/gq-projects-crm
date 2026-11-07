@@ -9,9 +9,8 @@ recommended option first.
 
 ## 1. Preview on her laptop
 1. Install if needed: when `node_modules/` is missing in this folder, run `pnpm install`.
-2. Clear old servers. Next runs one dev server per folder, and sign-in only works on port 3000:
-   - Read `.next/dev/lock` if it exists; it holds the running server's `pid`. Run `kill <pid>`.
-   - Run `lsof -ti tcp:3000`; `kill` any pid it prints (an older preview from another change).
+2. Clear old servers (Next runs one dev server per folder, and sign-in only works on port 3000): run
+   `pnpm free-port`. It works on Windows and Mac.
 3. Start the `crm-dev` configuration from `.claude/launch.json` in the Desktop preview pane. Without a preview pane,
    run `pnpm dev` in the background. Done when `http://localhost:3000` renders the app.
 4. Tell her in one or two lines what to look at: which page, what changed on screen, what to click to try it.

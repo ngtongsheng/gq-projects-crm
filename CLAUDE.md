@@ -14,24 +14,25 @@ the `get-help` skill (it comes from the company layer in gq-setup, not from this
 The `plain` style is the company-wide one; these lines are specific to this CRM.
 - Use the glossary words: "save a draft", "preview", "preview link", "put it live", "the database", "the test copy",
   "the live app".
-- Offer the next step as "Yes, put it live" / "Not yet". When she must click, name the real button, e.g. "Click
-  **Preview** at the top right. You'll see the sign-in page."
-- The live app only changes after she picks "Yes" on a prompt that asks exactly that.
+- When she must click, name the real button, e.g. "Click **Preview** at the top right. You'll see the sign-in page."
 
 ## A change, start to finish
-At the start of a session, if `git branch --show-current` prints `main` and `git status --porcelain` is empty, run
-`git pull --ff-only` so you start from the latest CRM and kit. Otherwise leave the folder as it is.
-
-1. **Own space.** Before the first edit of a change, run `git rev-parse --show-toplevel`. Outside `.claude/worktrees/`,
-   call EnterWorktree with a short kebab-case name for the change. One change per worktree.
+1. **Own space.** Before the first edit, run `git rev-parse --show-toplevel` and `git branch --show-current`.
+   - Already inside `.claude/worktrees/` on a change that is not live yet: a small change or fix joins this batch.
+   - Otherwise, or for a new module (a new page or area of the app) or a breaking change (existing screens or records
+     behave differently for the team): ExitWorktree with `action: "keep"` if a worktree session is active, then
+     EnterWorktree with a short kebab-case name. It branches from the latest `main`; every change branch starts there,
+     never from another change branch.
 2. **Build it** to the engineering bar. Run `pnpm check`, `pnpm typecheck` and `pnpm test`; fix until all pass.
 3. **Preview.** Use the `preview` skill so she sees it running on her laptop. No preview links (the free Vercel plan locks them).
-4. **Her review.** Ask whether it looks right (multiple-choice). Adjust and preview again until she picks yes.
-5. **Put it live** with the `deploy` skill, only after she picks "Yes" on "Shall we put this live now?".
+4. **Her review.** Ask whether it looks right, with options "Looks right, put it live (recommended)" / "Needs changes".
+   Adjust and preview again until she picks the first.
+5. **Put it live.** Her "looks right" is the go-live yes: run the `deploy` skill straight away. It ends with one line
+   telling her what is now live.
 
 ## Engineering bar
 - Smallest change that does what she asked. Reuse existing code first; add a dependency only when nothing in the
-  repo or platform covers it, and tell Tong Sheng via `get-help` when you do.
+  repo or platform covers it, and name it in the pull request description.
 - Strict TypeScript: `unknown` and type guards instead of `any`; fix causes instead of `@ts-ignore` or lint disables.
 - Validate input at boundaries (forms, URL params, API responses) and derive types from the schema.
 - Handle errors where you can act on them; show her a plain message, keep details in the server log.
@@ -51,15 +52,35 @@ rather than copying it. Theme tokens only, never raw colours.
   link is made, live app when it goes live). Write migrations and let CI apply them.
 - Live data is changed only by the app itself. Reading or writing production records by hand needs Tong Sheng.
 - New tables get row-level security for `admin` and `staff` in the same migration.
-- The migration guard blocks changes that drop, rename, retype or delete stored information. A blocked change goes to
-  `get-help`; the `owner-approved` label is Tong Sheng's alone.
+- The migration guard blocks changes that lose stored information until she approves the loss (see "Who decides").
 - On her laptop, admin-only server features show a "can't be tried on your laptop" message; that is by design, not a bug.
 
-## Call get-help when
-- The safety checks still fail after one fix attempt, or the migration guard blocks a change.
-- A step needs an account, password, payment or setting only Tong Sheng has.
-- She asks for something that changes who can see what, or deletes or reshapes existing records.
-- You are unsure the change is safe for live data.
+## Tidy-up at session start
+After the session-sync output, start a background subagent that runs the `ship-queue` skill. It merges what she
+approved, rebases and fixes her other saved changes and clears finished worktrees. Relay its one-line report to
+her; say nothing when it reports nothing.
+
+## Tong Sheng's instructions
+The session-sync hook (`scripts/agent/session-sync.mjs`) updates `main` and injects a "Tong Sheng's instructions"
+block: open `for:vicky-claude` issues he wrote, and his newest reply on open `from:crm` issues. Each one is his
+approval to build and ship without asking her.
+1. Per instruction, start a background subagent with its own worktree (EnterWorktree, short kebab-case name). It
+   follows "A change, start to finish" minus preview and her review: build, `pnpm check`, `pnpm typecheck`,
+   `pnpm test`, then the `deploy` skill.
+2. On success it comments the result on the issue and closes it. A `from:crm` reply is closed only once solved.
+3. Tell Vicky one line about what changed. Ask her only for a business answer the issue leaves open.
+4. After two failed fixes, comment what was tried and what failed, then `gh issue edit <n> --add-assignee ngtongsheng`.
+
+## Who decides
+- **Vicky** decides business rules: who can see what, new columns, backfills, and reshaping records that keeps every
+  value. Her request is the decision: build it. Ask her (multiple choice, with your recommendation) only when the rule
+  is unclear.
+- **Real data loss** (dropping a table or column, deleting or emptying rows, changing a column's type): ask her in
+  plain words naming exactly what disappears, e.g. "This removes the fax number from every customer. A copy of the
+  live data is saved first. Remove it?" with "Yes, remove it" / "No, keep it". On her yes, the `deploy` skill adds the
+  `data-loss-approved` label.
+- **Tong Sheng**, through `get-help`, only when a step needs an account, password, secret, payment or setting only he
+  has, or a step still fails after two fix attempts.
 
 ## Where things live
 - `docs/decisions.md`: why things are the way they are. `docs/loops/`: the build plan history.

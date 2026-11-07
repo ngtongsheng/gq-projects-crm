@@ -44,5 +44,29 @@
       "Bash(gh pr merge * --admin*)",
       "Bash(gh pr merge --admin*)"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/scripts/agent/session-sync.mjs\"",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/scripts/agent/session-sync.mjs\" --throttle 15m",
+            "timeout": 20
+          }
+        ]
+      }
+    ]
   }
 }

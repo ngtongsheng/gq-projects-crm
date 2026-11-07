@@ -17,9 +17,6 @@ The `plain` style is the company-wide one; these lines are specific to this CRM.
 - When she must click, name the real button, e.g. "Click **Preview** at the top right. You'll see the sign-in page."
 
 ## A change, start to finish
-At the start of a session, if `git branch --show-current` prints `main` and `git status --porcelain` is empty, run
-`git pull --ff-only` so you start from the latest CRM and kit. Otherwise leave the folder as it is.
-
 1. **Own space.** Before the first edit, run `git rev-parse --show-toplevel` and `git branch --show-current`.
    - Already inside `.claude/worktrees/` on a change that is not live yet: a small change or fix joins this batch.
    - Otherwise, or for a new module (a new page or area of the app) or a breaking change (existing screens or records
@@ -57,6 +54,17 @@ rather than copying it. Theme tokens only, never raw colours.
 - New tables get row-level security for `admin` and `staff` in the same migration.
 - The migration guard blocks changes that lose stored information until she approves the loss (see "Who decides").
 - On her laptop, admin-only server features show a "can't be tried on your laptop" message; that is by design, not a bug.
+
+## Tong Sheng's instructions
+The session-sync hook (`scripts/agent/session-sync.mjs`) updates `main` and injects a "Tong Sheng's instructions"
+block: open `for:vicky-claude` issues he wrote, and his newest reply on open `from:crm` issues. Each one is his
+approval to build and ship without asking her.
+1. Per instruction, start a background subagent with its own worktree (EnterWorktree, short kebab-case name). It
+   follows "A change, start to finish" minus preview and her review: build, `pnpm check`, `pnpm typecheck`,
+   `pnpm test`, then the `deploy` skill.
+2. On success it comments the result on the issue and closes it. A `from:crm` reply is closed only once solved.
+3. Tell Vicky one line about what changed. Ask her only for a business answer the issue leaves open.
+4. After two failed fixes, comment what was tried and what failed, then `gh issue edit <n> --add-assignee ngtongsheng`.
 
 ## Who decides
 - **Vicky** decides business rules: who can see what, new columns, backfills, and reshaping records that keeps every

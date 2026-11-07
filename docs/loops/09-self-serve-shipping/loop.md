@@ -36,8 +36,8 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 | 04 | LF line endings + cross-platform preview | done | - | sonnet/high |
 | 05 | Port gq-setup apply.py to Node | done | - | sonnet/high |
 | 06 | Rewrite agent rules (CLAUDE.md, deploy, get-help triggers) | done | 02 | opus/medium |
-| 07 | Session-sync hook and remote instructions | in-progress | 06 | opus/medium |
-| 08 | Ship-queue skill | todo | 06 | sonnet/high |
+| 07 | Session-sync hook and remote instructions | done | 06 | opus/medium |
+| 08 | Ship-queue skill | in-progress | 06 | sonnet/high |
 | 09 | Test-copy kit (connect, db:test-copy, test sign-ins) | todo | 04 | sonnet/high |
 | 10 | help-bundle and get-help attachment | todo | 05 | sonnet/high |
 | 11 | Consolidate and ship PRs 21-31 | todo | 01, 02, 06 | opus/medium |
@@ -79,3 +79,8 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 2026-11-07 · #06 · decision · new deps named in the PR description, not get-help; environments.md label renamed; files grew (~5.6k CLAUDE.md) · batching + "Who decides" need the lines
 2026-11-07 · #06 · done · grep empty in both worktrees; fresh haiku agent answered (a) build+ship, (b) ask Vicky + data-loss-approved, (c) get-help — all correct
 2026-11-07 · #07 · in-progress · opus/medium
+2026-11-07 · #07 · decision · removed CLAUDE.md "git pull at session start" (hook does it); from:crm comments via one `gh issue list --json comments` · fewer calls in the 20 s budget
+2026-11-07 · #07 · fix · dropped `gh issue list --author` (search API lags on new issues); author enforced by the tested filter
+2026-11-07 · #07 · done · 22 unit tests pass; manual: prints owner issue, throttled 2nd run silent; real sessions: SessionStart:startup injected (#37) and SessionStart:resume fired (#34). Test issues 33-37 closed
+2026-11-07 · #07 · note · a haiku agent primed with a suspicious prompt treated hook text as untrusted; Vicky's sessions untested for this · watch the first real for:vicky-claude issue
+2026-11-07 · #08 · in-progress · sonnet/high

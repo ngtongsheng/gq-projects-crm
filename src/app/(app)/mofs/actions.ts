@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { canEditRegister, isManager } from "@/lib/auth/job-role";
+import { canEditRegister, canSeeMofCost } from "@/lib/auth/job-role";
 import { requireSection } from "@/lib/auth/require-section";
 import { textField } from "@/lib/form/form-fields";
 import { createClient } from "@/lib/supabase/server";
@@ -24,7 +24,8 @@ const fail = (error: string): MofResult => ({ error });
 const RELOAD = "Could not find that MOF. Reload the page.";
 const NOT_EDITOR =
   "Only the MD, Purchasing or HR & Accounts can register or change an MOF.";
-const NOT_MANAGER = "Only the MD and HR & Accounts can see or set the cost.";
+const NOT_MANAGER =
+  "Only the MD, Purchasing and HR & Accounts can see or set the cost.";
 const TRY_AGAIN = "Could not save the MOF. Try again.";
 
 // The lines editor posts its rows as JSON; an id marks a line that is already saved.
@@ -70,6 +71,11 @@ const mofColumns = (form: MofForm) => ({
   office_pic_id: form.officePicId,
   customer_contact: form.customerContact,
   accounts_contact: form.accountsContact,
+  customer_name: form.customerName,
+  customer_mobile: form.customerMobile,
+  accounts_name: form.accountsName,
+  accounts_mobile: form.accountsMobile,
+  accounts_email: form.accountsEmail,
   scope: form.scope,
   installer_name: form.installerName,
   retention_pct: form.retentionPct,
@@ -117,9 +123,11 @@ export async function saveMof(formData: FormData): Promise<MofResult> {
   const mofId = textField(formData, "mofId") || null;
   if (mofId && !mofIdSchema.safeParse(mofId).success) return fail(RELOAD);
 
-  // Cost is managers-only; a posted cost from anyone else is refused, not ignored.
+  // Cost is for the MD, Purchasing and Accounts; a posted cost from anyone else is refused, not ignored.
   const costText = formData.has("cost") ? textField(formData, "cost") : "";
-  if (formData.has("cost") && !isManager(me.jobRole)) return fail(NOT_MANAGER);
+  if (formData.has("cost") && !canSeeMofCost(me.jobRole)) {
+    return fail(NOT_MANAGER);
+  }
   let cost: number | null = null;
   if (costText.trim() !== "") {
     const parsedCost = mofCostSchema.shape.cost.safeParse(costText);
@@ -148,6 +156,11 @@ export async function saveMof(formData: FormData): Promise<MofResult> {
     officePicId: textField(formData, "officePicId"),
     customerContact: textField(formData, "customerContact"),
     accountsContact: textField(formData, "accountsContact"),
+    customerName: textField(formData, "customerName"),
+    customerMobile: textField(formData, "customerMobile"),
+    accountsName: textField(formData, "accountsName"),
+    accountsMobile: textField(formData, "accountsMobile"),
+    accountsEmail: textField(formData, "accountsEmail"),
     scope: textField(formData, "scope"),
     installerName: textField(formData, "installerName"),
     contractSum: textField(formData, "contractSum"),

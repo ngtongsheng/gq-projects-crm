@@ -30,8 +30,8 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Fix next-themes script warning | todo | - | sonnet/high |
-| 02 | Guard false positives, prod dump, nightly backup, label rename | todo | - | sonnet/high |
+| 01 | Fix next-themes script warning | done | - | sonnet/high |
+| 02 | Guard false positives, prod dump, nightly backup, label rename | in-progress | - | sonnet/high |
 | 03 | Weekly health workflow | todo | - | sonnet/high |
 | 04 | LF line endings + cross-platform preview | todo | - | sonnet/high |
 | 05 | Port gq-setup apply.py to Node | todo | - | sonnet/high |
@@ -56,3 +56,9 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-07 · plan · loop written · /execute-loop
+2026-11-07 · setup · worktrees crm + gq-setup on loop/09-self-serve-shipping · #01
+2026-11-07 · #01 · in-progress · sonnet/high
+2026-11-07 · #01 · decision · replaced next-themes with local ThemeScript (server, in head) + ThemeProvider · no fixed release exists (0.4.6 latest)
+2026-11-07 · #01 · decision · biome-ignore noDangerouslySetInnerHtml on the constant theme script · React escapes children scripts; no user input
+2026-11-07 · #01 · done · check/typecheck/test pass; browser: no console errors, stored theme applied on reload (sign-in page; signed-in pages share the layout)
+2026-11-07 · #02 · in-progress · sonnet/high

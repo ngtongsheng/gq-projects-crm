@@ -42,21 +42,22 @@ export async function ManagerDashboard({ me }: { me: Profile }) {
   const today = todayMyt();
   const wants = (key: AttentionKey) =>
     attentionKeysFor(me.jobRole).includes(key);
-  const [team, projects, orders, inactiveOwners, names] = await Promise.all([
-    loadTeamSnapshot(today),
-    loadOpenProjects(today),
-    loadDashboardOrders(),
-    loadInactiveCustomerOwners(today),
-    getTeamDirectory(),
-  ]);
-  const [requests, overtime, sites, claims, purchasing] = await Promise.all([
+  const [team, projects, orders, inactiveOwners, names, purchasing] =
+    await Promise.all([
+      loadTeamSnapshot(today),
+      loadOpenProjects(today),
+      loadDashboardOrders(),
+      loadInactiveCustomerOwners(today),
+      getTeamDirectory(),
+      loadPurchasingFacts(today),
+    ]);
+  const [requests, overtime, sites, claims] = await Promise.all([
     wants("ownershipRequests") && canDecideOwnership(me.jobRole)
       ? countPendingOwnershipRequests()
       : 0,
     wants("pendingOvertime") ? loadOtClaims() : [],
     wants("overdueFollowUps") ? loadActiveSites(today) : [],
     wants("claimsToVerify") ? loadPendingClaims(me) : [],
-    wants("overdueSupplierPos") ? loadPurchasingFacts(today) : null,
   ]);
   const nameOf = new Map(names.map((member) => [member.id, member.name]));
   const paceNow = monthPace(today);
@@ -89,15 +90,40 @@ export async function ManagerDashboard({ me }: { me: Profile }) {
     ).length,
     overdueFollowUps: overdueFollowUpTotal(sites),
     claimsToVerify: claims.length,
-    overdueSupplierPos: purchasing?.overduePos,
-    missingSupplierPos: purchasing?.missingPos,
-    unsignedDos: purchasing?.unsignedDos,
+    overdueSupplierPos: purchasing.overduePos,
+    missingSupplierPos: purchasing.missingPos,
+    unsignedDos: purchasing.unsignedDos,
   });
 
   return (
     <div className="flex flex-col gap-4">
       <AttentionPanel items={attention} />
       <TileGrid>
+        <StatTile
+          label="Sales year to date"
+          value={formatRm(totals.year.value)}
+          note={`${totals.year.count} MOFs`}
+        />
+        <StatTile
+          label="Balance not yet received"
+          value={formatRm(sumRm(unpaid.map((order) => order.outstanding)))}
+          note={`${unpaid.length} MOFs with a balance`}
+        />
+        <StatTile
+          label="POs issued this month"
+          value={purchasing.posIssuedThisMonth}
+          note="Supplier POs dated this month"
+        />
+        <StatTile
+          label="Sales this month"
+          value={formatRm(totals.month.value)}
+          note="Orders registered this month"
+        />
+        <StatTile
+          label="New MOFs this month"
+          value={totals.month.count}
+          note={`${totals.month.count === 1 ? "MOF" : "MOFs"} registered this month`}
+        />
         <StatTile label="Team visits this month" value={visits}>
           <PaceBar
             done={visits}
@@ -115,21 +141,6 @@ export async function ManagerDashboard({ me }: { me: Profile }) {
           label="Open pipeline"
           value={formatRm(sumRm(projects.map((project) => project.value)))}
           note={`${projects.length} projects · ${stale.length} not updated in 14+ days`}
-        />
-        <StatTile
-          label="Awarded this month"
-          value={formatRm(totals.month.value)}
-          note={`${totals.month.count} ${totals.month.count === 1 ? "order" : "orders"}`}
-        />
-        <StatTile
-          label="Sales this year"
-          value={formatRm(totals.year.value)}
-          note={`${totals.year.count} orders`}
-        />
-        <StatTile
-          label="Payment outstanding"
-          value={formatRm(sumRm(unpaid.map((order) => order.outstanding)))}
-          note={`${unpaid.length} orders not fully paid`}
         />
       </TileGrid>
       <TableSection

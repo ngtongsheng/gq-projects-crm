@@ -1,0 +1,99 @@
+name: Health
+
+on:
+  # Supabase Free pauses a project after 7 idle days, so touch both weekly.
+  schedule:
+    - cron: "0 1 * * 1"
+  workflow_dispatch:
+    inputs:
+      simulate_failure:
+        description: Force a failure to test the issue reporting
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: jdx/mise-action@v5
+      - run: pnpm install --frozen-lockfile
+
+      # Each check keeps going on failure so one report lists everything that is wrong.
+      - name: CI Supabase token
+        id: token
+        continue-on-error: true
+        run: pnpm exec supabase projects list
+
+      - name: Keep test copy awake
+        id: dev
+        continue-on-error: true
+        run: |
+          pnpm exec supabase link --project-ref "${{ secrets.SUPABASE_DEV_PROJECT_REF }}"
+          pnpm exec supabase db query --linked "select 1"
+
+      - name: Keep live app database awake
+        id: prod
+        continue-on-error: true
+        run: |
+          pnpm exec supabase link --project-ref "${{ secrets.SUPABASE_PROD_PROJECT_REF }}"
+          pnpm exec supabase db query --linked "select 1"
+
+      - name: Simulate failure
+        id: simulate
+        if: inputs.simulate_failure
+        continue-on-error: true
+        run: |
+          echo "simulate_failure was set" >&2
+          exit 1
+
+      - name: Report failures
+        id: report
+        if: always()
+        env:
+          TOKEN_OUTCOME: ${{ steps.token.outcome }}
+          DEV_OUTCOME: ${{ steps.dev.outcome }}
+          PROD_OUTCOME: ${{ steps.prod.outcome }}
+          SIMULATE_OUTCOME: ${{ steps.simulate.outcome }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          problems=""
+          if [ "$TOKEN_OUTCOME" = "failure" ]; then
+            problems="${problems}- CI Supabase token expired or invalid. Fix: create a new token at supabase.com/dashboard/account/tokens, then run \`gh secret set SUPABASE_ACCESS_TOKEN\`."$'\n'
+          fi
+          if [ "$DEV_OUTCOME" = "failure" ]; then
+            problems="${problems}- The test copy (gq-crm-dev) did not answer. It may be paused: open the Supabase dashboard and restore it, or check SUPABASE_DEV_PROJECT_REF."$'\n'
+          fi
+          if [ "$PROD_OUTCOME" = "failure" ]; then
+            problems="${problems}- The live app database (gq-crm-prod) did not answer. It may be paused: open the Supabase dashboard and restore it right away, or check SUPABASE_PROD_PROJECT_REF."$'\n'
+          fi
+          if [ "$SIMULATE_OUTCOME" = "failure" ]; then
+            problems="${problems}- Simulated failure (workflow_dispatch input). Close this issue."$'\n'
+          fi
+
+          if [ -z "$problems" ]; then
+            echo "All checks passed."
+            exit 0
+          fi
+
+          body="$(printf 'The weekly health check failed.\n\n%s\nRun: %s' "$problems" "$RUN_URL")"
+
+          existing="$(gh issue list --state open --search 'Urgent: CRM health in:title' --json number --jq '.[0].number')"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create \
+              --assignee ngtongsheng \
+              --label from:crm \
+              --title "Urgent: CRM health check failed" \
+              --body "$body"
+          fi
+          # continue-on-error hid the failures from the run status, so fail it here.
+          exit 1

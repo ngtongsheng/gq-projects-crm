@@ -15,9 +15,9 @@ describe("destructive statements are caught", () => {
     ["drop table if exists clients cascade;"],
     ["ALTER TABLE clients DROP COLUMN phone;"],
     ["DROP SCHEMA extras;"],
-    ["DROP FUNCTION touch();"],
-    ["DROP POLICY p ON clients;"],
     ["DROP TYPE role;"],
+    ["DROP TABLE IF EXISTS clients;"],
+    ["ALTER TABLE clients DROP COLUMN IF EXISTS phone;"],
     ["TRUNCATE clients;"],
     ["TRUNCATE TABLE clients RESTART IDENTITY;"],
     ["DELETE FROM clients;"],
@@ -42,6 +42,17 @@ describe("destructive statements are caught", () => {
 
 describe("safe statements pass", () => {
   it.each([
+    ["DROP POLICY p ON clients;"],
+    ['drop policy if exists "mof costs: managers read" on public.mof_costs;'],
+    ["DROP FUNCTION touch();"],
+    ["drop function if exists public.touch() cascade;"],
+    ["DROP TRIGGER t ON clients;"],
+    ["drop trigger if exists t on public.clients;"],
+    ["DROP VIEW client_summary;"],
+    ["drop view if exists client_summary;"],
+    ["DROP INDEX clients_status_idx;"],
+    ["drop index if exists public.clients_status_idx;"],
+    ["DROP INDEX CONCURRENTLY IF EXISTS clients_status_idx;"],
     ["CREATE TABLE clients (id uuid primary key, name text);"],
     ["ALTER TABLE clients ADD COLUMN phone text;"],
     ["ALTER TABLE clients ADD COLUMN dropped_at timestamptz;"],
@@ -131,7 +142,7 @@ describe("runGuard", () => {
     expect(result.exitCode).toBe(1);
     expect(result.output).toContain("supabase/migrations/002_new.sql line 1");
     expect(result.output).toContain("DROP TABLE clients");
-    expect(result.output).toContain("owner-approved");
+    expect(result.output).toContain("data-loss-approved");
   });
 
   it.each(["M", "D"])("fails when a merged migration is changed (%s)", (s) => {
@@ -146,7 +157,7 @@ describe("runGuard", () => {
     expect(runGuard({ changes, readFile, env: {} }).exitCode).toBe(1);
   });
 
-  it("OWNER_APPROVED=true bypasses but still lists the findings", () => {
+  it("DATA_LOSS_APPROVED=true bypasses but still lists the findings", () => {
     const changes = parseChanges([
       "A\tsupabase/migrations/002_new.sql",
       "M\tsupabase/migrations/001_old.sql",
@@ -154,7 +165,7 @@ describe("runGuard", () => {
     const result = runGuard({
       changes,
       readFile,
-      env: { OWNER_APPROVED: "true" },
+      env: { DATA_LOSS_APPROVED: "true" },
     });
     expect(result.exitCode).toBe(0);
     expect(result.output).toContain("DROP TABLE clients");
@@ -163,7 +174,8 @@ describe("runGuard", () => {
   it("only the exact value true bypasses", () => {
     const changes = parseChanges(["A\tsupabase/migrations/002_new.sql"]);
     expect(
-      runGuard({ changes, readFile, env: { OWNER_APPROVED: "yes" } }).exitCode,
+      runGuard({ changes, readFile, env: { DATA_LOSS_APPROVED: "yes" } })
+        .exitCode,
     ).toBe(1);
   });
 });

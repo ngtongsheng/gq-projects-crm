@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Figtree, IBM_Plex_Mono, Saira } from "next/font/google";
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider } from "@/components/app/theme-provider";
+import { ThemeScript } from "@/components/app/theme-script";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { APP_NAME } from "@/lib/app-name";
@@ -26,12 +27,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       className={`${figtree.variable} ${saira.variable} ${plexMono.variable} h-full antialiased`}
     >
+      <head>
+        <ThemeScript />
+      </head>
       <body className="min-h-full flex flex-col">
-        <ThemeProvider
-          attribute="data-theme"
-          defaultTheme="system"
-          enableSystem
-        >
+        <ThemeProvider>
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster />
         </ThemeProvider>

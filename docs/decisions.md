@@ -53,3 +53,38 @@ OT claims, guide). The prototype is the spec input, not the data model: grill it
 - D2: database rules are tested with `@electric-sql/pglite` (devDependency). `supabase/tests/*.test.ts` applies every
   migration to a fresh in-memory database with a stubbed `auth.uid()` and roles, and runs under `pnpm test`.
   Closes finding 3 of loop 05.
+
+## Loop 09 (self-serve shipping), decided 2026-11-07
+Goal: Vicky says the preview looks right and it is live, without git knowledge or waiting on the owner except for
+accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shipping/loop.md`.
+- Autonomy (D1): her agent decides and ships. Vicky approves business rules (who sees what, new columns, backfills).
+  The owner is only needed for accounts, secrets, billing, or a step that still fails after two fixes.
+- Data loss (D2, D3): dropping a table or column, deleting rows or changing a column's type still trips the migration
+  guard. The agent asks Vicky in plain words what disappears; on her yes it adds `data-loss-approved` and ships.
+  Dropping a policy, function, trigger, view or index (no stored data) passes. `migrate-prod` dumps prod first.
+- Go-live (D4): her "looks right" on the preview is the go-live yes; there is no second prompt.
+- Batching (D5): small changes and fixes share one change from `main`; a new module or breaking change gets its own.
+  Changes are never stacked on other changes.
+- Ship queue (D6): at session start, merge approved green changes, bring the rest up to date, close superseded ones,
+  remove merged worktrees, one-line status to her. Waiting branches take `main` in with a merge and a plain push, not a
+  rebase and force push (squash merges make the branch history irrelevant). Her approval is a `<!-- vicky-approved -->`
+  comment on the pull request. If a push is refused, `deploy` leaves a `vicky-approved-<branch>` marker and calls
+  `get-help`; the owner adds an allow rule and the next session finishes the push.
+- Permissions: narrow allow rules for her push and pull-request commands (`git push -u origin HEAD`,
+  `git push origin HEAD:*`, `gh pr create/merge/edit`); denies for `main`, force and `--admin` still win. Auto mode
+  ignores a broad `git *` allow and a classifier may still refuse a push, hence the refused-push path.
+- Roles (D7): live app uses "Sign in as" (MD); her laptop uses the `test-sign-ins` skill on the test copy.
+- Pending PRs (D8): 21, 23, 25 approved by the owner (company rating, MOF cost to Purchasing, MD "Sign in as") and
+  consolidated onto `main`. PR 31 was left open as a draft: its 5 migrations have no screens and one rewrites a live
+  function. The test copy's migration history is out of step with `main` until PR 31 is decided (`docs/debt.md`).
+- Cross-platform (D9, D10, D16): agent scripts are Node, no `lsof`, `kill` or Python; `.gitattributes` forces LF and the
+  formatter is back on; gq-setup `SETUP.md` has a Windows path (winget for Git, mise for gh, Node and pnpm).
+- Test copy from a laptop (D11): the owner sends the dev secret key and database password privately once;
+  `connect-test-copy` stores them in `.env.local`; `pnpm db:test-copy` refuses any other database.
+- Health and backups (D12, D13): weekly `health.yml` keeps both databases awake and checks the CI token, opening an
+  `Urgent:` issue on failure. Nightly `backup.yml` dumps prod to a 30-day artifact. Supabase Pro is deferred to handover.
+- Remote instructions (D14): a session hook injects the owner's `for:vicky-claude` and `from:crm` issues; only text by
+  `ngtongsheng` counts. The agent ships without asking her, comments, closes, and tells her one line.
+- Asking for help (D15): `get-help` attaches a diagnosis and a condensed, redacted session transcript.
+- Rollout caveat: the hook text reads like an instruction injected into a prompt, and a test agent primed to be
+  suspicious treated it as untrusted. Watch the first real `for:vicky-claude` issue on her machine.

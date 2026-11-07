@@ -1,6 +1,6 @@
 # Environments
 
-Status: Supabase, GitHub secrets and Vercel (project, env vars, auth URLs) are set up. The push-to-`main` deploy is checked after the first merge.
+Status: Supabase, GitHub secrets and Vercel (project, env vars, auth URLs) are set up. Merging to `main` deploys; a migration on `main` first dumps prod, then applies.
 
 Vercel project: `gq-projects-crm` (team `ng-tong-shengs-projects`, Hobby), linked to GitHub `ngtongsheng/gq-projects-crm`, production branch `main`.
 
@@ -48,11 +48,48 @@ Admins are created once per environment by `scripts/seed-admin.ts`, never by a m
 
 Installer claims are seeded unverified and unpaid, and site follow-ups open: verifying, paying and closing are stamped with the signed-in person, so try those in the app.
 
+## Trying database changes from a laptop
+
+Vicky's agent can try database changes and admin-only screens on the test copy without help. The owner sends her two
+values privately (WhatsApp, never git or an issue): the `gq-crm-dev` secret key and the `gq-crm-dev` database password.
+The prod values never leave the owner's machines.
+
+1. She pastes both into the `connect-test-copy` skill. `pnpm connect:test-copy` reads them from stdin, checks the key
+   against the test copy and writes `SUPABASE_SERVICE_ROLE_KEY` and `SUPABASE_DEV_DB_URL` to `.env.local` (gitignored,
+   mode 600). It refuses any project except the test copy.
+2. `pnpm db:test-copy` applies pending migrations to the test copy only. It exits before connecting if the connection
+   string is not the test copy's.
+3. `pnpm reset:sign-ins` (the `test-sign-ins` skill) gives each job role a fresh test sign-in and prints the passwords
+   once. On the live app she uses "Sign in as" instead.
+4. A new worktree has no `.env.local`; `pnpm copy-env` copies it from the main folder. Works on Windows and Mac.
+
+Owner check after sending the values, on your Mac in the main checkout: `pnpm connect:test-copy`, `pnpm db:test-copy`
+(expect "up to date"), `pnpm reset:sign-ins` (expect 7 sign-ins).
+
+## Agent hooks and permissions
+
+`.claude/settings.json` runs `scripts/agent/session-sync.mjs` at session start and, at most every 15 minutes, on a
+prompt. It pulls `main` when the folder is clean (else fetches) and injects open issues that carry instructions for her
+agent: label `for:vicky-claude` authored by `ngtongsheng`, or `from:crm` issues whose newest comment is by
+`ngtongsheng`. Only that account counts as an instruction. To steer her agent remotely, open an issue with
+`for:vicky-claude`; the agent does the work in its own worktree, ships it, comments the result and closes the issue.
+After two failed attempts it assigns the issue back to you.
+
+Her agent may run `git push -u origin HEAD`, `git push origin HEAD:*` and `gh pr create/merge/edit`. Pushes to `main`,
+force pushes and `--admin` merges stay denied. If a push is still refused, `deploy` leaves a `vicky-approved-<branch>`
+marker in the git folder and calls `get-help`; add an allow rule on `main`, and her next session pulls it and
+`ship-queue` finishes the push.
+
+`get-help` (from gq-setup) attaches a diagnosis and a condensed, secret-redacted transcript of the current session in
+collapsed blocks, so you can act without asking her.
+
 ## GitHub secrets (names only)
 
 `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DEV_PROJECT_REF`, `SUPABASE_DEV_DB_PASSWORD`, `SUPABASE_PROD_PROJECT_REF`, `SUPABASE_PROD_DB_PASSWORD`
 
-`SUPABASE_ACCESS_TOKEN` is a full-account Supabase token (`gq-crm-github-ci`) that expires after 90 days. When CI starts failing with an auth error, create a new token at supabase.com/dashboard/account/tokens and run `gh secret set SUPABASE_ACCESS_TOKEN`.
+`SUPABASE_ACCESS_TOKEN` is a full-account Supabase token (`gq-crm-github-ci`) that expires after 90 days. `health.yml` checks it every week and opens an `Urgent:` issue before it bites. To renew, create a new token at supabase.com/dashboard/account/tokens and run `gh secret set SUPABASE_ACCESS_TOKEN`.
+
+`SUPABASE_DEV_DB_PASSWORD` is also what the owner sends Vicky (below). If it is lost, reset it in the `gq-crm-dev` dashboard (Database settings), run `gh secret set SUPABASE_DEV_DB_PASSWORD`, and send her the new one.
 
 ## CI and deploy pipeline
 
@@ -61,11 +98,13 @@ Workflows live in `.github/workflows/`. Node and pnpm versions come from `mise.t
 | Workflow | Trigger | Jobs |
 |---|---|---|
 | `checks.yml` | pull request (also on label add/remove) | `checks` (biome, typecheck, test, build), `migration-guard` (label `data-loss-approved` sets `DATA_LOSS_APPROVED`), `migrate-dev` (needs the guard; pushes to `gq-crm-dev` only when the PR changes `supabase/migrations/`, otherwise does nothing) |
-| `migrate-prod.yml` | push to `main` touching `supabase/migrations/**` | `migrate-prod` (`supabase db push` to `gq-crm-prod`, one run at a time, never cancelled) |
+| `migrate-prod.yml` | push to `main` touching `supabase/migrations/**` | `backup` (runs `backup.yml`; a failed dump stops here), then `migrate-prod` (`supabase db push` to `gq-crm-prod`, one run at a time, never cancelled) |
+| `backup.yml` | nightly 18:00 UTC, manual, and called by `migrate-prod` | `backup-prod`: `supabase db dump` of schema and data to the Actions artifact `prod-backup`, kept 30 days. The repo is private, so only collaborators can download it |
+| `health.yml` | Mondays 01:00 UTC, manual (`simulate_failure` input tests the report) | queries the test copy and the live database (a query keeps Supabase Free from pausing them after 7 idle days) and checks `SUPABASE_ACCESS_TOKEN`; any failure opens or updates an `Urgent: CRM health check failed` issue assigned to the owner, label `from:crm` |
 
 Vercel deploys from its own GitHub integration, not from these workflows. Migrations and the Vercel prod build run in parallel on merge (see `docs/debt.md`).
 
-Repo settings already applied: delete branch on merge on, label `data-loss-approved` created.
+Repo settings already applied: delete branch on merge on, labels `data-loss-approved` and `from:crm` created (Vicky's agent adds `data-loss-approved` after she agrees to a loss).
 
 ## After first merge
 
@@ -90,3 +129,9 @@ The workflows must exist on `main` before PR checks can run, so these are done a
    ```
 3. Verify with a harmless migration PR: all three jobs green, `pnpm exec supabase migration list` shows it on dev; a PR with `drop table` fails `migration-guard` and passes after the `data-loss-approved` label; merging applies it to prod and Vercel deploys.
 4. The first merge carries `20261101120000_profiles.sql`. It was applied to dev by hand with its history row, so `migrate-dev` is a no-op there; `migrate-prod` applies it to prod on that merge.
+
+## Restoring from a backup
+
+Prod is dumped before every migration reaches it and nightly. To recover: Actions, the run you want, download the
+`prod-backup` artifact (`schema.sql`, `data.sql`, 30 days), and restore into a fresh Supabase project with `psql`. Do it
+yourself; Vicky's agent never touches prod data.

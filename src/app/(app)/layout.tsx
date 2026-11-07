@@ -1,4 +1,4 @@
-import { UserCheck, Users } from "lucide-react";
+import { TrendingUp, UserCheck, Users } from "lucide-react";
 import { AppShell, type NavItem } from "@/components/app/app-shell";
 import { ImpersonationBar } from "@/components/app/impersonation-bar";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,14 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
       ],
     ),
     ...(profile.role === "admin"
-      ? [{ href: "/people", label: "People", icon: <Users /> }]
+      ? [
+          {
+            href: "/performance",
+            label: "Sales Performance",
+            icon: <TrendingUp />,
+          },
+          { href: "/people", label: "People", icon: <Users /> },
+        ]
       : []),
   ];
 

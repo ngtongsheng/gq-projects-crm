@@ -40,9 +40,9 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 | 08 | Ship-queue skill | done | 06 | sonnet/high |
 | 09 | Test-copy kit (connect, db:test-copy, test sign-ins) | done | 04 | sonnet/high |
 | 10 | help-bundle and get-help attachment | done | 05 | sonnet/high |
-| 11 | Consolidate and ship PRs 21-31 | in-progress | 01, 02, 06 | opus/medium |
+| 11 | Consolidate and ship PRs 21-31 | blocked: owner — approve pushing loop/09 (classifier denied `git push` as "Code That Leaks When Run"); then land 01-10 on main via PR before #11 | 01, 02, 06 | opus/medium |
 | 12 | Docs and plain note for Vicky | todo | 01-11, 13 | sonnet/high |
-| 13 | Windows path in SETUP.md | todo | 05 | opus/medium |
+| 13 | Windows path in SETUP.md | in-progress | 05 | opus/medium |
 
 ## Owner actions
 - Rollout (after the loop merges): tell Vicky "Open a new chat, say *get the latest CRM*, then close it and open
@@ -95,3 +95,6 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 2026-11-07 · #10 · decision · whole help report kept < 60,000 chars (transcript shrinks first), stdout bundle ≤ 45,000 · GitHub issue body limit is 65,536
 2026-11-07 · #10 · done · 12 node tests pass (redaction fixture, caps, budget); real run 8.1 s, both sections, secret-pattern scan clean (gq-setup commit)
 2026-11-07 · #11 · in-progress · opus/medium
+2026-11-07 · #11 · decision · land 01-10 on main via a PR (`gh pr merge`, no --admin) before #11; update stacked branches by merging origin/main + plain push, not rebase/force · project denies `git push *:main*` and force pushes; #11 needs the guard fix and pre-migration backup on main
+2026-11-07 · #11 · blocked · `git push -u origin loop/09-self-serve-shipping` denied twice by auto-mode classifier ("Code That Leaks When Run"); not worked around · owner decides
+2026-11-07 · #13 · in-progress · opus/medium (gq-setup worktree)

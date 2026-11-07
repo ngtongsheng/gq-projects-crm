@@ -38,8 +38,8 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 | 06 | Rewrite agent rules (CLAUDE.md, deploy, get-help triggers) | done | 02 | opus/medium |
 | 07 | Session-sync hook and remote instructions | done | 06 | opus/medium |
 | 08 | Ship-queue skill | done | 06 | sonnet/high |
-| 09 | Test-copy kit (connect, db:test-copy, test sign-ins) | in-progress | 04 | sonnet/high |
-| 10 | help-bundle and get-help attachment | todo | 05 | sonnet/high |
+| 09 | Test-copy kit (connect, db:test-copy, test sign-ins) | done | 04 | sonnet/high |
+| 10 | help-bundle and get-help attachment | in-progress | 05 | sonnet/high |
 | 11 | Consolidate and ship PRs 21-31 | todo | 01, 02, 06 | opus/medium |
 | 12 | Docs and plain note for Vicky | todo | 01-11, 13 | sonnet/high |
 | 13 | Windows path in SETUP.md | todo | 05 | opus/medium |
@@ -48,7 +48,7 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 - Rollout (after the loop merges): tell Vicky "Open a new chat, say *get the latest CRM*, then close it and open
   another." First session pulls; rules, skills and hooks load from the second session on.
 - Dev DB password: if lost, reset it in the `gq-crm-dev` dashboard, then `gh secret set SUPABASE_DEV_DB_PASSWORD`.
-- After #09: send Vicky the dev secret key and dev DB password privately (WhatsApp), never in git or issues.
+- After #09: send Vicky the dev secret key and dev DB password privately (WhatsApp), never in git or issues. First, on your Mac in the main checkout: `pnpm connect:test-copy` (paste both values), then `pnpm db:test-copy` (expect "up to date") and `pnpm reset:sign-ins` (expect 7 sign-ins).
 - After #11: sign in as MD on https://gq-projects-crm.vercel.app and try "Sign in as" and "Back to my account".
 - After #07 ships: open one test issue labelled `for:vicky-claude` (e.g. a copy tweak) and confirm it goes live.
 - After #13 ships: ask Vicky to paste the setup link once on her Windows PC, then start a new session.
@@ -88,3 +88,7 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 2026-11-07 · #08 · decision · deploy writes `<!-- vicky-approved -->` PR comment as the approval marker ship-queue reads
 2026-11-07 · #08 · done · dry-run on real repo lists chain 21→25→27→{23,31}, 29 on 23, 28 standalone (read-only); stack test done in a local scratch repo (squash A, merge trunk into B → PR diff = B only) instead of throwaway GitHub PRs, which would deploy to live
 2026-11-07 · #09 · in-progress · sonnet/high
+2026-11-07 · #09 · decision · added `pnpm connect:test-copy` (secrets via stdin, verified against dev, writes .env.local 600) and `pnpm copy-env` (cross-platform worktree copy) · keeps secrets off the command line; Windows-safe
+2026-11-07 · #09 · decision · marked done with 2 live-secret checks moved to owner actions (`pnpm db:test-copy` "up to date", `pnpm reset:sign-ins` 7 rows) · code + guards fully tested; dev secrets not on this machine; blocking would hold the whole loop
+2026-11-07 · #09 · done · check/typecheck/test (972) pass; prod-ref refusal exits 1 before connecting; copy-env verified in a fresh worktree; .env.local ignored
+2026-11-07 · #10 · in-progress · sonnet/high

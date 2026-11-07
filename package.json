@@ -13,6 +13,10 @@
     "test": "vitest run",
     "free-port": "node scripts/agent/free-port.mjs",
     "guard:migrations": "node scripts/migration-guard.ts",
+    "connect:test-copy": "node --env-file=.env.development scripts/connect-test-copy.ts",
+    "db:test-copy": "node --env-file=.env.development --env-file-if-exists=.env.local scripts/db-test-copy.ts",
+    "reset:sign-ins": "node --env-file=.env.development --env-file-if-exists=.env.local scripts/reset-test-sign-ins.ts",
+    "copy-env": "node scripts/agent/copy-env-local.mjs",
     "seed:example": "node --env-file=.env.development --env-file=.env.seed.dev scripts/seed-example-data.ts"
   },
   "dependencies": {

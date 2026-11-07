@@ -101,3 +101,5 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 2026-11-07 · #13 · decision · gh and node via `mise use -g` on both OSes; mise via official PowerShell script; shims on user Path (no PS profile); rtk skipped on Windows · shared steps, stable shim path, no script-policy issues
 2026-11-07 · #13 · done · two fresh agents read SETUP.md as win32: commands per step are OS-labelled, no unlabelled Mac-only command on Windows, none Windows-only on Mac; credential helper `$HOME` expands at run time (git runs `!` helpers via sh). Real Windows run = owner action (gq-setup commit)
 2026-11-07 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-07-loop-09-self-serve-shipping.md
+2026-11-07 · #11 · unblocked · owner added a push allow rule; both loop branches pushed; PR #38 lands 01-10 on main
+2026-11-07 · #11 · decision · narrow allows for her push/PR commands (`git push -u origin HEAD`, `git push origin HEAD:*`, `gh pr merge/create/edit *`); deploy: any refused step → get-help, never a command for her · auto mode ignores broad `Bash(git *)` and the classifier may refuse pushes; deny rules for main/force/--admin still win

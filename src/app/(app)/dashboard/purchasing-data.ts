@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isSameMonth } from "@/lib/domain/calendar-grid";
 import { needsSupplierPo, totalAreaM2 } from "@/lib/domain/mof-totals";
 import {
   hasLiveSupplierPo,
@@ -23,6 +24,8 @@ export type PurchasingFacts = {
   missingPos: number;
   /** Deliveries done but the signed DO not yet back. */
   unsignedDos: number;
+  /** Supplier POs dated this month, on orders that are not cancelled. */
+  posIssuedThisMonth: number;
 };
 
 const mofRows = z.array(
@@ -104,5 +107,7 @@ export async function loadPurchasingFacts(
     overduePos: poStatuses.reduce((total, row) => total + row.late, 0),
     missingPos,
     unsignedDos: unsigned.count ?? 0,
+    posIssuedThisMonth: pos.filter((po) => isSameMonth(po.poDate, today))
+      .length,
   };
 }

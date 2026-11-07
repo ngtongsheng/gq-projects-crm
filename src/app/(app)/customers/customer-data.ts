@@ -17,11 +17,14 @@ const contactRows = z.array(
     name: z.string(),
     mobile: z.string(),
     title: z.string().nullable(),
-    rating: z.number().int(),
     account_type: AccountType,
     passed_by: z.string().nullable(),
     notes: z.string().nullable(),
-    companies: z.object({ name: z.string(), company_type: CompanyType }),
+    companies: z.object({
+      name: z.string(),
+      company_type: CompanyType,
+      rating: z.number().int(),
+    }),
     contact_owners: z.array(z.object({ profile_id: z.string() })),
   }),
 );
@@ -33,7 +36,7 @@ export async function loadCustomers(me: Profile) {
     supabase
       .from("contacts")
       .select(
-        "id, company_id, name, mobile, title, rating, account_type, passed_by, notes, companies(name, company_type), contact_owners(profile_id)",
+        "id, company_id, name, mobile, title, account_type, passed_by, notes, companies(name, company_type, rating), contact_owners(profile_id)",
       )
       .is("archived_at", null)
       .order("name"),
@@ -57,7 +60,7 @@ export async function loadCustomers(me: Profile) {
       mobile: row.mobile,
       companyName: row.companies.name,
       companyType: row.companies.company_type,
-      rating: row.rating,
+      rating: row.companies.rating,
       accountType: row.account_type,
       health: customerHealth(lastActivity.get(row.id) ?? null, today),
       ownerIds,
@@ -68,7 +71,6 @@ export async function loadCustomers(me: Profile) {
         name: row.name,
         mobile: formatMobile(row.mobile),
         title: row.title ?? "",
-        rating: row.rating,
         accountType: row.account_type,
         passedBy: row.passed_by ?? "",
         notes: row.notes ?? "",

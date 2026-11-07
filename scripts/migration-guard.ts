@@ -1,10 +1,10 @@
 // Fails CI when a PR adds destructive SQL to supabase/migrations, or edits a
-// migration that is already merged (decision D5, free tier has no backups).
+// migration that is already merged (decision D5).
 //
 // Usage: node scripts/migration-guard.ts [STATUS:path ...]
 // With no args it diffs against origin/main. Args use git's name-status
 // letters, e.g. `A:supabase/migrations/001_x.sql`, `M:supabase/migrations/000_y.sql`.
-// OWNER_APPROVED=true lets findings through (CI sets it from the PR label).
+// DATA_LOSS_APPROVED=true lets findings through (CI sets it from the PR label).
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
@@ -148,10 +148,15 @@ function hasTopLevelWhere(statement: string): boolean {
   return false;
 }
 
+// Objects that hold no stored rows: dropping one loses a definition, not data.
+const DEFINITION_ONLY_DROP =
+  /^drop\s+(?:policy|function|trigger|view|index)\b/i;
+
 function classify(statement: string): string | null {
   const sql = statement.replace(/\s+/g, " ").trim();
+  if (DEFINITION_ONLY_DROP.test(sql)) return null;
   if (/^drop\b/i.test(sql)) {
-    return "DROP permanently removes a table, column, policy or other object, and any data in it.";
+    return "DROP permanently removes a table, column, schema or type, and any data in it.";
   }
   if (/^truncate\b/i.test(sql)) {
     return "TRUNCATE empties a whole table.";
@@ -243,8 +248,8 @@ export function formatReport(findings: Finding[], bypassed: boolean): string {
   }
   lines.push(
     bypassed
-      ? "Allowed because the owner approved this pull request (OWNER_APPROVED=true)."
-      : "Explain this to Vicky in plain words. If she approves, add the label owner-approved to the pull request and re-run the check.",
+      ? "Allowed because the owner approved this pull request (DATA_LOSS_APPROVED=true)."
+      : "Explain this to Vicky in plain words. If she approves, add the label data-loss-approved to the pull request and re-run the check.",
   );
   return lines.join("\n");
 }
@@ -255,7 +260,7 @@ export function runGuard(options: {
   env: Record<string, string | undefined>;
 }): { exitCode: number; output: string } {
   const findings = checkMigrations(options.changes, options.readFile);
-  const bypassed = options.env.OWNER_APPROVED === "true";
+  const bypassed = options.env.DATA_LOSS_APPROVED === "true";
   return {
     exitCode: findings.length > 0 && !bypassed ? 1 : 0,
     output: formatReport(findings, bypassed),

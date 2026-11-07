@@ -11,7 +11,12 @@
     "format": "biome format --write",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
+    "free-port": "node scripts/agent/free-port.mjs",
     "guard:migrations": "node scripts/migration-guard.ts",
+    "connect:test-copy": "node --env-file=.env.development scripts/connect-test-copy.ts",
+    "db:test-copy": "node --env-file=.env.development --env-file-if-exists=.env.local scripts/db-test-copy.ts",
+    "reset:sign-ins": "node --env-file=.env.development --env-file-if-exists=.env.local scripts/reset-test-sign-ins.ts",
+    "copy-env": "node scripts/agent/copy-env-local.mjs",
     "seed:example": "node --env-file=.env.development --env-file=.env.seed.dev scripts/seed-example-data.ts"
   },
   "dependencies": {
@@ -21,7 +26,6 @@
     "cn": "^0.5.1",
     "lucide-react": "^1.66.0",
     "next": "16.4.3",
-    "next-themes": "^0.4.6",
     "radix-ui": "^1.8.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",

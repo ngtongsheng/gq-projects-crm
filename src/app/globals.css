@@ -70,7 +70,7 @@
  * Theme from docs/mockup/tokens.css. Mockup names map to shadcn variables:
  * --surface=--card, --line=--border, --fg=--foreground, --muted (text)=--muted-foreground,
  * --accent (navy)=--primary. shadcn's --accent is the soft hover surface (mockup --accent-soft).
- * The rest keep their mockup names. Theme comes from next-themes: data-theme="light" | "dark".
+ * The rest keep their mockup names. Theme comes from the theme script and provider: data-theme="light" | "dark".
  */
 :root {
   --background: #f3f6f8;

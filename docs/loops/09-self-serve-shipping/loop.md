@@ -39,8 +39,8 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 | 07 | Session-sync hook and remote instructions | done | 06 | opus/medium |
 | 08 | Ship-queue skill | done | 06 | sonnet/high |
 | 09 | Test-copy kit (connect, db:test-copy, test sign-ins) | done | 04 | sonnet/high |
-| 10 | help-bundle and get-help attachment | in-progress | 05 | sonnet/high |
-| 11 | Consolidate and ship PRs 21-31 | todo | 01, 02, 06 | opus/medium |
+| 10 | help-bundle and get-help attachment | done | 05 | sonnet/high |
+| 11 | Consolidate and ship PRs 21-31 | in-progress | 01, 02, 06 | opus/medium |
 | 12 | Docs and plain note for Vicky | todo | 01-11, 13 | sonnet/high |
 | 13 | Windows path in SETUP.md | todo | 05 | opus/medium |
 
@@ -92,3 +92,6 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 2026-11-07 · #09 · decision · marked done with 2 live-secret checks moved to owner actions (`pnpm db:test-copy` "up to date", `pnpm reset:sign-ins` 7 rows) · code + guards fully tested; dev secrets not on this machine; blocking would hold the whole loop
 2026-11-07 · #09 · done · check/typecheck/test (972) pass; prod-ref refusal exits 1 before connecting; copy-env verified in a fresh worktree; .env.local ignored
 2026-11-07 · #10 · in-progress · sonnet/high
+2026-11-07 · #10 · decision · whole help report kept < 60,000 chars (transcript shrinks first), stdout bundle ≤ 45,000 · GitHub issue body limit is 65,536
+2026-11-07 · #10 · done · 12 node tests pass (redaction fixture, caps, budget); real run 8.1 s, both sections, secret-pattern scan clean (gq-setup commit)
+2026-11-07 · #11 · in-progress · opus/medium

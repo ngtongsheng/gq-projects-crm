@@ -439,7 +439,7 @@ export function MofForm({
                   defaultValue={cost === null ? "" : String(cost)}
                 />
                 <FieldDescription>
-                  Seen only by the MD, Sales Director and HR & Accounts.
+                  Seen only by the MD, Purchasing and HR & Accounts.
                 </FieldDescription>
               </Field>
             ) : (

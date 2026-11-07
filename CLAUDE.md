@@ -55,6 +55,11 @@ rather than copying it. Theme tokens only, never raw colours.
 - The migration guard blocks changes that lose stored information until she approves the loss (see "Who decides").
 - On her laptop, admin-only server features show a "can't be tried on your laptop" message; that is by design, not a bug.
 
+## Tidy-up at session start
+After the session-sync output, start a background subagent that runs the `ship-queue` skill. It merges what she
+approved, rebases and fixes her other saved changes and clears finished worktrees. Relay its one-line report to
+her; say nothing when it reports nothing.
+
 ## Tong Sheng's instructions
 The session-sync hook (`scripts/agent/session-sync.mjs`) updates `main` and injects a "Tong Sheng's instructions"
 block: open `for:vicky-claude` issues he wrote, and his newest reply on open `from:crm` issues. Each one is his

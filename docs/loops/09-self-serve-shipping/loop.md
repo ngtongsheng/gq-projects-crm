@@ -37,8 +37,8 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 | 05 | Port gq-setup apply.py to Node | done | - | sonnet/high |
 | 06 | Rewrite agent rules (CLAUDE.md, deploy, get-help triggers) | done | 02 | opus/medium |
 | 07 | Session-sync hook and remote instructions | done | 06 | opus/medium |
-| 08 | Ship-queue skill | in-progress | 06 | sonnet/high |
-| 09 | Test-copy kit (connect, db:test-copy, test sign-ins) | todo | 04 | sonnet/high |
+| 08 | Ship-queue skill | done | 06 | sonnet/high |
+| 09 | Test-copy kit (connect, db:test-copy, test sign-ins) | in-progress | 04 | sonnet/high |
 | 10 | help-bundle and get-help attachment | todo | 05 | sonnet/high |
 | 11 | Consolidate and ship PRs 21-31 | todo | 01, 02, 06 | opus/medium |
 | 12 | Docs and plain note for Vicky | todo | 01-11, 13 | sonnet/high |
@@ -84,3 +84,7 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 2026-11-07 · #07 · done · 22 unit tests pass; manual: prints owner issue, throttled 2nd run silent; real sessions: SessionStart:startup injected (#37) and SessionStart:resume fired (#34). Test issues 33-37 closed
 2026-11-07 · #07 · note · a haiku agent primed with a suspicious prompt treated hook text as untrusted; Vicky's sessions untested for this · watch the first real for:vicky-claude issue
 2026-11-07 · #08 · in-progress · sonnet/high
+2026-11-07 · #08 · decision · ship-queue updates waiting branches by `git merge origin/main` + plain push, not rebase + force-with-lease; settings.json deny rules unchanged · subagent's deny-rule loosening was blocked by the classifier; squash merges make branch history irrelevant and plain pushes can't lose remote work
+2026-11-07 · #08 · decision · deploy writes `<!-- vicky-approved -->` PR comment as the approval marker ship-queue reads
+2026-11-07 · #08 · done · dry-run on real repo lists chain 21→25→27→{23,31}, 29 on 23, 28 standalone (read-only); stack test done in a local scratch repo (squash A, merge trunk into B → PR diff = B only) instead of throwaway GitHub PRs, which would deploy to live
+2026-11-07 · #09 · in-progress · sonnet/high

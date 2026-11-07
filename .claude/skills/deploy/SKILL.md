@@ -17,6 +17,9 @@ green, and only through a pull request.
 4. Find the pull request with `gh pr view --json number,isDraft,baseRefName`. None: `gh pr create --base main --title
    "<conventional title>" --body "<what she asked for, in her words>"`. Draft: `gh pr ready <n>`. Base other than
    `main`: `gh pr edit <n> --base main`. The title becomes the squash commit on `main`.
+5. Leave her approval for the `ship-queue` skill, in case this session ends before the merge: unless the pull
+   request already has a comment containing `<!-- vicky-approved -->`, run `gh pr comment <n> --body "<!-- vicky-approved -->
+   Approved after preview."`. Tong Sheng's instructions count as approval too.
 
 ## 2. Checks, then merge
 1. `gh pr checks <n> --watch` with a 10-minute timeout. "No checks reported" right after a push means they have not

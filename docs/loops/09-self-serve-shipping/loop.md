@@ -41,7 +41,7 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 | 09 | Test-copy kit (connect, db:test-copy, test sign-ins) | done | 04 | sonnet/high |
 | 10 | help-bundle and get-help attachment | done | 05 | sonnet/high |
 | 11 | Consolidate and ship PRs 21-31 | done (31 left open: owner) | 01, 02, 06 | opus/medium |
-| 12 | Docs and plain note for Vicky | in-progress | 01-11, 13 | sonnet/high |
+| 12 | Docs and plain note for Vicky | done | 01-11, 13 | sonnet/high |
 | 13 | Windows path in SETUP.md | done | 05 | opus/medium |
 
 ## Owner actions
@@ -111,3 +111,4 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 2026-11-07 · #11 · decision · PR 31 left open (draft) · its 5 migrations (150000-190000) have no screens on any branch; 150000 rewrites decide_ownership_request on live
 2026-11-07 · #11 · owner · decide PR 31 + dev history drift: migrate-dev fails on every future migration PR until dev matches main (ship 31, or `supabase migration repair --status reverted` 150000-190000 on dev + drop those objects)
 2026-11-07 · #12 · in-progress · sonnet/high
+2026-11-07 · #12 · done · environments/decisions/debt/onboarding updated, plain note docs/whats-new-2026-11.md (file only, not sent); no owner-approved outside loops; pnpm check clean

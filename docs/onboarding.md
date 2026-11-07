@@ -51,12 +51,26 @@ Editors get write access (D4): they can push branches and open pull requests, no
   against gq-setup; to change the style, edit gq-setup first, then copy it here.
 - The kit (`CLAUDE.md`, `.claude/skills`, `.claude/settings.json`) lives in the CRM repo. It reaches her through
   `main`: merge to `main` and it arrives.
-- At the start of each session `CLAUDE.md` tells Claude to run `git pull --ff-only` when the folder is on `main` with
-  no pending changes. If she is mid-change on another branch, the pull is skipped and the update arrives next session.
+- A session hook (`scripts/agent/session-sync.mjs`) pulls `main` when her folder is clean and otherwise only fetches,
+  so a change in progress is never disturbed. Rules, skills and hooks load from the session after the one that pulled.
+  First rollout of loop 09: tell her "Open a new chat, say *get the latest CRM*, then close it and open another."
+- Steer her agent from your phone: open an issue in the CRM repo with the label `for:vicky-claude` (only issues you
+  write count). Her agent does it in the background, ships it, comments and closes the issue. A `from:crm` issue she
+  filed with `get-help` also counts once you reply on it. See `docs/environments.md` "Agent hooks and permissions".
 - Setup instructions (`gq-setup`) are fetched fresh from the public URL each time she pastes the message, so a fix to
   `SETUP.md` reaches her on the next paste.
 - If her folder is broken or stuck behind: she pastes the setup message again. Step 7 pulls the latest when it is
   safe, and leaves her work alone when it is not.
+
+## 3a. Test copy access (once per laptop)
+So she can try database and admin-only features herself. Send her the `gq-crm-dev` secret key and database password
+privately (WhatsApp, never git or an issue), and tell her to give both to Claude when asked. Details and your own check
+commands: `docs/environments.md` "Trying database changes from a laptop".
+
+## 3b. Windows
+`SETUP.md` has a Windows path (winget for Git, mise for gh, Node and pnpm) that has not run on a real PC yet
+(`docs/debt.md`). First time: sit beside her, or have her paste the link and send you a screenshot of any step that
+stops. Quit Claude fully and reopen it after setup, then start a new session.
 
 ## 4. Off-boarding
 Remove access and cancel any invite that was never accepted:

@@ -100,3 +100,4 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 2026-11-07 · #13 · in-progress · opus/medium (gq-setup worktree)
 2026-11-07 · #13 · decision · gh and node via `mise use -g` on both OSes; mise via official PowerShell script; shims on user Path (no PS profile); rtk skipped on Windows · shared steps, stable shim path, no script-policy issues
 2026-11-07 · #13 · done · two fresh agents read SETUP.md as win32: commands per step are OS-labelled, no unlabelled Mac-only command on Windows, none Windows-only on Mac; credential helper `$HOME` expands at run time (git runs `!` helpers via sh). Real Windows run = owner action (gq-setup commit)
+2026-11-07 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-07-loop-09-self-serve-shipping.md

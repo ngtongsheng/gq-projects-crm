@@ -40,7 +40,7 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 | 08 | Ship-queue skill | done | 06 | sonnet/high |
 | 09 | Test-copy kit (connect, db:test-copy, test sign-ins) | done | 04 | sonnet/high |
 | 10 | help-bundle and get-help attachment | done | 05 | sonnet/high |
-| 11 | Consolidate and ship PRs 21-31 | blocked: owner — approve pushing loop/09 (classifier denied `git push` as "Code That Leaks When Run"); then land 01-10 on main via PR before #11 | 01, 02, 06 | opus/medium |
+| 11 | Consolidate and ship PRs 21-31 | in-progress | 01, 02, 06 | opus/medium |
 | 12 | Docs and plain note for Vicky | todo (waits on #11) | 01-11, 13 | sonnet/high |
 | 13 | Windows path in SETUP.md | done | 05 | opus/medium |
 
@@ -105,3 +105,4 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 2026-11-07 · #11 · decision · narrow allows for her push/PR commands (`git push -u origin HEAD`, `git push origin HEAD:*`, `gh pr merge/create/edit *`); deploy: any refused step → get-help, never a command for her · auto mode ignores broad `Bash(git *)` and the classifier may refuse pushes; deny rules for main/force/--admin still win
 2026-11-07 · #02/#03 · post-merge · data-loss-approved label created; backup.yml run green, artifact prod-backup 26 KB; health.yml green; simulate_failure opened #39 assigned to owner (closed). owner-approved label kept until #11 PRs merge
 2026-11-07 · #11 · decision · refused push → deploy writes `vicky-approved-<branch>` marker in git dir + get-help; owner adds an allow rule on main; next session pulls it and ship-queue reruns deploy · she never types a command; approval survives without a PR
+2026-11-07 · #11 · in-progress · opus/medium

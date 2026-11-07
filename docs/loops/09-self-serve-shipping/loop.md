@@ -112,3 +112,4 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 2026-11-07 · #11 · owner · decide PR 31 + dev history drift: migrate-dev fails on every future migration PR until dev matches main (ship 31, or `supabase migration repair --status reverted` 150000-190000 on dev + drop those objects)
 2026-11-07 · #12 · in-progress · sonnet/high
 2026-11-07 · #12 · done · environments/decisions/debt/onboarding updated, plain note docs/whats-new-2026-11.md (file only, not sent); no owner-approved outside loops; pnpm check clean
+2026-11-07 · merged to main

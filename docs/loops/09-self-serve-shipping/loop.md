@@ -33,8 +33,8 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 | 01 | Fix next-themes script warning | done | - | sonnet/high |
 | 02 | Guard false positives, prod dump, nightly backup, label rename | done | - | sonnet/high |
 | 03 | Weekly health workflow | done | - | sonnet/high |
-| 04 | LF line endings + cross-platform preview | in-progress | - | sonnet/high |
-| 05 | Port gq-setup apply.py to Node | todo | - | sonnet/high |
+| 04 | LF line endings + cross-platform preview | done | - | sonnet/high |
+| 05 | Port gq-setup apply.py to Node | in-progress | - | sonnet/high |
 | 06 | Rewrite agent rules (CLAUDE.md, deploy, get-help triggers) | todo | 02 | opus/medium |
 | 07 | Session-sync hook and remote instructions | todo | 06 | opus/medium |
 | 08 | Ship-queue skill | todo | 06 | sonnet/high |
@@ -69,3 +69,6 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 2026-11-07 · #03 · decision · keep-awake via `supabase db query --linked "select 1"` (token only); run red on simulated failure · no DB password needed
 2026-11-07 · #03 · done · YAML parsed, report script stub-tested, secrets + from:crm label exist; GitHub dispatch runs after merge (new workflows need to be on main)
 2026-11-07 · #04 · in-progress · sonnet/high
+2026-11-07 · #04 · decision · free-port kills only the LISTEN pid; Windows detects listeners by foreign `:0`, not the localized word · safe + locale-proof
+2026-11-07 · #04 · done · Mac: dev up, `pnpm free-port` freed 3000; netstat parser unit-tested; check/typecheck/test (933) pass; renormalize changed no files
+2026-11-07 · #05 · in-progress · sonnet/high (gq-setup worktree)

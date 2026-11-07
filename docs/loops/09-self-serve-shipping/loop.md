@@ -45,6 +45,9 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 | 13 | Windows path in SETUP.md | todo | 05 | opus/medium |
 
 ## Owner actions
+- Rollout (after the loop merges): tell Vicky "Open a new chat, say *get the latest CRM*, then close it and open
+  another." First session pulls; rules, skills and hooks load from the second session on.
+- Dev DB password: if lost, reset it in the `gq-crm-dev` dashboard, then `gh secret set SUPABASE_DEV_DB_PASSWORD`.
 - After #09: send Vicky the dev secret key and dev DB password privately (WhatsApp), never in git or issues.
 - After #11: sign in as MD on https://gq-projects-crm.vercel.app and try "Sign in as" and "Back to my account".
 - After #07 ships: open one test issue labelled `for:vicky-claude` (e.g. a copy tweak) and confirm it goes live.

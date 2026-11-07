@@ -25,12 +25,15 @@ script, `.claude/settings.json` allows.
    Allow only this script in settings; keep the raw `db push` denies.
 3. test-sign-ins: reset passwords of `TEST_USERS` on dev to fresh random ones and show them to her in a table (not
    saved). Refuse on non-dev URL.
-4. Preview skill: when `.env.local` has the key, drop the "can't be tried" line; when a change has new migrations, run
+4. Worktrees: `.env.local` is gitignored, so new worktrees lack it. Preview skill (and ship-queue) copies it from the
+   main checkout (first entry of `git worktree list --porcelain`) into the current worktree when missing.
+5. Preview skill: when `.env.local` has the key, drop the "can't be tried" line; when a change has new migrations, run
    `pnpm db:test-copy` before preview.
 ## Acceptance
 - With a real dev key in a temp `.env.local`: `pnpm db:test-copy` reports "up to date"; with the URL pointed at the
   prod ref it exits non-zero before connecting.
 - Reset script tested by unit test on its URL guard; manual run on dev prints 7 role sign-ins.
+- In a fresh worktree, preview copies `.env.local` from the main checkout.
 - `git check-ignore .env.local` confirms ignored. `pnpm check && pnpm typecheck && pnpm test` pass.
 ## Out of scope
 Sending her the values (owner action).

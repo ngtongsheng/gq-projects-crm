@@ -22,6 +22,9 @@ New `scripts/agent/session-sync.mjs` (+ test of its pure parts), `.claude/settin
    - `git fetch --prune`; if main checkout is on `main` and clean, `git -C <main> pull --ff-only`. Never touch dirty trees.
    - `gh issue list --label for:vicky-claude --author ngtongsheng --state open --json number,title,body`.
    - Open `from:crm` issues whose newest comment author is `ngtongsheng` (`gh issue view --json comments`).
+   - If the pull changed `CLAUDE.md` or anything under `.claude/`, print: "Rules updated: re-read CLAUDE.md and the
+     skills you use before continuing." (loaded rules do not refresh mid-session).
+   - When run inside a worktree, also say if the current change branch is behind `origin/main` (ship queue rebases).
    - Print nothing when there is nothing; otherwise a short block: "Tong Sheng's instructions" with each issue number,
      title and body/comment, then the rule from step 3. Any gh/network failure: print nothing, exit 0.
 2. Hooks: `SessionStart` matcher for all sources and `UserPromptSubmit` with the throttle. Timeout 20 s.

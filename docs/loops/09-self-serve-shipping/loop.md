@@ -35,8 +35,8 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 | 03 | Weekly health workflow | done | - | sonnet/high |
 | 04 | LF line endings + cross-platform preview | done | - | sonnet/high |
 | 05 | Port gq-setup apply.py to Node | done | - | sonnet/high |
-| 06 | Rewrite agent rules (CLAUDE.md, deploy, get-help triggers) | in-progress | 02 | opus/medium |
-| 07 | Session-sync hook and remote instructions | todo | 06 | opus/medium |
+| 06 | Rewrite agent rules (CLAUDE.md, deploy, get-help triggers) | done | 02 | opus/medium |
+| 07 | Session-sync hook and remote instructions | in-progress | 06 | opus/medium |
 | 08 | Ship-queue skill | todo | 06 | sonnet/high |
 | 09 | Test-copy kit (connect, db:test-copy, test sign-ins) | todo | 04 | sonnet/high |
 | 10 | help-bundle and get-help attachment | todo | 05 | sonnet/high |
@@ -76,3 +76,6 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 2026-11-07 · #05 · decision · bare `node` on hook PATH and `$HOME` under Windows shells unverified → task 13 must make node global (mise) · noted for #13
 2026-11-07 · #05 · done · temp HOME: same output as apply.py (diff -r), second run silent; no apply.py refs (gq-setup a loop commit)
 2026-11-07 · #06 · in-progress · opus/medium
+2026-11-07 · #06 · decision · new deps named in the PR description, not get-help; environments.md label renamed; files grew (~5.6k CLAUDE.md) · batching + "Who decides" need the lines
+2026-11-07 · #06 · done · grep empty in both worktrees; fresh haiku agent answered (a) build+ship, (b) ask Vicky + data-loss-approved, (c) get-help — all correct
+2026-11-07 · #07 · in-progress · opus/medium

@@ -31,8 +31,8 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
 | 01 | Fix next-themes script warning | done | - | sonnet/high |
-| 02 | Guard false positives, prod dump, nightly backup, label rename | in-progress | - | sonnet/high |
-| 03 | Weekly health workflow | todo | - | sonnet/high |
+| 02 | Guard false positives, prod dump, nightly backup, label rename | done | - | sonnet/high |
+| 03 | Weekly health workflow | in-progress | - | sonnet/high |
 | 04 | LF line endings + cross-platform preview | todo | - | sonnet/high |
 | 05 | Port gq-setup apply.py to Node | todo | - | sonnet/high |
 | 06 | Rewrite agent rules (CLAUDE.md, deploy, get-help triggers) | todo | 02 | opus/medium |
@@ -62,3 +62,7 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 2026-11-07 · #01 · decision · biome-ignore noDangerouslySetInnerHtml on the constant theme script · React escapes children scripts; no user input
 2026-11-07 · #01 · done · check/typecheck/test pass; browser: no console errors, stored theme applied on reload (sign-in page; signed-in pages share the layout)
 2026-11-07 · #02 · in-progress · sonnet/high
+2026-11-07 · #02 · decision · backup.yml is reusable (workflow_call); migrate-prod needs it · one copy of the dump steps
+2026-11-07 · #02 · decision · label rename + backup run happen after merge (post-merge step) · avoid stale labels on open PRs
+2026-11-07 · #02 · done · guard tests 63 pass; PR 23 migration not blocked; no owner-approved in .github/scripts
+2026-11-07 · #03 · in-progress · sonnet/high

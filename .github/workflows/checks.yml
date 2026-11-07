@@ -2,7 +2,7 @@ name: Checks
 
 on:
   pull_request:
-    # labeled/unlabeled re-run the guard after the owner adds `owner-approved`.
+    # labeled/unlabeled re-run the guard after the owner adds `data-loss-approved`.
     types: [opened, synchronize, reopened, labeled, unlabeled]
 
 permissions:
@@ -35,7 +35,7 @@ jobs:
       - uses: jdx/mise-action@v5
       - run: pnpm guard:migrations
         env:
-          OWNER_APPROVED: ${{ contains(github.event.pull_request.labels.*.name, 'owner-approved') }}
+          DATA_LOSS_APPROVED: ${{ contains(github.event.pull_request.labels.*.name, 'data-loss-approved') }}
 
   migrate-dev:
     needs: migration-guard

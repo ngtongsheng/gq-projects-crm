@@ -103,3 +103,5 @@ sends a diagnosis plus session transcript when it does ask for help. Her stuck P
 2026-11-07 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-07-loop-09-self-serve-shipping.md
 2026-11-07 · #11 · unblocked · owner added a push allow rule; both loop branches pushed; PR #38 lands 01-10 on main
 2026-11-07 · #11 · decision · narrow allows for her push/PR commands (`git push -u origin HEAD`, `git push origin HEAD:*`, `gh pr merge/create/edit *`); deploy: any refused step → get-help, never a command for her · auto mode ignores broad `Bash(git *)` and the classifier may refuse pushes; deny rules for main/force/--admin still win
+2026-11-07 · #02/#03 · post-merge · data-loss-approved label created; backup.yml run green, artifact prod-backup 26 KB; health.yml green; simulate_failure opened #39 assigned to owner (closed). owner-approved label kept until #11 PRs merge
+2026-11-07 · #11 · decision · refused push → deploy writes `vicky-approved-<branch>` marker in git dir + get-help; owner adds an allow rule on main; next session pulls it and ship-queue reruns deploy · she never types a command; approval survives without a PR

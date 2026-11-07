@@ -9,8 +9,12 @@ Her "looks right" on the preview is the go-live yes, so run straight through. Th
 protection (GitHub Free, see `docs/debt.md`), so this skill is the gate: it merges only after every safety check is
 green, and only through a pull request.
 
-Any step here refused by a permission or safety check: never show her a command or ask her to run one. Use
-`get-help` with the refused command and the refusal text, and tell her in one line that Tong Sheng is putting it live.
+Any step here refused by a permission or safety check: stop, never show her a command or ask her to run one, and
+never try another route to the same action. The commits stay on her laptop. Record her yes so `ship-queue` can
+finish later: create the empty file `$(git rev-parse --git-common-dir)/vicky-approved-<branch>` (`/` in the branch name written as `-`) (delete it once the
+pull request exists and carries the approval comment). Use `get-help` with the refused command
+and the refusal text so Tong Sheng can add an allow rule on `main`; the next session pulls it and `ship-queue`
+retries the push. Tell her in one line: "Your change is saved; it goes live once Tong Sheng unblocks a step."
 
 ## 1. Pull request ready
 1. Confirm `git branch --show-current` is a change branch, never `main`. Every push goes to that branch with

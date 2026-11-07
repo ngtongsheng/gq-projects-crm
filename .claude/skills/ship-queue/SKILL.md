@@ -23,6 +23,10 @@ close, ready or remove anything; print one `would <action>: <reason>` line per p
    `<login>` whose body contains `<!-- vicky-approved -->`, read with `gh pr view <n> --json comments`), **green**
    (`checks`, `migration-guard` and `migrate-dev` all `SUCCESS` or `SKIPPED` in `statusCheckRollup`, no Vercel check
    failed, `mergeable` is `MERGEABLE`), **ready** (not a draft).
+5. Approved but never pushed: a worktree under `.claude/worktrees/` whose branch has no open pull request and a
+   marker file `$(git rev-parse --git-common-dir)/vicky-approved-<branch>` (`/` as `-`; deploy writes it when a step was refused).
+   Run `deploy` from that worktree; it removes the marker once the pull request exists. Refused again: leave it and
+   report it, no second `get-help` for the same step.
 
 ## 2. Close what is already in main
 A pull request is superseded when `git cherry origin/main origin/<head>` prints no `+` line (every commit is already

@@ -55,3 +55,4 @@ password. The sign-in page tells people what to do when they forget their passwo
 2026-11-08 · #01 · done · secret set; test run 42468177384 green with prod-backup-encrypted artifact; PR #41 squash-merged to main; acceptance greps pass
 2026-11-08 · #02 · in-progress · delegate sonnet/high
 2026-11-08 · #02 · done · run 42468430599 green on main; encrypted artifact verified as GPG AES256; 6 plain prod-backup artifacts deleted; counts 0 and 2
+2026-11-08 · merged to main

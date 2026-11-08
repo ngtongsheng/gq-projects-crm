@@ -20,8 +20,8 @@ password. The sign-in page tells people what to do when they forget their passwo
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Encrypt backups and ship first | todo | | sonnet/high |
-| 02 | Fresh encrypted backup, delete plain ones | todo | 01 | sonnet/high |
+| 01 | Encrypt backups and ship first | blocked: owner — run `! gh secret set BACKUP_PASSPHRASE --repo ngtongsheng/gq-projects-crm` | | sonnet/high |
+| 02 | Fresh encrypted backup, delete plain ones | blocked: waits on #01 | 01 | sonnet/high |
 | 03 | Top navigation and per-module sidebars | todo | | sonnet/high |
 | 04 | Docs describe a multi-module app | todo | 03 | haiku/low |
 | 05 | Dev role panel with one-click sign-in | todo | | opus/medium |
@@ -35,3 +35,4 @@ password. The sign-in page tells people what to do when they forget their passwo
 - Later: buy Vercel Pro, then make the repo private (D1).
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
+2026-11-08 · #01 · blocked: BACKUP_PASSPHRASE secret not set on repo · continue with #03, #05, #07

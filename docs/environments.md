@@ -59,8 +59,8 @@ The prod values never leave the owner's machines.
    mode 600). It refuses any project except the test copy.
 2. `pnpm db:test-copy` applies pending migrations to the test copy only. It exits before connecting if the connection
    string is not the test copy's.
-3. `pnpm reset:sign-ins` (the `test-sign-ins` skill) gives each job role a fresh test sign-in and prints the passwords
-   once. On the live app she uses "Sign in as" instead.
+3. `pnpm reset:sign-ins` creates the test users the floating panel needs. She switches job roles from the panel at the
+   bottom of the page. On the live app she uses "Sign in as" instead.
 4. A new worktree has no `.env.local`; `pnpm copy-env` copies it from the main folder. Works on Windows and Mac.
 
 Owner check after sending the values, on your Mac in the main checkout: `pnpm connect:test-copy`, `pnpm db:test-copy`

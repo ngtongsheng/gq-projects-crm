@@ -73,7 +73,7 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
 - Permissions: narrow allow rules for her push and pull-request commands (`git push -u origin HEAD`,
   `git push origin HEAD:*`, `gh pr create/merge/edit`); denies for `main`, force and `--admin` still win. Auto mode
   ignores a broad `git *` allow and a classifier may still refuse a push, hence the refused-push path.
-- Roles (D7): live app uses "Sign in as" (MD); her laptop uses the `test-sign-ins` skill on the test copy.
+- Roles (D7): live app uses "Sign in as" (MD); her laptop uses the floating panel at the bottom of the page on the test copy (the sign-in skill was retired, loop 10 D9).
 - Pending PRs (D8): 21, 23, 25 approved by the owner (company rating, MOF cost to Purchasing, MD "Sign in as") and
   consolidated onto `main`. PR 31 was left open as a draft: its 5 migrations have no screens and one rewrites a live
   function. The test copy's migration history is out of step with `main` until PR 31 is decided (`docs/debt.md`).

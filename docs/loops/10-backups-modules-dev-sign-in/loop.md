@@ -25,8 +25,8 @@ password. The sign-in page tells people what to do when they forget their passwo
 | 03 | Top navigation and per-module sidebars | done | | sonnet/high |
 | 04 | Docs describe a multi-module app | todo | 03 | haiku/low |
 | 05 | Dev role panel with one-click sign-in | done | | opus/medium |
-| 06 | Retire the test sign-ins step | in-progress | 05 | haiku/low |
-| 07 | Forgot password message | todo | | haiku/low |
+| 06 | Retire the test sign-ins step | done | 05 | haiku/low |
+| 07 | Forgot password message | in-progress | | haiku/low |
 ## Owner actions
 - Before #01: create a long random passphrase in your password manager, then run
   `! gh secret set BACKUP_PASSPHRASE --repo ngtongsheng/gq-projects-crm` and paste it. If it is lost, the backups cannot be opened.
@@ -43,3 +43,6 @@ password. The sign-in page tells people what to do when they forget their passwo
 2026-11-08 · #05 · done · check/typecheck/test/build pass; signed-in path for 7 roles needs owner check on a machine with .env.local connected
 2026-11-08 · #05 · decision · seed-guard moved to src/lib/supabase/test-copy.ts (8 imports updated, no shim); gate runs before role check; listUsers before generateLink to avoid stray users; panel at bottom-16 to clear Next dev badge · subagent defaults
 2026-11-08 · #06 · in-progress · delegate haiku/low
+2026-11-08 · #06 · done · skill removed, preview/decisions/environments updated; pnpm check passes
+2026-11-08 · #06 · decision · acceptance grep still hits the kept script filename reset-test-sign-ins.ts (package.json, guarded-scripts.test.ts); accepted since D9 keeps the script · plan grep was too broad
+2026-11-08 · #07 · in-progress · delegate haiku/low

@@ -24,7 +24,7 @@ recommended option first.
 7. If the change touches an admin-only feature (adding people, anything using the server secret key) and her laptop is
    not connected, offer the `connect-test-copy` skill; if she declines, add: "This part can't be tried on your
    laptop. We'll try it on the live site right after it goes live." (loop D3). Connected: tell her to try it in the
-   preview. To see the app as another job role, use the `test-sign-ins` skill. Never offer a preview link, see below.
+   preview. To see the app as another job role, she uses the floating panel at the bottom of the page. If the panel says the test sign-ins need setting up and her laptop is connected, run `pnpm reset:sign-ins` and do not show its output. Never offer a preview link, see below.
 
 ## No preview link
 Do not offer a shareable preview link. Vercel's free plan locks preview links behind Tong Sheng's own login, and only

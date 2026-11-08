@@ -20,8 +20,8 @@ password. The sign-in page tells people what to do when they forget their passwo
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Encrypt backups and ship first | blocked: owner — set BACKUP_PASSPHRASE to a real value (PR #41 open, checks green, merge after a green backup run) | | sonnet/high |
-| 02 | Fresh encrypted backup, delete plain ones | blocked: waits on #01 | 01 | sonnet/high |
+| 01 | Encrypt backups and ship first | done | | sonnet/high |
+| 02 | Fresh encrypted backup, delete plain ones | in-progress | 01 | sonnet/high |
 | 03 | Top navigation and per-module sidebars | done | | sonnet/high |
 | 04 | Docs describe a multi-module app | done | 03 | haiku/low |
 | 05 | Dev role panel with one-click sign-in | done | | opus/medium |
@@ -52,3 +52,5 @@ password. The sign-in page tells people what to do when they forget their passwo
 2026-11-08 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-08-loop-10-backups-modules-dev-sign-in.md
 2026-11-08 · #01 · in-progress · BACKUP_PASSPHRASE now set; delegate sonnet/high in worktree gq-projects-crm-loops/fix-encrypt-backups
 2026-11-08 · #01 · blocked: secret BACKUP_PASSPHRASE is empty (run 42466989797 failed at the empty guard); PR #41 open, all checks green, not merged · owner re-sets secret via pbpaste, then re-run backup.yml on fix/encrypt-backups, then gh pr merge 41 --squash --delete-branch
+2026-11-08 · #01 · done · secret set; test run 42468177384 green with prod-backup-encrypted artifact; PR #41 squash-merged to main; acceptance greps pass
+2026-11-08 · #02 · in-progress · delegate sonnet/high

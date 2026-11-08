@@ -34,7 +34,7 @@ Loop 01 decisions: see `docs/loops/01-foundation/loop.md` (D1-D12).
 - The apply script runs at setup and on every SessionStart, pulling gq-setup. Risk accepted: whoever can push to
   gq-setup runs code on her Mac. Only the owner can.
 - Default model is Opus on Pro. It burns the usage limit faster than Sonnet; accepted. Subagents use Sonnet.
-- `get-help` is global, always filing in this private repo with a `from:crm` / `from:other` label. The CRM copy is
+- `get-help` is global, always filing in this repo with a `from:crm` / `from:other` label. The CRM copy is
   removed.
 - The CRM keeps a byte-identical copy of `plain.md` so it works without the global layer; CI diffs it against
   gq-setup `main`. CRM-only wording (glossary words, preview and put-it-live lines) lives in `CLAUDE.md`.

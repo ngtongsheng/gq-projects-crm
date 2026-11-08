@@ -99,7 +99,7 @@ Workflows live in `.github/workflows/`. Node and pnpm versions come from `mise.t
 |---|---|---|
 | `checks.yml` | pull request (also on label add/remove) | `checks` (biome, typecheck, test, build), `migration-guard` (label `data-loss-approved` sets `DATA_LOSS_APPROVED`), `migrate-dev` (needs the guard; pushes to `gq-crm-dev` only when the PR changes `supabase/migrations/`, otherwise does nothing) |
 | `migrate-prod.yml` | push to `main` touching `supabase/migrations/**` | `backup` (runs `backup.yml`; a failed dump stops here), then `migrate-prod` (`supabase db push` to `gq-crm-prod`, one run at a time, never cancelled) |
-| `backup.yml` | nightly 18:00 UTC, manual, and called by `migrate-prod` | `backup-prod`: `supabase db dump` of schema and data to the Actions artifact `prod-backup`, kept 30 days. The repo is private, so only collaborators can download it |
+| `backup.yml` | nightly 18:00 UTC, manual, and called by `migrate-prod` | `backup-prod`: `supabase db dump` of schema and data to the Actions artifact `prod-backup-encrypted` (GPG, AES256, passphrase in the `BACKUP_PASSPHRASE` secret), kept 30 days. The repo is public, so the dump is only ever uploaded encrypted |
 | `health.yml` | Mondays 01:00 UTC, manual (`simulate_failure` input tests the report) | queries the test copy and the live database (a query keeps Supabase Free from pausing them after 7 idle days) and checks `SUPABASE_ACCESS_TOKEN`; any failure opens or updates an `Urgent: CRM health check failed` issue assigned to the owner, label `from:crm` |
 
 Vercel deploys from its own GitHub integration, not from these workflows. Migrations and the Vercel prod build run in parallel on merge (see `docs/debt.md`).
@@ -133,5 +133,12 @@ The workflows must exist on `main` before PR checks can run, so these are done a
 ## Restoring from a backup
 
 Prod is dumped before every migration reaches it and nightly. To recover: Actions, the run you want, download the
-`prod-backup` artifact (`schema.sql`, `data.sql`, 30 days), and restore into a fresh Supabase project with `psql`. Do it
-yourself; Vicky's agent never touches prod data.
+`prod-backup-encrypted` artifact (30 days; it unzips to `prod-backup.tar.gz.gpg`), then:
+
+```sh
+gpg --decrypt prod-backup.tar.gz.gpg > prod-backup.tar.gz   # asks for BACKUP_PASSPHRASE
+tar -xzf prod-backup.tar.gz                                  # gives backup/schema.sql and backup/data.sql
+```
+
+Restore into a fresh Supabase project with `psql`. Do it yourself; Vicky's agent never touches prod data. Keep the
+passphrase in the owner's password manager too: if the GitHub secret is lost, the backups cannot be opened.

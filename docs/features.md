@@ -7,6 +7,7 @@ example records, so a colleague with another job role sees fewer or different sc
 Job roles: MD, Sales Director, BD Director, Sales, HR & Accounts, Site Supervisor, Purchasing.
 
 ## Contents
+- [Top navigation](#top-navigation)
 - [Sign in](#sign-in)
 - [Dashboard](#dashboard)
 - [Sales Calendar](#sales-calendar)
@@ -29,6 +30,12 @@ Job roles: MD, Sales Director, BD Director, Sales, HR & Accounts, Site Superviso
 - [Director Report](#director-report)
 - [Guide](#guide)
 - [People](#people)
+
+## Top navigation
+A row of tabs across the top, one per module the signed-in role can open. Picking a tab shows that module's links in
+the sidebar. Today there is one module, the **CRM**, so every role sees its tab and its sidebar links.
+
+Used by: everyone.
 
 ## Sign in
 Invite-only sign-in with the email and password an admin set up. There is no public sign-up.

@@ -1,6 +1,7 @@
-# GQ Projects CRM
+# GQ Projects App
 
-Invite-only internal CRM for GQ Projects, a 17-person carpet sales and installation company. Next.js on Vercel,
+Invite-only internal company app for GQ Projects, a 17-person carpet sales and installation company. It is made of
+modules (tabs in the top navigation, each with its own sidebar links). The CRM is the first module. Next.js on Vercel,
 Supabase (Postgres + Auth), shadcn/ui. Admins add people; roles are `admin` and `staff`.
 
 ## Who you work with

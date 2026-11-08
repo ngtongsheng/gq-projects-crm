@@ -23,7 +23,7 @@ password. The sign-in page tells people what to do when they forget their passwo
 | 01 | Encrypt backups and ship first | blocked: owner — run `! gh secret set BACKUP_PASSPHRASE --repo ngtongsheng/gq-projects-crm` | | sonnet/high |
 | 02 | Fresh encrypted backup, delete plain ones | blocked: waits on #01 | 01 | sonnet/high |
 | 03 | Top navigation and per-module sidebars | done | | sonnet/high |
-| 04 | Docs describe a multi-module app | in-progress | 03 | haiku/low |
+| 04 | Docs describe a multi-module app | done | 03 | haiku/low |
 | 05 | Dev role panel with one-click sign-in | done | | opus/medium |
 | 06 | Retire the test sign-ins step | done | 05 | haiku/low |
 | 07 | Forgot password message | done | | haiku/low |
@@ -48,3 +48,4 @@ password. The sign-in page tells people what to do when they forget their passwo
 2026-11-08 · #07 · in-progress · delegate haiku/low
 2026-11-08 · #07 · done · check/typecheck/test pass; browser click check not run (needs owner glance)
 2026-11-08 · #04 · in-progress · delegate haiku/low
+2026-11-08 · #04 · done · pnpm check passes, glossary row present

@@ -88,3 +88,13 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
 - Asking for help (D15): `get-help` attaches a diagnosis and a condensed, redacted session transcript.
 - Rollout caveat: the hook text reads like an instruction injected into a prompt, and a test agent primed to be
   suspicious treated it as untrusted. Watch the first real `for:vicky-claude` issue on her machine.
+
+## Loop 10 (multi-module app), decided 2026-11-08
+- Module (D5): a module is a tab in the top navigation with its own sidebar links. Each sidebar section carries a
+  `ModuleKey` (`src/lib/auth/nav-sections.ts`, today `"crm"`), and the labels map to the tab names. The app shell picks
+  the active module from the pathname.
+- Adding a module: add its key to `ModuleKey` and its label to the module label map, then give each of its sections
+  `module: "<key>"` with the job roles allowed to open it. The top navigation and sidebar follow from that.
+- URLs are not prefixed (no `/crm/...`). Existing links and bookmarks keep working, and pages do not move. Module is a
+  navigation grouping only; access stays per section.
+- Not renamed: the repo, package name and web address keep their current names.

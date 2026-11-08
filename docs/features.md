@@ -32,6 +32,7 @@ Job roles: MD, Sales Director, BD Director, Sales, HR & Accounts, Site Superviso
 
 ## Sign in
 Invite-only sign-in with the email and password an admin set up. There is no public sign-up.
+"Forgot password?" shows a note to ask an admin, who makes a new link on the People page. No emails are sent.
 
 Used by: everyone.
 

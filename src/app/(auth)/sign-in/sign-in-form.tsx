@@ -17,6 +17,7 @@ const initialState: SignInState = { error: null };
 export function SignInForm() {
   const [state, setState] = useState(initialState);
   const [pending, startTransition] = useTransition();
+  const [showForgot, setShowForgot] = useState(false);
 
   function submit(formData: FormData, form: HTMLFormElement) {
     startTransition(async () => {
@@ -57,6 +58,19 @@ export function SignInForm() {
         <Button type="submit" disabled={pending}>
           {pending ? "Signing in..." : "Sign in"}
         </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          aria-expanded={showForgot}
+          onClick={() => setShowForgot(true)}
+        >
+          Forgot password?
+        </Button>
+        {showForgot && (
+          <p className="text-muted-foreground text-sm">
+            Ask your admin to send you a new password link.
+          </p>
+        )}
       </FieldGroup>
     </form>
   );

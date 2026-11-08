@@ -49,3 +49,4 @@ password. The sign-in page tells people what to do when they forget their passwo
 2026-11-08 · #07 · done · check/typecheck/test pass; browser click check not run (needs owner glance)
 2026-11-08 · #04 · in-progress · delegate haiku/low
 2026-11-08 · #04 · done · pnpm check passes, glossary row present
+2026-11-08 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-08-loop-10-backups-modules-dev-sign-in.md

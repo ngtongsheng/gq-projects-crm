@@ -7,6 +7,8 @@ on:
   # migrate-prod runs this first so every migration has a fresh restore point.
   workflow_call:
     secrets:
+      BACKUP_PASSPHRASE:
+        required: true
       SUPABASE_ACCESS_TOKEN:
         required: true
       SUPABASE_PROD_PROJECT_REF:
@@ -38,10 +40,28 @@ jobs:
           mkdir backup
           pnpm exec supabase db dump --linked --file backup/schema.sql
           pnpm exec supabase db dump --linked --data-only --file backup/data.sql
-      # The repo is private, so only collaborators can download the dump.
+      # The repo is public, so any signed-in GitHub user can download artifacts. Upload only the encrypted file.
+      - name: Encrypt and verify the dump
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          if [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "BACKUP_PASSPHRASE is empty; refusing to upload an unencrypted backup" >&2
+            exit 1
+          fi
+          tar -czf prod-backup.tar.gz backup/
+          gpg --batch --pinentry-mode loopback --symmetric --cipher-algo AES256 \
+            --passphrase-fd 3 --output prod-backup.tar.gz.gpg prod-backup.tar.gz 3<<<"$BACKUP_PASSPHRASE"
+          expected=$(sha256sum < prod-backup.tar.gz)
+          actual=$(gpg --batch --pinentry-mode loopback --passphrase-fd 3 --decrypt prod-backup.tar.gz.gpg 3<<<"$BACKUP_PASSPHRASE" | sha256sum)
+          if [ "$expected" != "$actual" ]; then
+            echo "Encrypted backup does not decrypt to the original dump" >&2
+            exit 1
+          fi
+          rm prod-backup.tar.gz
       - uses: actions/upload-artifact@v7
         with:
-          name: prod-backup
-          path: backup/
+          name: prod-backup-encrypted
+          path: prod-backup.tar.gz.gpg
           retention-days: 30
           if-no-files-found: error

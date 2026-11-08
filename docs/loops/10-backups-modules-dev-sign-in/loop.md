@@ -20,8 +20,8 @@ password. The sign-in page tells people what to do when they forget their passwo
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Encrypt backups and ship first | blocked: owner — run `! gh secret set BACKUP_PASSPHRASE --repo ngtongsheng/gq-projects-crm` | | sonnet/high |
-| 02 | Fresh encrypted backup, delete plain ones | blocked: waits on #01 | 01 | sonnet/high |
+| 01 | Encrypt backups and ship first | in-progress | | sonnet/high |
+| 02 | Fresh encrypted backup, delete plain ones | todo | 01 | sonnet/high |
 | 03 | Top navigation and per-module sidebars | done | | sonnet/high |
 | 04 | Docs describe a multi-module app | done | 03 | haiku/low |
 | 05 | Dev role panel with one-click sign-in | done | | opus/medium |
@@ -50,3 +50,4 @@ password. The sign-in page tells people what to do when they forget their passwo
 2026-11-08 · #04 · in-progress · delegate haiku/low
 2026-11-08 · #04 · done · pnpm check passes, glossary row present
 2026-11-08 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-08-loop-10-backups-modules-dev-sign-in.md
+2026-11-08 · #01 · in-progress · BACKUP_PASSPHRASE now set; delegate sonnet/high in worktree gq-projects-crm-loops/fix-encrypt-backups

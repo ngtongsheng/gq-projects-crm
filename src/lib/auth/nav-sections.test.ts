@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { JobRole } from "./job-role";
-import { canOpenSection, sectionsFor } from "./nav-sections";
+import { canOpenSection, modulesFor, sectionsFor } from "./nav-sections";
 
 const labels = (jobRole: JobRole) => sectionsFor(jobRole).map((s) => s.label);
 
@@ -155,5 +155,26 @@ describe("canOpenSection", () => {
 
   it("allows a visible section", () => {
     expect(canOpenSection("site", "siteWork")).toBe(true);
+  });
+});
+
+describe("modulesFor", () => {
+  const jobRoles: JobRole[] = [
+    "md",
+    "director",
+    "bd",
+    "sales",
+    "accounts",
+    "site",
+    "support",
+  ];
+
+  it("gives every job role a CRM module with the same links as before", () => {
+    for (const jobRole of jobRoles) {
+      const modules = modulesFor(jobRole);
+      expect(modules.map((m) => m.key)).toEqual(["crm"]);
+      expect(modules[0]?.label).toBe("CRM");
+      expect(modules[0]?.sections).toEqual(sectionsFor(jobRole));
+    }
   });
 });

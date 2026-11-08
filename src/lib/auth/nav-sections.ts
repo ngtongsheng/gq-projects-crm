@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { isManager, type JobRole } from "./job-role";
 
+export type ModuleKey = "crm";
+
 export type SectionKey =
   | "dashboard"
   | "salesCalendar"
@@ -35,6 +37,7 @@ export type SectionKey =
 
 type Section = {
   key: SectionKey;
+  module: ModuleKey;
   label: string;
   /** Role-specific wording, e.g. "My Sales" for a salesperson's view of the MOF register. */
   labelFor?: (jobRole: JobRole) => string;
@@ -57,6 +60,7 @@ const SALES_SIDE: readonly JobRole[] = [
 const SECTIONS: readonly Section[] = [
   {
     key: "dashboard",
+    module: "crm",
     label: "Dashboard",
     href: "/",
     icon: LayoutGrid,
@@ -64,6 +68,7 @@ const SECTIONS: readonly Section[] = [
   },
   {
     key: "salesCalendar",
+    module: "crm",
     label: "Sales Calendar",
     href: "/calendar",
     icon: CalendarDays,
@@ -71,6 +76,7 @@ const SECTIONS: readonly Section[] = [
   },
   {
     key: "installation",
+    module: "crm",
     label: "Installation",
     labelFor: (jobRole) =>
       jobRole === "site"
@@ -84,6 +90,7 @@ const SECTIONS: readonly Section[] = [
   },
   {
     key: "customers",
+    module: "crm",
     label: "Customers",
     href: "/customers",
     icon: Users,
@@ -91,6 +98,7 @@ const SECTIONS: readonly Section[] = [
   },
   {
     key: "projects",
+    module: "crm",
     label: "Projects",
     href: "/projects",
     icon: FolderKanban,
@@ -98,6 +106,7 @@ const SECTIONS: readonly Section[] = [
   },
   {
     key: "mof",
+    module: "crm",
     label: "MOF Register",
     labelFor: (jobRole) =>
       isManager(jobRole) || jobRole === "support" ? "MOF Register" : "My Sales",
@@ -108,6 +117,7 @@ const SECTIONS: readonly Section[] = [
   },
   {
     key: "siteWork",
+    module: "crm",
     label: "Site Work",
     href: "/site-work",
     icon: HardHat,
@@ -115,6 +125,7 @@ const SECTIONS: readonly Section[] = [
   },
   {
     key: "overtime",
+    module: "crm",
     label: "Overtime",
     href: "/overtime",
     icon: Moon,
@@ -122,6 +133,7 @@ const SECTIONS: readonly Section[] = [
   },
   {
     key: "stock",
+    module: "crm",
     label: "Stock",
     href: "/stock",
     icon: Boxes,
@@ -129,6 +141,7 @@ const SECTIONS: readonly Section[] = [
   },
   {
     key: "collection",
+    module: "crm",
     label: "Collection",
     href: "/collection",
     icon: Banknote,
@@ -136,6 +149,7 @@ const SECTIONS: readonly Section[] = [
   },
   {
     key: "commission",
+    module: "crm",
     label: "Commission",
     href: "/commission",
     icon: Percent,
@@ -143,6 +157,7 @@ const SECTIONS: readonly Section[] = [
   },
   {
     key: "reports",
+    module: "crm",
     label: "My Report",
     labelFor: (jobRole) => (isManager(jobRole) ? "Team Reports" : "My Report"),
     href: "/reports",
@@ -153,6 +168,7 @@ const SECTIONS: readonly Section[] = [
   },
   {
     key: "directorReport",
+    module: "crm",
     label: "Director Report",
     href: "/reports/director",
     icon: Target,
@@ -160,6 +176,7 @@ const SECTIONS: readonly Section[] = [
   },
   {
     key: "guide",
+    module: "crm",
     label: "Guide",
     href: "/guide",
     icon: BookOpen,
@@ -186,6 +203,28 @@ export const sectionsFor = (jobRole: JobRole): NavSection[] =>
   SECTIONS.filter((s) => s.allowed.includes(jobRole)).map((s) =>
     toNavSection(s, jobRole),
   );
+
+const MODULE_LABELS: Record<ModuleKey, string> = { crm: "CRM" };
+
+export type NavModule = {
+  key: ModuleKey;
+  label: string;
+  sections: NavSection[];
+};
+
+/** The modules the role can open, each with its sections in sidebar order. */
+export const modulesFor = (jobRole: JobRole): NavModule[] => {
+  const sections = SECTIONS.filter((s) => s.allowed.includes(jobRole));
+  return (Object.keys(MODULE_LABELS) as ModuleKey[])
+    .map((key) => ({
+      key,
+      label: MODULE_LABELS[key],
+      sections: sections
+        .filter((s) => s.module === key)
+        .map((s) => toNavSection(s, jobRole)),
+    }))
+    .filter((m) => m.sections.length > 0);
+};
 
 export const canOpenSection = (jobRole: JobRole, key: SectionKey): boolean =>
   SECTIONS.some((s) => s.key === key && s.allowed.includes(jobRole));

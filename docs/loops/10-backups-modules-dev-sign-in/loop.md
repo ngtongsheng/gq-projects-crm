@@ -22,9 +22,9 @@ password. The sign-in page tells people what to do when they forget their passwo
 |---|---|---|---|---|
 | 01 | Encrypt backups and ship first | blocked: owner — run `! gh secret set BACKUP_PASSPHRASE --repo ngtongsheng/gq-projects-crm` | | sonnet/high |
 | 02 | Fresh encrypted backup, delete plain ones | blocked: waits on #01 | 01 | sonnet/high |
-| 03 | Top navigation and per-module sidebars | todo | | sonnet/high |
+| 03 | Top navigation and per-module sidebars | done | | sonnet/high |
 | 04 | Docs describe a multi-module app | todo | 03 | haiku/low |
-| 05 | Dev role panel with one-click sign-in | todo | | opus/medium |
+| 05 | Dev role panel with one-click sign-in | in-progress | | opus/medium |
 | 06 | Retire the test sign-ins step | todo | 05 | haiku/low |
 | 07 | Forgot password message | todo | | haiku/low |
 ## Owner actions
@@ -36,3 +36,7 @@ password. The sign-in page tells people what to do when they forget their passwo
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-08 · #01 · blocked: BACKUP_PASSPHRASE secret not set on repo · continue with #03, #05, #07
+2026-11-08 · #03 · in-progress · delegate sonnet/high
+2026-11-08 · #03 · done · check/typecheck/test/build pass; visual check at desktop/375px not run (needs sign-in), left for owner glance at preview
+2026-11-08 · #03 · decision · NavModule.key in AppShell is string so dev catalog can pass a demo module; tab links to module's first link · smallest shape
+2026-11-08 · #05 · in-progress · delegate opus/medium

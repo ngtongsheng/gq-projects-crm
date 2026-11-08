@@ -1,9 +1,13 @@
 import { TrendingUp, UserCheck, Users } from "lucide-react";
-import { AppShell, type NavItem } from "@/components/app/app-shell";
+import {
+  AppShell,
+  type NavItem,
+  type NavModule,
+} from "@/components/app/app-shell";
 import { ImpersonationBar } from "@/components/app/impersonation-bar";
 import { Button } from "@/components/ui/button";
 import { readImpersonation } from "@/lib/auth/impersonation";
-import { sectionsFor } from "@/lib/auth/nav-sections";
+import { modulesFor } from "@/lib/auth/nav-sections";
 import { requireRole } from "@/lib/auth/require-role";
 import { signOut } from "@/lib/auth/sign-out";
 import {
@@ -31,14 +35,8 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
       ]
     : [];
 
-  const nav: NavItem[] = [
-    ...sectionsFor(profile.jobRole).flatMap(
-      ({ key, href, label, icon: Icon }) => [
-        { href, label, icon: <Icon /> },
-        ...(key === "customers" ? ownershipItem : []),
-      ],
-    ),
-    ...(profile.role === "admin"
+  const adminItems: NavItem[] =
+    profile.role === "admin"
       ? [
           {
             href: "/performance",
@@ -47,8 +45,20 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
           },
           { href: "/people", label: "People", icon: <Users /> },
         ]
-      : []),
-  ];
+      : [];
+
+  // Ownership requests and the admin pages belong to the CRM module.
+  const modules: NavModule[] = modulesFor(profile.jobRole).map((mod) => ({
+    key: mod.key,
+    label: mod.label,
+    nav: [
+      ...mod.sections.flatMap(({ key, href, label, icon: Icon }) => [
+        { href, label, icon: <Icon /> },
+        ...(key === "customers" ? ownershipItem : []),
+      ]),
+      ...(mod.key === "crm" ? adminItems : []),
+    ],
+  }));
 
   const impersonation = await readImpersonation();
   const impersonating = impersonation?.targetId === profile.id;
@@ -57,7 +67,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
     <>
       {impersonating && <ImpersonationBar name={profile.fullName} />}
       <AppShell
-        nav={nav}
+        modules={modules}
         headerActions={
           <form action={signOut}>
             <Button

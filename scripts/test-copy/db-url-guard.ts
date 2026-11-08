@@ -1,7 +1,7 @@
 import {
   DEV_PROJECT_REF,
   PROD_PROJECT_REF,
-} from "../example-data/seed-guard.ts";
+} from "../../src/lib/supabase/test-copy.ts";
 
 /**
  * The Supabase project ref a Postgres connection string points at, or null.

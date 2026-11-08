@@ -3,7 +3,7 @@
 //
 // Usage: pnpm reset:sign-ins   (needs SUPABASE_SERVICE_ROLE_KEY in .env.local, see the connect-test-copy skill)
 import { createClient } from "@supabase/supabase-js";
-import { assertTestCopy } from "./example-data/seed-guard.ts";
+import { assertTestCopy } from "../src/lib/supabase/test-copy.ts";
 import { ensureTestUsers } from "./example-data/test-users.ts";
 
 function requireEnv(name: string): string {

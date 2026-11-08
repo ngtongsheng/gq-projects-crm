@@ -24,8 +24,8 @@ password. The sign-in page tells people what to do when they forget their passwo
 | 02 | Fresh encrypted backup, delete plain ones | blocked: waits on #01 | 01 | sonnet/high |
 | 03 | Top navigation and per-module sidebars | done | | sonnet/high |
 | 04 | Docs describe a multi-module app | todo | 03 | haiku/low |
-| 05 | Dev role panel with one-click sign-in | in-progress | | opus/medium |
-| 06 | Retire the test sign-ins step | todo | 05 | haiku/low |
+| 05 | Dev role panel with one-click sign-in | done | | opus/medium |
+| 06 | Retire the test sign-ins step | in-progress | 05 | haiku/low |
 | 07 | Forgot password message | todo | | haiku/low |
 ## Owner actions
 - Before #01: create a long random passphrase in your password manager, then run
@@ -40,3 +40,6 @@ password. The sign-in page tells people what to do when they forget their passwo
 2026-11-08 · #03 · done · check/typecheck/test/build pass; visual check at desktop/375px not run (needs sign-in), left for owner glance at preview
 2026-11-08 · #03 · decision · NavModule.key in AppShell is string so dev catalog can pass a demo module; tab links to module's first link · smallest shape
 2026-11-08 · #05 · in-progress · delegate opus/medium
+2026-11-08 · #05 · done · check/typecheck/test/build pass; signed-in path for 7 roles needs owner check on a machine with .env.local connected
+2026-11-08 · #05 · decision · seed-guard moved to src/lib/supabase/test-copy.ts (8 imports updated, no shim); gate runs before role check; listUsers before generateLink to avoid stray users; panel at bottom-16 to clear Next dev badge · subagent defaults
+2026-11-08 · #06 · in-progress · delegate haiku/low

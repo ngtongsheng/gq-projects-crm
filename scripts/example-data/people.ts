@@ -1,3 +1,4 @@
+import { TEST_SIGN_IN_EMAILS } from "../../src/lib/auth/dev-sign-in.ts";
 import type { JobRole } from "../../src/lib/auth/job-role.ts";
 
 export type TestUser = {
@@ -10,11 +11,10 @@ export type TestUser = {
   arrangesStock: boolean;
 };
 
-// .invalid never resolves, so these sign-ins can never receive or send real mail.
 export const TEST_USERS: TestUser[] = [
   {
     jobRole: "md",
-    email: "test-md@example.invalid",
+    email: TEST_SIGN_IN_EMAILS.md,
     fullName: "Farid Azman",
     role: "admin",
     yearlyTarget: null,
@@ -22,7 +22,7 @@ export const TEST_USERS: TestUser[] = [
   },
   {
     jobRole: "director",
-    email: "test-director@example.invalid",
+    email: TEST_SIGN_IN_EMAILS.director,
     fullName: "Lim Wei Jian",
     role: "staff",
     yearlyTarget: 2400000,
@@ -30,7 +30,7 @@ export const TEST_USERS: TestUser[] = [
   },
   {
     jobRole: "bd",
-    email: "test-bd@example.invalid",
+    email: TEST_SIGN_IN_EMAILS.bd,
     fullName: "Priya Nair",
     role: "staff",
     yearlyTarget: 1800000,
@@ -38,7 +38,7 @@ export const TEST_USERS: TestUser[] = [
   },
   {
     jobRole: "sales",
-    email: "test-sales@example.invalid",
+    email: TEST_SIGN_IN_EMAILS.sales,
     fullName: "Daniel Chong",
     role: "staff",
     yearlyTarget: 1500000,
@@ -46,7 +46,7 @@ export const TEST_USERS: TestUser[] = [
   },
   {
     jobRole: "accounts",
-    email: "test-accounts@example.invalid",
+    email: TEST_SIGN_IN_EMAILS.accounts,
     fullName: "Siti Aminah",
     role: "staff",
     yearlyTarget: null,
@@ -54,7 +54,7 @@ export const TEST_USERS: TestUser[] = [
   },
   {
     jobRole: "site",
-    email: "test-site@example.invalid",
+    email: TEST_SIGN_IN_EMAILS.site,
     fullName: "Raj Kumar",
     role: "staff",
     yearlyTarget: null,
@@ -62,7 +62,7 @@ export const TEST_USERS: TestUser[] = [
   },
   {
     jobRole: "support",
-    email: "test-support@example.invalid",
+    email: TEST_SIGN_IN_EMAILS.support,
     fullName: "Nurul Huda",
     role: "staff",
     yearlyTarget: null,

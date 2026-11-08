@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEV_PROJECT_REF,
   PROD_PROJECT_REF,
-} from "../example-data/seed-guard.ts";
+} from "../../src/lib/supabase/test-copy.ts";
 
 // Runs the real scripts with a minimal environment. Each must exit on the guard, before any connection.
 function run(script: string, env: Record<string, string>) {

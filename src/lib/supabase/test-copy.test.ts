@@ -4,7 +4,7 @@ import {
   DEV_PROJECT_REF,
   PROD_PROJECT_REF,
   projectRefFromUrl,
-} from "./seed-guard.ts";
+} from "./test-copy.ts";
 
 describe("projectRefFromUrl", () => {
   it("reads the ref from an API url", () => {

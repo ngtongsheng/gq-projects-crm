@@ -1,4 +1,5 @@
-// The example data must only ever reach the test copy (docs/environments.md).
+// Example data and the dev role panel must only ever reach the test copy (docs/environments.md).
+// The scripts import this too, so it stays free of app imports.
 export const DEV_PROJECT_REF = "heobsflkmqwkesfgbehz";
 export const PROD_PROJECT_REF = "jepoalodqfrgeddzpfgz";
 

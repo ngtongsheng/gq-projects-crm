@@ -5,7 +5,7 @@
 // Usage: pnpm connect:test-copy  (values on stdin, see the connect-test-copy skill)
 import { readFileSync, writeFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
-import { assertTestCopy } from "./example-data/seed-guard.ts";
+import { assertTestCopy } from "../src/lib/supabase/test-copy.ts";
 import {
   buildDevDbUrl,
   mergeEnv,

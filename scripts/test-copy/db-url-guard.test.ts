@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEV_PROJECT_REF,
   PROD_PROJECT_REF,
-} from "../example-data/seed-guard.ts";
+} from "../../src/lib/supabase/test-copy.ts";
 import { assertDevDbUrl, projectRefFromDbUrl } from "./db-url-guard.ts";
 
 const pooler = (ref: string) =>

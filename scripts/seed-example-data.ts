@@ -4,12 +4,12 @@
 // Usage: pnpm seed:example   (needs .env.seed.dev, see docs/environments.md)
 import { createClient } from "@supabase/supabase-js";
 import { todayMyt } from "../src/lib/format/date.ts";
+import { assertTestCopy } from "../src/lib/supabase/test-copy.ts";
 import { buildExampleData } from "./example-data/dataset.ts";
 import {
   insertExampleRows,
   removeExampleRows,
 } from "./example-data/example-rows.ts";
-import { assertTestCopy } from "./example-data/seed-guard.ts";
 import { ensureTestUsers } from "./example-data/test-users.ts";
 
 function requireEnv(name: string): string {

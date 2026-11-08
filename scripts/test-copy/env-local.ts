@@ -1,4 +1,4 @@
-import { DEV_PROJECT_REF } from "../example-data/seed-guard.ts";
+import { DEV_PROJECT_REF } from "../../src/lib/supabase/test-copy.ts";
 
 // Supavisor session-mode pooler of the test copy (Singapore). Reachable over IPv4, unlike the direct host.
 const POOLER_HOST = "aws-0-ap-southeast-1.pooler.supabase.com";

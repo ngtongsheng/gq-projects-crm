@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEV_PROJECT_REF } from "../example-data/seed-guard.ts";
+import { DEV_PROJECT_REF } from "../../src/lib/supabase/test-copy.ts";
 import { projectRefFromDbUrl } from "./db-url-guard.ts";
 import { buildDevDbUrl, mergeEnv, parseTestCopyPaste } from "./env-local.ts";
 

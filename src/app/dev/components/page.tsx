@@ -6,6 +6,7 @@ import { DataTable, type DataTableColumn } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
 import { MonthCalendar } from "@/components/app/month-calendar";
 import { PageHeader } from "@/components/app/page-header";
+import { PrintLayout, PrintSignatureRow } from "@/components/app/print-layout";
 import { StatusBadge } from "@/components/app/status-badge";
 import { WeekList } from "@/components/app/week-list";
 import { Badge } from "@/components/ui/badge";
@@ -246,6 +247,35 @@ export default function ComponentCatalogPage() {
           <Skeleton className="h-4 w-2/3" />
         </div>
       </Section>
+
+      <section className="grid gap-2">
+        <h2 className="font-heading text-base font-medium">
+          PrintLayout (A4, Print button; the shell is hidden when printing)
+        </h2>
+        <PrintLayout
+          title="Delivery order"
+          meta={[
+            { label: "DO no.", value: "DO-0001" },
+            { label: "Date", value: "14 Nov 2026" },
+          ]}
+        >
+          <p>Body of the form: tables and notes go here.</p>
+          <PrintSignatureRow
+            signers={[
+              {
+                label: "Received by (customer)",
+                caption: "Signature & company stamp",
+                fields: ["Name", "Date & time"],
+              },
+              {
+                label: "Delivered by (GQ Projects)",
+                caption: "Signature",
+                fields: ["Driver name", "Vehicle no."],
+              },
+            ]}
+          />
+        </PrintLayout>
+      </section>
 
       <section className="grid gap-2">
         <h2 className="font-heading text-base font-medium">MonthCalendar</h2>

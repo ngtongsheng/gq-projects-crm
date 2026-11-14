@@ -6,4 +6,5 @@
 - Reuse before create: check `/dev/components` (dev and preview only) before building any UI. Extend an app component rather than copying it.
 - Add a shadcn component: `pnpm dlx shadcn@latest add <name>`, then `pnpm format`.
 - Numbers (money, quantities, dates) use `font-mono tabular-nums`; headings use `font-heading`.
+- Printable forms: wrap them in `PrintLayout` (`src/components/app/print-layout.tsx`, A4 title block, `PrintSignatureRow`). Print rules in `globals.css` hide the shell; "Download PDF" is Print / Save as PDF.
 - Files: use `FileUpload` (`src/components/app/file-upload.tsx`) with `src/lib/storage/` (shrinks photos, checks type and size, signed upload and read links). Buckets and their policies are migrations; see `docs/handover-migration.md`.

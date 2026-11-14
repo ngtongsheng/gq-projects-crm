@@ -14,7 +14,7 @@ export function ViewAsBanner({
   backTo: string | null;
 }) {
   return (
-    <output className="sticky top-(--header-height) z-20 flex flex-wrap items-center gap-3 rounded-lg bg-view-as px-3.5 py-3 text-sm text-view-as-foreground">
+    <output className="sticky top-(--header-height) z-20 flex print:hidden flex-wrap items-center gap-3 rounded-lg bg-view-as px-3.5 py-3 text-sm text-view-as-foreground">
       <span className="min-w-0 flex-1">
         <strong className="inline-flex items-center gap-1.5 align-middle">
           <Eye className="size-4" aria-hidden />

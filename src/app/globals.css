@@ -197,3 +197,26 @@
     @apply font-sans;
   }
 }
+
+/* A4 forms (PrintLayout): hide the app shell and print only the page. Sizes mirror the demo's @page. */
+@page {
+  size: A4;
+  margin: 10mm;
+}
+
+@media print {
+  [data-slot="sidebar-gap"],
+  [data-slot="sidebar-container"],
+  [data-slot="sidebar-wrapper"] > header {
+    display: none;
+  }
+
+  [data-slot="sidebar-inset"] > div {
+    max-width: none;
+    padding: 0;
+  }
+
+  body {
+    background: #fff;
+  }
+}

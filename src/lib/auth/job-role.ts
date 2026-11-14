@@ -10,17 +10,24 @@ export const JobRole = z.enum([
   "accounts",
   "site",
   "support",
+  "ssup",
+  "marketing",
+  "designer",
 ]);
 export type JobRole = z.infer<typeof JobRole>;
 
+// The titles in the demo's People list.
 export const JobRoleLabel: Record<JobRole, string> = {
-  md: "MD",
+  md: "Managing Director",
   director: "Sales Director",
-  bd: "BD Director",
-  sales: "Sales",
+  bd: "Marketing Director",
+  sales: "Salesperson",
   accounts: "HR & Accounts",
   site: "Site Supervisor",
+  ssup: "Sales support",
   support: "Purchasing",
+  marketing: "Marketing Executive",
+  designer: "Designer",
 };
 
 /** Per-person commission exception, set on the person rather than keyed by name. */
@@ -40,6 +47,10 @@ export const CommissionModeLabel: Record<CommissionMode, string> = {
 // Mirrors the SQL helpers in the job_roles migration; RLS is the real gate.
 const has = (jobRole: JobRole, allowed: readonly JobRole[]) =>
   allowed.includes(jobRole);
+
+/** Leads a sales team, so others can report to them (SQL: the check_reports_to trigger). */
+export const canLeadTeam = (jobRole: JobRole) =>
+  has(jobRole, ["director", "bd"]);
 
 /** Sees the whole team's work (SQL: public.is_manager()). */
 export const isManager = (jobRole: JobRole) =>

@@ -161,7 +161,10 @@ const KEYS_BY_ROLE: Record<JobRole, readonly AttentionKey[]> = {
     "creditNotes",
     "overdueFollowUps",
   ],
+  ssup: ["unsignedDos", "stockHolds", "overdueFollowUps"],
   site: ["pendingBookings", "overdueFollowUps", "claimsToVerify", "ownReport"],
+  marketing: [],
+  designer: [],
 };
 
 /** The kinds of attention a role acts on, so a dashboard only loads what it will show. */

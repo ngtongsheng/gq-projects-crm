@@ -98,3 +98,11 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
 - URLs are not prefixed (no `/crm/...`). Existing links and bookmarks keep working, and pages do not move. Module is a
   navigation grouping only; access stays per section.
 - Not renamed: the repo, package name and web address keep their current names.
+
+## Loop 11 (office foundation), decided 2026-11-14
+- A person who has left (`profiles.active = false`) has no role: the SQL role helpers return false, and every RLS table
+  carries the restrictive policy "left people: no access". New tables add that policy in the same migration
+  (`using ((select public.is_active())) with check ((select public.is_active()))`). `getCurrentProfile` sends them to
+  `/left`, which signs them out.
+- The migration guard lets `drop constraint c, add constraint c ...` in one statement through: replacing a rule keeps
+  every row, and a stricter rule fails the migration instead of deleting data.

@@ -152,6 +152,21 @@ function hasTopLevelWhere(statement: string): boolean {
 const DEFINITION_ONLY_DROP =
   /^drop\s+(?:policy|function|trigger|view|index)\b/i;
 
+// `drop constraint c, add constraint c ...` in one statement replaces a rule and keeps every row:
+// a stricter rule makes the migration fail instead of removing data.
+function dropsOnlyReplacedConstraints(sql: string): boolean {
+  const added = new Set(
+    [...sql.matchAll(/\badd\s+constraint\s+(\w+)/gi)].map((m) =>
+      m[1].toLowerCase(),
+    ),
+  );
+  const rest = sql.replace(
+    /\bdrop\s+constraint\s+(?:if\s+exists\s+)?(\w+)/gi,
+    (whole, name: string) => (added.has(name.toLowerCase()) ? "" : whole),
+  );
+  return !/\bdrop\b/i.test(rest);
+}
+
 function classify(statement: string): string | null {
   const sql = statement.replace(/\s+/g, " ").trim();
   if (DEFINITION_ONLY_DROP.test(sql)) return null;
@@ -165,7 +180,7 @@ function classify(statement: string): string | null {
     return "DELETE FROM removes rows of data.";
   }
   if (/^alter\b/i.test(sql)) {
-    if (/\bdrop\b/i.test(sql)) {
+    if (/\bdrop\b/i.test(sql) && !dropsOnlyReplacedConstraints(sql)) {
       return "ALTER ... DROP removes a column, constraint or default that exists today.";
     }
     if (/\brename\b/i.test(sql)) {

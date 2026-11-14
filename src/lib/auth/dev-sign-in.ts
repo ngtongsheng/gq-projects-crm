@@ -11,6 +11,9 @@ export const TEST_SIGN_IN_EMAILS: Record<JobRole, string> = {
   accounts: "test-accounts@example.invalid",
   site: "test-site@example.invalid",
   support: "test-support@example.invalid",
+  ssup: "test-ssup@example.invalid",
+  marketing: "test-marketing@example.invalid",
+  designer: "test-designer@example.invalid",
 };
 
 /**

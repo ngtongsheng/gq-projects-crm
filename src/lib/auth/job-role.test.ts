@@ -8,6 +8,7 @@ import {
   canEditSite,
   canEditStock,
   canEnterPayments,
+  canLeadTeam,
   canPayOutCommission,
   canRequestStock,
   canScheduleJobs,
@@ -84,6 +85,30 @@ const expected: Record<JobRole, Row> = {
     payments: false,
     stock: true,
   },
+  ssup: {
+    manager: false,
+    readOnly: false,
+    register: false,
+    site: false,
+    payments: false,
+    stock: false,
+  },
+  marketing: {
+    manager: false,
+    readOnly: false,
+    register: false,
+    site: false,
+    payments: false,
+    stock: false,
+  },
+  designer: {
+    manager: false,
+    readOnly: false,
+    register: false,
+    site: false,
+    payments: false,
+    stock: false,
+  },
 };
 
 describe("job role capabilities", () => {
@@ -110,6 +135,12 @@ describe("job role capabilities", () => {
     JobRole.options,
   )("%s can edit stock when they arrange stock", (jobRole) => {
     expect(canEditStock({ jobRole, arrangesStock: true })).toBe(true);
+  });
+});
+
+describe("teams", () => {
+  it("lets only the Sales Director and Marketing Director lead a team", () => {
+    expect(JobRole.options.filter(canLeadTeam)).toEqual(["director", "bd"]);
   });
 });
 

@@ -126,7 +126,7 @@ describe("addPerson", () => {
     });
   });
 
-  it("creates a set-password link and keeps new people as staff", async () => {
+  it("creates a set-password link and saves new people as staff", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
     const { generateLink, profileUpdate } = fakeAdminClient(linkOk);
 
@@ -142,7 +142,15 @@ describe("addPerson", () => {
       "https://crm.example.com/set-password?token_hash=abc123&type=invite",
     );
     expect(result.invite?.message).toContain(result.invite?.link);
-    expect(profileUpdate).not.toHaveBeenCalled();
+    expect(profileUpdate).toHaveBeenCalledWith({
+      role: "staff",
+      job_role: "sales",
+      title: null,
+      joined_on: null,
+      reports_to: null,
+      whatsapp: null,
+      language: "en",
+    });
   });
 
   it("promotes to admin when asked", async () => {
@@ -151,10 +159,9 @@ describe("addPerson", () => {
 
     const result = await addPerson(personForm({ ...validForm, role: "admin" }));
 
-    expect(profileUpdate).toHaveBeenCalledWith({
-      role: "admin",
-      job_role: "sales",
-    });
+    expect(profileUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ role: "admin", job_role: "sales" }),
+    );
     expect(result.error).toBeNull();
   });
 
@@ -166,8 +173,52 @@ describe("addPerson", () => {
       personForm({ ...validForm, jobRole: "support" }),
     );
 
-    expect(profileUpdate).toHaveBeenCalledWith({ job_role: "support" });
+    expect(profileUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ job_role: "support" }),
+    );
     expect(result.error).toBeNull();
+  });
+
+  it("saves the person fields and the WhatsApp number", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    const { profileUpdate } = fakeAdminClient(linkOk);
+
+    const result = await addPerson(
+      personForm({
+        ...validForm,
+        mobile: "012-345 6789",
+        title: " Purchasing · MOF, PO ",
+        joinedOn: "2026-01-05",
+        reportsTo: OTHER_ID,
+        language: "bm",
+      }),
+    );
+
+    expect(profileUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Purchasing · MOF, PO",
+        joined_on: "2026-01-05",
+        reports_to: OTHER_ID,
+        whatsapp: "60123456789",
+        language: "bm",
+      }),
+    );
+    expect(result.error).toBeNull();
+  });
+
+  it("refuses an unknown language and a malformed join date", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    const { generateLink } = fakeAdminClient(linkOk);
+
+    const changes: Record<string, string>[] = [
+      { language: "fr" },
+      { joinedOn: "5/1/2026" },
+    ];
+    for (const change of changes) {
+      const result = await addPerson(personForm({ ...validForm, ...change }));
+      expect(result.error).not.toBeNull();
+    }
+    expect(generateLink).not.toHaveBeenCalled();
   });
 
   it("opens WhatsApp with the message when a mobile number is given", async () => {
@@ -395,20 +446,33 @@ describe("changeRole", () => {
   });
 });
 
+const LEAD_ID = "33333333-3333-4333-8333-333333333333";
+
 const validSettings = {
   userId: OTHER_ID,
   jobRole: "site",
   arrangesStock: "on",
+  sells: "on",
   commissionMode: "flat_pass_down",
   yearlyTarget: " 250,000.50 ",
+  whatsapp: "+60 12-345 6789",
+  title: "Site Supervisor · Klang Valley",
+  joinedOn: "2025-03-01",
+  reportsTo: LEAD_ID,
+  language: "bm",
 };
 
-function fakeSettingsClient(updatedRows = 1) {
+function fakeSettingsClient(
+  updatedRows = 1,
+  error: { code: string; message: string } | null = null,
+) {
   const update = vi.fn(() => ({
     eq: vi.fn(() => ({
       select: vi.fn(async () => ({
-        data: Array.from({ length: updatedRows }, () => ({ id: OTHER_ID })),
-        error: null,
+        data: error
+          ? null
+          : Array.from({ length: updatedRows }, () => ({ id: OTHER_ID })),
+        error,
       })),
     })),
   }));
@@ -442,9 +506,95 @@ describe("updatePersonSettings", () => {
     expect(update).toHaveBeenCalledWith({
       job_role: "site",
       arranges_stock: true,
+      sells: true,
+      sees_margin: false,
       commission_mode: "flat_pass_down",
       yearly_target: 250000.5,
+      whatsapp: "60123456789",
+      title: "Site Supervisor · Klang Valley",
+      joined_on: "2025-03-01",
+      reports_to: LEAD_ID,
+      language: "bm",
+      active: true,
+      left_on: null,
+      left_reason: null,
     });
+  });
+
+  it("marks someone as left with the date and reason", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    const { update } = fakeSettingsClient();
+
+    const result = await updatePersonSettings(
+      personForm({
+        ...validSettings,
+        hasLeft: "on",
+        leftOn: "2026-11-10",
+        leftReason: " Resigned ",
+      }),
+    );
+
+    expect(result).toEqual({ error: null });
+    expect(update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        active: false,
+        left_on: "2026-11-10",
+        left_reason: "Resigned",
+      }),
+    );
+  });
+
+  it("clears the leaving date and reason of someone still here", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    const { update } = fakeSettingsClient();
+
+    await updatePersonSettings(
+      personForm({ ...validSettings, leftOn: "2026-11-10", leftReason: "x" }),
+    );
+
+    expect(update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        active: true,
+        left_on: null,
+        left_reason: null,
+      }),
+    );
+  });
+
+  it("needs the leaving date when someone has left", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    const result = await updatePersonSettings(
+      personForm({ ...validSettings, hasLeft: "on" }),
+    );
+    expect(result.error).toBe("Enter the date they left.");
+    expect(createClient).not.toHaveBeenCalled();
+  });
+
+  it("refuses marking yourself as left", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    const result = await updatePersonSettings(
+      personForm({
+        ...validSettings,
+        userId: profile("admin").id,
+        hasLeft: "on",
+        leftOn: "2026-11-10",
+      }),
+    );
+    expect(result.error).toBe("You can't mark yourself as left.");
+    expect(createClient).not.toHaveBeenCalled();
+  });
+
+  it("explains when the database refuses who they report to", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    fakeSettingsClient(0, {
+      code: "23514",
+      message:
+        "A person can only report to a Sales Director or Marketing Director.",
+    });
+    const result = await updatePersonSettings(personForm(validSettings));
+    expect(result.error).toBe(
+      "They can only report to a Sales Director or Marketing Director.",
+    );
   });
 
   it("treats an unchecked box as false and a blank target as none", async () => {
@@ -466,6 +616,9 @@ describe("updatePersonSettings", () => {
     ["a negative target", { yearlyTarget: "-5" }],
     ["a target with three decimals", { yearlyTarget: "10.555" }],
     ["a target in words", { yearlyTarget: "lots" }],
+    ["an unknown language", { language: "fr" }],
+    ["a WhatsApp number that is not Malaysian", { whatsapp: "12345" }],
+    ["a malformed reports-to id", { reportsTo: "nope" }],
   ])("rejects %s without touching Supabase", async (_label, change) => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
     const result = await updatePersonSettings(

@@ -27,7 +27,10 @@ const TITLE: Record<JobRole, string> = {
   bd: "My dashboard",
   sales: "My dashboard",
   support: "MOF dashboard",
+  ssup: "MOF dashboard",
   site: "My dashboard",
+  marketing: "My dashboard",
+  designer: "My dashboard",
 };
 
 /**
@@ -81,11 +84,11 @@ export default async function Home({
           ) : undefined
         }
       />
-      {view === "mof" || me.jobRole === "support" ? (
+      {view === "mof" || me.jobRole === "support" || me.jobRole === "ssup" ? (
         <SupportDashboard me={me} />
       ) : me.jobRole === "site" ? (
         <SiteDashboard me={me} />
-      ) : me.jobRole === "sales" || me.jobRole === "bd" ? (
+      ) : ["sales", "bd", "marketing", "designer"].includes(me.jobRole) ? (
         <SalesDashboard me={me} />
       ) : (
         <ManagerDashboard me={me} />

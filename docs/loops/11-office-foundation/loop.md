@@ -102,3 +102,4 @@ two at a time without touching the same files. Everything account-bound is code 
 2026-11-14 · #14 · decision · 17 demo people seeded (Vernice/Vanisha → Eddie, Cavan/Crystal → Vanessa; Awal/Akmal BM); old per-role test sign-ins marked inactive; dev panel lists people, refuses non-example.invalid emails
 2026-11-14 · #14 · done · check/typecheck/test (1300) pass · seed run + "panel as Eddie" check folded into #15 (needs test copy)
 2026-11-14 · #15 · blocked · depends on #09 (owner) and every signed-in check needs the test copy on the laptop. #15 must cover: seed run, Eddie sidebar, signed-in parity screenshots (#02/#06/#07/#08), View as round trip, storage upload round trip, A4 print preview, Google sign-in e2e, test-copy.ts refs decision
+2026-11-14 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-14-loop-11-office-foundation.md

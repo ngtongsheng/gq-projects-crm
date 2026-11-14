@@ -35,8 +35,8 @@ two at a time without touching the same files. Everything account-bound is code 
 | 07 | Shell parity | done | 02, 06 | sonnet/high |
 | 08 | Read-only View as | done | 07 | opus/medium |
 | 09 | Google sign-in | blocked: owner — GCP sign-in for OAuth client; prod email check | 03 | opus/medium |
-| 10 | Storage foundation | in-progress | 03 | sonnet/high |
-| 11 | A4 print layout | todo | 07 | sonnet/medium |
+| 10 | Storage foundation | done | 03 | sonnet/high |
+| 11 | A4 print layout | in-progress | 07 | sonnet/medium |
 | 12 | i18n EN/BM/中文 | todo | 03, 07 | sonnet/high |
 | 13 | Public holidays + workdays | todo | - | sonnet/high |
 | 14 | Dev seed: demo people as test personas | todo | 03, 04, 06 | sonnet/medium |
@@ -86,3 +86,7 @@ two at a time without touching the same files. Everything account-bound is code 
 2026-11-14 · #09 · decision · src/lib/supabase/test-copy.ts hard-codes DEV/PROD refs (pre-existing laptop guard) · decide in #15
 2026-11-14 · #09 · code committed, check/typecheck/test pass (test needs --maxWorkers=2 under load ~18) · blocked: owner — GCP "Verify it's you" in Chrome profile Agent; reading prod auth.users denied by classifier · next: #10
 2026-11-14 · #10 · started (sonnet/high)
+2026-11-14 · #10 · decision · private `attachments` bucket (1.5 MB, jpeg/png/webp/pdf), insert own path `<area>/<uuid>/<file>` only, no select policy: reads via server signed links (300 s, admin client after record check); View as allows only /object/sign POSTs
+2026-11-14 · #10 · decision · #15 must run one real upload round trip on the test copy (owner_id set by signed upload is assumed, PGlite stub only)
+2026-11-14 · #10 · done · check/typecheck/test (1271)/guard pass · next: #11
+2026-11-14 · #11 · started (sonnet/medium)

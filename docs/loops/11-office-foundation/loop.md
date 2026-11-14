@@ -26,8 +26,8 @@ two at a time without touching the same files. Everything account-bound is code 
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Restore Supabase + keep-alive that works | todo | - | sonnet/high |
-| 02 | Demo into repo, logo, app name, parity and handover docs | todo | - | sonnet/medium |
+| 01 | Restore Supabase + keep-alive that works | done | - | sonnet/high |
+| 02 | Demo into repo, logo, app name, parity and handover docs | in-progress | - | sonnet/medium |
 | 03 | Roles and people fields | todo | - | opus/medium |
 | 04 | Team scoping: helpers + customers, activities, projects | todo | 03 | opus/medium |
 | 05 | Team scoping: MOFs, payments, commission, reports | todo | 04 | opus/medium |
@@ -48,3 +48,7 @@ two at a time without touching the same files. Everything account-bound is code 
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-14 · plan · loop written from the drift analysis in docs/office-parity/ · next: #01
+2026-11-14 · #01 · started (sonnet/high) · planner tab w7:t9 closed
+2026-11-14 · #01 · decision · keep-alive pings each project's REST API (profiles, publishable key from new GH secrets SUPABASE_{DEV,PROD}_PUBLISHABLE_KEY), Mon+Thu · db query via management API likely didn't count as activity
+2026-11-14 · #01 · done · dev resumed, prod healthy, health.yml run 43586779470 success · next: #02
+2026-11-14 · #02 · started (sonnet/medium)

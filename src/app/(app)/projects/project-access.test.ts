@@ -3,6 +3,7 @@ import {
   canChoosePic,
   canCreateProject,
   canEditProject,
+  readsOwnProjectsOnly,
 } from "./project-access";
 
 describe("canCreateProject", () => {
@@ -46,5 +47,25 @@ describe("canChoosePic", () => {
     expect(canChoosePic("director")).toBe(true);
     expect(canChoosePic("sales")).toBe(false);
     expect(canChoosePic("bd")).toBe(false);
+  });
+});
+
+describe("readsOwnProjectsOnly", () => {
+  it("is BD, Sales and Site, as the projects read policy", () => {
+    expect(readsOwnProjectsOnly("bd")).toBe(true);
+    expect(readsOwnProjectsOnly("sales")).toBe(true);
+    expect(readsOwnProjectsOnly("site")).toBe(true);
+  });
+
+  it("is not the roles that read every project or their team's", () => {
+    for (const jobRole of [
+      "md",
+      "accounts",
+      "support",
+      "ssup",
+      "director",
+    ] as const) {
+      expect(readsOwnProjectsOnly(jobRole)).toBe(false);
+    }
   });
 });

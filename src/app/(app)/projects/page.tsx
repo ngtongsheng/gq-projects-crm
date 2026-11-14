@@ -24,8 +24,12 @@ import {
   type PipelineProject,
   pipelineEmpty,
 } from "./pipeline-board";
-import { canEditProject } from "./project-access";
-import { filterByPerson, parsePipelineFilters } from "./project-filters";
+import { canEditProject, readsOwnProjectsOnly } from "./project-access";
+import {
+  filterByPerson,
+  parsePipelineFilters,
+  peopleOnProjects,
+} from "./project-filters";
 import { OPEN_STAGES, ProjectStage } from "./schemas";
 
 export const metadata: Metadata = { title: "Projects" };
@@ -116,6 +120,7 @@ export default async function ProjectsPage({
       ),
     }));
   const projects = filterByPerson(all, filters.person);
+  const people = peopleOnProjects(team, all);
   const empty = pipelineEmpty(filters.person !== undefined);
 
   return (
@@ -123,7 +128,7 @@ export default async function ProjectsPage({
       <PageHeader
         title="Projects"
         description={
-          me.jobRole === "bd" || me.jobRole === "sales"
+          readsOwnProjectsOnly(me.jobRole)
             ? "Your deals by stage: the ones you lead, support or passed down. Add a project from the customer's page."
             : "Every deal by stage. Add a project from the customer's page."
         }
@@ -136,7 +141,7 @@ export default async function ProjectsPage({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={ALL}>Everyone</SelectItem>
-            {team.map((member) => (
+            {people.map((member) => (
               <SelectItem key={member.id} value={member.id}>
                 {member.name}
               </SelectItem>

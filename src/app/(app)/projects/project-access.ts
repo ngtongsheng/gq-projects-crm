@@ -23,3 +23,7 @@ export const canEditProject = (
 
 /** Who looks after a project is the MD's or Sales Director's call; a salesperson is always the PIC of their own. */
 export const canChoosePic = isOwnerManager;
+
+/** BD, Sales and Site read only the projects they are on (projects read policy). */
+export const readsOwnProjectsOnly = (jobRole: JobRole): boolean =>
+  isSalesperson(jobRole) || jobRole === "site";

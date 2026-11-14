@@ -28,7 +28,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 | 06 | Appointment invitations | done | 04 | sonnet/high |
 | 07 | Calendar views, My team filter, Plan a call | done | 05, 06 | sonnet/high |
 | 08 | Weekly outcomes + weekly reports | done | 05 | opus/medium |
-| 09 | Projects: site role scoping | todo | - | opus/medium |
+| 09 | Projects: site role scoping | done | - | opus/medium |
 | 10 | Parity pass, docs, merge | todo | 01-09 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
@@ -68,3 +68,6 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 2026-11-15 · #08 · decision · rows from my_team() or picked person; MD / Accounts see report_filers() sales and bd plus anyone with a visit or report that week; default week on Monday = week just ended (demo's Sunday logic buggy); submit blocked while outcomes unlogged (server-enforced in the action, not the database) · no migration changes, team_directory has no job roles
 2026-11-15 · #08 · decision · weekly_report_due_at added to READ_ONLY_FUNCTIONS in view-only-fetch.ts so View as keeps working · needed by the tab
 2026-11-15 · #08 · done · check, typecheck, test pass (1400 tests) · next: #09
+2026-11-15 · #09 · in-progress
+2026-11-15 · #09 · decision · migration 20261115120000 takes site out of "projects: read all" (alter policy); Person filter lists people on visible projects; site with sells still cannot create or edit projects (demo gives full sales use; needs add/edit rule change, not planned) · task scope
+2026-11-15 · #09 · done · check, typecheck, guard:migrations, test pass (1405 tests) · next: #10

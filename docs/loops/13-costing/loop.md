@@ -32,7 +32,7 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 | 09 | Project card costing lines | done | 06 | sonnet/high |
 | 10 | Chinese strings for Costing | done | 04, 05, 06, 07, 08 | sonnet/medium |
 | 11 | Dev seed: sample quotes | done | 02 | sonnet/medium |
-| 12 | Parity pass, docs, merge | blocked: owner - seed.dev file missing, parity not run | 01-11 | sonnet/medium |
+| 12 | Parity pass, docs, merge | done | 01-11 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - None planned. Tell Vicky one line when it is live (message to a person, so the owner sends it).
@@ -81,3 +81,7 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 2026-11-15 · #12 · partial · docs done (features, decisions, drift doc, roadmap 2B); costing migration applied to test copy via pnpm db:test-copy; `pnpm seed:example` failed: `.env.seed.dev` not found, so Chrome parity (7 screens x 6 roles x 2 widths, print compare, Chinese) not run · not merged: parity is part of the goal and `cost` is now a built page
 2026-11-15 · #12 · blocked: owner · put `.env.seed.dev` (test copy service credentials) in ~/work/projects/gq-projects-crm-loops/13-costing, then re-run /execute-loop docs/loops/13-costing to do parity, rebase, PR and merge
 2026-11-15 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-15-loop-13-costing.md
+2026-11-15 · #12 · seeded test copy (quotes 6, options 7, items 20, FOB 2); .env.seed.dev deleted · next: Chrome parity
+2026-11-15 · #12 · parity run in Chrome (Agent profile) on test copy: found and fixed a 500 on every Costing screen (ambiguous quote_revisions/quote_options embed, now hinted by fk name), mounted the language toggle on Register and record, matched Approvals headings, removed margin % from a seed history note · PGlite tests cannot catch PostgREST embed ambiguity
+2026-11-15 · #12 · decision · salesperson sees the FOB reply, shipping and landed cost on own record (demo intends it; logged in decisions.md); widths approximated (window would not resize), 390px via iframe; test copy history note GQ5156 keeps old "Lowest margin 24%" text until next seed · owner may want FOB hidden from sales
+2026-11-15 · #12 · done · docs + parity; next merge

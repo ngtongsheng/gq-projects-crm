@@ -205,7 +205,7 @@ export default async function CostingApprovalsPage() {
       />
       <section className="flex flex-col gap-2">
         <h2 className="font-heading text-lg font-semibold">
-          {t("Waiting for approval")} ·{" "}
+          {t("Waiting approval")} ·{" "}
           <span className="font-mono tabular-nums">{pending.length}</span>
         </h2>
         <DataTable
@@ -223,7 +223,7 @@ export default async function CostingApprovalsPage() {
       </section>
       <section className="flex flex-col gap-2">
         <h2 className="font-heading text-lg font-semibold">
-          {t("Recently decided")}
+          {t("Recently handled")}
         </h2>
         <DataTable
           rows={optionRows(recent)}

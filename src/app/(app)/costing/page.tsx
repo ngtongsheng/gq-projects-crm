@@ -1,6 +1,7 @@
 import { Plus, Search } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LanguageToggle } from "@/components/app/language-toggle";
 import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { canStartQuote, canWorkEnquiries } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
+import { resolveLanguage } from "@/lib/i18n/current-language";
 import { getT } from "@/lib/i18n/server-t";
 import { loadQuoteRegister } from "./quote-data";
 import { QuoteStatusLabel } from "./quote-status";
@@ -47,6 +49,10 @@ export default async function CostingRegisterPage({
         description={t("Find every version by Quotation No.")}
         actions={
           <>
+            <LanguageToggle
+              language={await resolveLanguage(me.language)}
+              languages={["en", "zh"]}
+            />
             <Button asChild variant="outline">
               <Link href="/costing/approvals">{t("Below min margin")}</Link>
             </Button>

@@ -150,7 +150,7 @@ export const ITEM_SELECT = `id, position, category, type, area, product, supplie
 /** The columns QuoteRow expects, as a nested Supabase select. */
 export const QUOTE_SELECT = `id, quote_no, project_id, project_name, customer_name, salesperson_id, created_at, updated_at,
   quote_revisions(id, rev, status, fx_usd, fx_rmb, sst_pct, target_margin_pct, chosen_option_id, created_at, updated_at,
-    quote_options(id, key, label, quote_items(${ITEM_SELECT})),
+    quote_options!quote_options_revision_id_fkey(id, key, label, quote_items(${ITEM_SELECT})),
     quote_revision_history(action, note, by_id, at))`;
 
 const MarginLevel = z.enum(["low", "high"]).nullable();

@@ -70,7 +70,7 @@ export async function loadApprovalRevision(
       .select(
         `id, quote_id, rev, status, fx_usd, fx_rmb, sst_pct, target_margin_pct,
         quotes(quote_no, salesperson_id, quote_revisions(rev)),
-        quote_options(id, key, label, quote_items(${ITEM_SELECT}))`,
+        quote_options!quote_options_revision_id_fkey(id, key, label, quote_items(${ITEM_SELECT}))`,
       )
       .eq("id", revisionId)
       .maybeSingle(),

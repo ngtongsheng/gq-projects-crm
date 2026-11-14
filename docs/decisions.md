@@ -170,3 +170,16 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
   - Project card: lines on the Projects board card only; matched by `project_id`; only the newest revision counts.
   - Chinese: ~295 strings in `zh.ts`, Noto Sans SC; value-bearing server messages and page titles stay English.
   - Choosing the customer option cannot be undone. Nav badge and low-margin banner wait for Integration.
+- Parity pass (2026-11-15, Chrome, md / director / sales / support / accounts, desktop and 390 px), deviations left:
+  - Costing sub-navigation is header buttons (Below min margin, FOB Enquiry, New costing), not the demo's tab strip. Sales
+    and BD get no FOB Enquiry button; support and accounts get no New costing (role rules in `job-role.ts`).
+  - Register and Approvals use sentence case ("New costing"), the app's design system, not the demo's "New Costing".
+    The Approvals subtitle states the rule without a hard-coded 30% and has no margin colour legend.
+  - Register table is wider than the page at 1280 px; the last columns scroll inside the card (shared `DataTable`).
+  - FOB Enquiry table merges the demo's Unit, Cur. and Sales columns into Qty, FOB and Quotation.
+  - Seed data differs from the demo's example quotes (different customers, salespeople, amounts).
+  - Compare view prints portrait A4 like the demo's `@page`; no landscape needed. Quote sheet is wider than 390 px, in
+    the demo too.
+  - D3: a salesperson who raised a FOB enquiry sees the supplier's reply (FOB, rate, shipping, landed cost) on their
+    own costing, as the demo intends ("Sales sees it here"). Owner to confirm or strip it for people without the
+    margin flag.

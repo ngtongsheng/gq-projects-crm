@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { LanguageToggle } from "@/components/app/language-toggle";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
 import { Button } from "@/components/ui/button";
 import { canApproveQuote } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { formatDateTime } from "@/lib/format/date";
+import { resolveLanguage } from "@/lib/i18n/current-language";
 import { getT } from "@/lib/i18n/server-t";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
@@ -101,6 +103,10 @@ export default async function CostingRecordPage({
         }
         actions={
           <>
+            <LanguageToggle
+              language={await resolveLanguage(me.language)}
+              languages={["en", "zh"]}
+            />
             <Button asChild variant="outline">
               <Link href={`/costing/${quote.id}/preview?rev=${revision.rev}`}>
                 {t("Client quote")}

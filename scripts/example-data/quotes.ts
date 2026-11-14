@@ -70,7 +70,7 @@ const QUOTES: QuoteSeed[] = [
     area: 1394,
     items: "tile-labour",
     historyNote:
-      "Lowest margin 24% is under 30%: competitor price, client is a repeat customer",
+      "Below the minimum margin: competitor price, client is a repeat customer",
   },
   {
     key: "harbour-studio",

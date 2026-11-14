@@ -54,7 +54,7 @@ export async function loadRevisionToEdit(
   const { data, error } = await supabase
     .from("quote_revisions")
     .select(
-      "id, quote_id, status, quotes(salesperson_id), quote_options(id, key, quote_items(id, type))",
+      "id, quote_id, status, quotes(salesperson_id), quote_options!quote_options_revision_id_fkey(id, key, quote_items(id, type))",
     )
     .eq("id", revisionId)
     .maybeSingle();

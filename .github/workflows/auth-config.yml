@@ -1,0 +1,29 @@
+name: Auth config
+
+# Pushes sign-in settings (Google provider, sign-ups off, site URL, redirect allow-list) to both
+# Supabase projects with scripts/push-auth-config.ts. Run by hand after changing a value or after
+# moving to new accounts: gh workflow run auth-config.yml
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [DEV, PROD]
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets[format('SUPABASE_{0}_PROJECT_REF', matrix.project)] }}
+      GOOGLE_OAUTH_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}
+      GOOGLE_OAUTH_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}
+      AUTH_SITE_URL: ${{ vars[format('AUTH_{0}_SITE_URL', matrix.project)] }}
+      AUTH_REDIRECT_URLS: ${{ vars[format('AUTH_{0}_REDIRECT_URLS', matrix.project)] }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: jdx/mise-action@v5
+      - run: node scripts/push-auth-config.ts

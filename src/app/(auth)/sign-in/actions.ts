@@ -1,34 +1,23 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { requestOrigin } from "@/lib/request-origin";
 import { createClient } from "@/lib/supabase/server";
 
-export type SignInState = { error: string | null };
-
-export async function signIn(formData: FormData): Promise<SignInState> {
-  const email = formData.get("email");
-  const password = formData.get("password");
-  if (typeof email !== "string" || typeof password !== "string") {
-    return { error: "Enter your email and password." };
-  }
-  if (!email.trim() || !password) {
-    return { error: "Enter your email and password." };
-  }
-
+/** Starts Google sign-in; Google returns to /auth/callback with a code. */
+export async function signInWithGoogle() {
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({
-    email: email.trim(),
-    password,
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${await requestOrigin()}/auth/callback`,
+      // People with a personal and a work Google account choose each time.
+      queryParams: { prompt: "select_account" },
+    },
   });
   if (error) {
-    // Supabase being down or rate-limiting is not the person's mistake, so say so and log it.
-    if (!error.status || error.status === 429 || error.status >= 500) {
-      console.error("Sign-in did not reach Supabase", error);
-      return { error: "Could not sign in. Try again in a moment." };
-    }
-    // One message for every other failure so the form never reveals which emails exist.
-    return { error: "That email and password don't match." };
+    console.error("Could not start Google sign-in", error);
+    redirect("/sign-in?refused=failed");
   }
-
-  redirect("/");
+  redirect(data.url);
 }

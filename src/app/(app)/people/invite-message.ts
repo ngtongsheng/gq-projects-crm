@@ -1,10 +1,14 @@
 import { APP_NAME } from "@/lib/app-name";
 
-/** Ready-to-paste WhatsApp text for the one-time set-password link. */
-export function inviteMessage(fullName: string, link: string): string {
+/** Ready-to-paste WhatsApp text: the app link and which Google account to sign in with. */
+export function inviteMessage(
+  fullName: string,
+  email: string,
+  link: string,
+): string {
   return [
     `Hi ${fullName}, you've been added to ${APP_NAME}.`,
-    "Open this link to set your password (it works once):",
+    `Open this link and sign in with Google as ${email}:`,
     link,
   ].join("\n");
 }
@@ -19,10 +23,11 @@ export type Invite = {
 /** The link, the message around it and, with a mobile number (digits with 60), a WhatsApp shortcut. */
 export function buildInvite(
   fullName: string,
+  email: string,
   link: string,
   mobile: string | null,
 ): Invite {
-  const message = inviteMessage(fullName, link);
+  const message = inviteMessage(fullName, email, link);
   return {
     link,
     message,

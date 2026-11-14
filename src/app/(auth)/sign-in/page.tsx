@@ -6,16 +6,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { FieldError } from "@/components/ui/field";
 import { APP_NAME } from "@/lib/app-name";
-import { SignInForm } from "./sign-in-form";
+import {
+  isSignInRefusal,
+  SIGN_IN_REFUSAL_MESSAGE,
+} from "@/lib/auth/sign-in-decision";
+import { signInWithGoogle } from "./actions";
+import { GoogleSignInButton } from "./google-sign-in-button";
 
 export const metadata: Metadata = { title: `Sign in · ${APP_NAME}` };
 
 export default async function SignInPage({
   searchParams,
 }: PageProps<"/sign-in">) {
-  // Set by the /left route after signing out someone who has left the company.
-  const left = (await searchParams).left === "1";
+  const params = await searchParams;
+  // `left=1` comes from the /left route, `refused` from the Google callback.
+  const refusal =
+    params.left === "1"
+      ? "left"
+      : isSignInRefusal(params.refused)
+        ? params.refused
+        : null;
 
   return (
     <main className="flex flex-1 items-center justify-center p-4">
@@ -23,13 +35,16 @@ export default async function SignInPage({
         <CardHeader>
           <CardTitle className="font-heading text-xl">{APP_NAME}</CardTitle>
           <CardDescription>
-            {left
-              ? "You no longer have access. Ask your admin if this is a mistake."
-              : "Sign in with the email and password your admin gave you."}
+            Sign in with the Google account your admin added.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <SignInForm />
+        <CardContent className="flex flex-col gap-3">
+          {refusal && (
+            <FieldError>{SIGN_IN_REFUSAL_MESSAGE[refusal]}</FieldError>
+          )}
+          <form action={signInWithGoogle}>
+            <GoogleSignInButton />
+          </form>
         </CardContent>
       </Card>
     </main>

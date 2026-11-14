@@ -1,9 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { requireRole } from "@/lib/auth/require-role";
 import { textField } from "@/lib/form/form-fields";
+import { requestOrigin } from "@/lib/request-origin";
 import {
   ADMIN_UNAVAILABLE_MESSAGE,
   createAdminClient,
@@ -13,7 +13,6 @@ import { buildInvite, type Invite } from "./invite-message";
 import {
   addPersonSchema,
   changeRoleSchema,
-  newLinkSchema,
   personSettingsSchema,
 } from "./schemas";
 
@@ -25,16 +24,6 @@ export type AddPersonState = {
 /** Must match the message in the check_reports_to trigger. */
 const REPORTS_TO_REFUSED =
   "A person can only report to a Sales Director or Marketing Director.";
-
-async function requestOrigin(): Promise<string> {
-  const requestHeaders = await headers();
-  const host =
-    requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
-  const protocol =
-    requestHeaders.get("x-forwarded-proto") ??
-    (host?.startsWith("localhost") ? "http" : "https");
-  return `${protocol}://${host}`;
-}
 
 export async function addPerson(formData: FormData): Promise<AddPersonState> {
   await requireRole("admin");
@@ -61,10 +50,11 @@ export async function addPerson(formData: FormData): Promise<AddPersonState> {
   const admin = createAdminClient();
   if (!admin) return { error: ADMIN_UNAVAILABLE_MESSAGE, invite: null };
 
-  const { data, error } = await admin.auth.admin.generateLink({
-    type: "invite",
+  // Confirmed up front so their first Google sign-in links to this person (same email).
+  const { data, error } = await admin.auth.admin.createUser({
     email,
-    options: { data: { full_name: fullName } },
+    email_confirm: true,
+    user_metadata: { full_name: fullName },
   });
   if (error) {
     if (error.code !== "email_exists")
@@ -78,12 +68,12 @@ export async function addPerson(formData: FormData): Promise<AddPersonState> {
     };
   }
 
-  // The link is checked on the set-password page, not by Supabase's own redirect.
-  const link = `${await requestOrigin()}/set-password?${new URLSearchParams({
-    token_hash: data.properties.hashed_token,
-    type: data.properties.verification_type,
-  })}`;
-  const invite = buildInvite(fullName, link, mobile);
+  const invite = buildInvite(
+    fullName,
+    email,
+    `${await requestOrigin()}/sign-in`,
+    mobile,
+  );
 
   // The sign-up trigger always creates a salesperson on staff; set what was asked.
   const { error: profileError } = await admin
@@ -112,56 +102,6 @@ export async function addPerson(formData: FormData): Promise<AddPersonState> {
 
   revalidatePath("/people");
   return { error: null, invite };
-}
-
-/** A fresh set-password link for someone already added: lost link, or a forgotten password. The old link stops working. */
-export async function newSignInLink(userId: string): Promise<AddPersonState> {
-  await requireRole("admin");
-
-  const parsed = newLinkSchema.safeParse({ userId });
-  if (!parsed.success) {
-    return {
-      error: "Could not find that person. Reload the page.",
-      invite: null,
-    };
-  }
-
-  const admin = createAdminClient();
-  if (!admin) return { error: ADMIN_UNAVAILABLE_MESSAGE, invite: null };
-
-  const { data: found, error: findError } = await admin.auth.admin.getUserById(
-    parsed.data.userId,
-  );
-  const email = found?.user?.email;
-  if (findError || !email) {
-    console.error("Could not find the person's email", findError);
-    return {
-      error: "Could not find that person. Reload the page.",
-      invite: null,
-    };
-  }
-
-  const { data, error } = await admin.auth.admin.generateLink({
-    type: "recovery",
-    email,
-  });
-  if (error) {
-    console.error("Could not make a new link", error);
-    return {
-      error: "Could not make a new link. Try again in a moment.",
-      invite: null,
-    };
-  }
-
-  const link = `${await requestOrigin()}/set-password?${new URLSearchParams({
-    token_hash: data.properties.hashed_token,
-    type: data.properties.verification_type,
-  })}`;
-  const fullName =
-    typeof found.user.user_metadata?.full_name === "string"
-      ? found.user.user_metadata.full_name
-      : "there";
-  return { error: null, invite: buildInvite(fullName, link, null) };
 }
 
 export type ChangeRoleResult = { error: string | null };

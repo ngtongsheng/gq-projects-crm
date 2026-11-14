@@ -24,8 +24,29 @@ Supabase now issues a publishable key and a secret key; the legacy `anon` / `ser
 | `NEXT_PUBLIC_SUPABASE_URL` | dev | dev | prod |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | dev | dev | prod |
 | `SUPABASE_SERVICE_ROLE_KEY` (server only, never `NEXT_PUBLIC_`; holds the project's secret key; Sensitive in Vercel) | not set | dev | prod |
+| `ALLOWED_EMAIL_DOMAINS` (comma-separated; the Google sign-in callback refuses other domains, and refuses everyone when unset) | `.env.development`: `gqprojects.com.my,example.invalid` | `gqprojects.com.my,example.invalid` | `gqprojects.com.my` |
 
 Vercel stores the dev values for both Preview and Development (the secret key as two Sensitive entries, one per scope). The two public vars are Config type; values are not secret.
+
+## Google sign-in
+
+Status: code, Vercel `ALLOWED_EMAIL_DOMAINS` and the `AUTH_*` repo variables are in place. The GCP project, the
+`GOOGLE_OAUTH_*` secrets and the first `auth-config.yml` run are still to do (needs the owner's Google sign-in).
+
+People sign in with Google only (loop 11, D2). The OAuth client lives in the GCP project `gqp-office` (External consent
+screen "GQP Office", scopes email and profile), owned for now by the owner's Google account. Its authorised redirect
+URIs are each Supabase project's `https://<ref>.supabase.co/auth/v1/callback`.
+
+- Invite-only: Supabase sign-ups stay off, so a Google account nobody added is refused by Supabase itself. Adding a
+  person in People creates their user with a confirmed email; their first Google sign-in with the same email links to
+  that user (Supabase automatic identity linking).
+- `/auth/callback` exchanges the code, then signs out anyone whose email domain is not in `ALLOWED_EMAIL_DOMAINS`, who
+  has no profile, or who has left (`profiles.active`).
+- Provider, site URL, redirect allow-list and sign-ups-off are pushed per project by `scripts/push-auth-config.ts`
+  through `.github/workflows/auth-config.yml` (manual: `gh workflow run auth-config.yml`). It sends only those fields.
+  Inputs: secrets `SUPABASE_ACCESS_TOKEN`, `SUPABASE_{DEV,PROD}_PROJECT_REF`, `GOOGLE_OAUTH_CLIENT_ID`,
+  `GOOGLE_OAUTH_CLIENT_SECRET`; repo variables `AUTH_{DEV,PROD}_SITE_URL`, `AUTH_{DEV,PROD}_REDIRECT_URLS`.
+- The laptop role panel (`/dev`) still signs in the `example.invalid` test personas on the test copy without Google.
 
 ## Seeding the first admins
 
@@ -85,7 +106,9 @@ collapsed blocks, so you can act without asking her.
 
 ## GitHub secrets (names only)
 
-`SUPABASE_ACCESS_TOKEN`, `SUPABASE_DEV_PROJECT_REF`, `SUPABASE_DEV_DB_PASSWORD`, `SUPABASE_PROD_PROJECT_REF`, `SUPABASE_PROD_DB_PASSWORD`, `SUPABASE_DEV_PUBLISHABLE_KEY`, `SUPABASE_PROD_PUBLISHABLE_KEY` (the public keys, only used by `health.yml`)
+`SUPABASE_ACCESS_TOKEN`, `SUPABASE_DEV_PROJECT_REF`, `SUPABASE_DEV_DB_PASSWORD`, `SUPABASE_PROD_PROJECT_REF`, `SUPABASE_PROD_DB_PASSWORD`, `SUPABASE_DEV_PUBLISHABLE_KEY`, `SUPABASE_PROD_PUBLISHABLE_KEY` (the public keys, only used by `health.yml`), `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET` (used by `auth-config.yml`)
+
+Repo variables (not secret): `AUTH_DEV_SITE_URL`, `AUTH_DEV_REDIRECT_URLS`, `AUTH_PROD_SITE_URL`, `AUTH_PROD_REDIRECT_URLS`.
 
 `SUPABASE_ACCESS_TOKEN` is a full-account Supabase token (`gq-crm-github-ci`) that expires after 90 days. `health.yml` checks it twice a week and opens an `Urgent:` issue before it bites. To renew, create a new token at supabase.com/dashboard/account/tokens and run `gh secret set SUPABASE_ACCESS_TOKEN`.
 

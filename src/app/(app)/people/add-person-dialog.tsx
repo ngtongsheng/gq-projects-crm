@@ -55,9 +55,9 @@ export function AddPersonDialog({
         <DialogHeader>
           <DialogTitle>Add person</DialogTitle>
           <DialogDescription>
-            You get a link to send them. Add their WhatsApp number to open
-            WhatsApp with the message ready. They use the link once to set a
-            password.
+            Use the Google account they sign in with. You get the app link to
+            send them; add their WhatsApp number to open WhatsApp with the
+            message ready.
           </DialogDescription>
         </DialogHeader>
         {unavailableMessage ? (
@@ -188,7 +188,7 @@ function AddPersonForm({ leads }: { leads: Option[] }) {
         </div>
         {state.error && <FieldError>{state.error}</FieldError>}
         <Button type="submit" disabled={pending}>
-          {pending ? "Adding..." : "Create link"}
+          {pending ? "Adding..." : "Add person"}
         </Button>
       </FieldGroup>
     </form>

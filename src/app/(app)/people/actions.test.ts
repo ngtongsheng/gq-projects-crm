@@ -2,12 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getCurrentProfile, type Profile } from "@/lib/auth/current-profile";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import {
-  addPerson,
-  changeRole,
-  newSignInLink,
-  updatePersonSettings,
-} from "./actions";
+import { addPerson, changeRole, updatePersonSettings } from "./actions";
 
 vi.mock("@/lib/auth/current-profile", () => ({ getCurrentProfile: vi.fn() }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: vi.fn() }));
@@ -51,28 +46,22 @@ const validForm = {
   role: "staff",
 };
 
-function fakeAdminClient(generateLinkResult: unknown) {
+function fakeAdminClient(createUserResult: unknown) {
   const profileUpdate = vi.fn(() => ({
     eq: vi.fn(async () => ({ error: null })),
   }));
-  const generateLink = vi.fn(async () => generateLinkResult);
+  const createUser = vi.fn(async () => createUserResult);
   const client = {
-    auth: { admin: { generateLink } },
+    auth: { admin: { createUser } },
     from: vi.fn(() => ({ update: profileUpdate })),
   };
   vi.mocked(createAdminClient).mockReturnValue(
     client as unknown as ReturnType<typeof createAdminClient>,
   );
-  return { generateLink, profileUpdate };
+  return { createUser, profileUpdate };
 }
 
-const linkOk = {
-  data: {
-    properties: { hashed_token: "abc123", verification_type: "invite" },
-    user: { id: OTHER_ID },
-  },
-  error: null,
-};
+const personCreated = { data: { user: { id: OTHER_ID } }, error: null };
 
 describe("addPerson", () => {
   beforeEach(() => {
@@ -128,22 +117,24 @@ describe("addPerson", () => {
     });
   });
 
-  it("creates a set-password link and saves new people as staff", async () => {
+  it("adds a confirmed person, shares the app link and saves them as staff", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
-    const { generateLink, profileUpdate } = fakeAdminClient(linkOk);
+    const { createUser, profileUpdate } = fakeAdminClient(personCreated);
 
     const result = await addPerson(personForm(validForm));
 
-    expect(generateLink).toHaveBeenCalledWith({
-      type: "invite",
+    // Confirmed, so their first Google sign-in links to this user instead of being refused.
+    expect(createUser).toHaveBeenCalledWith({
       email: "mei@example.com",
-      options: { data: { full_name: "Mei Tan" } },
+      email_confirm: true,
+      user_metadata: { full_name: "Mei Tan" },
     });
     expect(result.error).toBeNull();
-    expect(result.invite?.link).toBe(
-      "https://crm.example.com/set-password?token_hash=abc123&type=invite",
-    );
+    expect(result.invite?.link).toBe("https://crm.example.com/sign-in");
     expect(result.invite?.message).toContain(result.invite?.link);
+    expect(result.invite?.message).toContain(
+      "sign in with Google as mei@example.com",
+    );
     expect(profileUpdate).toHaveBeenCalledWith({
       role: "staff",
       job_role: "sales",
@@ -157,7 +148,7 @@ describe("addPerson", () => {
 
   it("promotes to admin when asked", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
-    const { profileUpdate } = fakeAdminClient(linkOk);
+    const { profileUpdate } = fakeAdminClient(personCreated);
 
     const result = await addPerson(personForm({ ...validForm, role: "admin" }));
 
@@ -169,7 +160,7 @@ describe("addPerson", () => {
 
   it("sets the job role chosen in the form", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
-    const { profileUpdate } = fakeAdminClient(linkOk);
+    const { profileUpdate } = fakeAdminClient(personCreated);
 
     const result = await addPerson(
       personForm({ ...validForm, jobRole: "support" }),
@@ -183,7 +174,7 @@ describe("addPerson", () => {
 
   it("saves the person fields and the WhatsApp number", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
-    const { profileUpdate } = fakeAdminClient(linkOk);
+    const { profileUpdate } = fakeAdminClient(personCreated);
 
     const result = await addPerson(
       personForm({
@@ -210,7 +201,7 @@ describe("addPerson", () => {
 
   it("refuses an unknown language and a malformed join date", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
-    const { generateLink } = fakeAdminClient(linkOk);
+    const { createUser } = fakeAdminClient(personCreated);
 
     const changes: Record<string, string>[] = [
       { language: "fr" },
@@ -220,12 +211,12 @@ describe("addPerson", () => {
       const result = await addPerson(personForm({ ...validForm, ...change }));
       expect(result.error).not.toBeNull();
     }
-    expect(generateLink).not.toHaveBeenCalled();
+    expect(createUser).not.toHaveBeenCalled();
   });
 
   it("opens WhatsApp with the message when a mobile number is given", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
-    fakeAdminClient(linkOk);
+    fakeAdminClient(personCreated);
 
     const result = await addPerson(
       personForm({ ...validForm, mobile: "012-345 6789" }),
@@ -238,7 +229,7 @@ describe("addPerson", () => {
 
   it("has no WhatsApp shortcut without a mobile number", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
-    fakeAdminClient(linkOk);
+    fakeAdminClient(personCreated);
 
     const result = await addPerson(personForm(validForm));
 
@@ -247,14 +238,14 @@ describe("addPerson", () => {
 
   it("refuses a mobile number that is not a full Malaysian number", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
-    const { generateLink } = fakeAdminClient(linkOk);
+    const { createUser } = fakeAdminClient(personCreated);
 
     const result = await addPerson(
       personForm({ ...validForm, mobile: "12345" }),
     );
 
     expect(result.error).toMatch(/Malaysian mobile number/);
-    expect(generateLink).not.toHaveBeenCalled();
+    expect(createUser).not.toHaveBeenCalled();
   });
 
   it("explains a duplicate email in plain words", async () => {
@@ -263,85 +254,6 @@ describe("addPerson", () => {
     const result = await addPerson(personForm(validForm));
     expect(result).toEqual({
       error: "Someone with that email is already added.",
-      invite: null,
-    });
-  });
-});
-
-describe("newSignInLink", () => {
-  function fakeAdminWithUser(user: unknown, linkResult: unknown) {
-    const generateLink = vi.fn(async () => linkResult);
-    const getUserById = vi.fn(async () => user);
-    vi.mocked(createAdminClient).mockReturnValue({
-      auth: { admin: { generateLink, getUserById } },
-    } as unknown as ReturnType<typeof createAdminClient>);
-    return { generateLink };
-  }
-
-  const found = {
-    data: {
-      user: {
-        email: "mei@example.com",
-        user_metadata: { full_name: "Mei Tan" },
-      },
-    },
-    error: null,
-  };
-
-  beforeEach(() => {
-    vi.mocked(getCurrentProfile).mockReset();
-  });
-
-  it("makes a fresh recovery link for someone already added", async () => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
-    const { generateLink } = fakeAdminWithUser(found, {
-      data: {
-        properties: { hashed_token: "new123", verification_type: "recovery" },
-      },
-      error: null,
-    });
-
-    const result = await newSignInLink(OTHER_ID);
-
-    expect(generateLink).toHaveBeenCalledWith({
-      type: "recovery",
-      email: "mei@example.com",
-    });
-    expect(result.error).toBeNull();
-    expect(result.invite?.link).toBe(
-      "https://crm.example.com/set-password?token_hash=new123&type=recovery",
-    );
-    expect(result.invite?.message).toContain("Mei Tan");
-    expect(result.invite?.whatsappUrl).toBeNull();
-  });
-
-  it("refuses anyone who is not an admin", async () => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile("staff"));
-    const { generateLink } = fakeAdminWithUser(found, { data: null });
-
-    await expect(newSignInLink(OTHER_ID)).rejects.toThrow("redirect:/");
-    expect(generateLink).not.toHaveBeenCalled();
-  });
-
-  it("explains when the person cannot be found", async () => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
-    vi.spyOn(console, "error").mockImplementation(() => {});
-    fakeAdminWithUser({ data: { user: null }, error: null }, { data: null });
-
-    const result = await newSignInLink(OTHER_ID);
-
-    expect(result.invite).toBeNull();
-    expect(result.error).toBe("Could not find that person. Reload the page.");
-  });
-
-  it("says plainly when the service key is missing", async () => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
-    vi.mocked(createAdminClient).mockReturnValue(null);
-
-    const result = await newSignInLink(OTHER_ID);
-
-    expect(result).toEqual({
-      error: "Adding people works on the preview link or the live site.",
       invite: null,
     });
   });

@@ -19,7 +19,6 @@ import {
 } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { AddPersonDialog } from "./add-person-dialog";
-import { NewLinkDialog } from "./new-link-dialog";
 import { PersonSettingsDialog } from "./person-settings-dialog";
 import { RoleAccess } from "./role-access";
 import { RoleSelect } from "./role-select";
@@ -156,11 +155,6 @@ export default async function PeoplePage() {
             cell: (row) => (
               <div className="flex flex-wrap gap-2">
                 <PersonSettingsDialog person={row.settings} leads={leads} />
-                <NewLinkDialog
-                  userId={row.id}
-                  name={row.name}
-                  unavailableMessage={emails ? null : ADMIN_UNAVAILABLE_MESSAGE}
-                />
                 {me.jobRole === "md" && row.id !== me.id && (
                   <ViewAsButton userId={row.id} name={row.name} />
                 )}

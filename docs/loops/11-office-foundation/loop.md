@@ -34,8 +34,8 @@ two at a time without touching the same files. Everything account-bound is code 
 | 06 | Page registry + access matrix | done | 03 | opus/medium |
 | 07 | Shell parity | done | 02, 06 | sonnet/high |
 | 08 | Read-only View as | done | 07 | opus/medium |
-| 09 | Google sign-in | in-progress | 03 | opus/medium |
-| 10 | Storage foundation | todo | 03 | sonnet/high |
+| 09 | Google sign-in | blocked: owner — GCP sign-in for OAuth client; prod email check | 03 | opus/medium |
+| 10 | Storage foundation | in-progress | 03 | sonnet/high |
 | 11 | A4 print layout | todo | 07 | sonnet/medium |
 | 12 | i18n EN/BM/中文 | todo | 03, 07 | sonnet/high |
 | 13 | Public holidays + workdays | todo | - | sonnet/high |
@@ -82,3 +82,7 @@ two at a time without touching the same files. Everything account-bound is code 
 2026-11-14 · #08 · decision · #15 must verify one real View as round trip on the test copy (Back to MD relies on Next 16 cookie delete being visible in the same action; unverified, fails safe to sign-out)
 2026-11-14 · #08 · done · check/typecheck/test (1219) pass · next: #09
 2026-11-14 · #09 · started (opus/medium)
+2026-11-14 · #09 · decision · auth config via Management API script + manual auth-config.yml (config push would need refs in config.toml, D12); Vercel ALLOWED_EMAIL_DOMAINS set (prod gqprojects.com.my; preview/dev + example.invalid); "New link" removed
+2026-11-14 · #09 · decision · src/lib/supabase/test-copy.ts hard-codes DEV/PROD refs (pre-existing laptop guard) · decide in #15
+2026-11-14 · #09 · code committed, check/typecheck/test pass (test needs --maxWorkers=2 under load ~18) · blocked: owner — GCP "Verify it's you" in Chrome profile Agent; reading prod auth.users denied by classifier · next: #10
+2026-11-14 · #10 · started (sonnet/high)

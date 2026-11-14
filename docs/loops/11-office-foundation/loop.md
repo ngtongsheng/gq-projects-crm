@@ -40,7 +40,7 @@ two at a time without touching the same files. Everything account-bound is code 
 | 12 | i18n EN/BM/中文 | done | 03, 07 | sonnet/high |
 | 13 | Public holidays + workdays | done | - | sonnet/high |
 | 14 | Dev seed: demo people as test personas | done | 03, 04, 06 | sonnet/medium |
-| 15 | Final checks, shell parity pass, docs, merge | blocked: owner — connect laptop to test copy | 01-14 | sonnet/medium |
+| 15 | Final checks, shell parity pass, docs, merge | in-progress | 01-14 | sonnet/medium |
 ## Owner actions
 - Tell Vicky to pause her own changes until loop 11 is merged (the shell and roles change under her). Message to a
   person, so the owner sends it.
@@ -110,3 +110,6 @@ two at a time without touching the same files. Everything account-bound is code 
 2026-11-15 · #09 · owner accepted policy + created branding · OAuth client "GQP Office" (dev+prod callbacks), GOOGLE_OAUTH_CLIENT_ID/SECRET GH secrets set, Google provider enabled on test copy
 2026-11-15 · #09 · decision · consent screen stays in Testing (publish needs home page + privacy policy URL); until then only listed test users can sign in · owner action
 2026-11-15 · #09 · done · code + config done; e2e sign-in check folded into #15 with the other test-copy checks
+2026-11-15 · #15 · owner connected laptop to test copy (dev DB password reset, GH secret updated) · decision · test copy reset to loop 11 migrations (owner chose option 1); Vicky's PR #31 migrations removed from test copy, still on her branch
+2026-11-15 · #15 · fix · seed payouts exceeded payout cap (latent since loop 03); seed data fixed + example-data-seed PGlite test; seed completes on test copy
+2026-11-15 · #15 · started (sonnet/medium)

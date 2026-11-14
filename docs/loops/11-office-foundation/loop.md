@@ -40,7 +40,7 @@ two at a time without touching the same files. Everything account-bound is code 
 | 12 | i18n EN/BM/中文 | done | 03, 07 | sonnet/high |
 | 13 | Public holidays + workdays | done | - | sonnet/high |
 | 14 | Dev seed: demo people as test personas | done | 03, 04, 06 | sonnet/medium |
-| 15 | Final checks, shell parity pass, docs, merge | in-progress | 01-14 | sonnet/medium |
+| 15 | Final checks, shell parity pass, docs, merge | done | 01-14 | sonnet/medium |
 ## Owner actions
 - Tell Vicky to pause her own changes until loop 11 is merged (the shell and roles change under her). Message to a
   person, so the owner sends it.
@@ -113,3 +113,6 @@ two at a time without touching the same files. Everything account-bound is code 
 2026-11-15 · #15 · owner connected laptop to test copy (dev DB password reset, GH secret updated) · decision · test copy reset to loop 11 migrations (owner chose option 1); Vicky's PR #31 migrations removed from test copy, still on her branch
 2026-11-15 · #15 · fix · seed payouts exceeded payout cap (latent since loop 03); seed data fixed + example-data-seed PGlite test; seed completes on test copy
 2026-11-15 · #15 · started (sonnet/medium)
+2026-11-15 · #15 · fix · director dashboard crashed (team project's customer unreadable) → migration 20261115100000_team_work_shows_its_customer + test; print CSS white/flush; dev panel hidden in print
+2026-11-15 · #15 · decision · unknown Google account sees "You haven't been added yet" (Supabase refuses before callback), domain message only for existing non-domain users; test-copy.ts refs kept as safety-guard exception (decisions.md, handover-migration.md)
+2026-11-15 · #15 · done · Eddie/MD/9 roles sidebar + matrix + banner parity at 1280 (390 not done), View as round trip ok, storage round trip ok, A4 one page, check/typecheck/test (1302)/guard/build pass

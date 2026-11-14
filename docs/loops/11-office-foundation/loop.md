@@ -33,8 +33,8 @@ two at a time without touching the same files. Everything account-bound is code 
 | 05 | Team scoping: MOFs, payments, commission, reports | done | 04 | opus/medium |
 | 06 | Page registry + access matrix | done | 03 | opus/medium |
 | 07 | Shell parity | done | 02, 06 | sonnet/high |
-| 08 | Read-only View as | in-progress | 07 | opus/medium |
-| 09 | Google sign-in | todo | 03 | opus/medium |
+| 08 | Read-only View as | done | 07 | opus/medium |
+| 09 | Google sign-in | in-progress | 03 | opus/medium |
 | 10 | Storage foundation | todo | 03 | sonnet/high |
 | 11 | A4 print layout | todo | 07 | sonnet/medium |
 | 12 | i18n EN/BM/中文 | todo | 03, 07 | sonnet/high |
@@ -77,3 +77,8 @@ two at a time without touching the same files. Everything account-bound is code 
 2026-11-14 · #07 · decision · sidebar outline matched to demo for 6 roles via test + Chrome DOM; md screenshots demo vs fixture-rendered shell; signed-in screenshots for other roles deferred to #15 (test copy)
 2026-11-14 · #07 · done · check/typecheck/test (1205) pass · next: #08
 2026-11-14 · #08 · started (opus/medium)
+2026-11-14 · #08 · decision · View as = real session + viewOnlyFetch guard on server/admin Supabase clients (non-GET refused, allowlist READ_ONLY_FUNCTIONS); expired/altered cookie stays read-only and Back signs out
+2026-11-14 · #08 · decision · no per-action "View only – not saved." toast (banner states it); eye icon not emoji · #10 must allowlist storage createSignedUrl POSTs
+2026-11-14 · #08 · decision · #15 must verify one real View as round trip on the test copy (Back to MD relies on Next 16 cookie delete being visible in the same action; unverified, fails safe to sign-out)
+2026-11-14 · #08 · done · check/typecheck/test (1219) pass · next: #09
+2026-11-14 · #09 · started (opus/medium)

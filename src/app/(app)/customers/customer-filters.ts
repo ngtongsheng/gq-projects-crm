@@ -31,6 +31,15 @@ export function parseCustomerFilters(
   });
 }
 
+export type CustomersView = "companies" | "people";
+
+/** The Companies / All people toggle lives in the link, so it survives a reload. Companies is the default. */
+export function parseCustomersView(
+  params: Record<string, string | string[] | undefined>,
+): CustomersView {
+  return params.view === "people" ? "people" : "companies";
+}
+
 const digitsOf = (text: string) => text.replace(/\D/g, "");
 
 export function filterCustomers<Row extends FilterableCustomer>(

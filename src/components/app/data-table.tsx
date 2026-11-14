@@ -15,6 +15,8 @@ export type DataTableColumn<Row> = {
   cell: (row: Row) => ReactNode;
   /** Right-aligned, monospace, tabular figures. For money, quantities, dates. */
   numeric?: boolean;
+  /** Extra classes for the header and every cell, e.g. "max-sm:hidden" to drop a column on phones. */
+  className?: string;
 };
 
 type DataTableProps<Row> = {
@@ -46,6 +48,7 @@ export function DataTable<Row>({
                 className={cn(
                   "h-9 px-3.5 text-[11px] font-semibold tracking-wider whitespace-nowrap text-muted-foreground uppercase",
                   column.numeric && "text-right",
+                  column.className,
                 )}
               >
                 {column.header}
@@ -63,6 +66,7 @@ export function DataTable<Row>({
                     "px-3.5 py-2.5",
                     column.numeric &&
                       "text-right font-mono whitespace-nowrap tabular-nums",
+                    column.className,
                   )}
                 >
                   {column.cell(row)}

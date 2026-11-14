@@ -21,7 +21,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
 | 01 | Company list query + status rules | done | - | sonnet/high |
-| 02 | Companies / All people toggle + Companies table | todo | 01 | sonnet/high |
+| 02 | Companies / All people toggle + Companies table | done | 01 | sonnet/high |
 | 03 | Company sheet | todo | 02 | sonnet/high |
 | 04 | Migration: outcomes, invitees, weekly reports, deadline | todo | - | opus/medium |
 | 05 | Log outcome flow | todo | 04 | opus/medium |
@@ -40,3 +40,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 2026-11-15 · #01 · decision · pure derivation split into company-rows.ts (+test) instead of company-data.test.ts · company-data.ts imports the server Supabase client
 2026-11-15 · #01 · decision · "never visited" is its own status "No visit yet", included in the inactive filter; demo's "Assigned firms" filter dropped · D1 has no company-level owners
 2026-11-15 · #01 · done · check, typecheck, test pass (1317 tests) · next: #02
+2026-11-15 · #02 · in-progress
+2026-11-15 · #02 · decision · role/viewport parity (md, director, bd, sales; 1280 + 390px) deferred to #10 · needs sign-in as each role on the test copy, .env files not in worktree and copying them was denied; owner action listed at finish
+2026-11-15 · #02 · decision · Companies is the default view; people list moved to people-table.tsx; Salesperson filter for isManager only (not BD with team); company name is a link, not a whole-row click · DataTable has no row click
+2026-11-15 · #02 · done · check, typecheck, test pass (1318 tests) · next: #03

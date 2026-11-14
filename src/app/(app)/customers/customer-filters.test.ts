@@ -3,6 +3,7 @@ import {
   type FilterableCustomer,
   filterCustomers,
   parseCustomerFilters,
+  parseCustomersView,
 } from "./customer-filters";
 
 const MEI = "11111111-1111-4111-8111-111111111111";
@@ -58,5 +59,14 @@ describe("filterCustomers", () => {
       "Siti Aminah",
     ]);
     expect(filter({ rating: "9", account: "bogus" })).toHaveLength(2);
+  });
+});
+
+describe("parseCustomersView", () => {
+  it("shows companies unless the link asks for people", () => {
+    expect(parseCustomersView({})).toBe("companies");
+    expect(parseCustomersView({ view: "people" })).toBe("people");
+    expect(parseCustomersView({ view: "bogus" })).toBe("companies");
+    expect(parseCustomersView({ view: ["people", "x"] })).toBe("companies");
   });
 });

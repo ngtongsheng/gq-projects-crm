@@ -1,7 +1,8 @@
 # GQ Projects App
 
-Invite-only internal company app for GQ Projects, a 17-person carpet sales and installation company. It is made of
-modules (tabs in the top navigation, each with its own sidebar links). The CRM is the first module. Next.js on Vercel,
+Invite-only internal company app for GQ Projects, a 17-person carpet sales and installation company. Its name is
+"GQP Office". One sidebar menu lists the pages each person's role may open (the page registry,
+`src/lib/auth/pages.ts`); the CRM is the first area. Next.js on Vercel,
 Supabase (Postgres + Auth), shadcn/ui. Admins add people; roles are `admin` and `staff`.
 
 ## Who you work with
@@ -20,7 +21,7 @@ The `plain` style is the company-wide one; these lines are specific to this CRM.
 ## A change, start to finish
 1. **Own space.** Before the first edit, run `git rev-parse --show-toplevel` and `git branch --show-current`.
    - Already inside `.claude/worktrees/` on a change that is not live yet: a small change or fix joins this batch.
-   - Otherwise, or for a new module (a new page or area of the app) or a breaking change (existing screens or records
+   - Otherwise, or for a new area of the app (a new sidebar page or group of pages) or a breaking change (existing screens or records
      behave differently for the team): ExitWorktree with `action: "keep"` if a worktree session is active, then
      EnterWorktree with a short kebab-case name. It branches from the latest `main`; every change branch starts there,
      never from another change branch.

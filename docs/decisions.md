@@ -112,5 +112,14 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
   sidebar uses `navPagesFor`. Cost visibility is the "margin" row or the person's `sees_margin`, in TS (`canSeeMargin`)
   and SQL (`can_see_mof_cost()`). This replaces `nav-sections.ts`; the registry has no module key, so the layout puts
   every page in the one CRM module until task 07 settles the shell.
+- Shell (task 07): the top-navigation "module" tabs are gone, as in the demo; one sidebar lists the person's pages
+  (`sidebarItemsFor` in `src/lib/auth/sidebar-items.ts`): built pages, a divider, the Guide, then Sales Performance and
+  People (admins), Tasks, Tools & Forms, Leave. Icons are the demo's SVGs (`nav-icons.tsx`); HR and Claims show the
+  dashboard icon because the demo has none for them. The "Ownership requests" / "My requests" sidebar link is gone (the
+  demo has none): its count is the Dashboard badge, and deciders open the list from the dashboard's attention panel.
+- Shell deviations from the demo, on purpose: no body margin around the page (the demo shows an 8px frame, a missing
+  reset); no demo subtitle under the name; at phone width the header stays one row (the demo wraps "Signed in as" under
+  the logo) and shows the name without the title; the phone drawer is a sheet over the whole screen, header included
+  (the demo's drawer starts under the header); the theme follows the system (no toggle in the header yet).
 - Routes the demo has no page for: `/overtime` is the Claims page until Claims is built; `/guide` sits outside the
   matrix for everyone, as the demo's Guide button does; `/performance` stays the admins' page (perf is not built).

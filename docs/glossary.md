@@ -4,8 +4,8 @@ Words to use with the person, and what they mean underneath. Say the left column
 
 | Say this | It means |
 |---|---|
-| the app | the whole company app (the Next.js app): its modules, with the CRM as the first |
-| a module | a tab in the top navigation with its own sidebar links |
+| the app | the whole company app (the Next.js app), called GQP Office: the CRM is its first area |
+| a module | an area of the app, shown as one or more pages in the sidebar menu |
 | a change | one piece of work, or a batch of small ones, on its own branch from `main` in its own worktree |
 | save a draft | commit and push the branch |
 | preview | the app running on her laptop, shown in the preview pane (`pnpm dev`) |

@@ -1,6 +1,6 @@
-import { Inbox, LayoutGrid, Users } from "lucide-react";
+import { Inbox } from "lucide-react";
 import { notFound } from "next/navigation";
-import { AppShell, type NavModule } from "@/components/app/app-shell";
+import { AppShell } from "@/components/app/app-shell";
 import type { CalendarEvent } from "@/components/app/calendar-event";
 import { DataTable, type DataTableColumn } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
@@ -43,20 +43,15 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import type { SidebarItems } from "@/lib/auth/sidebar-items";
 import { monthWeeks, weekDays } from "@/lib/domain/calendar-grid";
 import { formatRm } from "@/lib/format/money";
 import { ToastDemo } from "./toast-demo";
 
-const modules: NavModule[] = [
-  {
-    key: "catalog",
-    label: "Catalog",
-    nav: [
-      { href: "/", label: "Home", icon: <LayoutGrid /> },
-      { href: "/dev/components", label: "Components", icon: <Users /> },
-    ],
-  },
-];
+const nav: SidebarItems = {
+  main: [{ key: "dash", href: "/", label: "Home" }],
+  after: [{ key: "guide", href: "/dev/components", label: "Components" }],
+};
 
 const stageTones = { Quoted: "info", Won: "good", Lost: "bad" } as const;
 
@@ -142,7 +137,7 @@ export default function ComponentCatalogPage() {
   if (process.env.VERCEL_ENV === "production") notFound();
 
   return (
-    <AppShell modules={modules}>
+    <AppShell nav={nav}>
       <PageHeader
         title="Component catalog"
         description="Every shared component with example states. Dev and preview only."

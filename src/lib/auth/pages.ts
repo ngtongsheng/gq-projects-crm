@@ -1,27 +1,3 @@
-import {
-  Banknote,
-  BookOpen,
-  Boxes,
-  Briefcase,
-  Calculator,
-  CalendarDays,
-  ClipboardList,
-  ClipboardPen,
-  FileText,
-  FolderKanban,
-  HardHat,
-  LayoutGrid,
-  ListTodo,
-  type LucideIcon,
-  Percent,
-  Plane,
-  Receipt,
-  Target,
-  TrendingUp,
-  Truck,
-  Users,
-  Wrench,
-} from "lucide-react";
 import { z } from "zod";
 import { isManager, type JobRole } from "./job-role";
 
@@ -93,7 +69,6 @@ type Page = {
   /** The sidebar name, which differs by role as in the demo's tabsDefBase. */
   label: (viewer: Viewer) => string;
   href: (viewer: Viewer) => string;
-  icon: LucideIcon;
   /** "after" pages sit below the sidebar divider. */
   group: "main" | "after";
   /** False until a later loop builds it; hidden everywhere until then. */
@@ -111,7 +86,6 @@ const PAGES: Record<PageKey, Page> = {
     matrixLabel: "Log work (site supervisor)",
     label: fixed("Log work"),
     href: fixed("/today"),
-    icon: ClipboardPen,
     group: "main",
     built: false,
   },
@@ -120,7 +94,6 @@ const PAGES: Record<PageKey, Page> = {
     matrixLabel: "HR (policies & packages)",
     label: fixed("HR"),
     href: fixed("/hr"),
-    icon: Briefcase,
     group: "main",
     built: false,
   },
@@ -129,7 +102,6 @@ const PAGES: Record<PageKey, Page> = {
     matrixLabel: "Tools & Forms",
     label: fixed("Tools & Forms"),
     href: fixed("/tools"),
-    icon: Wrench,
     group: "after",
     built: false,
   },
@@ -139,7 +111,6 @@ const PAGES: Record<PageKey, Page> = {
     label: (viewer) => (isManager(viewer.jobRole) ? "Claims" : "My claims"),
     // Overtime is part of the monthly claim in the demo; it is the only claim built so far.
     href: fixed("/overtime"),
-    icon: Receipt,
     group: "main",
     built: true,
   },
@@ -148,7 +119,6 @@ const PAGES: Record<PageKey, Page> = {
     matrixLabel: "Tasks",
     label: fixed("Tasks"),
     href: fixed("/tasks"),
-    icon: ListTodo,
     group: "after",
     built: false,
   },
@@ -157,7 +127,6 @@ const PAGES: Record<PageKey, Page> = {
     matrixLabel: "Leave",
     label: fixed("Leave"),
     href: fixed("/leave"),
-    icon: Plane,
     group: "after",
     built: false,
   },
@@ -166,7 +135,6 @@ const PAGES: Record<PageKey, Page> = {
     matrixLabel: "Dashboard",
     label: fixed("Dashboard"),
     href: fixed("/"),
-    icon: LayoutGrid,
     group: "main",
     built: true,
   },
@@ -175,7 +143,6 @@ const PAGES: Record<PageKey, Page> = {
     matrixLabel: "Sales Calendar",
     label: fixed("Sales Calendar"),
     href: fixed("/calendar"),
-    icon: CalendarDays,
     group: "main",
     built: true,
   },
@@ -189,7 +156,6 @@ const PAGES: Record<PageKey, Page> = {
           ? "Delivery & Installation"
           : "Installation",
     href: fixed("/installation"),
-    icon: Truck,
     group: "main",
     built: true,
   },
@@ -198,7 +164,6 @@ const PAGES: Record<PageKey, Page> = {
     matrixLabel: "Customers",
     label: forSite("My customers", "Customers"),
     href: fixed("/customers"),
-    icon: Users,
     group: "main",
     built: true,
   },
@@ -207,7 +172,6 @@ const PAGES: Record<PageKey, Page> = {
     matrixLabel: "Projects",
     label: forSite("My sales", "Projects"),
     href: fixed("/projects"),
-    icon: FolderKanban,
     group: "main",
     built: true,
   },
@@ -216,7 +180,6 @@ const PAGES: Record<PageKey, Page> = {
     matrixLabel: "Costing",
     label: fixed("Costing"),
     href: fixed("/costing"),
-    icon: Calculator,
     group: "main",
     built: false,
   },
@@ -228,7 +191,6 @@ const PAGES: Record<PageKey, Page> = {
         ? "MOF Register"
         : "My Sales",
     href: fixed("/mofs"),
-    icon: FileText,
     group: "main",
     built: true,
   },
@@ -238,7 +200,6 @@ const PAGES: Record<PageKey, Page> = {
     label: (viewer) =>
       viewer.jobRole === "marketing" ? "Site photos" : "Site Work",
     href: fixed("/site-work"),
-    icon: HardHat,
     group: "main",
     built: true,
   },
@@ -247,7 +208,6 @@ const PAGES: Record<PageKey, Page> = {
     matrixLabel: "Stock",
     label: fixed("Stock"),
     href: fixed("/stock"),
-    icon: Boxes,
     group: "main",
     built: true,
   },
@@ -256,7 +216,6 @@ const PAGES: Record<PageKey, Page> = {
     matrixLabel: "Collection",
     label: forSite("My collection", "Collection"),
     href: fixed("/collection"),
-    icon: Banknote,
     group: "main",
     built: true,
   },
@@ -265,7 +224,6 @@ const PAGES: Record<PageKey, Page> = {
     matrixLabel: "Commission",
     label: forSite("My commission", "Commission"),
     href: fixed("/commission"),
-    icon: Percent,
     group: "main",
     built: true,
   },
@@ -274,7 +232,6 @@ const PAGES: Record<PageKey, Page> = {
     matrixLabel: "Sales Performance",
     label: fixed("Sales Performance"),
     href: fixed("/performance"),
-    icon: TrendingUp,
     group: "after",
     // /performance is the admins' version; the per-role page is a later loop's.
     built: false,
@@ -286,7 +243,6 @@ const PAGES: Record<PageKey, Page> = {
       isManager(viewer.jobRole) ? "Team Reports" : "My Report",
     href: (viewer) =>
       isManager(viewer.jobRole) ? "/reports/team" : "/reports",
-    icon: ClipboardList,
     group: "main",
     built: true,
   },
@@ -295,7 +251,6 @@ const PAGES: Record<PageKey, Page> = {
     matrixLabel: "Site supervisor report",
     label: forSite("My Report", "Site Report"),
     href: fixed("/reports"),
-    icon: ClipboardList,
     group: "main",
     built: true,
   },
@@ -304,7 +259,6 @@ const PAGES: Record<PageKey, Page> = {
     matrixLabel: "Director Report",
     label: fixed("Director Report"),
     href: fixed("/reports/director"),
-    icon: Target,
     group: "main",
     built: true,
   },
@@ -412,7 +366,6 @@ export type NavPage = {
   key: PageKey;
   label: string;
   href: string;
-  icon: LucideIcon;
   group: Page["group"];
 };
 
@@ -442,7 +395,6 @@ export function navPagesFor(
         key,
         label: page.label(viewer),
         href: page.href(viewer),
-        icon: page.icon,
         group: page.group,
       };
     });
@@ -452,7 +404,6 @@ export function navPagesFor(
 export const GUIDE_PAGE = {
   label: "Guide",
   href: "/guide",
-  icon: BookOpen,
 } as const;
 
 /** The matrix rows in People: every page, then the margin row. */

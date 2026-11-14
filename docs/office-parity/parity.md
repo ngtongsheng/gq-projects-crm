@@ -36,7 +36,7 @@ benefits. The app's tile labels carry `data-tile-label` (`StatTile`); new app co
       }
     : {
         scope: "main",
-        nav: "[data-sidebar=menu-button] span",
+        nav: "[data-sidebar=menu-button] span:not([data-nav-badge])",
         heading: "main h1",
         tiles: "main [data-slot=card-description], main [data-tile-label]",
         filters: "main select, main input:not([type=checkbox]):not([type=hidden]), main [role=combobox]",
@@ -70,8 +70,8 @@ benefits. The app's tile labels carry `data-tile-label` (`StatTile`); new app co
 ```
 
 Notes: the demo's nav is `#tabs .nav-i .lbl`, its page heading `h1.page`, tiles `.tile .k`. The app's nav is
-shadcn's `[data-sidebar=menu-button]`. The demo has one flat nav, the app groups by module (top tabs), so compare the
-sidebar of the matching module against the demo's list; the module tabs are a known shell deviation until loop 11 task 07.
+shadcn's `[data-sidebar=menu-button]`. Both have one flat sidebar (divider and Guide included), so the two lists compare
+directly, except for pages the app has not built yet, which the app hides.
 
 ## Step 2: screenshots side by side
 For the same screen, person and width, take one screenshot of each and compare spacing, grouping, alignment, colour,

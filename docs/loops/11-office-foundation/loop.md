@@ -38,8 +38,8 @@ two at a time without touching the same files. Everything account-bound is code 
 | 10 | Storage foundation | done | 03 | sonnet/high |
 | 11 | A4 print layout | done | 07 | sonnet/medium |
 | 12 | i18n EN/BM/中文 | done | 03, 07 | sonnet/high |
-| 13 | Public holidays + workdays | in-progress | - | sonnet/high |
-| 14 | Dev seed: demo people as test personas | todo | 03, 04, 06 | sonnet/medium |
+| 13 | Public holidays + workdays | done | - | sonnet/high |
+| 14 | Dev seed: demo people as test personas | in-progress | 03, 04, 06 | sonnet/medium |
 | 15 | Final checks, shell parity pass, docs, merge | todo | 01-14 | sonnet/medium |
 ## Owner actions
 - Tell Vicky to pause her own changes until loop 11 is merged (the shell and roles change under her). Message to a
@@ -96,3 +96,6 @@ two at a time without touching the same files. Everything account-bound is code 
 2026-11-14 · #12 · decision · src/lib/i18n (t(), bm from TT, zh = inverted ZHEN); labels translated server-side in sidebarItemsFor; toggle sets cookie only (separate session cookie during View as); toggle placed on pages by later loops
 2026-11-14 · #12 · done · check/typecheck/test (1278) pass; BM site supervisor sidebar test matches demo · next: #13
 2026-11-14 · #13 · started (sonnet/high)
+2026-11-14 · #13 · decision · public_holidays seeded with demo's Christmas only (2026, 2027); md/accounts add Malaysian holidays later via Leave screen; workday fns take a required WorkCalendar; manager dashboard + Sales Performance use Mon-Fri
+2026-11-14 · #13 · done · check/typecheck/test (1297)/guard pass · next: #14
+2026-11-14 · #14 · started (sonnet/medium)

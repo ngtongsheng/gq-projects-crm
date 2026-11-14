@@ -20,7 +20,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Company list query + status rules | todo | - | sonnet/high |
+| 01 | Company list query + status rules | done | - | sonnet/high |
 | 02 | Companies / All people toggle + Companies table | todo | 01 | sonnet/high |
 | 03 | Company sheet | todo | 02 | sonnet/high |
 | 04 | Migration: outcomes, invitees, weekly reports, deadline | todo | - | opus/medium |
@@ -36,3 +36,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-15 · plan · loop written from drift-shell-sales.md after loop 11 merged · next: #01
+2026-11-15 · #01 · in-progress · worktree ../gq-projects-crm-loops/12-sales-parity, branch loop/12-sales-parity
+2026-11-15 · #01 · decision · pure derivation split into company-rows.ts (+test) instead of company-data.test.ts · company-data.ts imports the server Supabase client
+2026-11-15 · #01 · decision · "never visited" is its own status "No visit yet", included in the inactive filter; demo's "Assigned firms" filter dropped · D1 has no company-level owners
+2026-11-15 · #01 · done · check, typecheck, test pass (1317 tests) · next: #02

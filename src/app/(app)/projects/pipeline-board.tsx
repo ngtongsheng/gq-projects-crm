@@ -8,7 +8,9 @@ import type { ProjectFlags } from "@/lib/domain/project-flags";
 import { formatDate } from "@/lib/format/date";
 import { formatRm, sumRm } from "@/lib/format/money";
 import { formatQuantity } from "@/lib/format/quantity";
+import type { ProjectCostingLine } from "../costing/project-costing-data";
 import { stageTone } from "./customer-projects";
+import { ProjectCostingLines } from "./project-costing-lines";
 import { type ProjectStage, ProjectStageLabel } from "./schemas";
 import { StageSelect } from "./stage-select";
 
@@ -30,6 +32,8 @@ export type PipelineProject = {
   estCommission: number;
   flags: ProjectFlags;
   canEdit: boolean;
+  /** Empty for people without the Costing page. */
+  costing: ProjectCostingLine[];
 };
 
 function FlagBadges({ flags }: { flags: ProjectFlags }) {
@@ -86,6 +90,7 @@ function ProjectCard({ project }: { project: PipelineProject }) {
         </div>
       )}
       <StageControl project={project} />
+      <ProjectCostingLines projectId={project.id} lines={project.costing} />
     </li>
   );
 }

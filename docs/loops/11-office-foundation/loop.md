@@ -39,8 +39,8 @@ two at a time without touching the same files. Everything account-bound is code 
 | 11 | A4 print layout | done | 07 | sonnet/medium |
 | 12 | i18n EN/BM/中文 | done | 03, 07 | sonnet/high |
 | 13 | Public holidays + workdays | done | - | sonnet/high |
-| 14 | Dev seed: demo people as test personas | in-progress | 03, 04, 06 | sonnet/medium |
-| 15 | Final checks, shell parity pass, docs, merge | todo | 01-14 | sonnet/medium |
+| 14 | Dev seed: demo people as test personas | done | 03, 04, 06 | sonnet/medium |
+| 15 | Final checks, shell parity pass, docs, merge | blocked: waits on #09 owner steps + test copy connected | 01-14 | sonnet/medium |
 ## Owner actions
 - Tell Vicky to pause her own changes until loop 11 is merged (the shell and roles change under her). Message to a
   person, so the owner sends it.
@@ -99,3 +99,6 @@ two at a time without touching the same files. Everything account-bound is code 
 2026-11-14 · #13 · decision · public_holidays seeded with demo's Christmas only (2026, 2027); md/accounts add Malaysian holidays later via Leave screen; workday fns take a required WorkCalendar; manager dashboard + Sales Performance use Mon-Fri
 2026-11-14 · #13 · done · check/typecheck/test (1297)/guard pass · next: #14
 2026-11-14 · #14 · started (sonnet/medium)
+2026-11-14 · #14 · decision · 17 demo people seeded (Vernice/Vanisha → Eddie, Cavan/Crystal → Vanessa; Awal/Akmal BM); old per-role test sign-ins marked inactive; dev panel lists people, refuses non-example.invalid emails
+2026-11-14 · #14 · done · check/typecheck/test (1300) pass · seed run + "panel as Eddie" check folded into #15 (needs test copy)
+2026-11-14 · #15 · blocked · depends on #09 (owner) and every signed-in check needs the test copy on the laptop. #15 must cover: seed run, Eddie sidebar, signed-in parity screenshots (#02/#06/#07/#08), View as round trip, storage upload round trip, A4 print preview, Google sign-in e2e, test-copy.ts refs decision

@@ -26,7 +26,7 @@ export const QuoteStatus = z.enum([
 ]);
 export type QuoteStatus = z.infer<typeof QuoteStatus>;
 
-const ItemCategory = z.enum([
+export const ItemCategory = z.enum([
   "supply",
   "si",
   "install",
@@ -36,7 +36,7 @@ const ItemCategory = z.enum([
   "labour",
   "disc",
 ]);
-const ItemType = z.enum([
+export const ItemType = z.enum([
   "local",
   "import",
   "rug",
@@ -45,7 +45,7 @@ const ItemType = z.enum([
   "lump",
   "discount",
 ]);
-const ItemUnit = z.enum([
+export const ItemUnit = z.enum([
   "m2",
   "sqft",
   "pc",
@@ -56,7 +56,7 @@ const ItemUnit = z.enum([
   "day",
   "ls",
 ]);
-const RugMode = z.enum(["area", "piece"]);
+export const RugMode = z.enum(["area", "piece"]);
 const HistoryAction = z.enum([
   "created",
   "edited",
@@ -67,7 +67,7 @@ const HistoryAction = z.enum([
   "chosen",
 ]);
 
-const quoteItemRow = z.object({
+export const quoteItemRow = z.object({
   id: z.string(),
   position: z.number().int(),
   category: ItemCategory,
@@ -98,7 +98,7 @@ const quoteItemRow = z.object({
   cost: amount,
   linked_item_id: text,
 });
-type QuoteItemRow = z.infer<typeof quoteItemRow>;
+export type QuoteItemRow = z.infer<typeof quoteItemRow>;
 
 export const QuoteRow = z.object({
   id: z.string(),
@@ -142,13 +142,15 @@ export const QuoteRow = z.object({
 });
 export type QuoteRow = z.infer<typeof QuoteRow>;
 
+/** The columns of one line that quoteItemRow expects. */
+export const ITEM_SELECT = `id, position, category, type, area, product, supplier, description, remark, unit, qty, rate,
+  material, wastage_pct, underlay, accessories, install, currency, fob, fx, sst_pct, shipping, rug_mode,
+  length, width, piece_cost, edging, cost, linked_item_id`;
+
 /** The columns QuoteRow expects, as a nested Supabase select. */
 export const QUOTE_SELECT = `id, quote_no, project_id, project_name, customer_name, salesperson_id, created_at, updated_at,
   quote_revisions(id, rev, status, fx_usd, fx_rmb, sst_pct, target_margin_pct, chosen_option_id, created_at, updated_at,
-    quote_options(id, key, label,
-      quote_items(id, position, category, type, area, product, supplier, description, remark, unit, qty, rate,
-        material, wastage_pct, underlay, accessories, install, currency, fob, fx, sst_pct, shipping, rug_mode,
-        length, width, piece_cost, edging, cost, linked_item_id)),
+    quote_options(id, key, label, quote_items(${ITEM_SELECT})),
     quote_revision_history(action, note, by_id, at))`;
 
 const MarginLevel = z.enum(["low", "high"]).nullable();
@@ -296,7 +298,7 @@ export type QuoteRegisterRow =
   | z.infer<typeof RestrictedRegisterRow>;
 
 /** The line in costing.ts terms. Supply-only is the 'supply' category. */
-function costingItemOf(row: QuoteItemRow): CostingItem {
+export function costingItemOf(row: QuoteItemRow): CostingItem {
   const priced = { qty: row.qty, rate: row.rate };
   const supplied = {
     ...priced,

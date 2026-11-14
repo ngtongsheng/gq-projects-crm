@@ -15,6 +15,8 @@ Approvals page "Below min margin" (pending + recent).
 
 - Reuse `lowestMargin`/`marginLevel` from `costing.ts` (task 03 added them). History notes reach restricted viewers unfiltered: never write margin % or cost figures into a note.
 
+- Editor (task 05) leaves cost 0 on lines keyed by people without the margin flag, which would read "High margin". The owner may confirm without approval only when every non-discount line has a cost keyed AND the lowest option margin is at or above the min margin; otherwise the action routes to submit. QuoteEditor children slot beside Save is where the action bar goes.
+
 ## Files to touch
 - `src/lib/domain/quote-status.ts` (new, pure transitions) + test
 - `src/app/(app)/costing/[id]/approval-actions.ts` (new) + test, action bar component

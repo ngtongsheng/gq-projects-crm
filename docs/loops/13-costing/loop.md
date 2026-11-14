@@ -25,8 +25,8 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 | 02 | Migration: costing tables, settings, RLS | done | - | opus/medium |
 | 03 | Quote loader + margin gating | done | 01, 02 | opus/medium |
 | 04 | Register + New quote | done | 03 | sonnet/high |
-| 05 | Quote record editor | in-progress | 03 | sonnet/high |
-| 06 | Approval flow + Approvals page | todo | 05 | opus/medium |
+| 05 | Quote record editor | done | 03 | sonnet/high |
+| 06 | Approval flow + Approvals page | in-progress | 05 | opus/medium |
 | 07 | FOB Enquiry | todo | 05 | sonnet/high |
 | 08 | Client quote preview | todo | 05 | sonnet/high |
 | 09 | Project card costing lines | todo | 06 | sonnet/high |
@@ -56,3 +56,7 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 2026-11-15 · #04 · decision · per-task desktop/390px parity needs the test copy and role panel (environment step); deferred to task 12 parity pass · acceptance covers it once
 2026-11-15 · #04 · decision · register shows lowest-option margin and highest sell (register row carries only that); `-R<n>` quote no rejected, revision copy belongs to 05/06; createQuote non-transactional, editor copes (added to task 05) · demo has per-option values
 2026-11-15 · #05 · in-progress
+2026-11-15 · #05 · done · /costing/[id] editor, revision-actions + 34 tests; check/typecheck/test pass (1467)
+2026-11-15 · #05 · decision · editor is line cards with category select (not per-category tables); project/customer read-only; no unsaved-edit warning, history list, Versions panel or auto "Installation for X" text · outside goal; save/add/remove option are multi-write (debt.md row)
+2026-11-15 · #05 · decision · lines keyed without margin flag have cost 0; task 06 blocks owner self-confirm unless every non-discount line has cost keyed and lowest margin >= min · avoids bypass. Owner may later want a sales cost exception
+2026-11-15 · #06 · in-progress

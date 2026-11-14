@@ -29,7 +29,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 | 07 | Calendar views, My team filter, Plan a call | done | 05, 06 | sonnet/high |
 | 08 | Weekly outcomes + weekly reports | done | 05 | opus/medium |
 | 09 | Projects: site role scoping | done | - | opus/medium |
-| 10 | Parity pass, docs, merge | todo | 01-09 | sonnet/medium |
+| 10 | Parity pass, docs, merge | blocked: owner - parity in Chrome per role; then merge | 01-09 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - None planned. Tell Vicky one line when it is live (message to a person, so the owner sends it).
@@ -71,3 +71,6 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 2026-11-15 · #09 · in-progress
 2026-11-15 · #09 · decision · migration 20261115120000 takes site out of "projects: read all" (alter policy); Person filter lists people on visible projects; site with sells still cannot create or edit projects (demo gives full sales use; needs add/edit rule change, not planned) · task scope
 2026-11-15 · #09 · done · check, typecheck, guard:migrations, test pass (1405 tests) · next: #10
+2026-11-15 · #10 · in-progress · step 1 (parity) cannot run without env files and a sign-in on the test copy; steps 2-3 (docs, merge with main) proceed, merge waits for owner
+2026-11-15 · #10 · done in part · docs updated (features, decisions, drift-shell-sales, roadmap 2A, debt); check, typecheck, test (1405), guard:migrations pass; D5 re-checked, main has no newer migration
+2026-11-15 · #10 · blocked: owner · parity per docs/office-parity/parity.md needs .env.local + .env.development in the worktree (copy denied by the permission system) and a sign-in per role on the test copy; merge held so unseen UI and two migrations do not reach the live app · next: owner copies env, re-run /execute-loop docs/loops/12-sales-parity

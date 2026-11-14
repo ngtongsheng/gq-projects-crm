@@ -1,5 +1,16 @@
 # Drift: shell, roles, dashboard, customers, calendar
 
+Status (2026-11-15): shell and roles done in loop 11. Customers/Companies, Sales Calendar and Projects site scoping
+done in loop 12 (branch `loop/12-sales-parity`, merge pending). Decisions: `docs/decisions.md` "Loop 12".
+Deferred, not built:
+- Dashboard banners (invitations, outcomes not logged, today's calls), the Sales Calendar nav badge and the on-leave
+  strip: Integration loop (D2).
+- Excel and Copy list buttons on the Monthly list and Weekly outcomes; re-invite and changing an invitation answer
+  after creation; salesperson assignment fields and Remove on the company sheet.
+- A site person who sells creating or editing projects.
+- Parity screenshots per `parity.md` for Customers, company sheet, Calendar (3 tabs) and Projects: pending (needs a
+  sign-in on the test copy per role).
+
 Spec: `docs/mockup/gqp-office-demo.html` (the "demo"). Analysed 2026-11-14 against the app at `a8ddcaa`.
 Line numbers refer to the demo file.
 
@@ -44,7 +55,7 @@ Line numbers refer to the demo file.
 - Manager views scoped by team. Accounts may approve overtime.
 - Most banners depend on later modules; build the banner slots with the module that feeds them.
 
-## Customers / Companies (`/customers`)
+## Customers / Companies (`/customers`) (done in loop 12; see status above)
 - Drift major (pre-existing: the old demo had it too). The demo has a Companies / All people toggle. Companies table:
   Company, Type (+ rating, account), Salespeople, People, Last visit, Status (Active / Quiet / No visit Nd). A row opens a
   company sheet: people, visits, Edit company, Add person, Log visit. Filters: search, salesperson, type, status.
@@ -52,7 +63,7 @@ Line numbers refer to the demo file.
 - Visibility team-scoped (`tmC`). Up to 2 owners per company; only owners add people. "Request a customer" for sales/bd
   (ours: `/customers/ownership`).
 
-## Sales Calendar (`/calendar`)
+## Sales Calendar (`/calendar`) (done in loop 12 except the deferred items above)
 - Drift major. Views: Week, Monthly list, Weekly outcomes (ours: Month / Week).
 - New: appointment invitations (`inv[]` Pending/Accepted/Declined, dashed-yellow events, "+ Eddie ?" tags, badge);
   "Plan a call" + today's-calls banner; on-leave strip per day; "Log outcome" flag; outcome requires result,

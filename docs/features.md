@@ -58,7 +58,18 @@ Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Purchasing.
 ![Team dashboard with attention list, monthly figures and a per-salesperson table](screenshots/dashboard.jpg)
 
 ## Sales Calendar
-Visits, calls and follow-ups by month or week, filterable by person. Add an entry from any day.
+Three tabs: Week, Monthly list and Weekly outcomes. Add a visit or follow-up from any day, or **Plan a call**.
+Managers get a **Who** filter ("My team" or one person).
+
+Each visit ends with **Log outcome**: the result, what was learned (15 characters or more), an optional project lead
+and a next step with a follow-up date. Logging after the visit is recorded as late. A visit still planned after its
+start time shows as needing an outcome.
+
+A visit can invite colleagues. They get a pending invitation and answer Accept or Decline; the creator sees the answers.
+
+Weekly outcomes shows one week per salesperson: visits done, logged, not logged and late, results, new leads and the
+weekly report status. Salespeople submit their weekly report there (due Friday 18:00, blocked while outcomes are
+unlogged); the MD, Sales Director or team lead marks it reviewed.
 
 Used by: MD, Sales Director, BD Director, Sales, HR & Accounts.
 
@@ -74,8 +85,13 @@ Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Site Supervisor,
 ![Installation calendar with scheduled jobs and the Book a site supervisor and Schedule job buttons](screenshots/installation.jpg)
 
 ## Customers
-Every customer with company, mobile, owner, rating, account type and activity. Search and filter, add a
-customer, paste rows from a sheet or download a CSV. The mobile number decides who owns a customer.
+Two views. **Companies** (the default) lists each company with type, salespeople, people, last visit and status
+(Active, Quiet, or No visit yet). Filter by search, salesperson, type and status. **All people** is every customer with
+company, mobile, owner, rating, account type and activity. Search and filter, add a customer, paste rows from a sheet or
+download a CSV. The mobile number decides who owns a customer.
+
+Click a company to open its sheet: its people, visits, **Edit company**, **Add person** and **Log visit**. A company's
+salespeople are the owners of its people; only they (or the MD or Sales Director) add people to it.
 
 Used by: MD, Sales Director, BD Director, Sales, HR & Accounts.
 
@@ -99,7 +115,8 @@ Used by: MD, Sales Director, BD Director, Sales, HR & Accounts.
 
 ## Projects
 Every deal by stage from lead to job, as a board or a list, with value, area, estimated commission and the
-next action date. Overdue next actions are flagged and a project's stage changes from its card.
+next action date. Overdue next actions are flagged and a project's stage changes from its card. A Site
+Supervisor sees only the projects they are on, with a Person filter over the people on those projects.
 
 Used by: MD, Sales Director, BD Director, Sales, HR & Accounts.
 

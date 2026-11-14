@@ -18,7 +18,7 @@ they fit. Drift found on 2026-11-14 is in the four `drift-*.md` files here; `par
 | Step | Loop | Scope | Drift doc | Needs |
 |---|---|---|---|---|
 | 1 (done) | 11 Office foundation | Shell, roles, teams, access matrix, View as, Google sign-in, storage, print layout, i18n, public holidays, seed | all | - |
-| 2A | Sales | Companies view, customer sheet, Sales Calendar (invites, calls, outcomes, weekly outcomes and reports), Projects deltas | shell-sales | 11 |
+| 2A (built, parity and merge pending) | Sales | Companies view, customer sheet, Sales Calendar (invites, calls, outcomes, weekly outcomes and reports), Projects deltas | shell-sales | 11 |
 | 2B | Costing | Whole Costing module + project card link | new-modules | 11 |
 | 3A | MOF & money | Variation orders, MOF change history, commission 180-day cut and appeals, performance, reports two-step review + print, site report | money-reports | 2A |
 | 3B | People & HR | Tasks, Leave, HR, Tools & Forms, People leftovers (targets, handover, sales teams) | new-modules | 2B |

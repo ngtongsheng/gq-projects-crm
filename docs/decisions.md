@@ -150,3 +150,38 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
   - Parity deviations left for the page loops (this loop is the shell only): the Dashboard content differs from the demo
     (tile set, "Sales activity" / "MOF & projects" tabs, columns); Costing, Tasks, Tools & Forms, Leave, HR and Log work
     are not built so they are hidden; Sales Performance shows for admins only.
+
+## Loop 12 (sales parity), decided 2026-11-15
+- Company salespeople (D1): derived from the owners of the company's people (`contact_owners`); the demo's 2-owner limit
+  is shown (first two), not enforced. "Only owners add people" checks that list. Salesperson assignment fields and
+  Remove are not built (Remove loses data). Company sheet add-person is also open to the MD, Sales Director, and anyone
+  when the company has no owned people (otherwise nobody could add the first). Header "Add customer" now refuses a
+  non-owner adding to an existing company. Saving a company is MD and Sales Director only, as the database allows.
+- Visits before go-live (D3): the migration sets `logged_at` on existing completed activities, so only later visits can
+  be "not logged" or "late". Existing outcome text stays as learnings.
+- Weekly report deadline (D6): `app_settings` row `weekly_report_due` = `{weekday:5,time:"18:00"}`; its editing screen
+  comes with Tools & Forms. Only sales and bd file weekly reports.
+- Outcomes: a trigger stamps `logged_at` and `late_logged`, so the client cannot write them. A lead is stored as
+  `activities.lead_project_id` and copies `saveProject`'s schema and permission rule; lead source is fixed to cold call.
+  A next step needs a follow-up date, owned by the person logging. "Needs outcome" means planned and start time passed.
+  The three writes are not one transaction (see `debt.md`).
+- Companies view: "No visit yet" is its own status, included in the inactive filter; the demo's "Assigned firms" filter is
+  dropped (no company-level owners). Companies is the default view; the Salesperson filter is for managers only (not BD
+  with a team); the company name is the link, not the whole row (DataTable has no row click). Pure derivation lives in
+  `company-rows.ts`.
+- Invitations: the invite list is every colleague except the creator (the demo limits it to MD, directors, BD and sales;
+  `team_directory` has no job roles). Invitations go out only when an activity is created; no re-invite or change of
+  answer later (no activity detail view). The picker is hidden for calls.
+- Calendar: Monthly list replaces the sales Month grid (old `?view=month` opens the list). Week keeps one row per day,
+  not the demo's 7-column grid (phone). Plan a call is a `?call=<date>` dialog. A Marketing Director with a team gets no
+  Who filter. Excel and Copy list buttons are not built.
+- Weekly outcomes: rows come from `my_team()` or the picked person; MD and Accounts see `report_filers()` plus anyone
+  with a visit or report that week. On a Monday the default week is the week just ended (the demo's Sunday logic is
+  buggy). Submit is blocked while outcomes are unlogged, enforced in the action, not the database.
+  `weekly_report_due_at` is in `READ_ONLY_FUNCTIONS` so View as keeps working.
+- Projects: migration `20261115120000` takes site out of "projects: read all". A site person who sells still cannot
+  create or edit projects (the demo gives them full sales use; needs an add/edit rule change, not planned).
+- Dashboard banners, the Sales Calendar nav badge and the on-leave strip go to the Integration loop (D2). Sales screens
+  stay English only (D4).
+- Migrations (D5): ours are `20261115110000` and `20261115120000`; rename to fresh timestamps at merge if `main` has a
+  newer one.

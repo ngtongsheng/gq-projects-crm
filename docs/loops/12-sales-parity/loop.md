@@ -74,3 +74,4 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 2026-11-15 · #10 · in-progress · step 1 (parity) cannot run without env files and a sign-in on the test copy; steps 2-3 (docs, merge with main) proceed, merge waits for owner
 2026-11-15 · #10 · done in part · docs updated (features, decisions, drift-shell-sales, roadmap 2A, debt); check, typecheck, test (1405), guard:migrations pass; D5 re-checked, main has no newer migration
 2026-11-15 · #10 · blocked: owner · parity per docs/office-parity/parity.md needs .env.local + .env.development in the worktree (copy denied by the permission system) and a sign-in per role on the test copy; merge held so unseen UI and two migrations do not reach the live app · next: owner copies env, re-run /execute-loop docs/loops/12-sales-parity
+2026-11-15 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-15-loop-12-sales-parity.md

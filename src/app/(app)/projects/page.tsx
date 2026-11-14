@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { canOpen } from "@/lib/auth/page-access";
 import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { estimatedCommission } from "@/lib/domain/commission";
@@ -17,6 +18,10 @@ import { projectFlags } from "@/lib/domain/project-flags";
 import { todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
 import { loadCommissionSettings } from "../commission/commission-settings-data";
+import {
+  loadProjectCosting,
+  type ProjectCostingLine,
+} from "../costing/project-costing-data";
 import { AccountType } from "../customers/schemas";
 import {
   PipelineBoard,
@@ -78,43 +83,52 @@ export default async function ProjectsPage({
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
 
   const today = todayMyt();
-  const all: PipelineProject[] = projectRows
-    .parse(projectsResult.data)
-    .map((row) => ({
-      id: row.id,
-      name: row.name,
-      contactId: row.contact_id,
-      customerName: row.contacts.name,
-      companyName: row.contacts.companies.name,
-      stage: row.stage,
-      qtySqft: row.qty_sqft,
-      value: row.value,
-      picId: row.pic_id,
-      supportId: row.support_id,
-      picName: nameOf.get(row.pic_id) ?? "Unnamed",
-      supportName: row.support_id
-        ? (nameOf.get(row.support_id) ?? "Unnamed")
-        : null,
-      nextAction: row.next_action,
-      nextActionDate: row.next_action_date,
-      estCommission: estimatedCommission(
-        row.value,
-        row.commission_type,
-        commissionSettings,
-      ),
-      flags: projectFlags(
-        {
-          open: OPEN_STAGES.includes(row.stage),
-          nextActionDate: row.next_action_date,
-          updatedAt: row.updated_at,
-        },
-        today,
-      ),
-      canEdit: canEditProject(
-        me.jobRole,
-        row.pic_id === me.id || row.support_id === me.id,
-      ),
-    }));
+  const rows = projectRows.parse(projectsResult.data);
+  const canEditRow = (row: (typeof rows)[number]) =>
+    canEditProject(
+      me.jobRole,
+      row.pic_id === me.id || row.support_id === me.id,
+    );
+  // Costing lines are for people with the Costing page; the quote loader applies the margin flag.
+  const costing: Map<string, ProjectCostingLine[]> = (await canOpen(me, "cost"))
+    ? await loadProjectCosting(
+        me,
+        rows.map((row) => ({ id: row.id, canEdit: canEditRow(row) })),
+      )
+    : new Map();
+  const all: PipelineProject[] = rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    contactId: row.contact_id,
+    customerName: row.contacts.name,
+    companyName: row.contacts.companies.name,
+    stage: row.stage,
+    qtySqft: row.qty_sqft,
+    value: row.value,
+    picId: row.pic_id,
+    supportId: row.support_id,
+    picName: nameOf.get(row.pic_id) ?? "Unnamed",
+    supportName: row.support_id
+      ? (nameOf.get(row.support_id) ?? "Unnamed")
+      : null,
+    nextAction: row.next_action,
+    nextActionDate: row.next_action_date,
+    estCommission: estimatedCommission(
+      row.value,
+      row.commission_type,
+      commissionSettings,
+    ),
+    flags: projectFlags(
+      {
+        open: OPEN_STAGES.includes(row.stage),
+        nextActionDate: row.next_action_date,
+        updatedAt: row.updated_at,
+      },
+      today,
+    ),
+    canEdit: canEditRow(row),
+    costing: costing.get(row.id) ?? [],
+  }));
   const projects = filterByPerson(all, filters.person);
   const empty = pipelineEmpty(filters.person !== undefined);
 

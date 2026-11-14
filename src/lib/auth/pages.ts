@@ -181,7 +181,7 @@ const PAGES: Record<PageKey, Page> = {
     label: fixed("Costing"),
     href: fixed("/costing"),
     group: "main",
-    built: false,
+    built: true,
   },
   mof: {
     key: "mof",

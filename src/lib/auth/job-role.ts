@@ -59,6 +59,22 @@ export const isManager = (jobRole: JobRole) =>
 /** HR & Accounts sees everything but changes only payments and commission. */
 export const isReadOnly = (jobRole: JobRole) => jobRole === "accounts";
 
+/** Starts a costing of their own (SQL: the "quotes: sellers add their own" policy). */
+export const canStartQuote = (jobRole: JobRole) =>
+  has(jobRole, ["md", "director", "bd", "sales"]);
+
+/** Approves or returns a costing below the minimum margin (SQL: guard_quote_revision_write). */
+export const canApproveQuote = (jobRole: JobRole) =>
+  has(jobRole, ["md", "director"]);
+
+/** Works every FOB enquiry and gives the supplier's reply (SQL: public.works_fob_enquiries()). */
+export const canWorkEnquiries = (jobRole: JobRole) =>
+  has(jobRole, ["md", "director", "support", "accounts"]);
+
+/** Raises and edits their own FOB enquiries (SQL: the policies on fob_enquiries). */
+export const canRaiseEnquiry = (jobRole: JobRole) =>
+  has(jobRole, ["bd", "sales"]);
+
 export const canEditRegister = (jobRole: JobRole) =>
   has(jobRole, ["md", "support", "accounts"]);
 

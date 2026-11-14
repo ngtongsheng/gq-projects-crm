@@ -65,7 +65,7 @@ describe("requirePage", () => {
 
   it("404s a page that is not built yet", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(signedInAs("md"));
-    await expect(requirePage("cost")).rejects.toThrow("not-found");
+    await expect(requirePage("leave")).rejects.toThrow("not-found");
   });
 
   it("sends a signed-out visitor to sign in", async () => {

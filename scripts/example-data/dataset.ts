@@ -10,6 +10,7 @@ import {
   buildMoney,
   buildSupplierPos,
 } from "./orders.ts";
+import { buildQuotes } from "./quotes.ts";
 import { buildMonthlyReports } from "./reports.ts";
 import {
   buildJobs,
@@ -47,6 +48,7 @@ export function buildExampleData(context: BuildContext): ExampleData {
       ...buildStock(context),
       ...buildMoney(context),
       buildMonthlyReports(context),
+      ...buildQuotes(context),
     ],
     deliveriesToFinish: jobs.deliveriesToFinish,
   };

@@ -116,3 +116,4 @@ two at a time without touching the same files. Everything account-bound is code 
 2026-11-15 · #15 · fix · director dashboard crashed (team project's customer unreadable) → migration 20261115100000_team_work_shows_its_customer + test; print CSS white/flush; dev panel hidden in print
 2026-11-15 · #15 · decision · unknown Google account sees "You haven't been added yet" (Supabase refuses before callback), domain message only for existing non-domain users; test-copy.ts refs kept as safety-guard exception (decisions.md, handover-migration.md)
 2026-11-15 · #15 · done · Eddie/MD/9 roles sidebar + matrix + banner parity at 1280 (390 not done), View as round trip ok, storage round trip ok, A4 one page, check/typecheck/test (1302)/guard/build pass
+2026-11-15 · merged to main (PR #42)

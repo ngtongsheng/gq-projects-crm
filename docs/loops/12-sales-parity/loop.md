@@ -23,7 +23,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 | 01 | Company list query + status rules | done | - | sonnet/high |
 | 02 | Companies / All people toggle + Companies table | done | 01 | sonnet/high |
 | 03 | Company sheet | done | 02 | sonnet/high |
-| 04 | Migration: outcomes, invitees, weekly reports, deadline | todo | - | opus/medium |
+| 04 | Migration: outcomes, invitees, weekly reports, deadline | done | - | opus/medium |
 | 05 | Log outcome flow | todo | 04 | opus/medium |
 | 06 | Appointment invitations | todo | 04 | sonnet/high |
 | 07 | Calendar views, My team filter, Plan a call | todo | 05, 06 | sonnet/high |
@@ -48,3 +48,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 2026-11-15 · #03 · decision · added saveCompany (MD / Sales Director only, as the database allows); company-sheet add-person allowed for owners of the company's people, MD, Sales Director, or anyone when the company has no owned people · D1 derived owners, no way to add the first person otherwise
 2026-11-15 · #03 · decision · salesperson-assignment fields and Remove not built; header "Add customer" now also refuses non-owner adding to an existing company (visible behaviour change) · D1, Remove is data loss
 2026-11-15 · #03 · done · check, typecheck, test pass (1327 tests); sheet UI not seen in a browser, parity in #10 · next: #04
+2026-11-15 · #04 · in-progress
+2026-11-15 · #04 · decision · migration timestamp 20261115110000 (after main's newest) · D5
+2026-11-15 · #04 · decision · DB trigger stamps logged_at / late_logged (client cannot write); lead stored as activities.lead_project_id; existing outcome text stays as learnings; deadline row weekly_report_due = {weekday:5,time:"18:00"}; only sales and bd file weekly reports · demo rules
+2026-11-15 · #04 · done · check, typecheck, guard:migrations, test pass (1338 tests, 11 new RLS tests) · next: #05

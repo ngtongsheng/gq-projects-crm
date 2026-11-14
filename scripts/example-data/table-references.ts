@@ -9,6 +9,7 @@ export const EXAMPLE_REFERENCES: Record<string, Record<string, string>> = {
   contact_owners: { contact_id: "contacts" },
   ownership_requests: { contact_id: "contacts" },
   activities: { contact_id: "contacts" },
+  activity_invitees: { activity_id: "activities" },
   projects: { contact_id: "contacts" },
   mofs: { project_id: "projects" },
   mof_lines: { mof_id: "mofs" },

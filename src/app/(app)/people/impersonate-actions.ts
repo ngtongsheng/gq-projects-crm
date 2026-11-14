@@ -4,7 +4,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import {
   IMPERSONATION_COOKIE,
-  IMPERSONATION_MAX_AGE_SECONDS,
+  IMPERSONATION_COOKIE_MAX_AGE_SECONDS,
+  isViewingAs,
   readImpersonation,
   signImpersonation,
 } from "@/lib/auth/impersonation";
@@ -16,22 +17,23 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { newLinkSchema } from "./schemas";
 
-export type SignInAsResult = { error: string | null };
+export type ViewAsResult = { error: string | null };
 
 const TRY_AGAIN = "Could not switch. Try again in a moment.";
 
 /**
- * Signs the MD in as another person, so they see and do exactly what that person can. Every
- * switch is written to impersonation_log. Only the MD, who is also an admin, may.
+ * Opens the app as another person, so the MD sees exactly what they see. Nothing can be saved
+ * until the MD switches back (src/lib/supabase/view-only-fetch.ts). Every view is written to
+ * impersonation_log. Only the MD, who is also an admin, may.
  */
-export async function signInAs(userId: string): Promise<SignInAsResult> {
+export async function viewAs(userId: string): Promise<ViewAsResult> {
   const me = await requireRole("admin");
   if (me.jobRole !== "md") redirect("/");
 
   const parsed = newLinkSchema.safeParse({ userId });
   if (!parsed.success) return { error: "Could not find that person." };
   if (parsed.data.userId === me.id) {
-    return { error: "You are already signed in as yourself." };
+    return { error: "This is already what you see." };
   }
 
   const admin = createAdminClient();
@@ -42,11 +44,11 @@ export async function signInAs(userId: string): Promise<SignInAsResult> {
   );
   const email = found?.user?.email;
   if (findError || !email) {
-    console.error("Could not find the person to sign in as", findError);
+    console.error("Could not find the person to view as", findError);
     return { error: "Could not find that person." };
   }
 
-  // The record first: no switch without a trace.
+  // The record first: no view without a trace.
   const { data: logged, error: logError } = await admin
     .from("impersonation_log")
     .insert({ admin_id: me.id, target_id: parsed.data.userId })
@@ -62,7 +64,7 @@ export async function signInAs(userId: string): Promise<SignInAsResult> {
     email,
   });
   if (linkError) {
-    console.error("Could not make the sign-in as link", linkError);
+    console.error("Could not make the view as link", linkError);
     await admin.from("impersonation_log").delete().eq("id", logged.id);
     return { error: TRY_AGAIN };
   }
@@ -73,7 +75,7 @@ export async function signInAs(userId: string): Promise<SignInAsResult> {
     type: "magiclink",
   });
   if (verifyError) {
-    console.error("Could not sign in as the person", verifyError);
+    console.error("Could not open the view as the person", verifyError);
     await admin.from("impersonation_log").delete().eq("id", logged.id);
     return { error: TRY_AGAIN };
   }
@@ -82,7 +84,12 @@ export async function signInAs(userId: string): Promise<SignInAsResult> {
   (await cookies()).set(
     IMPERSONATION_COOKIE,
     signImpersonation(
-      { adminId: me.id, targetId: parsed.data.userId, logId: logged.id },
+      {
+        adminId: me.id,
+        adminName: me.fullName ?? "",
+        targetId: parsed.data.userId,
+        logId: logged.id,
+      },
       secret,
     ),
     {
@@ -90,28 +97,30 @@ export async function signInAs(userId: string): Promise<SignInAsResult> {
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
       path: "/",
-      maxAge: IMPERSONATION_MAX_AGE_SECONDS,
+      maxAge: IMPERSONATION_COOKIE_MAX_AGE_SECONDS,
     },
   );
   redirect("/");
 }
 
-/** Switches back from the person the MD signed in as to the MD's own account. */
-export async function backToMyAccount(): Promise<void> {
+/** Ends View as and switches back to the MD's own account. */
+export async function endViewAs(): Promise<void> {
+  const viewing = await isViewingAs();
   const impersonation = await readImpersonation();
   const store = await cookies();
+  // From here on the switch back may save (sign-in link, closing the record).
+  store.delete(IMPERSONATION_COOKIE);
+  const supabase = await createClient();
+  if (!viewing) redirect("/");
   if (!impersonation) {
-    store.delete(IMPERSONATION_COOKIE);
-    redirect("/");
+    // An expired or altered cookie: the session may still be the other person's, so end it.
+    await supabase.auth.signOut();
+    redirect("/sign-in");
   }
 
-  const supabase = await createClient();
   const { data: auth } = await supabase.auth.getClaims();
   // The cookie only counts for the person it names; anyone else just loses it.
-  if (auth?.claims.sub !== impersonation.targetId) {
-    store.delete(IMPERSONATION_COOKIE);
-    redirect("/");
-  }
+  if (auth?.claims.sub !== impersonation.targetId) redirect("/");
 
   const admin = createAdminClient();
   const { data: found } = admin
@@ -120,7 +129,6 @@ export async function backToMyAccount(): Promise<void> {
   const email = found?.user?.email;
   if (!admin || !email) {
     console.error("Could not find the MD's account to switch back to");
-    store.delete(IMPERSONATION_COOKIE);
     await supabase.auth.signOut();
     redirect("/sign-in");
   }
@@ -135,7 +143,6 @@ export async function backToMyAccount(): Promise<void> {
         token_hash: link.properties.hashed_token,
         type: "magiclink",
       });
-  store.delete(IMPERSONATION_COOKIE);
   if (verifyError) {
     console.error("Could not switch back", verifyError);
     await supabase.auth.signOut();

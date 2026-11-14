@@ -73,7 +73,7 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
 - Permissions: narrow allow rules for her push and pull-request commands (`git push -u origin HEAD`,
   `git push origin HEAD:*`, `gh pr create/merge/edit`); denies for `main`, force and `--admin` still win. Auto mode
   ignores a broad `git *` allow and a classifier may still refuse a push, hence the refused-push path.
-- Roles (D7): live app uses "Sign in as" (MD); her laptop uses the floating panel at the bottom of the page on the test copy (the sign-in skill was retired, loop 10 D9).
+- Roles (D7): live app uses "View as" (MD, read-only since loop 11); her laptop uses the floating panel at the bottom of the page on the test copy (the sign-in skill was retired, loop 10 D9).
 - Pending PRs (D8): 21, 23, 25 approved by the owner (company rating, MOF cost to Purchasing, MD "Sign in as") and
   consolidated onto `main`. PR 31 was left open as a draft: its 5 migrations have no screens and one rewrites a live
   function. The test copy's migration history is out of step with `main` until PR 31 is decided (`docs/debt.md`).
@@ -123,3 +123,11 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
   (the demo's drawer starts under the header); the theme follows the system (no toggle in the header yet).
 - Routes the demo has no page for: `/overtime` is the Claims page until Claims is built; `/guide` sits outside the
   matrix for everyone, as the demo's Guide button does; `/performance` stays the admins' page (perf is not built).
+- View as (task 08, D1): "Sign in as" is now the demo's read-only "View as". The MD still switches to the person's own
+  session (so reads are exactly theirs), and every server Supabase call passes `viewOnlyFetch`
+  (`src/lib/supabase/view-only-fetch.ts`): while the `gq_impersonation` cookie is there, anything but a read is refused
+  before it leaves the server, for the server and admin clients alike. supabase-js calls every database function with
+  POST, so read-only functions a page calls must be listed in `READ_ONLY_FUNCTIONS`; storage sign-URL calls (task 10)
+  are POST too and need the same. Any cookie counts, even an expired or altered one, and the cookie outlives its 8-hour
+  view, so a lapsed view stays read-only until "Back to ..." (which then signs out). Actions show their own failure
+  text, not the demo's "View only – not saved." toast; the banner says nothing is saved.

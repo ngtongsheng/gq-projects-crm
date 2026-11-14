@@ -36,6 +36,9 @@ export async function devSignIn(jobRole: unknown): Promise<DevSignInResult> {
   const parsed = JobRole.safeParse(jobRole);
   if (!parsed.success) return { error: "That job role does not exist." };
 
+  // A leftover View as would point at someone else and refuse the sign-in link below.
+  (await cookies()).delete(IMPERSONATION_COOKIE);
+
   const admin = createAdminClient();
   if (!admin) return { error: ADMIN_UNAVAILABLE_MESSAGE };
 
@@ -60,9 +63,6 @@ export async function devSignIn(jobRole: unknown): Promise<DevSignInResult> {
     console.error("Could not make the dev sign-in link", linkError);
     return { error: TRY_AGAIN };
   }
-
-  // A leftover "Sign in as" would point at someone else.
-  (await cookies()).delete(IMPERSONATION_COOKIE);
 
   const supabase = await createClient();
   const { error: verifyError } = await supabase.auth.verifyOtp({

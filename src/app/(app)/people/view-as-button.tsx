@@ -1,13 +1,13 @@
 "use client";
 
-import { LogIn } from "lucide-react";
+import { Eye } from "lucide-react";
 import { useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { signInAs } from "./impersonate-actions";
+import { viewAs } from "./impersonate-actions";
 
-/** For the MD only: opens the CRM exactly as this person sees it. */
-export function SignInAsButton({
+/** For the MD only: opens the app exactly as this person sees it, without saving anything. */
+export function ViewAsButton({
   userId,
   name,
 }: {
@@ -18,7 +18,7 @@ export function SignInAsButton({
 
   function go() {
     startTransition(async () => {
-      const result = await signInAs(userId);
+      const result = await viewAs(userId);
       if (result.error) toast.error(result.error);
     });
   }
@@ -29,10 +29,11 @@ export function SignInAsButton({
       variant="outline"
       onClick={go}
       disabled={pending}
-      aria-label={`Sign in as ${name ?? "this person"}`}
+      title={`See exactly what ${name ?? "this person"} sees`}
+      aria-label={`View as ${name ?? "this person"}`}
     >
-      <LogIn data-icon="inline-start" />
-      {pending ? "Switching..." : "Sign in as"}
+      <Eye data-icon="inline-start" />
+      {pending ? "Opening..." : "View as"}
     </Button>
   );
 }

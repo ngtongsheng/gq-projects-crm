@@ -9,6 +9,7 @@ const SECRET = "server-secret";
 const NOW = Date.UTC(2026, 10, 5, 9, 0, 0);
 const value: Impersonation = {
   adminId: "11111111-1111-4111-8111-111111111111",
+  adminName: "Vicky",
   targetId: "22222222-2222-4222-8222-222222222222",
   logId: "33333333-3333-4333-8333-333333333333",
 };

@@ -24,7 +24,7 @@ import { PersonSettingsDialog } from "./person-settings-dialog";
 import { RoleAccess } from "./role-access";
 import { RoleSelect } from "./role-select";
 import { Language, roleSchema } from "./schemas";
-import { SignInAsButton } from "./sign-in-as-button";
+import { ViewAsButton } from "./view-as-button";
 
 export const metadata: Metadata = { title: "People" };
 
@@ -162,7 +162,7 @@ export default async function PeoplePage() {
                   unavailableMessage={emails ? null : ADMIN_UNAVAILABLE_MESSAGE}
                 />
                 {me.jobRole === "md" && row.id !== me.id && (
-                  <SignInAsButton userId={row.id} name={row.name} />
+                  <ViewAsButton userId={row.id} name={row.name} />
                 )}
               </div>
             ),

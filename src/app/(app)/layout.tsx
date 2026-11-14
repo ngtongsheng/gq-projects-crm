@@ -1,8 +1,8 @@
 import { AppShell } from "@/components/app/app-shell";
-import { ImpersonationBar } from "@/components/app/impersonation-bar";
+import { ViewAsBanner } from "@/components/app/view-as-banner";
 import { Button } from "@/components/ui/button";
 import { loadAccessOverrides } from "@/lib/auth/access-overrides";
-import { readImpersonation } from "@/lib/auth/impersonation";
+import { isViewingAs, readImpersonation } from "@/lib/auth/impersonation";
 import { JobRoleLabel } from "@/lib/auth/job-role";
 import { requireRole } from "@/lib/auth/require-role";
 import { sidebarItemsFor } from "@/lib/auth/sidebar-items";
@@ -26,33 +26,37 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
     badges: { dash: pendingRequests },
   });
 
-  const impersonation = await readImpersonation();
-  const impersonating = impersonation?.targetId === profile.id;
+  const viewing = await isViewingAs();
+  const impersonation = viewing ? await readImpersonation() : null;
 
   return (
-    <>
-      {impersonating && <ImpersonationBar name={profile.fullName} />}
-      <AppShell
-        nav={nav}
-        user={{
-          name: profile.fullName ?? "Signed in",
-          title: JobRoleLabel[profile.jobRole],
-        }}
-        headerActions={
-          <form action={signOut}>
-            <Button
-              type="submit"
-              variant="ghost"
-              size="sm"
-              className="text-head-muted hover:bg-head-foreground/10 hover:text-head-foreground"
-            >
-              Sign out
-            </Button>
-          </form>
-        }
-      >
-        {children}
-      </AppShell>
-    </>
+    <AppShell
+      nav={nav}
+      user={{
+        name: profile.fullName ?? "Signed in",
+        title: JobRoleLabel[profile.jobRole],
+      }}
+      headerActions={
+        <form action={signOut}>
+          <Button
+            type="submit"
+            variant="ghost"
+            size="sm"
+            className="text-head-muted hover:bg-head-foreground/10 hover:text-head-foreground"
+          >
+            Sign out
+          </Button>
+        </form>
+      }
+    >
+      {viewing && (
+        <ViewAsBanner
+          name={profile.fullName ?? "this person"}
+          title={JobRoleLabel[profile.jobRole]}
+          backTo={impersonation?.adminName || null}
+        />
+      )}
+      {children}
+    </AppShell>
   );
 }

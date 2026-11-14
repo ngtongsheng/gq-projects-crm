@@ -34,7 +34,7 @@ two at a time without touching the same files. Everything account-bound is code 
 | 06 | Page registry + access matrix | done | 03 | opus/medium |
 | 07 | Shell parity | done | 02, 06 | sonnet/high |
 | 08 | Read-only View as | done | 07 | opus/medium |
-| 09 | Google sign-in | blocked: owner — sign personal Gmail into Chrome "Agent", select it in Cloud console | 03 | opus/medium |
+| 09 | Google sign-in | done | 03 | opus/medium |
 | 10 | Storage foundation | done | 03 | sonnet/high |
 | 11 | A4 print layout | done | 07 | sonnet/medium |
 | 12 | i18n EN/BM/中文 | done | 03, 07 | sonnet/high |
@@ -105,3 +105,8 @@ two at a time without touching the same files. Everything account-bound is code 
 2026-11-14 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-14-loop-11-office-foundation.md
 2026-11-14 · #09 · owner passed GCP verification in Chrome · resumed: OAuth client, secrets, dev provider
 2026-11-14 · #09 · decision · GCP project goes under the owner's personal Gmail with no organization (owner choice), not the stasheway.com org: a project can't leave an org later; nothing was created in stasheway.com
+2026-11-14 · #09 · owner signed personal account into Chrome Agent (authuser=1) · resumed
+2026-11-14 · #09 · GCP project gqp-office created (personal gmail, no org); Auth Platform branding steps 1-3 filled · blocked: owner must accept Google API Services User Data Policy
+2026-11-15 · #09 · owner accepted policy + created branding · OAuth client "GQP Office" (dev+prod callbacks), GOOGLE_OAUTH_CLIENT_ID/SECRET GH secrets set, Google provider enabled on test copy
+2026-11-15 · #09 · decision · consent screen stays in Testing (publish needs home page + privacy policy URL); until then only listed test users can sign in · owner action
+2026-11-15 · #09 · done · code + config done; e2e sign-in check folded into #15 with the other test-copy checks

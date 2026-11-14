@@ -85,3 +85,5 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 2026-11-15 · #12 · parity run in Chrome (Agent profile) on test copy: found and fixed a 500 on every Costing screen (ambiguous quote_revisions/quote_options embed, now hinted by fk name), mounted the language toggle on Register and record, matched Approvals headings, removed margin % from a seed history note · PGlite tests cannot catch PostgREST embed ambiguity
 2026-11-15 · #12 · decision · salesperson sees the FOB reply, shipping and landed cost on own record (demo intends it; logged in decisions.md); widths approximated (window would not resize), 390px via iframe; test copy history note GQ5156 keeps old "Lowest margin 24%" text until next seed · owner may want FOB hidden from sales
 2026-11-15 · #12 · done · docs + parity; next merge
+2026-11-15 · #12 · decision · PR 43 merged with migrate-dev failing: test copy already holds loop 12's 20261115130000/140000 (unmerged), so db push refuses; checks, migration-guard and Vercel pass; clears once loop 12 merges (same drift as debt.md row) · prod unaffected, ours sorts before theirs
+2026-11-15 · merged to main

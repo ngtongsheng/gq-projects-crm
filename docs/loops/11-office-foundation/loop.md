@@ -28,8 +28,8 @@ two at a time without touching the same files. Everything account-bound is code 
 |---|---|---|---|---|
 | 01 | Restore Supabase + keep-alive that works | done | - | sonnet/high |
 | 02 | Demo into repo, logo, app name, parity and handover docs | done | - | sonnet/medium |
-| 03 | Roles and people fields | in-progress | - | opus/medium |
-| 04 | Team scoping: helpers + customers, activities, projects | todo | 03 | opus/medium |
+| 03 | Roles and people fields | done | - | opus/medium |
+| 04 | Team scoping: helpers + customers, activities, projects | in-progress | 03 | opus/medium |
 | 05 | Team scoping: MOFs, payments, commission, reports | todo | 04 | opus/medium |
 | 06 | Page registry + access matrix | todo | 03 | opus/medium |
 | 07 | Shell parity | todo | 02, 06 | sonnet/high |
@@ -55,3 +55,8 @@ two at a time without touching the same files. Everything account-bound is code 
 2026-11-14 · #02 · decision · parity.md worked example is the demo-side run; app-side run deferred to #14/#15 (laptop dev panel needs the test copy connected) · added data-tile-label hook to StatTile
 2026-11-14 · #02 · done · check/typecheck/test pass, old mockup removed · next: #03
 2026-11-14 · #03 · started (opus/medium)
+2026-11-14 · #03 · decision · migration guard allows `drop constraint X` only when the same statement re-adds X (widening a check keeps every row)
+2026-11-14 · #03 · decision · left people: restrictive "left people: no access" RLS policy on every table; /left route signs them out · new tables must add it (docs/decisions.md)
+2026-11-14 · #03 · decision · Profile type not extended yet; tasks 06/12 add sees_margin/language as needed · marketing/designer cannot add companies/contacts
+2026-11-14 · #03 · done · check/typecheck/test (1093)/guard pass · next: #04
+2026-11-14 · #04 · started (opus/medium)

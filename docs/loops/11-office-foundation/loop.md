@@ -37,8 +37,8 @@ two at a time without touching the same files. Everything account-bound is code 
 | 09 | Google sign-in | blocked: owner — GCP sign-in for OAuth client; prod email check | 03 | opus/medium |
 | 10 | Storage foundation | done | 03 | sonnet/high |
 | 11 | A4 print layout | done | 07 | sonnet/medium |
-| 12 | i18n EN/BM/中文 | in-progress | 03, 07 | sonnet/high |
-| 13 | Public holidays + workdays | todo | - | sonnet/high |
+| 12 | i18n EN/BM/中文 | done | 03, 07 | sonnet/high |
+| 13 | Public holidays + workdays | in-progress | - | sonnet/high |
 | 14 | Dev seed: demo people as test personas | todo | 03, 04, 06 | sonnet/medium |
 | 15 | Final checks, shell parity pass, docs, merge | todo | 01-14 | sonnet/medium |
 ## Owner actions
@@ -93,3 +93,6 @@ two at a time without touching the same files. Everything account-bound is code 
 2026-11-14 · #11 · decision · PrintLayout + PrintSignatureRow, @page A4 10mm, shell hidden via data-slot print CSS; print-preview screenshot deferred to #15 (/dev/components needs sign-in → test copy)
 2026-11-14 · #11 · done · check/typecheck/test (1271) pass · next: #12
 2026-11-14 · #12 · started (sonnet/high)
+2026-11-14 · #12 · decision · src/lib/i18n (t(), bm from TT, zh = inverted ZHEN); labels translated server-side in sidebarItemsFor; toggle sets cookie only (separate session cookie during View as); toggle placed on pages by later loops
+2026-11-14 · #12 · done · check/typecheck/test (1278) pass; BM site supervisor sidebar test matches demo · next: #13
+2026-11-14 · #13 · started (sonnet/high)

@@ -4,6 +4,7 @@ import { addContact } from "./fixtures";
 import { createTestDatabase, type TestDatabase } from "./harness";
 
 // Finding 55: BD and Sales read only the projects they are on; everyone else reads all.
+// Loop 11 D6: a director reads their team's; this salesperson reports to no one.
 
 let t: TestDatabase;
 let ids: Record<"others" | "supported" | "passedDown" | "led", string>;
@@ -56,12 +57,17 @@ afterAll(async () => {
 describe("who reads which projects", () => {
   it.each([
     "md",
-    "director",
     "accounts",
     "site",
     "support",
   ] as const)("%s reads every project", async (jobRole) => {
     expect(await visibleTo(jobRole)).toEqual(Object.values(ids).sort());
+  });
+
+  it("director reads only their own team's projects", async () => {
+    expect(await visibleTo("director")).toEqual(
+      [ids.others, ids.supported, ids.passedDown].sort(),
+    );
   });
 
   it("sales reads only the projects they lead or support", async () => {

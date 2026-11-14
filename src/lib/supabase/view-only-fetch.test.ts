@@ -47,6 +47,54 @@ describe("couldSave", () => {
       true,
     );
   });
+
+  it("lets signed read links through, one file or several", () => {
+    expect(
+      couldSave(
+        `${BASE}/storage/v1/object/sign/attachments/leave/a/b.jpg`,
+        "POST",
+      ),
+    ).toBe(false);
+    expect(
+      couldSave(`${BASE}/storage/v1/object/sign/attachments`, "POST"),
+    ).toBe(false);
+  });
+
+  it("still refuses signed upload links and every other way to change a file", () => {
+    expect(
+      couldSave(
+        `${BASE}/storage/v1/object/upload/sign/attachments/leave/a/b.jpg`,
+        "POST",
+      ),
+    ).toBe(true);
+    expect(
+      couldSave(
+        `${BASE}/storage/v1/object/upload/sign/attachments/leave/a/b.jpg`,
+        "PUT",
+      ),
+    ).toBe(true);
+    expect(
+      couldSave(`${BASE}/storage/v1/object/attachments/leave/a/b.jpg`, "POST"),
+    ).toBe(true);
+    expect(
+      couldSave(
+        `${BASE}/storage/v1/object/attachments/leave/a/b.jpg`,
+        "DELETE",
+      ),
+    ).toBe(true);
+    expect(couldSave(`${BASE}/storage/v1/object/move`, "POST")).toBe(true);
+    expect(couldSave(`${BASE}/storage/v1/object/copy`, "POST")).toBe(true);
+    expect(
+      couldSave(`${BASE}/storage/v1/object/list/attachments`, "POST"),
+    ).toBe(true);
+    expect(couldSave(`${BASE}/storage/v1/object/sign`, "POST")).toBe(true);
+    expect(
+      couldSave(`${BASE}/storage/v1/object/sign/attachments/a/b.jpg`, "DELETE"),
+    ).toBe(true);
+    expect(
+      couldSave(`${BASE}/storage/v1/object/signature/attachments/x`, "POST"),
+    ).toBe(true);
+  });
 });
 
 describe("viewOnlyFetch", () => {

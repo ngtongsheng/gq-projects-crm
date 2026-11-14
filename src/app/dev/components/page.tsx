@@ -46,6 +46,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { SidebarItems } from "@/lib/auth/sidebar-items";
 import { monthWeeks, weekDays } from "@/lib/domain/calendar-grid";
 import { formatRm } from "@/lib/format/money";
+import { FileUploadDemo } from "./file-upload-demo";
 import { ToastDemo } from "./toast-demo";
 
 const nav: SidebarItems = {
@@ -210,6 +211,10 @@ export default function ComponentCatalogPage() {
           <Field orientation="horizontal">
             <Checkbox id="demo-follow-up" />
             <FieldLabel htmlFor="demo-follow-up">Needs follow-up</FieldLabel>
+          </Field>
+          <Field>
+            <FieldLabel>Attachment (FileUpload)</FieldLabel>
+            <FileUploadDemo />
           </Field>
         </FieldGroup>
       </Section>

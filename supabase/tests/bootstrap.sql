@@ -34,3 +34,28 @@ as $$
 $$;
 
 grant execute on function auth.uid() to anon, authenticated, service_role;
+
+-- Supabase Storage's tables, as far as the storage migrations and policies use them. The real
+-- ones have more columns; Storage fills owner_id from the signed-in user's id on upload.
+create schema storage;
+grant usage on schema storage to anon, authenticated, service_role;
+
+create table storage.buckets (
+  id text primary key,
+  name text not null unique,
+  public boolean not null default false,
+  file_size_limit bigint,
+  allowed_mime_types text[]
+);
+
+create table storage.objects (
+  id uuid primary key default gen_random_uuid(),
+  bucket_id text references storage.buckets (id),
+  name text,
+  owner_id text
+);
+
+alter table storage.objects enable row level security;
+
+-- Supabase's default: the API roles hold every privilege and row-level security decides.
+grant all on all tables in schema storage to anon, authenticated, service_role;

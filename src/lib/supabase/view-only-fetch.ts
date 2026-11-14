@@ -27,6 +27,13 @@ const SESSION_PATHS = new Set([
   "/auth/v1/logout",
 ]);
 
+/**
+ * Storage calls that only create a link to view a file. supabase-js sends them as POST, and they
+ * are the way the app shows files, so they pass. The path stops at /object/sign/, so signed
+ * upload links (/object/upload/sign/) and uploads themselves stay refused.
+ */
+const SIGNED_READ_PATH = /^\/storage\/v1\/object\/sign\/[^/]+(\/|$)/;
+
 const READ_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 
 /** Whether a Supabase request could save something. */
@@ -34,6 +41,9 @@ export function couldSave(url: string, method: string): boolean {
   if (READ_METHODS.has(method.toUpperCase())) return false;
   const { pathname } = new URL(url);
   if (SESSION_PATHS.has(pathname)) return false;
+  if (method.toUpperCase() === "POST" && SIGNED_READ_PATH.test(pathname)) {
+    return false;
+  }
   const rpc = pathname.match(/^\/rest\/v1\/rpc\/([^/]+)$/);
   return !(rpc?.[1] && READ_ONLY_FUNCTIONS.has(rpc[1]));
 }

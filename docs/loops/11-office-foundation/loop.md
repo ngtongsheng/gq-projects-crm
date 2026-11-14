@@ -29,8 +29,8 @@ two at a time without touching the same files. Everything account-bound is code 
 | 01 | Restore Supabase + keep-alive that works | done | - | sonnet/high |
 | 02 | Demo into repo, logo, app name, parity and handover docs | done | - | sonnet/medium |
 | 03 | Roles and people fields | done | - | opus/medium |
-| 04 | Team scoping: helpers + customers, activities, projects | in-progress | 03 | opus/medium |
-| 05 | Team scoping: MOFs, payments, commission, reports | todo | 04 | opus/medium |
+| 04 | Team scoping: helpers + customers, activities, projects | done | 03 | opus/medium |
+| 05 | Team scoping: MOFs, payments, commission, reports | in-progress | 04 | opus/medium |
 | 06 | Page registry + access matrix | todo | 03 | opus/medium |
 | 07 | Shell parity | todo | 02, 06 | sonnet/high |
 | 08 | Read-only View as | todo | 07 | opus/medium |
@@ -60,3 +60,7 @@ two at a time without touching the same files. Everything account-bound is code 
 2026-11-14 · #03 · decision · Profile type not extended yet; tasks 06/12 add sees_margin/language as needed · marketing/designer cannot add companies/contacts
 2026-11-14 · #03 · done · check/typecheck/test (1093)/guard pass · next: #04
 2026-11-14 · #04 · started (opus/medium)
+2026-11-14 · #04 · decision · SQL my_team()/in_my_team(); salesperson without reports_to is in no team (only md/accounts see); left salespeople stay in lead's team; created_by counts as team ownership (insert-returning needs it)
+2026-11-14 · #04 · decision · read policies changed via alter policy (guard refuses drop policy); edit/insert policies untouched; contact_owners stays read-all
+2026-11-14 · #04 · done · check/typecheck/test (1125)/guard pass · next: #05
+2026-11-14 · #05 · started (opus/medium)

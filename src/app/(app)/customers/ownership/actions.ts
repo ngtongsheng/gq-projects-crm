@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { createClient } from "@/lib/supabase/server";
 import { canDecideOwnership, canRequestOwnership } from "./ownership-access";
 import { ownershipDecisionSchema, ownershipRequestSchema } from "./schemas";
@@ -19,7 +19,7 @@ export async function requestOwnership(
   contactId: string,
   reason: string,
 ): Promise<OwnershipResult> {
-  const me = await requireSection("customers");
+  const me = await requirePage("cust");
   if (!canRequestOwnership(me.jobRole, false)) {
     return fail("Your role cannot ask for ownership of a customer.");
   }
@@ -55,7 +55,7 @@ export async function decideOwnershipRequest(
   requestId: string,
   approve: boolean,
 ): Promise<OwnershipResult> {
-  const me = await requireSection("customers");
+  const me = await requirePage("cust");
   if (!canDecideOwnership(me.jobRole)) {
     return fail("Only the MD or the Sales Director can decide requests.");
   }

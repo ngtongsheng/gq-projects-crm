@@ -6,7 +6,7 @@ import { DataTable } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge, type StatusTone } from "@/components/app/status-badge";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { formatDateTime } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
@@ -52,7 +52,7 @@ const requestRows = z.array(
 );
 
 export default async function OwnershipRequestsPage() {
-  const me = await requireSection("customers");
+  const me = await requirePage("cust");
   const canDecide = canDecideOwnership(me.jobRole);
   const supabase = await createClient();
 

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getCurrentProfile } from "@/lib/auth/current-profile";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { startOfMonth } from "@/lib/domain/calendar-grid";
 import {
   canReviewReport,
@@ -74,7 +74,9 @@ function parseReportForm(formData: FormData) {
 /** The BD Director files from Director Report; everyone else from Reports. */
 async function requireFiler() {
   const me = await getCurrentProfile();
-  return requireSection(me?.jobRole === "bd" ? "directorReport" : "reports");
+  return me?.jobRole === "bd"
+    ? requirePage("drep")
+    : requirePage("rep", "srep");
 }
 
 async function writeReport(
@@ -184,7 +186,7 @@ export async function reviewReport(
   reportId: string,
   note: string,
 ): Promise<ReportResult> {
-  const me = await requireSection("reports");
+  const me = await requirePage("rep");
   if (me.jobRole !== "md" && me.jobRole !== "director") {
     return { error: NOT_REVIEWER };
   }

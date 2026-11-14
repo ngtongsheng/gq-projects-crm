@@ -7,7 +7,7 @@ import {
   canEditStock,
   canRequestStock,
 } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import {
   canExtendHold,
   canMoveReservation,
@@ -56,7 +56,7 @@ const reserveForm = z.object({
  * it straight away, for themselves or on behalf of a salesperson. The database checks both.
  */
 export async function reserveStock(formData: FormData): Promise<StockResult> {
-  const me = await requireSection("stock");
+  const me = await requirePage("stock");
   const arranges = canEditStock(me);
   if (!canRequestStock(me)) {
     return { error: NOT_REQUESTER };
@@ -150,7 +150,7 @@ async function loadLine(reservationId: string) {
 export async function moveReservation(
   formData: FormData,
 ): Promise<StockResult> {
-  const me = await requireSection("stock");
+  const me = await requirePage("stock");
   if (!canEditStock(me)) return { error: NOT_STOCK };
 
   const parsed = moveForm.safeParse({
@@ -205,7 +205,7 @@ const extendForm = z.object({
 export async function extendReservation(
   formData: FormData,
 ): Promise<StockResult> {
-  const me = await requireSection("stock");
+  const me = await requirePage("stock");
   if (!canEditStock(me)) return { error: NOT_STOCK };
 
   const parsed = extendForm.safeParse({
@@ -246,7 +246,7 @@ const itemForm = stockItemSchema.extend({
 
 /** Adds a stock item, or changes one when `itemId` is given (the unit stays as first entered). */
 export async function saveStockItem(formData: FormData): Promise<StockResult> {
-  const me = await requireSection("stock");
+  const me = await requirePage("stock");
   if (!canEditStock(me)) return { error: NOT_STOCK };
 
   const parsed = itemForm.safeParse({
@@ -303,7 +303,7 @@ const settingsForm = z.object({
 export async function saveStockSettings(
   formData: FormData,
 ): Promise<StockResult> {
-  const me = await requireSection("stock");
+  const me = await requirePage("stock");
   if (!canChangeSettings(me)) {
     return { error: "Only the MD or an admin can change these settings." };
   }

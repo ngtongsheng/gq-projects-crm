@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/app/page-header";
 import { canChangeSettings } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { loadCommissionSettings } from "../commission-settings-data";
 import { CommissionSettingsForm } from "./commission-settings-form";
 
 export const metadata: Metadata = { title: "Commission settings" };
 
 export default async function CommissionSettingsPage() {
-  const me = await requireSection("commission");
+  const me = await requirePage("comm");
   // The database holds the same line: only the MD and admins write app_settings.
   if (!canChangeSettings(me)) redirect("/not-allowed");
   const settings = await loadCommissionSettings();

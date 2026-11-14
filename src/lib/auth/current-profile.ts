@@ -16,6 +16,8 @@ const profileRow = z
     role: z.enum(["admin", "staff"]),
     job_role: JobRole,
     arranges_stock: z.boolean(),
+    sells: z.boolean(),
+    sees_margin: z.boolean(),
     commission_mode: CommissionMode,
     yearly_target: z.coerce.number().nullable(),
     active: z.boolean(),
@@ -28,6 +30,8 @@ const profileRow = z
       role: row.role,
       jobRole: row.job_role,
       arrangesStock: row.arranges_stock,
+      sells: row.sells,
+      seesMargin: row.sees_margin,
       commissionMode: row.commission_mode,
       yearlyTarget: row.yearly_target,
     },
@@ -48,7 +52,7 @@ export const getCurrentProfile = cache(async (): Promise<Profile | null> => {
   const { data: row, error } = await supabase
     .from("profiles")
     .select(
-      "id, full_name, role, job_role, arranges_stock, commission_mode, yearly_target, active",
+      "id, full_name, role, job_role, arranges_stock, sells, sees_margin, commission_mode, yearly_target, active",
     )
     .eq("id", userId)
     .single();

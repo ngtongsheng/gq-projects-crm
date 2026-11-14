@@ -15,8 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { canSeeMofCost } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { seesMofCost } from "@/lib/auth/page-access";
+import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { MOF_STAGE_TONE } from "@/lib/domain/mof-stages";
 import { formatDate, todayMyt } from "@/lib/format/date";
@@ -43,8 +43,8 @@ export default async function MofSummaryPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const me = await requireSection("mof");
-  if (!canSeeMofCost(me.jobRole)) redirect("/not-allowed");
+  const me = await requirePage("mof");
+  if (!(await seesMofCost(me))) redirect("/not-allowed");
 
   const params = await searchParams;
   const filters = parseMofFilters(params);

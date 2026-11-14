@@ -1,37 +1,33 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/app/page-header";
-import { type SectionKey, sectionsFor } from "@/lib/auth/nav-sections";
+import { loadAccessOverrides } from "@/lib/auth/access-overrides";
+import { navPagesFor, type PageKey } from "@/lib/auth/pages";
 import { requireRole } from "@/lib/auth/require-role";
 
 export const metadata: Metadata = { title: "Guide" };
 
-const SCREEN_GUIDE: Record<SectionKey, string> = {
-  dashboard:
-    "Your headline numbers: sales activity and, for managers, MOF and project progress.",
-  salesCalendar:
-    "Your visits and follow-ups by day and week. Add a visit from here.",
-  installation:
-    "Installation and delivery dates, and who is free to book a site supervisor.",
-  customers:
-    "Customer records and contacts. Everyone can look up any customer; the owner or a manager changes it, and anyone else can ask for ownership from here.",
-  projects: "Projects moving through the pipeline, from first contact to job.",
+// Pages not built yet have no entry; they never reach the sidebar.
+const SCREEN_GUIDE: Partial<Record<PageKey, string>> = {
+  dash: "Your headline numbers: sales activity and, for managers, MOF and project progress.",
+  cal: "Your visits and follow-ups by day and week. Add a visit from here.",
+  inst: "Installation and delivery dates, and who is free to book a site supervisor.",
+  cust: "Customer records and contacts. Everyone can look up any customer; the owner or a manager changes it, and anyone else can ask for ownership from here.",
+  proj: "Projects moving through the pipeline, from first contact to job.",
   mof: "The MOF register: client purchase orders as they come in, then supplier orders and deliveries.",
-  siteWork:
-    "Site visits, actions needed, handover forms and balance stock, logged by site supervisors.",
-  overtime:
+  site: "Site visits, actions needed, handover forms and balance stock, logged by site supervisors.",
+  claims:
     "Overtime claims. Site supervisors and staff submit them; managers approve.",
   stock: "Stock items, what is reserved and what is left over.",
-  collection: "Payments received against sales.",
-  commission: "Commission claims and the rules that apply to each person.",
-  reports: "Your monthly report. Managers open the team's reports from here.",
-  directorReport:
-    "The monthly report for the director level, including leads passed down to salespeople.",
-  guide: "This page: what each screen is for.",
+  coll: "Payments received against sales.",
+  comm: "Commission claims and the rules that apply to each person.",
+  rep: "Your monthly report. Managers open the team's reports from here.",
+  srep: "Your monthly site report.",
+  drep: "The monthly report for the director level, including leads passed down to salespeople.",
 };
 
 export default async function GuidePage() {
   const profile = await requireRole("staff");
-  const screens = sectionsFor(profile.jobRole);
+  const screens = navPagesFor(profile, await loadAccessOverrides());
 
   return (
     <div className="flex flex-col gap-6">

@@ -6,7 +6,7 @@ import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
 import { canEnterPayments } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { summariseCollection } from "@/lib/domain/collection";
 import { formatDate, todayMyt } from "@/lib/format/date";
@@ -18,7 +18,7 @@ import { PaymentsDialog } from "./payments-dialog";
 export const metadata: Metadata = { title: "Collection" };
 
 export default async function CollectionPage() {
-  const me = await requireSection("collection");
+  const me = await requirePage("coll");
   const [orders, threshold, team] = await Promise.all([
     loadCollectionOrders(),
     loadPaymentThreshold(),

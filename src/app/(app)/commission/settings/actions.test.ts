@@ -6,6 +6,9 @@ import { saveCommissionSettings } from "./actions";
 
 vi.mock("@/lib/auth/current-profile", () => ({ getCurrentProfile: vi.fn() }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: vi.fn() }));
+vi.mock("@/lib/auth/access-overrides", () => ({
+  loadAccessOverrides: async () => ({}),
+}));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("next/navigation", () => ({
   redirect: vi.fn((path: string) => {
@@ -22,6 +25,8 @@ const profile = (
   role: "staff",
   jobRole,
   arrangesStock: false,
+  sells: false,
+  seesMargin: false,
   commissionMode: "standard",
   yearlyTarget: null,
   ...overrides,

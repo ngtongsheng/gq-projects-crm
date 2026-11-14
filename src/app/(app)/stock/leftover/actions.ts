@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { canEditStock } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import {
   canRecordLeftover,
   LEFTOVER_CONDITIONS,
@@ -59,7 +59,7 @@ const updateForm = z.object({
 export async function recordLeftover(
   formData: FormData,
 ): Promise<LeftoverResult> {
-  const me = await requireSection("siteWork");
+  const me = await requirePage("site");
   if (!canRecordLeftover(me)) return { error: NOT_RECORDER };
 
   const parsed = leftoverRecordSchema.safeParse({
@@ -103,7 +103,7 @@ export async function recordLeftover(
 export async function updateLeftover(
   formData: FormData,
 ): Promise<LeftoverResult> {
-  const me = await requireSection("stock");
+  const me = await requirePage("stock");
   if (!canEditStock(me)) return { error: NOT_STOCK };
 
   const parsed = updateForm.safeParse({

@@ -11,9 +11,9 @@ import {
   canEnterPayments,
   canScheduleJobs,
   canSeeInstallerClaims,
-  canSeeMofCost,
 } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { seesMofCost } from "@/lib/auth/page-access";
+import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { missingDeliveryChecks } from "@/lib/domain/delivery-status";
 import { formatMobile } from "@/lib/domain/mobile";
@@ -108,10 +108,10 @@ export default async function MofPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const me = await requireSection("mof");
+  const me = await requirePage("mof");
   const { id } = await params;
   const canEdit = canEditRegister(me.jobRole);
-  const showCost = canSeeMofCost(me.jobRole);
+  const showCost = await seesMofCost(me);
   const supabase = await createClient();
 
   if (id === NEW) {

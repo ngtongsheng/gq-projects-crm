@@ -20,7 +20,7 @@ import {
   isManager,
 } from "@/lib/auth/job-role";
 import { loadMyTeam } from "@/lib/auth/my-team";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { inMyTeam } from "@/lib/auth/team";
 import { todayMyt } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
@@ -39,14 +39,16 @@ export default async function CommissionPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const me = await requireSection("commission");
-  const seesEveryone = isManager(me.jobRole);
+  const me = await requirePage("comm");
   const canPay = canPayOutCommission(me.jobRole);
   const canSetRules = canChangeSettings(me);
   const person = personParam.parse((await searchParams).person);
   const today = todayMyt();
 
   const [all, team] = await Promise.all([loadCommissionLines(), loadMyTeam()]);
+  // A Marketing Director with salespeople sees the team's, as a manager does (demo: isMgr).
+  const seesEveryone =
+    isManager(me.jobRole) || (team !== null && team.length > 1);
   // The database limits the orders; a director's team order can still carry a line for someone
   // outside the team, whose payouts they cannot read. Lines follow the person, as in the demo.
   const mine = seesEveryone

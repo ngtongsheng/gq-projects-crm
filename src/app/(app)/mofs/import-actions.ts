@@ -2,8 +2,9 @@
 
 import { z } from "zod";
 import type { Profile } from "@/lib/auth/current-profile";
-import { canEditRegister, canSeeMofCost } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { canEditRegister } from "@/lib/auth/job-role";
+import { seesMofCost } from "@/lib/auth/page-access";
+import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import {
   type PasteImportInput,
@@ -29,9 +30,10 @@ const mofRows = z.array(
 
 function specFor(
   me: Profile,
+  seesCost: boolean,
 ): PasteImportSpec<MofImportContext, MofKey, MofImportRow> {
   // Cost is for managers only; for anyone else a Cost column is not imported.
-  const fields = mofImportFields(canSeeMofCost(me.jobRole));
+  const fields = mofImportFields(seesCost);
   return {
     kind: "mofs",
     allowed: canEditRegister(me.jobRole),
@@ -70,8 +72,8 @@ function specFor(
 export async function previewMofImport(
   input: PasteImportInput,
 ): Promise<PreviewImportResult> {
-  const me = await requireSection("mof");
-  return previewPasteImport(specFor(me), input);
+  const me = await requirePage("mof");
+  return previewPasteImport(specFor(me, await seesMofCost(me)), input);
 }
 
 /**
@@ -81,6 +83,6 @@ export async function previewMofImport(
 export async function importMofs(
   input: PasteImportInput,
 ): Promise<SaveImportResult> {
-  const me = await requireSection("mof");
-  return savePasteImport(specFor(me), input);
+  const me = await requirePage("mof");
+  return savePasteImport(specFor(me, await seesMofCost(me)), input);
 }

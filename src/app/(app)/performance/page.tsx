@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { canSeeMofCost } from "@/lib/auth/job-role";
+import { seesMofCost } from "@/lib/auth/page-access";
 import { requireRole } from "@/lib/auth/require-role";
 import { yearPace } from "@/lib/domain/order-rollup";
 import {
@@ -52,7 +52,7 @@ export default async function SalesPerformancePage({
   const me = await requireRole("admin");
   const today = todayMyt();
   const thisYear = Number(today.slice(0, 4));
-  const seesCost = canSeeMofCost(me.jobRole);
+  const seesCost = await seesMofCost(me);
   const { orders, people } = await loadPerformance(seesCost);
 
   const years = [

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { canPayOutCommission } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { textField } from "@/lib/form/form-fields";
 import { todayMyt } from "@/lib/format/date";
 import { formatRm, parseRm, toCents } from "@/lib/format/money";
@@ -48,7 +48,7 @@ const payoutForm = z.object({
  * answer; the database checks it again (cap_commission_payouts) in case two payouts land at once.
  */
 export async function recordPayout(formData: FormData): Promise<PayoutResult> {
-  const me = await requireSection("commission");
+  const me = await requirePage("comm");
   if (!canPayOutCommission(me.jobRole)) return { error: NOT_ALLOWED };
 
   const parsed = payoutForm.safeParse({
@@ -106,7 +106,7 @@ export async function recordPayout(formData: FormData): Promise<PayoutResult> {
 
 /** Removes a payout entered by mistake. Payouts are never edited, so re-enter it correctly. */
 export async function removePayout(payoutId: string): Promise<PayoutResult> {
-  const me = await requireSection("commission");
+  const me = await requirePage("comm");
   if (!canPayOutCommission(me.jobRole)) return { error: NOT_ALLOWED };
 
   const id = z.uuid().safeParse(payoutId);

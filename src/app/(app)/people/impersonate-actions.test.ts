@@ -45,6 +45,8 @@ const profile = (overrides: Partial<Profile> = {}): Profile => ({
   role: "admin",
   jobRole: "md",
   arrangesStock: false,
+  sells: false,
+  seesMargin: false,
   commissionMode: "standard",
   yearlyTarget: null,
   ...overrides,

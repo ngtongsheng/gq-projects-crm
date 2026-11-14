@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { textField } from "@/lib/form/form-fields";
 import { createClient } from "@/lib/supabase/server";
 import { AccountType } from "../customers/schemas";
@@ -35,7 +35,7 @@ const customerRow = z.object({
 
 /** Adds a pipeline project, or changes one when the form carries a projectId. */
 export async function saveProject(formData: FormData): Promise<ProjectResult> {
-  const me = await requireSection("projects");
+  const me = await requirePage("proj");
   const supabase = await createClient();
 
   const projectId = textField(formData, "projectId") || null;

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import type { NextRequest } from "next/server";
-import { canSeeMofCost } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { seesMofCost } from "@/lib/auth/page-access";
+import { requirePage } from "@/lib/auth/require-page";
 import { csvResponse } from "@/lib/format/csv-response";
 import { formatDate, todayMyt } from "@/lib/format/date";
 import { filterMofs, parseMofFilters } from "../../mof-filters";
@@ -15,8 +15,8 @@ import {
 
 /** The MOF summary as CSV: the same rows as the page for these filters. Cost and margin included. */
 export async function GET(request: NextRequest) {
-  const me = await requireSection("mof");
-  if (!canSeeMofCost(me.jobRole)) redirect("/not-allowed");
+  const me = await requirePage("mof");
+  if (!(await seesMofCost(me))) redirect("/not-allowed");
 
   const params = Object.fromEntries(request.nextUrl.searchParams);
   const filters = parseMofFilters(params);

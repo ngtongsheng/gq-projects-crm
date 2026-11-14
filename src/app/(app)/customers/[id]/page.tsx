@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 import { PageHeader } from "@/components/app/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { customerHealth } from "@/lib/domain/customer-health";
 import { formatMobile } from "@/lib/domain/mobile";
 import { todayMyt } from "@/lib/format/date";
@@ -49,7 +49,7 @@ export default async function CustomerPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const me = await requireSection("customers");
+  const me = await requirePage("cust");
   const { id } = await params;
   if (!z.uuid().safeParse(id).success) notFound();
 

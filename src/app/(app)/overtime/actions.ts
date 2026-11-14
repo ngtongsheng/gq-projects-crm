@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { canDecideOvertime } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import {
   decisionColumns,
   OT_CLAIM_TYPES,
@@ -56,7 +56,7 @@ const decisionForm = z.object({
 export async function submitOtClaim(
   formData: FormData,
 ): Promise<OvertimeResult> {
-  await requireSection("overtime");
+  await requirePage("claims");
 
   const parsed = claimForm.safeParse({
     workDate: textField(formData, "workDate"),
@@ -101,7 +101,7 @@ export async function decideOtClaim(
   claimId: string,
   decision: string,
 ): Promise<OvertimeResult> {
-  const me = await requireSection("overtime");
+  const me = await requirePage("claims");
   if (!canDecideOvertime(me.jobRole)) return { error: NOT_DECIDER };
 
   const parsed = decisionForm.safeParse({ claimId, decision });

@@ -56,13 +56,6 @@ export const canLeadTeam = (jobRole: JobRole) =>
 export const isManager = (jobRole: JobRole) =>
   has(jobRole, ["md", "director", "accounts"]);
 
-/**
- * Cost and margin of an MOF, and the MOF summary that shows them: the MD, Purchasing and HR & Accounts.
- * Not the Sales Director (SQL: public.can_see_mof_cost()).
- */
-export const canSeeMofCost = (jobRole: JobRole) =>
-  has(jobRole, ["md", "support", "accounts"]);
-
 /** HR & Accounts sees everything but changes only payments and commission. */
 export const isReadOnly = (jobRole: JobRole) => jobRole === "accounts";
 

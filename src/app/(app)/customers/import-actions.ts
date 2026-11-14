@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import {
   countActions,
@@ -78,7 +78,7 @@ async function loadContext(
 export async function previewCustomerImport(
   input: CustomerImportRequest,
 ): Promise<PreviewImportResult> {
-  const me = await requireSection("customers");
+  const me = await requirePage("cust");
   if (!canImportCustomers(me.jobRole)) {
     return { error: NOT_ALLOWED, preview: null };
   }
@@ -109,7 +109,7 @@ export async function previewCustomerImport(
 export async function importCustomers(
   input: CustomerImportRequest,
 ): Promise<SaveImportResult> {
-  const me = await requireSection("customers");
+  const me = await requirePage("cust");
   if (!canImportCustomers(me.jobRole)) {
     return { error: NOT_ALLOWED, counts: null };
   }

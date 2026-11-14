@@ -3,7 +3,7 @@
 import { z } from "zod";
 import type { Profile } from "@/lib/auth/current-profile";
 import { canEditStock } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { toImportPreview } from "@/lib/import/import-plan";
 import {
   type PasteImportInput,
@@ -67,7 +67,7 @@ function specFor(
 export async function previewStockImport(
   input: PasteImportInput,
 ): Promise<PreviewImportResult> {
-  const me = await requireSection("stock");
+  const me = await requirePage("stock");
   return previewPasteImport(specFor(me), input);
 }
 
@@ -75,6 +75,6 @@ export async function previewStockImport(
 export async function importStockItems(
   input: PasteImportInput,
 ): Promise<SaveImportResult> {
-  const me = await requireSection("stock");
+  const me = await requirePage("stock");
   return savePasteImport(specFor(me), input);
 }

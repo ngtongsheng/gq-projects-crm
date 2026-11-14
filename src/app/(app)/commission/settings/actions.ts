@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { canChangeSettings } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import {
   CommissionSettings,
   storedRows,
@@ -26,7 +26,7 @@ const numberField = (formData: FormData, key: string) => {
 export async function saveCommissionSettings(
   formData: FormData,
 ): Promise<CommissionSettingsResult> {
-  const me = await requireSection("commission");
+  const me = await requirePage("comm");
   if (!canChangeSettings(me)) return { error: NOT_MD };
 
   const n = (key: string) => numberField(formData, key);

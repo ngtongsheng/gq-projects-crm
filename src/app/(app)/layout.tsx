@@ -6,8 +6,9 @@ import {
 } from "@/components/app/app-shell";
 import { ImpersonationBar } from "@/components/app/impersonation-bar";
 import { Button } from "@/components/ui/button";
+import { loadAccessOverrides } from "@/lib/auth/access-overrides";
 import { readImpersonation } from "@/lib/auth/impersonation";
-import { modulesFor } from "@/lib/auth/nav-sections";
+import { GUIDE_PAGE, navPagesFor } from "@/lib/auth/pages";
 import { requireRole } from "@/lib/auth/require-role";
 import { signOut } from "@/lib/auth/sign-out";
 import {
@@ -47,18 +48,25 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
         ]
       : [];
 
-  // Ownership requests and the admin pages belong to the CRM module.
-  const modules: NavModule[] = modulesFor(profile.jobRole).map((mod) => ({
-    key: mod.key,
-    label: mod.label,
-    nav: [
-      ...mod.sections.flatMap(({ key, href, label, icon: Icon }) => [
-        { href, label, icon: <Icon /> },
-        ...(key === "customers" ? ownershipItem : []),
-      ]),
-      ...(mod.key === "crm" ? adminItems : []),
-    ],
-  }));
+  const pages = navPagesFor(profile, await loadAccessOverrides());
+  const modules: NavModule[] = [
+    {
+      key: "crm",
+      label: "CRM",
+      nav: [
+        ...pages.flatMap(({ key, href, label, icon: Icon }) => [
+          { href, label, icon: <Icon /> },
+          ...(key === "cust" ? ownershipItem : []),
+        ]),
+        {
+          href: GUIDE_PAGE.href,
+          label: GUIDE_PAGE.label,
+          icon: <GUIDE_PAGE.icon />,
+        },
+        ...adminItems,
+      ],
+    },
+  ];
 
   const impersonation = await readImpersonation();
   const impersonating = impersonation?.targetId === profile.id;

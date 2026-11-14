@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { CustomerHealthLabel } from "@/lib/domain/customer-health";
 import { formatMobile } from "@/lib/domain/mobile";
 import { csvResponse } from "@/lib/format/csv-response";
@@ -9,7 +9,7 @@ import { AccountTypeLabel, CompanyTypeLabel, RatingLabel } from "../schemas";
 
 /** The customers list as CSV, with the same filters as the page. */
 export async function GET(request: NextRequest) {
-  const me = await requireSection("customers");
+  const me = await requirePage("cust");
   const filters = parseCustomerFilters(
     Object.fromEntries(request.nextUrl.searchParams),
   );

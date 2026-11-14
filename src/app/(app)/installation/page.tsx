@@ -11,8 +11,9 @@ import {
   canScheduleJobs,
   canUpdateJobStatus,
 } from "@/lib/auth/job-role";
-import { canOpenSection, sectionsFor } from "@/lib/auth/nav-sections";
-import { requireSection } from "@/lib/auth/require-section";
+import { canOpen } from "@/lib/auth/page-access";
+import { pageLabel } from "@/lib/auth/pages";
+import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import {
   formatMonthTitle,
@@ -49,16 +50,14 @@ export default async function InstallationPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const me = await requireSection("installation");
+  const me = await requirePage("inst");
   const params = parseCalendarParams(await searchParams);
   const { view } = params;
   const today = todayMyt();
   const canSchedule = canScheduleJobs(me.jobRole);
   const canBook = canBookSiteSupervisor(me.jobRole);
   const answersBookings = canAnswerBookings(me.jobRole);
-  const title =
-    sectionsFor(me.jobRole).find((s) => s.key === "installation")?.label ??
-    "Installation";
+  const title = pageLabel("inst", me);
 
   const weeks = view === "month" ? monthWeeks(params.date) : null;
   const days = weeks ? weeks.flat() : weekDays(params.date);
@@ -116,7 +115,7 @@ export default async function InstallationPage({
       meId={me.id}
       canSchedule={canSchedule}
       canUpdateStatus={canUpdateJobStatus(me.jobRole)}
-      canOpenMof={canOpenSection(me.jobRole, "mof")}
+      canOpenMof={await canOpen(me, "mof")}
       canAnswerBookings={answersBookings}
       addHref={view === "week" ? addHref : undefined}
       emptyText="No jobs."

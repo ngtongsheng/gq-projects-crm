@@ -28,6 +28,8 @@ const row = {
   role: "staff",
   job_role: "ssup",
   arranges_stock: true,
+  sells: false,
+  sees_margin: false,
   commission_mode: "standard",
   yearly_target: null,
   active: true,
@@ -42,6 +44,8 @@ describe("getCurrentProfile", () => {
       id: ID,
       jobRole: "ssup",
       arrangesStock: true,
+      sells: false,
+      seesMargin: false,
     });
   });
 

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { canAnswerBookings, canBookSiteSupervisor } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { BOOKING_PURPOSES } from "@/lib/domain/site-booking";
 import { optionalText, textField } from "@/lib/form/form-fields";
 import { isClockTime } from "@/lib/format/clock-time";
@@ -65,7 +65,7 @@ function refusal(error: { code?: string; message?: string }): string | null {
 export async function requestBooking(
   formData: FormData,
 ): Promise<BookingResult> {
-  const me = await requireSection("installation");
+  const me = await requirePage("inst");
   if (!canBookSiteSupervisor(me.jobRole)) return { error: NOT_BOOKER };
 
   const parsed = bookingForm.safeParse({
@@ -114,7 +114,7 @@ export async function answerBooking(
   decision: "confirmed" | "declined",
   reason: string,
 ): Promise<BookingResult> {
-  const me = await requireSection("installation");
+  const me = await requirePage("inst");
   if (!canAnswerBookings(me.jobRole)) return { error: NOT_SUPERVISOR };
 
   const parsed = answerSchema.safeParse({ bookingId, decision, reason });

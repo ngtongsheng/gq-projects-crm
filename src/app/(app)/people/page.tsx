@@ -3,12 +3,14 @@ import type { Metadata } from "next";
 import { DataTable } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
+import { loadAccessOverrides } from "@/lib/auth/access-overrides";
 import {
   CommissionMode,
   canLeadTeam,
   JobRole,
   JobRoleLabel,
 } from "@/lib/auth/job-role";
+import { type RoleKey, roleKeyOf } from "@/lib/auth/pages";
 import { requireRole } from "@/lib/auth/require-role";
 import { formatDate, todayMyt } from "@/lib/format/date";
 import {
@@ -19,6 +21,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AddPersonDialog } from "./add-person-dialog";
 import { NewLinkDialog } from "./new-link-dialog";
 import { PersonSettingsDialog } from "./person-settings-dialog";
+import { RoleAccess } from "./role-access";
 import { RoleSelect } from "./role-select";
 import { Language, roleSchema } from "./schemas";
 import { SignInAsButton } from "./sign-in-as-button";
@@ -75,6 +78,16 @@ export default async function PeoplePage() {
     },
     joined: formatDate(row.joined_on ?? todayMyt(new Date(row.created_at))),
   }));
+
+  const peopleByRole: Partial<Record<RoleKey, string[]>> = {};
+  for (const row of rows) {
+    if (!row.settings.active) continue;
+    const roleKey = roleKeyOf(row.settings);
+    peopleByRole[roleKey] = [
+      ...(peopleByRole[roleKey] ?? []),
+      row.name ?? "Unnamed",
+    ];
+  }
 
   // Who a person can report to: a Sales Director or Marketing Director still working here.
   const leads = rows
@@ -156,6 +169,12 @@ export default async function PeoplePage() {
           },
         ]}
       />
+      {me.jobRole === "md" && (
+        <RoleAccess
+          overrides={await loadAccessOverrides()}
+          people={peopleByRole}
+        />
+      )}
     </div>
   );
 }

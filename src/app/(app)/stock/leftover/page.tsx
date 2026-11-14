@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { PasteImportDialog } from "@/components/app/paste-import-dialog";
 import { canEditStock } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import {
   canRecordLeftover,
@@ -28,7 +28,7 @@ import { UpdateLeftoverDialog } from "./update-leftover-dialog";
 export const metadata: Metadata = { title: "Leftover stock" };
 
 export default async function LeftoverPage() {
-  const me = await requireSection("stock");
+  const me = await requirePage("stock");
   const [leftovers, team] = await Promise.all([
     loadLeftovers(),
     getTeamDirectory(),

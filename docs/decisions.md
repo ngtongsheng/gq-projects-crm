@@ -91,7 +91,7 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
 
 ## Loop 10 (multi-module app), decided 2026-11-08
 - Module (D5): a module is a tab in the top navigation with its own sidebar links. Each sidebar section carries a
-  `ModuleKey` (`src/lib/auth/nav-sections.ts`, today `"crm"`), and the labels map to the tab names. The app shell picks
+  `ModuleKey` (then `src/lib/auth/nav-sections.ts`, today `"crm"`; replaced in loop 11, see below), and the labels map to the tab names. The app shell picks
   the active module from the pathname.
 - Adding a module: add its key to `ModuleKey` and its label to the module label map, then give each of its sections
   `module: "<key>"` with the job roles allowed to open it. The top navigation and sidebar follow from that.
@@ -106,3 +106,11 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
   `/left`, which signs them out.
 - The migration guard lets `drop constraint c, add constraint c ...` in one statement through: replacing a rule keeps
   every row, and a stricter rule fails the migration instead of deleting data.
+- Pages (D5, D7): every demo page is registered once in `src/lib/auth/pages.ts` (key, per-role label, href, icon,
+  sidebar group, `built`). A role's default pages are the demo's `tabsDefBase` plus `ACCESS0`; the MD's changes are
+  rows in `role_page_access` (People, "What each role can see"). `requirePage(key)` gates routes and actions; the
+  sidebar uses `navPagesFor`. Cost visibility is the "margin" row or the person's `sees_margin`, in TS (`canSeeMargin`)
+  and SQL (`can_see_mof_cost()`). This replaces `nav-sections.ts`; the registry has no module key, so the layout puts
+  every page in the one CRM module until task 07 settles the shell.
+- Routes the demo has no page for: `/overtime` is the Claims page until Claims is built; `/guide` sits outside the
+  matrix for everyone, as the demo's Guide button does; `/performance` stays the admins' page (perf is not built).

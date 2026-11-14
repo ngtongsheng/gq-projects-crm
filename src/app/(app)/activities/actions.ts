@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { JobRole } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { textField } from "@/lib/form/form-fields";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -74,7 +74,7 @@ async function checkChange(
 export async function saveActivity(
   formData: FormData,
 ): Promise<ActivityResult> {
-  const me = await requireSection("customers");
+  const me = await requirePage("cust");
   if (!canLogActivity(me.jobRole)) {
     return fail("Your role can view activities but not log them.");
   }
@@ -141,7 +141,7 @@ export async function setActivityStatus(
   activityId: string,
   status: ActivityStatus,
 ): Promise<ActivityResult> {
-  const me = await requireSection("customers");
+  const me = await requirePage("cust");
   const target = ActivityStatus.safeParse(status);
   if (!target.success) return fail("Choose completed or cancelled.");
 

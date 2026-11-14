@@ -5,7 +5,7 @@ import { DataTable } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { formatDateTime, formatMonth } from "@/lib/format/date";
 import { loadMonthlyReport, loadMonthReports } from "../report-data";
 import { loadReportFilers } from "../report-filers";
@@ -31,7 +31,7 @@ export default async function DirectorReportPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const me = await requireSection("directorReport");
+  const me = await requirePage("drep");
   const { view, person } = await loadReportsView(
     me,
     BASE_PATH,

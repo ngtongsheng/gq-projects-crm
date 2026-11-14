@@ -28,8 +28,8 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 | 05 | Quote record editor | done | 03 | sonnet/high |
 | 06 | Approval flow + Approvals page | done | 05 | opus/medium |
 | 07 | FOB Enquiry | done | 05 | sonnet/high |
-| 08 | Client quote preview | in-progress | 05 | sonnet/high |
-| 09 | Project card costing lines | todo | 06 | sonnet/high |
+| 08 | Client quote preview | done | 05 | sonnet/high |
+| 09 | Project card costing lines | in-progress | 06 | sonnet/high |
 | 10 | Chinese strings for Costing | todo | 04, 05, 06, 07, 08 | sonnet/medium |
 | 11 | Dev seed: sample quotes | todo | 02 | sonnet/medium |
 | 12 | Parity pass, docs, merge | todo | 01-11 | sonnet/medium |
@@ -66,3 +66,6 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 2026-11-15 · #07 · done · enquiries page, panel, actions + 29 tests; check/typecheck/test pass (1555)
 2026-11-15 · #07 · decision · only md/director/support/accounts reply (app-enforced, debt.md row); landed cost is display only, no "use in line" button; no Copy to WhatsApp or Mine toggle; sales may delete only pending enquiries; size parser splits on ", " to fix demo thousands-separator bug · spec says purchasing replies
 2026-11-15 · #08 · in-progress
+2026-11-15 · #08 · done · /costing/[id]/preview, toClientQuote, TSV + tests; check/typecheck/test pass (1565)
+2026-11-15 · #08 · decision · Chrome print comparison deferred to task 12 (needs test copy); compare view shows product name only (no rug size); compare prints portrait A4 (check in 12); added toolbarActions prop to print-layout.tsx and a Client quote button on the record · demo parity / needed to reach preview
+2026-11-15 · #09 · in-progress

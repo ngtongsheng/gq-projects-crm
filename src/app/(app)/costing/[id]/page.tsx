@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
+import { Button } from "@/components/ui/button";
 import { canApproveQuote } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { formatDateTime } from "@/lib/format/date";
@@ -97,9 +98,16 @@ export default async function CostingRecordPage({
             : undefined
         }
         actions={
-          <StatusBadge tone={QUOTE_STATUS_TONE[revision.status]}>
-            {QuoteStatusLabel[revision.status]}
-          </StatusBadge>
+          <>
+            <Button asChild variant="outline">
+              <Link href={`/costing/${quote.id}/preview?rev=${revision.rev}`}>
+                Client quote
+              </Link>
+            </Button>
+            <StatusBadge tone={QUOTE_STATUS_TONE[revision.status]}>
+              {QuoteStatusLabel[revision.status]}
+            </StatusBadge>
+          </>
         }
       />
       <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-3">

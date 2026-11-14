@@ -179,9 +179,9 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
   with a visit or report that week. On a Monday the default week is the week just ended (the demo's Sunday logic is
   buggy). Submit is blocked while outcomes are unlogged, enforced in the action, not the database.
   `weekly_report_due_at` is in `READ_ONLY_FUNCTIONS` so View as keeps working.
-- Projects: migration `20261115120000` takes site out of "projects: read all". A site person who sells still cannot
+- Projects: migration `20261115140000` takes site out of "projects: read all". A site person who sells still cannot
   create or edit projects (the demo gives them full sales use; needs an add/edit rule change, not planned).
 - Dashboard banners, the Sales Calendar nav badge and the on-leave strip go to the Integration loop (D2). Sales screens
   stay English only (D4).
-- Migrations (D5): ours are `20261115110000` and `20261115120000`; rename to fresh timestamps at merge if `main` has a
+- Migrations (D5): ours are `20261115130000` and `20261115140000` (renamed after loop 13 took `20261115120000`); rename again at merge if `main` has a
   newer one.

@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { canStartQuote } from "@/lib/auth/job-role";
+import { canStartQuote, canWorkEnquiries } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { loadQuoteRegister } from "./quote-data";
 import { QuoteStatusLabel } from "./quote-status";
@@ -48,6 +48,11 @@ export default async function CostingRegisterPage({
             <Button asChild variant="outline">
               <Link href="/costing/approvals">Below min margin</Link>
             </Button>
+            {canWorkEnquiries(me.jobRole) && (
+              <Button asChild variant="outline">
+                <Link href="/costing/enquiries">FOB Enquiry</Link>
+              </Button>
+            )}
             {canStart && (
               <Button asChild>
                 <Link href="/costing/new">

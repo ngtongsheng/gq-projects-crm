@@ -8,6 +8,7 @@ import { requirePage } from "@/lib/auth/require-page";
 import { formatDateTime } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
+import { EnquiryPanel } from "../enquiry-panel";
 import { loadQuote } from "../quote-data";
 import { QUOTE_STATUS_TONE, QuoteStatusLabel } from "../quote-status";
 import type { QuoteView } from "../quote-view";
@@ -165,6 +166,14 @@ export default async function CostingRecordPage({
           chosenOptionId={revision.chosenOptionId}
         />
       </QuoteEditor>
+      <EnquiryPanel
+        me={me}
+        quote={{
+          quoteNo: quote.quoteNo,
+          salespersonId: quote.salespersonId,
+          isOwner,
+        }}
+      />
       <section aria-label="History" className="flex flex-col gap-2">
         <h2 className="font-heading text-base font-semibold">History</h2>
         <ol className="flex flex-col gap-1.5 text-sm">

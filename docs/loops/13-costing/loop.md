@@ -27,8 +27,8 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 | 04 | Register + New quote | done | 03 | sonnet/high |
 | 05 | Quote record editor | done | 03 | sonnet/high |
 | 06 | Approval flow + Approvals page | done | 05 | opus/medium |
-| 07 | FOB Enquiry | in-progress | 05 | sonnet/high |
-| 08 | Client quote preview | todo | 05 | sonnet/high |
+| 07 | FOB Enquiry | done | 05 | sonnet/high |
+| 08 | Client quote preview | in-progress | 05 | sonnet/high |
 | 09 | Project card costing lines | todo | 06 | sonnet/high |
 | 10 | Chinese strings for Costing | todo | 04, 05, 06, 07, 08 | sonnet/medium |
 | 11 | Dev seed: sample quotes | todo | 02 | sonnet/medium |
@@ -63,3 +63,6 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 2026-11-15 · #06 · done · approval actions, readiness/decideStep, Approvals page, history list; check/typecheck/test pass (1526)
 2026-11-15 · #06 · decision · approvers may decide their own costing (demo; subagent's self-approval block removed per D9); sent-low costing cannot be resent; Recently decided lists only approval-route costings; choosing the customer option is not undoable; History list added to the costing page · demo parity / needed for return notes
 2026-11-15 · #07 · in-progress
+2026-11-15 · #07 · done · enquiries page, panel, actions + 29 tests; check/typecheck/test pass (1555)
+2026-11-15 · #07 · decision · only md/director/support/accounts reply (app-enforced, debt.md row); landed cost is display only, no "use in line" button; no Copy to WhatsApp or Mine toggle; sales may delete only pending enquiries; size parser splits on ", " to fix demo thousands-separator bug · spec says purchasing replies
+2026-11-15 · #08 · in-progress

@@ -6,6 +6,7 @@ import { canStartQuote } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { optionalId, textField } from "@/lib/form/form-fields";
 import { createClient } from "@/lib/supabase/server";
+import { normaliseQuoteNo } from "./quote-number";
 
 export type CreateQuoteResult = {
   error: string | null;
@@ -21,16 +22,10 @@ const TRY_AGAIN = "Could not start the costing. Try again.";
 // The demo's page names, which would clash with the screens' addresses.
 const RESERVED = ["REGISTER", "NEW", "APPROVAL", "ENQUIRY", "TEAM"];
 
-/** The salesperson's own quotation number as the demo normalises it (normNo). */
+/** The salesperson's own quotation number. */
 const quoteNo = z
   .string()
-  .transform((text) =>
-    text
-      .trim()
-      .toUpperCase()
-      .replace(/\s+/g, "")
-      .replace(/[^A-Z0-9\-_.]/g, ""),
-  )
+  .transform(normaliseQuoteNo)
   .pipe(
     z
       .string()

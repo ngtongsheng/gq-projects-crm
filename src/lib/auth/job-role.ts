@@ -67,6 +67,14 @@ export const canStartQuote = (jobRole: JobRole) =>
 export const canApproveQuote = (jobRole: JobRole) =>
   has(jobRole, ["md", "director"]);
 
+/** Works every FOB enquiry and gives the supplier's reply (SQL: public.works_fob_enquiries()). */
+export const canWorkEnquiries = (jobRole: JobRole) =>
+  has(jobRole, ["md", "director", "support", "accounts"]);
+
+/** Raises and edits their own FOB enquiries (SQL: the policies on fob_enquiries). */
+export const canRaiseEnquiry = (jobRole: JobRole) =>
+  has(jobRole, ["bd", "sales"]);
+
 export const canEditRegister = (jobRole: JobRole) =>
   has(jobRole, ["md", "support", "accounts"]);
 

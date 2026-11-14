@@ -30,8 +30,8 @@ two at a time without touching the same files. Everything account-bound is code 
 | 02 | Demo into repo, logo, app name, parity and handover docs | done | - | sonnet/medium |
 | 03 | Roles and people fields | done | - | opus/medium |
 | 04 | Team scoping: helpers + customers, activities, projects | done | 03 | opus/medium |
-| 05 | Team scoping: MOFs, payments, commission, reports | in-progress | 04 | opus/medium |
-| 06 | Page registry + access matrix | todo | 03 | opus/medium |
+| 05 | Team scoping: MOFs, payments, commission, reports | done | 04 | opus/medium |
+| 06 | Page registry + access matrix | in-progress | 03 | opus/medium |
 | 07 | Shell parity | todo | 02, 06 | sonnet/high |
 | 08 | Read-only View as | todo | 07 | opus/medium |
 | 09 | Google sign-in | todo | 03 | opus/medium |
@@ -64,3 +64,7 @@ two at a time without touching the same files. Everything account-bound is code 
 2026-11-14 · #04 · decision · read policies changed via alter policy (guard refuses drop policy); edit/insert policies untouched; contact_owners stays read-all
 2026-11-14 · #04 · done · check/typecheck/test (1125)/guard pass · next: #05
 2026-11-14 · #05 · started (opus/medium)
+2026-11-14 · #05 · decision · bd with a team reads team payments/payouts/commission/sales reports (D6, demo isMgr); Commission/Team Reports pages still isManager-gated until #06
+2026-11-14 · #05 · decision · pages load team via rpc("my_team") (src/lib/auth/my-team.ts), staff can't read other profiles; mof_lines stay open (no money columns)
+2026-11-14 · #05 · done · check/typecheck/test (1164)/guard pass · next: #06
+2026-11-14 · #06 · started (opus/medium)

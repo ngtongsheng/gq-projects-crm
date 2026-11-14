@@ -149,6 +149,26 @@ export function marginBand(margin: number | null): MarginBand | null {
   return "green";
 }
 
+/**
+ * The revision's weakest option margin, which decides whether it needs approval. An option that
+ * sells nothing counts as 0, as in the demo; null when there are no options.
+ */
+export function lowestMargin(
+  options: readonly { margin: number | null }[],
+): number | null {
+  if (options.length === 0) return null;
+  return Math.min(...options.map((option) => option.margin ?? 0));
+}
+
+/** At or above the minimum margin (a percentage, e.g. 30) the margin is "high", below it "low". */
+export function marginLevel(
+  margin: number | null,
+  minMarginPct: number,
+): "low" | "high" | null {
+  if (margin === null) return null;
+  return Number((margin * 100).toPrecision(12)) < minMarginPct ? "low" : "high";
+}
+
 /** What the customer is quoted: the highest option. */
 export function quoteAmount(options: readonly { sell: number }[]): number {
   return options.reduce((highest, option) => Math.max(highest, option.sell), 0);

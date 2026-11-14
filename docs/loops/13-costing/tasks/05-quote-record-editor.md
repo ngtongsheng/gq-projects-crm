@@ -11,6 +11,8 @@ tables by category with type-specific inputs, fx USD/RMB, SST, target margin; sa
 ## Context
 - Demo GQC quote record screen. Maths from `src/lib/domain/costing.ts`; loader from task 03.
 - Action bar buttons for the approval flow are added in task 06; leave the slot.
+- D3 applies in the editor: a viewer without the margin flag (default salespeople) sees and edits sell-side fields only (product, supplier, qty, unit, rate, sell) and the Low/High margin pill; cost inputs, fx, SST, target margin and wastage are not rendered and the save action ignores them (cost stays as the flag holder keyed it). Use `quote-data.ts` loaders (task 03).
+
 ## Files to touch
 - `src/app/(app)/costing/[id]/page.tsx` (new), `option-card.tsx`, `item-table.tsx` (new)
 - `src/app/(app)/costing/[id]/revision-actions.ts` (new) + test

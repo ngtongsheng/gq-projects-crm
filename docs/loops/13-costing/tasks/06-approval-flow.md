@@ -13,6 +13,8 @@ Approvals page "Below min margin" (pending + recent).
 - Rules: drift doc "Costing" Rules bullet; demo GQC action bar and approvals screen.
 - Migration 02 lets an owner move a revision to `approved` through the API (database cannot do margin maths). The server action must enforce: owner confirms only when the lowest option margin is at or above the min margin setting; otherwise submit for md/director. Add a lowest-margin-across-options helper to `costing.ts` (task 01 left it out).
 
+- Reuse `lowestMargin`/`marginLevel` from `costing.ts` (task 03 added them). History notes reach restricted viewers unfiltered: never write margin % or cost figures into a note.
+
 ## Files to touch
 - `src/lib/domain/quote-status.ts` (new, pure transitions) + test
 - `src/app/(app)/costing/[id]/approval-actions.ts` (new) + test, action bar component

@@ -3,7 +3,9 @@ import {
   type CostingItem,
   itemTotals,
   landedPerM2,
+  lowestMargin,
   marginBand,
+  marginLevel,
   optionTotals,
   quoteAmount,
 } from "./costing";
@@ -283,6 +285,29 @@ describe("quoteAmount", () => {
 
   it("is zero with no options", () => {
     expect(quoteAmount([])).toBe(0);
+  });
+});
+
+describe("lowestMargin", () => {
+  it("is the weakest option, counting an option that sells nothing as 0", () => {
+    expect(lowestMargin([{ margin: 0.42 }, { margin: 0.35 }])).toBe(0.35);
+    expect(lowestMargin([{ margin: 0.42 }, { margin: null }])).toBe(0);
+  });
+
+  it("is null with no options", () => {
+    expect(lowestMargin([])).toBeNull();
+  });
+});
+
+describe("marginLevel", () => {
+  it("is low below the minimum and high at or above it", () => {
+    expect(marginLevel(0.2999, 30)).toBe("low");
+    expect(marginLevel(0.3, 30)).toBe("high");
+    expect(marginLevel(0.2999, 25)).toBe("high");
+  });
+
+  it("has no level when nothing is sold", () => {
+    expect(marginLevel(null, 30)).toBeNull();
   });
 });
 

@@ -23,8 +23,8 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 |---|---|---|---|---|
 | 01 | Costing maths | done | - | sonnet/high |
 | 02 | Migration: costing tables, settings, RLS | done | - | opus/medium |
-| 03 | Quote loader + margin gating | in-progress | 01, 02 | opus/medium |
-| 04 | Register + New quote | todo | 03 | sonnet/high |
+| 03 | Quote loader + margin gating | done | 01, 02 | opus/medium |
+| 04 | Register + New quote | in-progress | 03 | sonnet/high |
 | 05 | Quote record editor | todo | 03 | sonnet/high |
 | 06 | Approval flow + Approvals page | todo | 05 | opus/medium |
 | 07 | FOB Enquiry | todo | 05 | sonnet/high |
@@ -48,3 +48,7 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 2026-11-15 · #02 · decision · migration timestamp 20261115120000 (clock sorted before existing); sixth table quote_revision_history; FOB enquiry quote_no is free text; sales/bd manage own enquiries, md/director/support/accounts work all · demo rules
 2026-11-15 · #02 · decision · cost-column API exposure and role-based (not page-matrix) read logged in docs/debt.md; self-approve enforcement added to task 06, example-data reset note to task 11 · needs D1 change / not in scope
 2026-11-15 · #03 · in-progress
+2026-11-15 · #03 · done · quote-view.ts, quote-data.ts + tests; check/typecheck/test pass
+2026-11-15 · #03 · decision · restricted view also drops fx, SST, target margin, wastage, supplier price per piece; empty option has null level; register "updated" = later of quote/revision · cost-only fields
+2026-11-15 · #03 · decision · D3 holds in editor: viewers without margin flag edit sell-side only (added to task 05); no margin/cost in history notes (added to task 06) · demo hides cost without flag; owner may want a sales exception
+2026-11-15 · #04 · in-progress

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { canEnterPayments } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { orderTotal } from "@/lib/domain/mof-totals";
 import { textField } from "@/lib/form/form-fields";
 import { todayMyt } from "@/lib/format/date";
@@ -51,7 +51,7 @@ const paymentForm = z.object({
 export async function recordPayment(
   formData: FormData,
 ): Promise<CollectionResult> {
-  const me = await requireSection("collection");
+  const me = await requirePage("coll");
   if (!canEnterPayments(me.jobRole)) return { error: NOT_ALLOWED };
 
   const parsed = paymentForm.safeParse({
@@ -115,7 +115,7 @@ export async function recordPayment(
 export async function removePayment(
   paymentId: string,
 ): Promise<CollectionResult> {
-  const me = await requireSection("collection");
+  const me = await requirePage("coll");
   if (!canEnterPayments(me.jobRole)) return { error: NOT_ALLOWED };
 
   const id = z.uuid().safeParse(paymentId);

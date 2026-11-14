@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { JobRole } from "@/lib/auth/job-role";
 import { ReportStats } from "@/lib/domain/report-stats";
 import { buildExampleData } from "./dataset.ts";
 import { exampleId } from "./ids.ts";
@@ -7,7 +8,7 @@ import { EXAMPLE_REFERENCES } from "./table-references.ts";
 import type { ExampleTable, People } from "./types.ts";
 
 const people = Object.fromEntries(
-  TEST_USERS.map((u) => [u.jobRole, exampleId("profiles", u.jobRole)]),
+  TEST_USERS.map((u) => [u.key, exampleId("profiles", u.key)]),
 ) as People;
 const profileIds = new Set(Object.values(people));
 const context = { people, today: "2026-11-02" };
@@ -165,16 +166,35 @@ describe("example data", () => {
 });
 
 describe("test sign-ins", () => {
-  it("has one per job role with an unusable email domain", () => {
-    expect(TEST_USERS.map((u) => u.jobRole).sort()).toEqual([
-      "accounts",
-      "bd",
-      "director",
-      "md",
-      "sales",
-      "site",
-      "support",
-    ]);
+  it("has the demo's 17 people, each with an unusable email domain", () => {
+    expect(TEST_USERS).toHaveLength(17);
+    expect(new Set(TEST_USERS.map((u) => u.email)).size).toBe(17);
     for (const u of TEST_USERS) expect(u.email).toMatch(/@example\.invalid$/);
+    expect(new Set(TEST_USERS.map((u) => u.jobRole))).toEqual(
+      new Set(JobRole.options),
+    );
+  });
+
+  it("matches the demo's flags and left staff", () => {
+    const by = (key: string) => TEST_USERS.find((u) => u.key === key);
+    expect(by("vicky")?.role).toBe("admin");
+    expect(by("sarah")?.sells).toBe(true);
+    expect(by("jess")?.arrangesStock).toBe(true);
+    expect(by("waimun")?.seesMargin).toBe(true);
+    expect(TEST_USERS.filter((u) => u.left).map((u) => u.key)).toEqual([
+      "lisa",
+      "marketingexec",
+    ]);
+  });
+
+  it("puts every salesperson in a team led by a director or bd", () => {
+    for (const u of TEST_USERS) {
+      if (u.jobRole !== "sales") {
+        expect(u.reportsTo, u.key).toBeNull();
+        continue;
+      }
+      const lead = TEST_USERS.find((l) => l.key === u.reportsTo);
+      expect(["director", "bd"], u.key).toContain(lead?.jobRole);
+    }
   });
 });

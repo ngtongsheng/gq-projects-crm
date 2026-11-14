@@ -7,6 +7,9 @@ import {
   stageRows,
   yearPace,
 } from "./order-rollup";
+import type { WorkCalendar } from "./workdays";
+
+const CALENDAR: WorkCalendar = { week: "mon-fri", holidays: new Set() };
 
 const today = "2026-11-12";
 
@@ -99,8 +102,8 @@ test("salesperson rows total the year and the unpaid balance", () => {
 
 test("year pace is the months gone plus the share of this month", () => {
   // 1 Jan has 1 of 22 workdays gone; 2026-01-01 is a Thursday.
-  expect(yearPace("2026-01-30")).toBeCloseTo(1 / 12, 1);
-  expect(yearPace("2026-12-31")).toBeCloseTo(1, 5);
-  expect(yearPace("2026-06-30")).toBeGreaterThan(0.49);
-  expect(yearPace("2026-06-30")).toBeLessThan(0.51);
+  expect(yearPace("2026-01-30", CALENDAR)).toBeCloseTo(1 / 12, 1);
+  expect(yearPace("2026-12-31", CALENDAR)).toBeCloseTo(1, 5);
+  expect(yearPace("2026-06-30", CALENDAR)).toBeGreaterThan(0.49);
+  expect(yearPace("2026-06-30", CALENDAR)).toBeLessThan(0.51);
 });

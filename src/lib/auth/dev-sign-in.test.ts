@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { DEV_PROJECT_REF, PROD_PROJECT_REF } from "../supabase/test-copy";
-import { isDevSignInAllowed, TEST_SIGN_IN_EMAILS } from "./dev-sign-in";
-import { JobRole } from "./job-role";
+import {
+  isDevSignInAllowed,
+  isTestSignInEmail,
+  testSignInEmail,
+} from "./dev-sign-in";
 
 const TEST_COPY_URL = `https://${DEV_PROJECT_REF}.supabase.co`;
 
@@ -49,10 +52,11 @@ describe("isDevSignInAllowed", () => {
   });
 });
 
-describe("TEST_SIGN_IN_EMAILS", () => {
-  it("has one distinct test email per job role", () => {
-    const emails = JobRole.options.map((role) => TEST_SIGN_IN_EMAILS[role]);
-    expect(new Set(emails).size).toBe(JobRole.options.length);
-    for (const email of emails) expect(email).toMatch(/@example\.invalid$/);
+describe("test sign-in emails", () => {
+  it("are on the unusable domain and recognised as test people", () => {
+    expect(testSignInEmail("eddie")).toBe("test-eddie@example.invalid");
+    expect(isTestSignInEmail(testSignInEmail("waimun"))).toBe(true);
+    expect(isTestSignInEmail("vicky@gqprojects.com.my")).toBe(false);
+    expect(isTestSignInEmail(undefined)).toBe(false);
   });
 });

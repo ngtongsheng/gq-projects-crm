@@ -10,6 +10,9 @@ import {
 
 vi.mock("@/lib/auth/current-profile", () => ({ getCurrentProfile: vi.fn() }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: vi.fn() }));
+vi.mock("@/lib/auth/access-overrides", () => ({
+  loadAccessOverrides: async () => ({}),
+}));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("next/navigation", () => ({
   redirect: vi.fn((path: string) => {
@@ -28,8 +31,11 @@ const profile = (jobRole: Profile["jobRole"]): Profile => ({
   role: "staff",
   jobRole,
   arrangesStock: false,
+  sells: false,
+  seesMargin: false,
   commissionMode: "standard",
   yearlyTarget: null,
+  language: "en",
 });
 
 type Result = {
@@ -142,7 +148,7 @@ describe("saveInstallerPo", () => {
   });
 
   it("refuses someone who cannot change the register", async () => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("bd"));
     const calls = fakeSupabase(saved);
 
     const result = await saveInstallerPo(poForm());
@@ -236,7 +242,7 @@ describe("saveInstallerClaim", () => {
   });
 
   it("refuses someone who cannot change the register", async () => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("bd"));
     const calls = fakeSupabase(saved);
 
     const result = await saveInstallerClaim(claimForm());
@@ -310,8 +316,8 @@ describe("recordInstallerPayment", () => {
     });
   });
 
-  it("refuses Purchasing and Sales", async () => {
-    for (const role of ["support", "sales"] as const) {
+  it("refuses Purchasing and the Marketing Director", async () => {
+    for (const role of ["support", "bd"] as const) {
       vi.mocked(getCurrentProfile).mockResolvedValue(profile(role));
       const calls = fakeSupabase();
 

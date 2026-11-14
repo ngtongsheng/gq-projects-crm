@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { csvResponse } from "@/lib/format/csv-response";
 import { formatDate } from "@/lib/format/date";
 import { loadRegister } from "../mof-data";
@@ -8,7 +8,7 @@ import { MofStageLabel } from "../schemas";
 
 /** The MOF register as CSV: same rows as the page for this person and these filters. No costs. */
 export async function GET(request: NextRequest) {
-  const me = await requireSection("mof");
+  const me = await requirePage("mof");
   const filters = parseMofFilters(
     Object.fromEntries(request.nextUrl.searchParams),
   );

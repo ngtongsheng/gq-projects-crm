@@ -3,20 +3,28 @@ import type { Metadata } from "next";
 import { DataTable } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
-import { CommissionMode, JobRole, JobRoleLabel } from "@/lib/auth/job-role";
+import { loadAccessOverrides } from "@/lib/auth/access-overrides";
+import {
+  CommissionMode,
+  canLeadTeam,
+  JobRole,
+  JobRoleLabel,
+} from "@/lib/auth/job-role";
+import { type RoleKey, roleKeyOf } from "@/lib/auth/pages";
 import { requireRole } from "@/lib/auth/require-role";
 import { formatDate, todayMyt } from "@/lib/format/date";
+import { Language } from "@/lib/i18n/dictionary";
 import {
   ADMIN_UNAVAILABLE_MESSAGE,
   createAdminClient,
 } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { AddPersonDialog } from "./add-person-dialog";
-import { NewLinkDialog } from "./new-link-dialog";
 import { PersonSettingsDialog } from "./person-settings-dialog";
+import { RoleAccess } from "./role-access";
 import { RoleSelect } from "./role-select";
 import { roleSchema } from "./schemas";
-import { SignInAsButton } from "./sign-in-as-button";
+import { ViewAsButton } from "./view-as-button";
 
 export const metadata: Metadata = { title: "People" };
 
@@ -37,7 +45,7 @@ export default async function PeoplePage() {
     supabase
       .from("profiles")
       .select(
-        "id, full_name, role, job_role, arranges_stock, commission_mode, yearly_target, created_at",
+        "id, full_name, role, job_role, arranges_stock, commission_mode, yearly_target, created_at, title, joined_on, active, left_on, left_reason, reports_to, sells, sees_margin, whatsapp, language",
       )
       .order("created_at"),
     emailsById(),
@@ -54,12 +62,37 @@ export default async function PeoplePage() {
       name: row.full_name,
       jobRole: JobRole.parse(row.job_role),
       arrangesStock: row.arranges_stock === true,
+      sells: row.sells === true,
+      seesMargin: row.sees_margin === true,
       commissionMode: CommissionMode.parse(row.commission_mode),
       yearlyTarget:
         row.yearly_target === null ? null : Number(row.yearly_target),
+      whatsapp: row.whatsapp,
+      title: row.title,
+      joinedOn: row.joined_on,
+      reportsTo: row.reports_to,
+      language: Language.parse(row.language),
+      active: row.active === true,
+      leftOn: row.left_on,
+      leftReason: row.left_reason,
     },
-    joined: formatDate(todayMyt(new Date(row.created_at))),
+    joined: formatDate(row.joined_on ?? todayMyt(new Date(row.created_at))),
   }));
+
+  const peopleByRole: Partial<Record<RoleKey, string[]>> = {};
+  for (const row of rows) {
+    if (!row.settings.active) continue;
+    const roleKey = roleKeyOf(row.settings);
+    peopleByRole[roleKey] = [
+      ...(peopleByRole[roleKey] ?? []),
+      row.name ?? "Unnamed",
+    ];
+  }
+
+  // Who a person can report to: a Sales Director or Marketing Director still working here.
+  const leads = rows
+    .filter((row) => row.settings.active && canLeadTeam(row.settings.jobRole))
+    .map((row) => ({ id: row.id, name: row.name ?? "Unnamed" }));
 
   return (
     <div className="flex flex-col gap-4">
@@ -73,6 +106,7 @@ export default async function PeoplePage() {
         actions={
           <AddPersonDialog
             unavailableMessage={emails ? null : ADMIN_UNAVAILABLE_MESSAGE}
+            leads={leads}
           />
         }
       />
@@ -105,7 +139,10 @@ export default async function PeoplePage() {
           {
             key: "jobRole",
             header: "Job role",
-            cell: (row) => JobRoleLabel[row.settings.jobRole],
+            cell: (row) =>
+              row.settings.active
+                ? JobRoleLabel[row.settings.jobRole]
+                : `${JobRoleLabel[row.settings.jobRole]} · Left`,
           },
           {
             key: "joined",
@@ -118,20 +155,21 @@ export default async function PeoplePage() {
             header: "Settings",
             cell: (row) => (
               <div className="flex flex-wrap gap-2">
-                <PersonSettingsDialog person={row.settings} />
-                <NewLinkDialog
-                  userId={row.id}
-                  name={row.name}
-                  unavailableMessage={emails ? null : ADMIN_UNAVAILABLE_MESSAGE}
-                />
+                <PersonSettingsDialog person={row.settings} leads={leads} />
                 {me.jobRole === "md" && row.id !== me.id && (
-                  <SignInAsButton userId={row.id} name={row.name} />
+                  <ViewAsButton userId={row.id} name={row.name} />
                 )}
               </div>
             ),
           },
         ]}
       />
+      {me.jobRole === "md" && (
+        <RoleAccess
+          overrides={await loadAccessOverrides()}
+          people={peopleByRole}
+        />
+      )}
     </div>
   );
 }

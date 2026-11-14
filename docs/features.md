@@ -4,10 +4,10 @@ One section per screen, in sidebar order. Screenshots are the Sales Director's v
 example records, so a colleague with another job role sees fewer or different screens and records. The in-app
 **Guide** lists what each role can open.
 
-Job roles: MD, Sales Director, BD Director, Sales, HR & Accounts, Site Supervisor, Purchasing.
+Job roles: MD, Sales Director, Marketing Director, Salesperson, HR & Accounts, Site Supervisor, Purchasing, Sales support, Designer, Marketing Executive. The MD sets which pages each role sees in People ("What each role can see") and can open the app as anyone with **View as** (read only).
 
 ## Contents
-- [Top navigation](#top-navigation)
+- [Header and sidebar](#header-and-sidebar)
 - [Sign in](#sign-in)
 - [Dashboard](#dashboard)
 - [Sales Calendar](#sales-calendar)
@@ -31,9 +31,12 @@ Job roles: MD, Sales Director, BD Director, Sales, HR & Accounts, Site Superviso
 - [Guide](#guide)
 - [People](#people)
 
-## Top navigation
-A row of tabs across the top, one per module the signed-in role can open. Picking a tab shows that module's links in
-the sidebar. Today there is one module, the **CRM**, so every role sees its tab and its sidebar links.
+## Header and sidebar
+The header shows the logo, the app name, who is signed in (name and job title) and **Sign out**. The sidebar lists the
+pages the person's role may open, then a divider, the **Guide**, and the pages that sit below it (Sales Performance and
+People for admins). A badge on a link shows a count, e.g. open ownership requests on the **Dashboard**. The menu button
+at the top left collapses the sidebar to icons on a laptop and opens it as a drawer on a phone; the laptop choice is
+remembered in the browser.
 
 Used by: everyone.
 

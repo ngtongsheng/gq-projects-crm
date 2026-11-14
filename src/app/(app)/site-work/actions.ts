@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { canEditSite } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import {
   canCloseFollowUp,
   FOLLOW_UP_OWNERS,
@@ -90,7 +90,7 @@ export async function setSiteStage(
   mofIdValue: string,
   stage: string,
 ): Promise<SiteWorkResult> {
-  const me = await requireSection("siteWork");
+  const me = await requirePage("site");
   if (!canEditSite(me.jobRole)) return { error: NOT_SITE_TEAM };
 
   const parsed = stageForm.safeParse({ mofId: mofIdValue, stage });
@@ -117,7 +117,7 @@ export async function setSiteStage(
 
 /** Logs a site visit. The supervisor is whoever is signed in. */
 export async function addSiteLog(formData: FormData): Promise<SiteWorkResult> {
-  const me = await requireSection("siteWork");
+  const me = await requirePage("site");
   if (!canEditSite(me.jobRole)) return { error: NOT_SITE_TEAM };
 
   const parsed = logForm.safeParse({
@@ -157,7 +157,7 @@ export async function addSiteLog(formData: FormData): Promise<SiteWorkResult> {
 
 /** Adds a follow-up action to a site visit. */
 export async function addFollowUp(formData: FormData): Promise<SiteWorkResult> {
-  const me = await requireSection("siteWork");
+  const me = await requirePage("site");
   if (!canEditSite(me.jobRole)) return { error: NOT_SITE_TEAM };
 
   const parsed = followUpForm.safeParse({
@@ -201,7 +201,7 @@ export async function setFollowUpDone(
   ownerGroup: string,
   done: boolean,
 ): Promise<SiteWorkResult> {
-  const me = await requireSection("siteWork");
+  const me = await requirePage("site");
 
   const parsed = doneForm.safeParse({
     mofId: mofIdValue,

@@ -5,6 +5,9 @@ import { saveMof } from "./actions";
 
 vi.mock("@/lib/auth/current-profile", () => ({ getCurrentProfile: vi.fn() }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: vi.fn() }));
+vi.mock("@/lib/auth/access-overrides", () => ({
+  loadAccessOverrides: async () => ({}),
+}));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("next/navigation", () => ({
   redirect: vi.fn((path: string) => {
@@ -23,8 +26,11 @@ const profile = (jobRole: Profile["jobRole"]): Profile => ({
   role: "staff",
   jobRole,
   arrangesStock: false,
+  sells: false,
+  seesMargin: false,
   commissionMode: "standard",
   yearlyTarget: null,
+  language: "en",
 });
 
 type Result = {
@@ -183,13 +189,21 @@ describe("saveMof: register a new MOF", () => {
     expect(payload.cost).toBeNull();
   });
 
-  it("refuses a salesperson", async () => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+  it("refuses a Marketing Director", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("bd"));
     const calls = fakeSupabase([]);
 
     const result = await saveMof(form());
 
     expect(result.error).toMatch(/Only the MD, Purchasing or HR & Accounts/);
+    expect(calls).toHaveLength(0);
+  });
+
+  it("keeps a salesperson out: My Sales is hidden from them by default", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    const calls = fakeSupabase([]);
+
+    await expect(saveMof(form())).rejects.toThrow("redirect:/not-allowed");
     expect(calls).toHaveLength(0);
   });
 
@@ -244,7 +258,6 @@ describe("saveMof: cost is for managers only", () => {
 
   it.each([
     ["a business developer", "bd"],
-    ["a salesperson", "sales"],
   ] as const)("refuses a cost from %s before writing anything", async (_label, jobRole) => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile(jobRole));
     const calls = fakeSupabase([]);

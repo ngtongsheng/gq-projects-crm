@@ -2,7 +2,11 @@ import { z } from "zod";
 import type { JobRole } from "@/lib/auth/job-role";
 import { isSameMonth, startOfMonth } from "@/lib/domain/calendar-grid";
 import { orderTotal } from "@/lib/domain/mof-totals";
-import { firstMondayOfNextMonth, pace } from "@/lib/domain/workdays";
+import {
+  firstMondayOfNextMonth,
+  pace,
+  type WorkCalendar,
+} from "@/lib/domain/workdays";
 import type { CalendarDate } from "@/lib/format/date";
 import { sumRm } from "@/lib/format/money";
 
@@ -260,8 +264,12 @@ export function reportFlag(input: {
 }
 
 /** Share of the month's workdays gone by `today`: all of a past month, none of a future one. */
-export function monthPace(month: CalendarDate, today: CalendarDate): number {
-  if (isSameMonth(month, today)) return pace(today);
+export function monthPace(
+  month: CalendarDate,
+  today: CalendarDate,
+  calendar: WorkCalendar,
+): number {
+  if (isSameMonth(month, today)) return pace(today, calendar);
   return startOfMonth(month) < startOfMonth(today) ? 1 : 0;
 }
 

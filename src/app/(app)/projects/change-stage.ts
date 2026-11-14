@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { createClient } from "@/lib/supabase/server";
 import type { ProjectResult } from "./actions";
 import { ProjectStage, projectIdSchema } from "./schemas";
@@ -11,7 +11,7 @@ export async function changeProjectStage(
   projectId: string,
   stage: string,
 ): Promise<ProjectResult> {
-  await requireSection("projects");
+  await requirePage("proj");
 
   const id = projectIdSchema.safeParse(projectId);
   const nextStage = ProjectStage.safeParse(stage);

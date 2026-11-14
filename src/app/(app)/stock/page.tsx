@@ -9,7 +9,7 @@ import {
   canEditStock,
   canRequestStock,
 } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { availableQty, holdState } from "@/lib/domain/reservation";
 import { todayMyt } from "@/lib/format/date";
@@ -40,7 +40,7 @@ export default async function StockPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const me = await requireSection("stock");
+  const me = await requirePage("stock");
   const params = await searchParams;
   const view = params.view === "items" ? "items" : "reservations";
   const filter = parseFilter(params.filter);

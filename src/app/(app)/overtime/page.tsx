@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { canDecideOvertime, isManager } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { otTotals } from "@/lib/domain/ot-claim";
 import { todayMyt } from "@/lib/format/date";
@@ -24,7 +24,7 @@ function Totals({ claims }: { claims: OtClaim[] }) {
 }
 
 export default async function OvertimePage() {
-  const me = await requireSection("overtime");
+  const me = await requirePage("claims");
   const [claims, mofs, team] = await Promise.all([
     loadOtClaims(),
     loadMofOptions(),

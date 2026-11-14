@@ -5,6 +5,9 @@ import { decideOtClaim, submitOtClaim } from "./actions";
 
 vi.mock("@/lib/auth/current-profile", () => ({ getCurrentProfile: vi.fn() }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: vi.fn() }));
+vi.mock("@/lib/auth/access-overrides", () => ({
+  loadAccessOverrides: async () => ({}),
+}));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("next/navigation", () => ({
   redirect: vi.fn((path: string) => {
@@ -22,8 +25,11 @@ const profile = (jobRole: Profile["jobRole"]): Profile => ({
   role: "staff",
   jobRole,
   arrangesStock: false,
+  sells: false,
+  seesMargin: false,
   commissionMode: "standard",
   yearlyTarget: null,
+  language: "en",
 });
 
 type Result = {
@@ -175,13 +181,8 @@ describe("decideOtClaim", () => {
   });
 
   it("refuses every other role before touching the database", async () => {
-    for (const role of [
-      "bd",
-      "sales",
-      "accounts",
-      "site",
-      "support",
-    ] as const) {
+    // Purchasing has no Claims page in the demo, so the page check stops them first.
+    for (const role of ["bd", "sales", "accounts", "site"] as const) {
       vi.mocked(getCurrentProfile).mockResolvedValue(profile(role));
       const calls = fakeSupabase();
 

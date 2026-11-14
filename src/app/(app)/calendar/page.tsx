@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { isManager } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import {
   formatMonthTitle,
@@ -69,7 +69,7 @@ export default async function SalesCalendarPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const me = await requireSection("salesCalendar");
+  const me = await requirePage("cal");
   const params = parseCalendarParams(await searchParams);
   const { view } = params;
   const today = todayMyt();

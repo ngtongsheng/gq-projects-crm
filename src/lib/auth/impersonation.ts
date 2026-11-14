@@ -2,19 +2,28 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 
 /**
- * "Sign in as": the MD signs in as another person, and this cookie remembers who they really are
- * so they can switch back. It is signed with the server secret, so nobody can make one up, and it
- * only counts while the signed-in person is the one it names.
+ * "View as": the MD sees the app as another person, through that person's own session, and
+ * nothing can be saved while the cookie is there (see src/lib/supabase/view-only-fetch.ts).
+ * The cookie remembers who the MD really is so they can switch back. It is signed with the
+ * server secret, so nobody can make one up, and its view ends after a working day.
  */
 export const IMPERSONATION_COOKIE = "gq_impersonation";
 export const IMPERSONATION_MAX_AGE_SECONDS = 8 * 60 * 60;
+/**
+ * The cookie outlives its signed expiry on purpose: the session it rides on lasts as long as the
+ * auth cookies do, so once the view expires the cookie must still be there to keep it read-only
+ * until the MD switches back.
+ */
+export const IMPERSONATION_COOKIE_MAX_AGE_SECONDS = 400 * 24 * 60 * 60;
 
 export type Impersonation = {
   /** The MD, who really is behind this session. */
   adminId: string;
-  /** The person being signed in as. */
+  /** The MD's name, for "Back to Vicky". */
+  adminName: string;
+  /** The person being viewed as. */
   targetId: string;
-  /** The row in impersonation_log for this session. */
+  /** The row in impersonation_log for this view. */
   logId: string;
 };
 
@@ -56,9 +65,13 @@ export function verifyImpersonation(
       Buffer.from(body, "base64url").toString("utf8"),
     );
     if (typeof parsed !== "object" || parsed === null) return null;
-    const { adminId, targetId, logId, exp } = parsed as Record<string, unknown>;
+    const { adminId, adminName, targetId, logId, exp } = parsed as Record<
+      string,
+      unknown
+    >;
     if (
       typeof adminId !== "string" ||
+      typeof adminName !== "string" ||
       typeof targetId !== "string" ||
       typeof logId !== "string" ||
       typeof exp !== "number" ||
@@ -66,7 +79,7 @@ export function verifyImpersonation(
     ) {
       return null;
     }
-    return { adminId, targetId, logId };
+    return { adminId, adminName, targetId, logId };
   } catch {
     return null;
   }
@@ -79,4 +92,12 @@ export async function readImpersonation(): Promise<Impersonation | null> {
     store.get(IMPERSONATION_COOKIE)?.value,
     process.env.SUPABASE_SERVICE_ROLE_KEY,
   );
+}
+
+/**
+ * Whether this request is a View as, so nothing may be saved. Any cookie counts, even an expired
+ * or altered one: the session behind it may still be the other person's, so it fails closed.
+ */
+export async function isViewingAs(): Promise<boolean> {
+  return Boolean((await cookies()).get(IMPERSONATION_COOKIE)?.value);
 }

@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { canEditSite, type JobRole } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { canRecordLeftover, LEFTOVER_UNIT_LABEL } from "@/lib/domain/leftover";
 import { MOF_STAGE_LABEL, MOF_STAGE_TONE } from "@/lib/domain/mof-stages";
@@ -100,7 +100,7 @@ export default async function SiteDetailPage({
 }: {
   params: Promise<{ mofId: string }>;
 }) {
-  const me = await requireSection("siteWork");
+  const me = await requirePage("site");
   const { mofId } = await params;
   if (!z.uuid().safeParse(mofId).success) notFound();
 

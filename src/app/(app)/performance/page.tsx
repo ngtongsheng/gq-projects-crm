@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { canSeeMofCost } from "@/lib/auth/job-role";
+import { seesMofCost } from "@/lib/auth/page-access";
 import { requireRole } from "@/lib/auth/require-role";
 import { yearPace } from "@/lib/domain/order-rollup";
 import {
@@ -20,6 +20,7 @@ import {
 } from "@/lib/domain/sales-performance";
 import { todayMyt } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
+import { loadWorkCalendar } from "@/lib/work-calendar";
 import { loadPerformance } from "./performance-data";
 
 export const metadata: Metadata = { title: "Sales Performance" };
@@ -52,7 +53,7 @@ export default async function SalesPerformancePage({
   const me = await requireRole("admin");
   const today = todayMyt();
   const thisYear = Number(today.slice(0, 4));
-  const seesCost = canSeeMofCost(me.jobRole);
+  const seesCost = await seesMofCost(me);
   const { orders, people } = await loadPerformance(seesCost);
 
   const years = [
@@ -66,7 +67,10 @@ export default async function SalesPerformancePage({
 
   const { rows, total } = performanceRows(orders, people, year);
   // Behind where the year should be by now; a finished year has to reach the whole target.
-  const expected = (year === thisYear ? yearPace(today) : 1) * 100;
+  const expected =
+    (year === thisYear
+      ? yearPace(today, await loadWorkCalendar("mon-fri"))
+      : 1) * 100;
 
   return (
     <div className="flex flex-col gap-4">

@@ -5,7 +5,7 @@ import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
 import { canEditSite } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { MOF_STAGE_LABEL, MOF_STAGE_TONE } from "@/lib/domain/mof-stages";
 import { SITE_ACTIVITY_LABEL } from "@/lib/domain/site-log";
 import { formatDate, todayMyt } from "@/lib/format/date";
@@ -56,7 +56,7 @@ function SiteCard({ site }: { site: SiteSummary }) {
 }
 
 export default async function SiteWorkPage() {
-  const me = await requireSection("siteWork");
+  const me = await requirePage("site");
   const [sites, claims] = await Promise.all([
     loadActiveSites(todayMyt()),
     canEditSite(me.jobRole) ? loadPendingClaims(me) : Promise.resolve([]),

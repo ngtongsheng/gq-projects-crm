@@ -5,8 +5,13 @@ import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
 import type { JobRole } from "@/lib/auth/job-role";
 import { requireRole } from "@/lib/auth/require-role";
-import { workdaysElapsed, workdaysInMonth } from "@/lib/domain/workdays";
+import {
+  weekKindFor,
+  workdaysElapsed,
+  workdaysInMonth,
+} from "@/lib/domain/workdays";
 import { formatDate, todayMyt } from "@/lib/format/date";
+import { loadWorkCalendar } from "@/lib/work-calendar";
 import { ManagerDashboard } from "./dashboard/manager-dashboard";
 import { SalesDashboard } from "./dashboard/sales-dashboard";
 import { SiteDashboard } from "./dashboard/site-dashboard";
@@ -27,7 +32,10 @@ const TITLE: Record<JobRole, string> = {
   bd: "My dashboard",
   sales: "My dashboard",
   support: "MOF dashboard",
+  ssup: "MOF dashboard",
   site: "My dashboard",
+  marketing: "My dashboard",
+  designer: "My dashboard",
 };
 
 /**
@@ -44,6 +52,7 @@ export default async function Home({
     ? viewParam.parse((await searchParams).view)
     : "sales";
   const today = todayMyt();
+  const calendar = await loadWorkCalendar(weekKindFor(me.jobRole));
 
   return (
     <div className="flex flex-col gap-4">
@@ -53,7 +62,7 @@ export default async function Home({
             ? "MOF dashboard"
             : TITLE[me.jobRole]
         }
-        description={`${formatDate(today)} · working day ${workdaysElapsed(today)} of ${workdaysInMonth(today)}`}
+        description={`${formatDate(today)} · working day ${workdaysElapsed(today, calendar)} of ${workdaysInMonth(today, calendar)}`}
         actions={
           hasViewToggle(me.jobRole) ? (
             <nav aria-label="Dashboard view" className="flex gap-1">
@@ -81,11 +90,11 @@ export default async function Home({
           ) : undefined
         }
       />
-      {view === "mof" || me.jobRole === "support" ? (
+      {view === "mof" || me.jobRole === "support" || me.jobRole === "ssup" ? (
         <SupportDashboard me={me} />
       ) : me.jobRole === "site" ? (
         <SiteDashboard me={me} />
-      ) : me.jobRole === "sales" || me.jobRole === "bd" ? (
+      ) : ["sales", "bd", "marketing", "designer"].includes(me.jobRole) ? (
         <SalesDashboard me={me} />
       ) : (
         <ManagerDashboard me={me} />

@@ -2,8 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { canEditRegister, canSeeMofCost } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { canEditRegister } from "@/lib/auth/job-role";
+import { seesMofCost } from "@/lib/auth/page-access";
+import { requirePage } from "@/lib/auth/require-page";
 import { textField } from "@/lib/form/form-fields";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -117,7 +118,7 @@ function dbMessage(error: DbError): string {
 
 /** Registers an MOF, or changes one when the form carries a mofId. */
 export async function saveMof(formData: FormData): Promise<MofResult> {
-  const me = await requireSection("mof");
+  const me = await requirePage("mof");
   if (!canEditRegister(me.jobRole)) return fail(NOT_EDITOR);
 
   const mofId = textField(formData, "mofId") || null;
@@ -125,7 +126,7 @@ export async function saveMof(formData: FormData): Promise<MofResult> {
 
   // Cost is for the MD, Purchasing and Accounts; a posted cost from anyone else is refused, not ignored.
   const costText = formData.has("cost") ? textField(formData, "cost") : "";
-  if (formData.has("cost") && !canSeeMofCost(me.jobRole)) {
+  if (formData.has("cost") && !(await seesMofCost(me))) {
     return fail(NOT_MANAGER);
   }
   let cost: number | null = null;

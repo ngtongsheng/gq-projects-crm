@@ -26,7 +26,9 @@ vi.mock("next/headers", () => ({
   })),
 }));
 
-function fakeAdmin(emails: string[]) {
+const ID = "3f1c2d4e-5a6b-4c7d-8e9f-0a1b2c3d4e5f";
+
+function fakeAdmin(user: { email: string } | null) {
   const generateLink = vi.fn(async ({ email }: { email: string }) => ({
     data: { properties: { hashed_token: `hash-for-${email}` } },
     error: null,
@@ -34,10 +36,7 @@ function fakeAdmin(emails: string[]) {
   const admin = {
     auth: {
       admin: {
-        listUsers: vi.fn(async () => ({
-          data: { users: emails.map((email) => ({ email })) },
-          error: null,
-        })),
+        getUserById: vi.fn(async () => ({ data: { user }, error: null })),
         generateLink,
       },
     },
@@ -71,17 +70,17 @@ afterEach(() => {
 });
 
 describe("devSignIn", () => {
-  it("signs in as the role's test person and drops any Sign in as", async () => {
-    const { generateLink } = fakeAdmin(["test-sales@example.invalid"]);
+  it("signs in as the chosen test person and drops any View as", async () => {
+    const { generateLink } = fakeAdmin({ email: "test-eddie@example.invalid" });
     const { verifyOtp } = fakeSession();
 
-    await expect(devSignIn("sales")).rejects.toThrow("redirect:/");
+    await expect(devSignIn(ID)).rejects.toThrow("redirect:/");
     expect(generateLink).toHaveBeenCalledWith({
       type: "magiclink",
-      email: "test-sales@example.invalid",
+      email: "test-eddie@example.invalid",
     });
     expect(verifyOtp).toHaveBeenCalledWith({
-      token_hash: "hash-for-test-sales@example.invalid",
+      token_hash: "hash-for-test-eddie@example.invalid",
       type: "magiclink",
     });
     expect(deletedCookies).toEqual([IMPERSONATION_COOKIE]);
@@ -89,7 +88,7 @@ describe("devSignIn", () => {
 
   it("makes no admin call in a production build", async () => {
     vi.stubEnv("NODE_ENV", "production");
-    const result = await devSignIn("md");
+    const result = await devSignIn(ID);
     expect(result.error).toMatch(/test copy/);
     expect(createAdminClient).not.toHaveBeenCalled();
   });
@@ -99,27 +98,34 @@ describe("devSignIn", () => {
       "NEXT_PUBLIC_SUPABASE_URL",
       `https://${PROD_PROJECT_REF}.supabase.co`,
     );
-    const result = await devSignIn("md");
+    const result = await devSignIn(ID);
     expect(result.error).toMatch(/test copy/);
     expect(createAdminClient).not.toHaveBeenCalled();
   });
 
-  it("rejects an unknown job role", async () => {
+  it("rejects something that is not a person id", async () => {
     const result = await devSignIn("ceo");
-    expect(result.error).toMatch(/job role/);
+    expect(result.error).toMatch(/person/);
     expect(createAdminClient).not.toHaveBeenCalled();
   });
 
   it("shows the plain message without the server secret", async () => {
     vi.mocked(createAdminClient).mockReturnValue(null);
-    expect(await devSignIn("md")).toEqual({
+    expect(await devSignIn(ID)).toEqual({
       error: ADMIN_UNAVAILABLE_MESSAGE,
     });
   });
 
   it("says the test sign-ins need setting up when the person is missing", async () => {
-    const { generateLink } = fakeAdmin([]);
-    const result = await devSignIn("site");
+    const { generateLink } = fakeAdmin(null);
+    const result = await devSignIn(ID);
+    expect(result.error).toMatch(/setting up/);
+    expect(generateLink).not.toHaveBeenCalled();
+  });
+
+  it("refuses a real address on the test copy", async () => {
+    const { generateLink } = fakeAdmin({ email: "someone@gqprojects.com.my" });
+    const result = await devSignIn(ID);
     expect(result.error).toMatch(/setting up/);
     expect(generateLink).not.toHaveBeenCalled();
   });

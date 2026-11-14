@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { estimatedCommission } from "@/lib/domain/commission";
 import { projectFlags } from "@/lib/domain/project-flags";
@@ -58,7 +58,7 @@ export default async function ProjectsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const me = await requireSection("projects");
+  const me = await requirePage("proj");
   const filters = parsePipelineFilters(await searchParams);
   const supabase = await createClient();
 

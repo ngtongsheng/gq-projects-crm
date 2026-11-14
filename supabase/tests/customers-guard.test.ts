@@ -10,6 +10,11 @@ const nextMobile = () => `6012${String(++mobileCounter).padStart(7, "0")}`;
 
 beforeAll(async () => {
   t = await createTestDatabase();
+  // A director edits only their own team's customers (loop 11 D6).
+  await t.db.query("update public.profiles set reports_to = $1 where id = $2", [
+    t.profileIds.director,
+    t.profileIds.sales,
+  ]);
 });
 
 afterAll(async () => {

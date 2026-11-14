@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { formatMobile } from "@/lib/domain/mobile";
 import { createClient } from "@/lib/supabase/server";
@@ -58,7 +58,7 @@ export default async function CustomersPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const me = await requireSection("customers");
+  const me = await requirePage("cust");
   const filters = parseCustomerFilters(await searchParams);
   const supabase = await createClient();
 

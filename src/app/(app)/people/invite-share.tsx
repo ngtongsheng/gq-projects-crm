@@ -16,7 +16,7 @@ async function copy(text: string, done: string) {
   }
 }
 
-/** The one-time link to send: straight into WhatsApp when the mobile is known, or copied. */
+/** The app link to send: straight into WhatsApp when the mobile is known, or copied. */
 export function InviteShare({ invite }: { invite: Invite }) {
   return (
     <div className="flex flex-col gap-3">

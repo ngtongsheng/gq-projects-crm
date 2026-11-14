@@ -1,4 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
+import { isViewingAs } from "@/lib/auth/impersonation";
+import { viewOnlyFetch } from "./view-only-fetch";
 
 export const ADMIN_UNAVAILABLE_MESSAGE =
   "Adding people works on the preview link or the live site.";
@@ -15,5 +17,6 @@ export function createAdminClient() {
 
   return createClient(url, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
+    global: { fetch: viewOnlyFetch(isViewingAs) },
   });
 }

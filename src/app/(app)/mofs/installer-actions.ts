@@ -7,7 +7,7 @@ import {
   canEditSite,
   canEnterPayments,
 } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import {
   exceedsInstallerPo,
   INSTALLER_CLAIM_TYPES,
@@ -55,7 +55,7 @@ const installerPoForm = z.object({
 export async function saveInstallerPo(
   formData: FormData,
 ): Promise<InstallerResult> {
-  const me = await requireSection("mof");
+  const me = await requirePage("mof");
   if (!canEditRegister(me.jobRole)) return { error: NOT_EDITOR };
 
   const poId = textField(formData, "poId");
@@ -136,7 +136,7 @@ const poRow = z.array(z.object({ amount: z.number() }));
 export async function saveInstallerClaim(
   formData: FormData,
 ): Promise<InstallerResult> {
-  const me = await requireSection("mof");
+  const me = await requirePage("mof");
   if (!canEditRegister(me.jobRole)) return { error: NOT_EDITOR };
 
   const claimId = textField(formData, "claimId");
@@ -241,7 +241,7 @@ export async function verifyInstallerClaim(
   mofId: string,
   claimId: string,
 ): Promise<InstallerResult> {
-  const me = await requireSection("siteWork");
+  const me = await requirePage("site");
   if (!canEditSite(me.jobRole)) return { error: NOT_VERIFIER };
   if (
     !mofIdSchema.safeParse(mofId).success ||
@@ -285,7 +285,7 @@ const paymentForm = z.object({
 export async function recordInstallerPayment(
   formData: FormData,
 ): Promise<InstallerResult> {
-  const me = await requireSection("mof");
+  const me = await requirePage("mof");
   if (!canEnterPayments(me.jobRole)) return { error: NOT_PAYER };
 
   const parsed = paymentForm.safeParse({

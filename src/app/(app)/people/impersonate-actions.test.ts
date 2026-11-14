@@ -7,7 +7,7 @@ import {
 } from "@/lib/auth/impersonation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { backToMyAccount, signInAs } from "./impersonate-actions";
+import { endViewAs, viewAs } from "./impersonate-actions";
 
 vi.mock("@/lib/auth/current-profile", () => ({ getCurrentProfile: vi.fn() }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: vi.fn() }));
@@ -45,8 +45,11 @@ const profile = (overrides: Partial<Profile> = {}): Profile => ({
   role: "admin",
   jobRole: "md",
   arrangesStock: false,
+  sells: false,
+  seesMargin: false,
   commissionMode: "standard",
   yearlyTarget: null,
+  language: "en",
   ...overrides,
 });
 
@@ -125,14 +128,14 @@ beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
-describe("signInAs", () => {
+describe("viewAs", () => {
   it("is for the MD only: another admin is sent away before anything is touched", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(
       profile({ jobRole: "director" }),
     );
     const { generateLink } = fakeAdmin();
 
-    await expect(signInAs(DANIEL_ID)).rejects.toThrow("redirect:/");
+    await expect(viewAs(DANIEL_ID)).rejects.toThrow("redirect:/");
     expect(generateLink).not.toHaveBeenCalled();
   });
 
@@ -140,17 +143,17 @@ describe("signInAs", () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile({ role: "staff" }));
     const { generateLink } = fakeAdmin();
 
-    await expect(signInAs(DANIEL_ID)).rejects.toThrow("redirect:/");
+    await expect(viewAs(DANIEL_ID)).rejects.toThrow("redirect:/");
     expect(generateLink).not.toHaveBeenCalled();
   });
 
-  it("refuses signing in as yourself", async () => {
+  it("refuses viewing as yourself", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile());
     const { generateLink } = fakeAdmin();
 
-    const result = await signInAs(MD_ID);
+    const result = await viewAs(MD_ID);
 
-    expect(result.error).toMatch(/already signed in as yourself/);
+    expect(result.error).toMatch(/already what you see/);
     expect(generateLink).not.toHaveBeenCalled();
   });
 
@@ -158,17 +161,17 @@ describe("signInAs", () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile());
     vi.mocked(createAdminClient).mockReturnValue(null);
 
-    const result = await signInAs(DANIEL_ID);
+    const result = await viewAs(DANIEL_ID);
 
     expect(result.error).toMatch(/preview link or the live site/);
   });
 
-  it("records the switch, signs in as the person and remembers the MD", async () => {
+  it("records the view, opens it as the person and remembers the MD", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile());
     const { insertedRows, generateLink } = fakeAdmin();
     const { verifyOtp } = fakeSession(MD_ID);
 
-    await expect(signInAs(DANIEL_ID)).rejects.toThrow("redirect:/");
+    await expect(viewAs(DANIEL_ID)).rejects.toThrow("redirect:/");
 
     expect(insertedRows).toEqual([{ admin_id: MD_ID, target_id: DANIEL_ID }]);
     expect(generateLink).toHaveBeenCalledWith({
@@ -182,6 +185,7 @@ describe("signInAs", () => {
     const value = cookieStore.get(IMPERSONATION_COOKIE);
     expect(verifyImpersonation(value, SECRET)).toEqual({
       adminId: MD_ID,
+      adminName: "Vicky",
       targetId: DANIEL_ID,
       logId: LOG_ID,
     });
@@ -192,7 +196,7 @@ describe("signInAs", () => {
     const { deletedIds } = fakeAdmin();
     fakeSession(MD_ID, { message: "expired" });
 
-    const result = await signInAs(DANIEL_ID);
+    const result = await viewAs(DANIEL_ID);
 
     expect(result.error).toMatch(/Could not switch/);
     expect(deletedIds).toEqual([LOG_ID]);
@@ -200,16 +204,30 @@ describe("signInAs", () => {
   });
 });
 
-describe("backToMyAccount", () => {
+describe("endViewAs", () => {
   const cookieFor = (targetId: string) =>
-    signImpersonation({ adminId: MD_ID, targetId, logId: LOG_ID }, SECRET);
+    signImpersonation(
+      { adminId: MD_ID, adminName: "Vicky", targetId, logId: LOG_ID },
+      SECRET,
+    );
 
-  it("does nothing special without a valid cookie", async () => {
-    fakeAdmin();
-    fakeSession(DANIEL_ID);
+  it("does nothing special when nobody is viewing", async () => {
+    const { generateLink } = fakeAdmin();
+    const { signOut } = fakeSession(MD_ID);
+
+    await expect(endViewAs()).rejects.toThrow("redirect:/");
+    expect(generateLink).not.toHaveBeenCalled();
+    expect(signOut).not.toHaveBeenCalled();
+  });
+
+  it("signs out on an expired or altered cookie, since the session may be the other person's", async () => {
+    const { generateLink } = fakeAdmin();
+    const { signOut } = fakeSession(DANIEL_ID);
     cookieStore.set(IMPERSONATION_COOKIE, "forged.value");
 
-    await expect(backToMyAccount()).rejects.toThrow("redirect:/");
+    await expect(endViewAs()).rejects.toThrow("redirect:/sign-in");
+    expect(signOut).toHaveBeenCalled();
+    expect(generateLink).not.toHaveBeenCalled();
     expect(cookieStore.has(IMPERSONATION_COOKIE)).toBe(false);
   });
 
@@ -218,7 +236,7 @@ describe("backToMyAccount", () => {
     const { verifyOtp } = fakeSession("44444444-4444-4444-8444-444444444444");
     cookieStore.set(IMPERSONATION_COOKIE, cookieFor(DANIEL_ID));
 
-    await expect(backToMyAccount()).rejects.toThrow("redirect:/");
+    await expect(endViewAs()).rejects.toThrow("redirect:/");
 
     expect(generateLink).not.toHaveBeenCalled();
     expect(verifyOtp).not.toHaveBeenCalled();
@@ -230,7 +248,7 @@ describe("backToMyAccount", () => {
     const { verifyOtp } = fakeSession(DANIEL_ID);
     cookieStore.set(IMPERSONATION_COOKIE, cookieFor(DANIEL_ID));
 
-    await expect(backToMyAccount()).rejects.toThrow("redirect:/people");
+    await expect(endViewAs()).rejects.toThrow("redirect:/people");
 
     expect(generateLink).toHaveBeenCalledWith({
       type: "magiclink",
@@ -249,7 +267,7 @@ describe("backToMyAccount", () => {
     const { signOut } = fakeSession(DANIEL_ID, { message: "expired" });
     cookieStore.set(IMPERSONATION_COOKIE, cookieFor(DANIEL_ID));
 
-    await expect(backToMyAccount()).rejects.toThrow("redirect:/sign-in");
+    await expect(endViewAs()).rejects.toThrow("redirect:/sign-in");
 
     expect(signOut).toHaveBeenCalled();
     expect(cookieStore.has(IMPERSONATION_COOKIE)).toBe(false);

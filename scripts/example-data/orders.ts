@@ -45,8 +45,8 @@ const MOFS: MofSeed[] = [
     key: "m1",
     mofNo: "MOF-2026-014",
     project: "sutera-ballroom",
-    salesperson: "sales",
-    second: "md",
+    salesperson: "vernice",
+    second: "vicky",
     company: "Sutera Hospitality Group",
     projectName: "Sutera Ballroom Refurbishment",
     address: "1 Jalan Sutera, 50250 Kuala Lumpur",
@@ -80,7 +80,7 @@ const MOFS: MofSeed[] = [
     key: "m2",
     mofNo: "MOF-2026-016",
     project: "rimba-unit",
-    salesperson: "sales",
+    salesperson: "vernice",
     second: null,
     company: "Bukit Rimba Development",
     projectName: "Rimba Show Unit Package",
@@ -115,7 +115,7 @@ const MOFS: MofSeed[] = [
     key: "m3",
     mofNo: "MOF-2026-018",
     project: "kiara-cafe",
-    salesperson: "director",
+    salesperson: "eddie",
     second: null,
     company: "Kiara Design Studio",
     projectName: "Kiara Cafe Flooring",
@@ -149,7 +149,7 @@ const MOFS: MofSeed[] = [
     key: "m4",
     mofNo: "MOF-2026-009",
     project: null,
-    salesperson: "sales",
+    salesperson: "vernice",
     second: null,
     company: "Meridian Interiors Sdn Bhd",
     projectName: "Meridian Office Reception",
@@ -191,7 +191,7 @@ const MOFS: MofSeed[] = [
     key: "m5",
     mofNo: "MOF-2026-005",
     project: null,
-    salesperson: "bd",
+    salesperson: "vanessa",
     second: null,
     company: "Orion Builders Sdn Bhd",
     projectName: "Orion Site Office Flooring",
@@ -225,7 +225,7 @@ const MOFS: MofSeed[] = [
     key: "m6",
     mofNo: "MOF-2026-020",
     project: null,
-    salesperson: "sales",
+    salesperson: "vernice",
     second: null,
     company: "Harbourline Architects",
     projectName: "Harbourline Meeting Rooms",
@@ -259,7 +259,7 @@ const MOFS: MofSeed[] = [
     key: "m7",
     mofNo: "MOF-2025-088",
     project: null,
-    salesperson: "director",
+    salesperson: "eddie",
     second: null,
     company: "Pinnacle Main Contractors",
     projectName: "Pinnacle Podium Level",
@@ -304,7 +304,7 @@ export function buildMofs({ people, today }: BuildContext): ExampleTable[] {
     site_address: m.address,
     site_contact_name: m.siteContact[0],
     site_contact_mobile: m.siteContact[1],
-    office_pic_id: people.support,
+    office_pic_id: people.waimun,
     scope: m.scope,
     installer_name: m.installer,
     contract_sum: m.contractSum,
@@ -431,7 +431,7 @@ export function buildMoney({ people, today }: BuildContext): ExampleTable[] {
   const paymentSeeds: Array<[string, string, number, number, string | null]> = [
     // key, mof, amount, days ago, note
     ["pay1", "m1", 97250, 40, "50% deposit"],
-    ["pay2", "m1", 58350, 8, "Progress payment"],
+    ["pay2", "m1", 80000, 8, "Progress payment"],
     ["pay3", "m2", 28800, 30, "30% deposit"],
     ["pay4", "m4", 48780, 50, "Progress payment"],
     ["pay5", "m5", 15900, 190, "Deposit"],
@@ -447,10 +447,13 @@ export function buildMoney({ people, today }: BuildContext): ExampleTable[] {
   const payoutSeeds: Array<
     [string, keyof BuildContext["people"], string, number, number]
   > = [
-    // key, person, mof, amount, days ago
-    ["pout1", "bd", "m5", 1590, 150],
-    ["pout2", "sales", "m4", 1355, 45],
-    ["pout3", "sales", "m1", 2400, 7],
+    // key, person, mof, amount, days ago. The database refuses a payout past what is payable
+    // (commission_payable_now), so these stay under it: m5 low margin 1.5% of 31,800 is exactly
+    // 477; m4 is 1.5% of the 48,780 received; m1 has passed the 90% collected mark (pay1 + pay2
+    // are 91%) and Vernice's half share earns 3% of 177,250.
+    ["pout1", "vanessa", "m5", 477, 150],
+    ["pout2", "vernice", "m4", 500, 45],
+    ["pout3", "vernice", "m1", 2400, 7],
   ];
   const payouts: Row[] = payoutSeeds.map(([key, person, mof, amount, ago]) => ({
     id: exampleId("commission_payouts", key),

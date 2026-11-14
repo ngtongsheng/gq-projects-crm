@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { canScheduleJobs, canUpdateJobStatus } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import {
   isDoRunningNo,
   JOB_STATUSES,
@@ -110,7 +110,7 @@ async function runningNoProblem(
  * Scheduled, so a delivery cannot be Done before its DO exists.
  */
 export async function saveJob(formData: FormData): Promise<JobResult> {
-  const me = await requireSection("installation");
+  const me = await requirePage("inst");
   if (!canScheduleJobs(me.jobRole)) return { error: NOT_SCHEDULER };
 
   const jobId = textField(formData, "jobId");
@@ -279,7 +279,7 @@ export async function updateJobStatus(
   jobId: string,
   status: (typeof JOB_STATUSES)[number],
 ): Promise<JobResult> {
-  const me = await requireSection("installation");
+  const me = await requirePage("inst");
   if (!canUpdateJobStatus(me.jobRole)) return { error: NOT_SCHEDULER };
   if (
     !mofIdSchema.safeParse(mofId).success ||

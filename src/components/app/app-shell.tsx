@@ -1,132 +1,208 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
+import { NavIcon } from "@/components/app/nav-icons";
 import {
   Sidebar,
   SidebarContent,
   SidebarInset,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
-  SidebarTrigger,
+  SidebarSeparator,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { APP_NAME } from "@/lib/app-name";
-
-export type NavItem = {
-  href: string;
-  label: string;
-  /** An element such as <Home />; components cannot cross the server/client boundary. */
-  icon: ReactNode;
-  /** A count shown at the right edge, e.g. pending requests; hidden at zero. */
-  badge?: number;
-};
-
-export type NavModule = {
-  key: string;
-  label: string;
-  /** The sidebar links shown while the current page belongs to this module. */
-  nav: NavItem[];
-};
+import type { SidebarItem, SidebarItems } from "@/lib/auth/sidebar-items";
 
 type AppShellProps = {
-  modules: NavModule[];
-  /** Right side of the header: user menu, theme switch. */
+  nav: SidebarItems;
+  /** Who is signed in, shown at the right of the header where the demo has "Signed in as". */
+  user?: { name: string; title: string };
+  /** Right side of the header, after the person: sign out. */
   headerActions?: ReactNode;
   children: ReactNode;
 };
 
+const SIDEBAR_OPEN_KEY = "gqp-office-sidebar-open";
+
 const opensPage = (href: string, pathname: string) =>
   pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
 
-// Longest matching link wins, so /customers/ownership beats /customers.
-function activeModuleOf(modules: NavModule[], pathname: string): NavModule {
-  let best = modules[0];
-  let bestLength = -1;
-  for (const mod of modules) {
-    for (const { href } of mod.nav) {
-      if (opensPage(href, pathname) && href.length > bestLength) {
-        best = mod;
-        bestLength = href.length;
-      }
-    }
-  }
-  return best;
+// The longest matching link wins, so /reports/team beats /reports.
+function activeHref(
+  items: SidebarItem[],
+  pathname: string,
+): string | undefined {
+  return items
+    .filter(({ href }) => opensPage(href, pathname))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 }
 
-function ModuleTabs({
-  modules,
+function NavLinks({
+  items,
   active,
 }: {
-  modules: NavModule[];
-  active: NavModule;
+  items: SidebarItem[];
+  active: string | undefined;
 }) {
-  return (
-    <nav
-      aria-label="Modules"
-      className="mr-auto flex min-w-0 items-center gap-1 overflow-x-auto"
-    >
-      {modules.map((mod) => (
-        <Link
-          key={mod.key}
-          href={mod.nav[0]?.href ?? "/"}
-          aria-current={mod.key === active.key ? "page" : undefined}
-          className="shrink-0 rounded-md px-3 py-1.5 text-sm font-semibold text-head-muted hover:bg-head-foreground/10 hover:text-head-foreground aria-[current=page]:bg-head-foreground/15 aria-[current=page]:text-head-foreground"
-        >
-          {mod.label}
-        </Link>
-      ))}
-    </nav>
-  );
-}
-
-function NavMenu({ nav }: { nav: NavItem[] }) {
-  const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
 
   return (
-    <SidebarMenu>
-      {nav.map(({ href, label, icon, badge }) => (
-        <SidebarMenuItem key={href}>
+    <SidebarMenu className="gap-0.5">
+      {items.map(({ key, href, label, badge }) => (
+        <SidebarMenuItem key={key}>
           <SidebarMenuButton
             asChild
-            isActive={pathname === href}
-            className="font-semibold data-[active=true]:shadow-[inset_3px_0_0_var(--mint)]"
+            isActive={href === active}
+            className="relative h-auto min-h-[42px] gap-3 overflow-visible rounded-[10px] px-3 py-2 text-[length:15.5px] font-medium hover:bg-sunk data-active:bg-accent-soft data-active:font-semibold group-data-[collapsible=icon]:size-auto! group-data-[collapsible=icon]:justify-center [&_svg]:size-5 data-active:before:absolute data-active:before:inset-y-1.5 data-active:before:-left-2 data-active:before:w-1 data-active:before:rounded-r-[4px] data-active:before:bg-mint data-active:before:content-['']"
           >
-            <Link href={href} onClick={() => setOpenMobile(false)}>
-              {icon}
-              <span>{label}</span>
+            <Link
+              href={href}
+              title={label}
+              aria-current={href === active ? "page" : undefined}
+              onClick={() => setOpenMobile(false)}
+            >
+              <NavIcon name={key} />
+              <span className="min-w-0 group-data-[collapsible=icon]:hidden">
+                {label}
+              </span>
+              {badge ? (
+                <span
+                  data-nav-badge
+                  className="ml-auto min-w-5 rounded-[10px] bg-bad px-1.5 text-center text-[11.5px] leading-5 font-semibold text-head-foreground group-data-[collapsible=icon]:absolute group-data-[collapsible=icon]:top-0.5 group-data-[collapsible=icon]:right-1 group-data-[collapsible=icon]:min-w-4 group-data-[collapsible=icon]:px-1 group-data-[collapsible=icon]:text-[10px] group-data-[collapsible=icon]:leading-4"
+                >
+                  {badge}
+                </span>
+              ) : null}
             </Link>
           </SidebarMenuButton>
-          {badge ? <SidebarMenuBadge>{badge}</SidebarMenuBadge> : null}
         </SidebarMenuItem>
       ))}
     </SidebarMenu>
   );
 }
 
-export function AppShell({ modules, headerActions, children }: AppShellProps) {
-  const pathname = usePathname();
-  const active = activeModuleOf(modules, pathname);
+function MenuToggle() {
+  const { toggleSidebar } = useSidebar();
 
   return (
-    <SidebarProvider className="flex-col [--header-height:3.5rem]">
-      <header className="sticky top-0 z-40 flex h-(--header-height) items-center gap-3 border-b-[3px] border-mint bg-head px-4 text-head-foreground">
-        <SidebarTrigger className="text-head-muted hover:bg-head-foreground/10 hover:text-head-foreground" />
-        <span className="truncate font-heading text-lg font-bold tracking-wider uppercase">
-          {APP_NAME}
-        </span>
-        <ModuleTabs modules={modules} active={active} />
+    <button
+      type="button"
+      onClick={toggleSidebar}
+      title="Menu"
+      aria-label="Show or hide menu"
+      className="grid size-10 flex-none place-items-center rounded-[10px] border border-mint/55 bg-mint/12 text-head-foreground hover:bg-mint/25"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        className="size-5"
+      >
+        <rect x="3" y="4" width="18" height="16" rx="3" />
+        <path d="M9 4v16" />
+      </svg>
+    </button>
+  );
+}
+
+function Brand() {
+  const [first, ...rest] = APP_NAME.split(" ");
+  return (
+    <div className="mr-auto flex min-w-0 items-center gap-3">
+      <Image
+        src="/gqp-office-logo.png"
+        alt="GQ Projects"
+        width={68}
+        height={34}
+        priority
+        className="h-[34px] w-auto flex-none max-[520px]:h-7"
+      />
+      <span className="truncate font-heading text-[19px] leading-[1.1] font-bold tracking-[.06em] uppercase max-[520px]:text-base">
+        {first} <b className="font-bold text-mint">{rest.join(" ")}</b>
+      </span>
+    </div>
+  );
+}
+
+function SignedInAs({ name, title }: { name: string; title: string }) {
+  return (
+    <div className="flex min-w-0 flex-[0_1_auto] items-center gap-2">
+      <span className="text-[11.5px] tracking-[.07em] whitespace-nowrap text-head-muted uppercase max-[520px]:hidden">
+        Signed in as
+      </span>
+      <span
+        data-signed-in
+        className="min-w-0 truncate rounded-lg border border-border bg-card px-2.5 py-2 text-foreground"
+      >
+        {name}
+        <span className="max-sm:hidden"> — {title}</span>
+      </span>
+    </div>
+  );
+}
+
+export function AppShell({
+  nav,
+  user,
+  headerActions,
+  children,
+}: AppShellProps) {
+  const pathname = usePathname();
+  const active = activeHref([...nav.main, ...nav.after], pathname);
+
+  // The collapsed state is read after mount so the server and first client render agree.
+  const [open, setOpen] = useState(true);
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(SIDEBAR_OPEN_KEY) === "false") setOpen(false);
+    } catch {
+      // Storage can be blocked; the sidebar then simply starts open.
+    }
+  }, []);
+  const rememberOpen = (next: boolean) => {
+    setOpen(next);
+    try {
+      localStorage.setItem(SIDEBAR_OPEN_KEY, String(next));
+    } catch {
+      // Not remembering the choice is harmless.
+    }
+  };
+
+  return (
+    <SidebarProvider
+      open={open}
+      onOpenChange={rememberOpen}
+      className="flex-col [--header-height:63px]"
+      style={
+        {
+          "--sidebar-width": "236px",
+          "--sidebar-width-icon": "68px",
+        } as React.CSSProperties
+      }
+    >
+      <header className="sticky top-0 z-40 flex h-(--header-height) items-center gap-3 border-b-[3px] border-mint bg-head py-2.5 pr-4 pl-3 text-head-foreground">
+        <MenuToggle />
+        <Brand />
+        {user ? <SignedInAs name={user.name} title={user.title} /> : null}
         {headerActions}
       </header>
       <div className="flex flex-1">
-        <Sidebar className="top-(--header-height) h-[calc(100svh-var(--header-height))]!">
-          <SidebarContent className="p-2">
-            {active && <NavMenu nav={active.nav} />}
+        <Sidebar
+          collapsible="icon"
+          className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
+        >
+          <SidebarContent className="gap-0 px-2 pt-3 pb-6">
+            <NavLinks items={nav.main} active={active} />
+            <SidebarSeparator className="mx-1.5 my-2" />
+            <NavLinks items={nav.after} active={active} />
           </SidebarContent>
         </Sidebar>
         <SidebarInset>

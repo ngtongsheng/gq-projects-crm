@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { canEditRegister } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { canMoveStage, moveWarning } from "@/lib/domain/mof-stages";
 import { createClient } from "@/lib/supabase/server";
 import { MofStage, mofIdSchema } from "./schemas";
@@ -20,7 +20,7 @@ export async function changeMofStage(
   mofId: string,
   stage: string,
 ): Promise<StageResult> {
-  const me = await requireSection("mof");
+  const me = await requirePage("mof");
   if (!canEditRegister(me.jobRole)) {
     return {
       error: "Only the MD, Purchasing or HR & Accounts can change an MOF.",

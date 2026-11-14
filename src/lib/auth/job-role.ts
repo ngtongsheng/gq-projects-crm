@@ -10,17 +10,24 @@ export const JobRole = z.enum([
   "accounts",
   "site",
   "support",
+  "ssup",
+  "marketing",
+  "designer",
 ]);
 export type JobRole = z.infer<typeof JobRole>;
 
+// The titles in the demo's People list.
 export const JobRoleLabel: Record<JobRole, string> = {
-  md: "MD",
+  md: "Managing Director",
   director: "Sales Director",
-  bd: "BD Director",
-  sales: "Sales",
+  bd: "Marketing Director",
+  sales: "Salesperson",
   accounts: "HR & Accounts",
   site: "Site Supervisor",
+  ssup: "Sales support",
   support: "Purchasing",
+  marketing: "Marketing Executive",
+  designer: "Designer",
 };
 
 /** Per-person commission exception, set on the person rather than keyed by name. */
@@ -41,16 +48,13 @@ export const CommissionModeLabel: Record<CommissionMode, string> = {
 const has = (jobRole: JobRole, allowed: readonly JobRole[]) =>
   allowed.includes(jobRole);
 
+/** Leads a sales team, so others can report to them (SQL: the check_reports_to trigger). */
+export const canLeadTeam = (jobRole: JobRole) =>
+  has(jobRole, ["director", "bd"]);
+
 /** Sees the whole team's work (SQL: public.is_manager()). */
 export const isManager = (jobRole: JobRole) =>
   has(jobRole, ["md", "director", "accounts"]);
-
-/**
- * Cost and margin of an MOF, and the MOF summary that shows them: the MD, Purchasing and HR & Accounts.
- * Not the Sales Director (SQL: public.can_see_mof_cost()).
- */
-export const canSeeMofCost = (jobRole: JobRole) =>
-  has(jobRole, ["md", "support", "accounts"]);
 
 /** HR & Accounts sees everything but changes only payments and commission. */
 export const isReadOnly = (jobRole: JobRole) => jobRole === "accounts";

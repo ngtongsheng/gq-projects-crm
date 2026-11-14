@@ -20,7 +20,10 @@ export function StatTile({
 }) {
   return (
     <div className="flex min-w-0 flex-col gap-1.5 rounded-xl border bg-card p-4">
-      <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+      <p
+        data-tile-label
+        className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase"
+      >
         {label}
       </p>
       <p className="font-mono text-xl font-semibold tabular-nums break-words sm:text-2xl">

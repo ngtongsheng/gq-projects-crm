@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import type { Profile } from "@/lib/auth/current-profile";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { canRecordLeftover } from "@/lib/domain/leftover";
 import { toImportPreview } from "@/lib/import/import-plan";
 import {
@@ -95,7 +95,7 @@ function specFor(
 export async function previewLeftoverImport(
   input: PasteImportInput,
 ): Promise<PreviewImportResult> {
-  const me = await requireSection("stock");
+  const me = await requirePage("stock");
   return previewPasteImport(specFor(me), input);
 }
 
@@ -103,6 +103,6 @@ export async function previewLeftoverImport(
 export async function importLeftovers(
   input: PasteImportInput,
 ): Promise<SaveImportResult> {
-  const me = await requireSection("stock");
+  const me = await requirePage("stock");
   return savePasteImport(specFor(me), input);
 }

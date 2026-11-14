@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { textField } from "@/lib/form/form-fields";
 import { createClient } from "@/lib/supabase/server";
@@ -58,7 +58,7 @@ const duplicateRow = z.object({
 export async function saveContact(
   formData: FormData,
 ): Promise<SaveContactResult> {
-  const me = await requireSection("customers");
+  const me = await requirePage("cust");
   if (!canAddContact(me.jobRole)) {
     return fail("Your role can view customers but not change them.");
   }

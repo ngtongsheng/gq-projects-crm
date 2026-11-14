@@ -29,6 +29,13 @@ describe("destructive statements are caught", () => {
     ["ALTER TABLE clients ALTER phone SET DATA TYPE integer;"],
     ["UPDATE clients SET status = 'x';"],
     ["UPDATE clients SET status = (SELECT 'a' WHERE true);"],
+    ["ALTER TABLE clients DROP CONSTRAINT clients_status_check;"],
+    [
+      "ALTER TABLE clients DROP CONSTRAINT a_check, ADD CONSTRAINT b_check CHECK (x > 0);",
+    ],
+    [
+      "ALTER TABLE clients DROP CONSTRAINT c_check, ADD CONSTRAINT c_check CHECK (x > 0), DROP COLUMN phone;",
+    ],
   ])("%s", (sql) => {
     expect(reasonsFor(sql)).toHaveLength(1);
   });
@@ -65,6 +72,12 @@ describe("safe statements pass", () => {
     ["UPDATE clients SET status = 'x' WHERE id = 1;"],
     ["INSERT INTO clients (a) VALUES (1) ON CONFLICT (a) DO UPDATE SET a = 2;"],
     ["CREATE INDEX ON clients (status);"],
+    [
+      "ALTER TABLE clients DROP CONSTRAINT clients_status_check, ADD CONSTRAINT clients_status_check CHECK (status in ('a', 'b'));",
+    ],
+    [
+      "alter table clients drop constraint if exists c_check, add constraint c_check check (x > 0);",
+    ],
   ])("%s", (sql) => {
     expect(reasonsFor(sql)).toEqual([]);
   });

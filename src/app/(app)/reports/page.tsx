@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { reportKindFor } from "@/lib/domain/report-stats";
 import { loadMonthlyReport } from "./report-data";
 import { loadReportsView } from "./report-params";
@@ -14,7 +14,7 @@ export default async function MyReportPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const me = await requireSection("reports");
+  const me = await requirePage("rep", "srep");
   const { view } = await loadReportsView(me, "/reports", await searchParams);
   const kind = reportKindFor(me.jobRole);
   if (!kind) redirect(reportHref("/reports/team", view.month));

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { canEditRegister } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { SUPPLIER_PO_STATUSES } from "@/lib/domain/supplier-po";
 import { textField } from "@/lib/form/form-fields";
 import { createClient } from "@/lib/supabase/server";
@@ -44,7 +44,7 @@ const supplierPoForm = z.object({
 export async function saveSupplierPo(
   formData: FormData,
 ): Promise<SupplierPoResult> {
-  const me = await requireSection("mof");
+  const me = await requirePage("mof");
   if (!canEditRegister(me.jobRole)) return { error: NOT_EDITOR };
 
   const poId = textField(formData, "poId");

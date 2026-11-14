@@ -1,8 +1,45 @@
 import { z } from "zod";
 import { CommissionMode, JobRole } from "@/lib/auth/job-role";
 import { normaliseMobile } from "@/lib/domain/mobile";
+import { optionalId, optionalText } from "@/lib/form/form-fields";
+import { Language } from "@/lib/i18n/dictionary";
 
 export const roleSchema = z.enum(["admin", "staff"]);
+
+// Blank is no number; saved as digits with the country code, like the contacts' mobiles.
+const whatsappSchema = z
+  .string()
+  .trim()
+  .transform((value, ctx) => {
+    if (value === "") return null;
+    const mobile = normaliseMobile(value);
+    if (!mobile) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Enter a full Malaysian mobile number, like 012-345 6789.",
+      });
+      return z.NEVER;
+    }
+    return mobile;
+  });
+
+const optionalDate = (message: string) =>
+  z
+    .union([z.literal(""), z.iso.date(message)])
+    .transform((value) => (value === "" ? null : value));
+
+// A checked checkbox posts "on"; an unchecked one posts nothing.
+const checkbox = z
+  .literal("on")
+  .nullable()
+  .transform((value) => value === "on");
+
+const personFields = {
+  title: optionalText(120),
+  joinedOn: optionalDate("Choose the date they joined."),
+  reportsTo: optionalId("Choose who they report to."),
+  language: Language,
+};
 
 export const addPersonSchema = z.object({
   fullName: z.string().trim().min(1, "Enter their name.").max(100),
@@ -14,22 +51,9 @@ export const addPersonSchema = z.object({
   role: roleSchema,
   // The database default for a new person.
   jobRole: JobRole.default("sales"),
-  // Optional, used only to open WhatsApp with the message ready; never saved.
-  mobile: z
-    .string()
-    .trim()
-    .transform((value, ctx) => {
-      if (value === "") return null;
-      const mobile = normaliseMobile(value);
-      if (!mobile) {
-        ctx.addIssue({
-          code: "custom",
-          message: "Enter a full Malaysian mobile number, like 012-345 6789.",
-        });
-        return z.NEVER;
-      }
-      return mobile;
-    }),
+  // Also opens WhatsApp with the invite ready.
+  mobile: whatsappSchema,
+  ...personFields,
 });
 
 export const newLinkSchema = z.object({ userId: z.uuid() });
@@ -54,14 +78,29 @@ const yearlyTargetSchema = z
   )
   .transform((value) => (value === "" ? null : Number(value)));
 
-export const personSettingsSchema = z.object({
-  userId: z.uuid(),
-  jobRole: JobRole,
-  // A checked checkbox posts "on"; an unchecked one posts nothing.
-  arrangesStock: z
-    .literal("on")
-    .nullable()
-    .transform((value) => value === "on"),
-  commissionMode: CommissionMode,
-  yearlyTarget: yearlyTargetSchema,
-});
+export const personSettingsSchema = z
+  .object({
+    userId: z.uuid(),
+    jobRole: JobRole,
+    arrangesStock: checkbox,
+    sells: checkbox,
+    seesMargin: checkbox,
+    commissionMode: CommissionMode,
+    yearlyTarget: yearlyTargetSchema,
+    whatsapp: whatsappSchema,
+    ...personFields,
+    hasLeft: checkbox,
+    leftOn: optionalDate("Choose the date they left."),
+    leftReason: optionalText(500),
+  })
+  .refine((person) => !person.hasLeft || person.leftOn !== null, {
+    path: ["leftOn"],
+    message: "Enter the date they left.",
+  })
+  // Someone still here has no leaving date or reason.
+  .transform(({ hasLeft, leftOn, leftReason, ...person }) => ({
+    ...person,
+    active: !hasLeft,
+    leftOn: hasLeft ? leftOn : null,
+    leftReason: hasLeft ? leftReason : null,
+  }));

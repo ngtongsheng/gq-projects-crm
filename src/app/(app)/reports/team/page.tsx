@@ -7,9 +7,10 @@ import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
 import { isManager } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { monthPace } from "@/lib/domain/report-stats";
 import { formatMonth } from "@/lib/format/date";
+import { loadWorkCalendar } from "@/lib/work-calendar";
 import {
   loadLiveStats,
   loadMonthlyReport,
@@ -31,7 +32,7 @@ export default async function TeamReportsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const me = await requireSection("reports");
+  const me = await requirePage("rep");
   if (!isManager(me.jobRole)) redirect("/reports");
   const params = await searchParams;
   const { view, person } = await loadReportsView(me, BASE_PATH, params);
@@ -126,7 +127,11 @@ export default async function TeamReportsPage({
         view={view}
         kind={kind}
         rows={rows}
-        pace={monthPace(view.month, view.today)}
+        pace={monthPace(
+          view.month,
+          view.today,
+          await loadWorkCalendar(kind === "site" ? "mon-sat" : "mon-fri"),
+        )}
       />
       <p className="text-sm text-muted-foreground">
         {kind === "sales"

@@ -1,9 +1,12 @@
 name: Health
 
 on:
-  # Supabase Free pauses a project after 7 idle days, so touch both weekly.
+  # Supabase Free may pause a project after 7 days of low activity. Its docs count user database
+  # activity and API requests (https://supabase.com/docs/guides/platform/pausing), so each project
+  # gets a request through its own REST API, which reaches Postgres. The CLI query below goes via the
+  # management API and did not stop a pause on 2026-11-14, so it is only a bonus check.
   schedule:
-    - cron: "0 1 * * 1"
+    - cron: "0 1 * * 1,4"
   workflow_dispatch:
     inputs:
       simulate_failure:
@@ -35,15 +38,33 @@ jobs:
       - name: Keep test copy awake
         id: dev
         continue-on-error: true
+        env:
+          PROJECT_REF: ${{ secrets.SUPABASE_DEV_PROJECT_REF }}
+          PUBLISHABLE_KEY: ${{ secrets.SUPABASE_DEV_PUBLISHABLE_KEY }}
         run: |
-          pnpm exec supabase link --project-ref "${{ secrets.SUPABASE_DEV_PROJECT_REF }}"
+          # permission denied (HTTP 401) still means Postgres answered; only no answer or a 5xx is a failure.
+          status="$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 \
+            "https://${PROJECT_REF}.supabase.co/rest/v1/profiles?select=id&limit=1" \
+            -H "apikey: ${PUBLISHABLE_KEY}")"
+          echo "REST API answered HTTP ${status}"
+          case "$status" in 000|5*) exit 1 ;; esac
+          pnpm exec supabase link --project-ref "$PROJECT_REF"
           pnpm exec supabase db query --linked "select 1"
 
       - name: Keep live app database awake
         id: prod
         continue-on-error: true
+        env:
+          PROJECT_REF: ${{ secrets.SUPABASE_PROD_PROJECT_REF }}
+          PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PROD_PUBLISHABLE_KEY }}
         run: |
-          pnpm exec supabase link --project-ref "${{ secrets.SUPABASE_PROD_PROJECT_REF }}"
+          # permission denied (HTTP 401) still means Postgres answered; only no answer or a 5xx is a failure.
+          status="$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 \
+            "https://${PROJECT_REF}.supabase.co/rest/v1/profiles?select=id&limit=1" \
+            -H "apikey: ${PUBLISHABLE_KEY}")"
+          echo "REST API answered HTTP ${status}"
+          case "$status" in 000|5*) exit 1 ;; esac
+          pnpm exec supabase link --project-ref "$PROJECT_REF"
           pnpm exec supabase db query --linked "select 1"
 
       - name: Simulate failure
@@ -83,7 +104,7 @@ jobs:
             exit 0
           fi
 
-          body="$(printf 'The weekly health check failed.\n\n%s\nRun: %s' "$problems" "$RUN_URL")"
+          body="$(printf 'The health check failed.\n\n%s\nRun: %s' "$problems" "$RUN_URL")"
 
           existing="$(gh issue list --state open --search 'Urgent: CRM health in:title' --json number --jq '.[0].number')"
           if [ -n "$existing" ]; then

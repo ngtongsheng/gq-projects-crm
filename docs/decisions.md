@@ -41,7 +41,7 @@ Loop 01 decisions: see `docs/loops/01-foundation/loop.md` (D1-D12).
 - Details: `docs/loops/04-vicky-agent-layer/loop.md`.
 
 ## Loop 03
-CRM features: to be grilled after loop 02. Source: Vicky's prototype `docs/mockup/gq-crm-mockup.html` (team roster
+CRM features: to be grilled after loop 02. Source: Vicky's prototype `docs/mockup/gqp-office-demo.html` (team roster
 and roles, lead pipeline, customers/designers, site activities, projects + payment claims, purchasing/POs with
 supplier and warehouse statuses, deliveries, installation schedule and installers, stock/offcuts and returns, staff
 OT claims, guide). The prototype is the spec input, not the data model: grill it into slices.
@@ -73,7 +73,7 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
 - Permissions: narrow allow rules for her push and pull-request commands (`git push -u origin HEAD`,
   `git push origin HEAD:*`, `gh pr create/merge/edit`); denies for `main`, force and `--admin` still win. Auto mode
   ignores a broad `git *` allow and a classifier may still refuse a push, hence the refused-push path.
-- Roles (D7): live app uses "Sign in as" (MD); her laptop uses the floating panel at the bottom of the page on the test copy (the sign-in skill was retired, loop 10 D9).
+- Roles (D7): live app uses "View as" (MD, read-only since loop 11); her laptop uses the floating panel at the bottom of the page on the test copy (the sign-in skill was retired, loop 10 D9).
 - Pending PRs (D8): 21, 23, 25 approved by the owner (company rating, MOF cost to Purchasing, MD "Sign in as") and
   consolidated onto `main`. PR 31 was left open as a draft: its 5 migrations have no screens and one rewrites a live
   function. The test copy's migration history is out of step with `main` until PR 31 is decided (`docs/debt.md`).
@@ -91,10 +91,62 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
 
 ## Loop 10 (multi-module app), decided 2026-11-08
 - Module (D5): a module is a tab in the top navigation with its own sidebar links. Each sidebar section carries a
-  `ModuleKey` (`src/lib/auth/nav-sections.ts`, today `"crm"`), and the labels map to the tab names. The app shell picks
+  `ModuleKey` (then `src/lib/auth/nav-sections.ts`, today `"crm"`; replaced in loop 11, see below), and the labels map to the tab names. The app shell picks
   the active module from the pathname.
 - Adding a module: add its key to `ModuleKey` and its label to the module label map, then give each of its sections
   `module: "<key>"` with the job roles allowed to open it. The top navigation and sidebar follow from that.
 - URLs are not prefixed (no `/crm/...`). Existing links and bookmarks keep working, and pages do not move. Module is a
   navigation grouping only; access stays per section.
 - Not renamed: the repo, package name and web address keep their current names.
+
+## Loop 11 (office foundation), decided 2026-11-14
+- A person who has left (`profiles.active = false`) has no role: the SQL role helpers return false, and every RLS table
+  carries the restrictive policy "left people: no access". New tables add that policy in the same migration
+  (`using ((select public.is_active())) with check ((select public.is_active()))`). `getCurrentProfile` sends them to
+  `/left`, which signs them out.
+- The migration guard lets `drop constraint c, add constraint c ...` in one statement through: replacing a rule keeps
+  every row, and a stricter rule fails the migration instead of deleting data.
+- Pages (D5, D7): every demo page is registered once in `src/lib/auth/pages.ts` (key, per-role label, href, icon,
+  sidebar group, `built`). A role's default pages are the demo's `tabsDefBase` plus `ACCESS0`; the MD's changes are
+  rows in `role_page_access` (People, "What each role can see"). `requirePage(key)` gates routes and actions; the
+  sidebar uses `navPagesFor`. Cost visibility is the "margin" row or the person's `sees_margin`, in TS (`canSeeMargin`)
+  and SQL (`can_see_mof_cost()`). This replaces `nav-sections.ts`; the registry has no module key, so the layout puts
+  every page in the one CRM module until task 07 settles the shell.
+- Shell (task 07): the top-navigation "module" tabs are gone, as in the demo; one sidebar lists the person's pages
+  (`sidebarItemsFor` in `src/lib/auth/sidebar-items.ts`): built pages, a divider, the Guide, then Sales Performance and
+  People (admins), Tasks, Tools & Forms, Leave. Icons are the demo's SVGs (`nav-icons.tsx`); HR and Claims show the
+  dashboard icon because the demo has none for them. The "Ownership requests" / "My requests" sidebar link is gone (the
+  demo has none): its count is the Dashboard badge, and deciders open the list from the dashboard's attention panel.
+- Shell deviations from the demo, on purpose: no body margin around the page (the demo shows an 8px frame, a missing
+  reset); no demo subtitle under the name; at phone width the header stays one row (the demo wraps "Signed in as" under
+  the logo) and shows the name without the title; the phone drawer is a sheet over the whole screen, header included
+  (the demo's drawer starts under the header); the theme follows the system (no toggle in the header yet).
+- Routes the demo has no page for: `/overtime` is the Claims page until Claims is built; `/guide` sits outside the
+  matrix for everyone, as the demo's Guide button does; `/performance` stays the admins' page (perf is not built).
+- View as (task 08, D1): "Sign in as" is now the demo's read-only "View as". The MD still switches to the person's own
+  session (so reads are exactly theirs), and every server Supabase call passes `viewOnlyFetch`
+  (`src/lib/supabase/view-only-fetch.ts`): while the `gq_impersonation` cookie is there, anything but a read is refused
+  before it leaves the server, for the server and admin clients alike. supabase-js calls every database function with
+  POST, so read-only functions a page calls must be listed in `READ_ONLY_FUNCTIONS`; storage sign-URL calls (task 10)
+  are POST too and need the same. Any cookie counts, even an expired or altered one, and the cookie outlives its 8-hour
+  view, so a lapsed view stays read-only until "Back to ..." (which then signs out). Actions show their own failure
+  text, not the demo's "View only – not saved." toast; the banner says nothing is saved.
+- Final checks (task 15), found on the test copy:
+  - Team work shows its customer: a Sales or Marketing Director read their team's projects and activities but not the
+    customer behind them when someone else owned or added it, so "project at company" screens crashed (the Dashboard did,
+    as Eddie). `20261115100000_team_work_shows_its_customer.sql` lets them read customers and companies their team has a
+    project or activity on.
+  - `src/lib/supabase/test-copy.ts` keeps the test copy and live app project refs in code. This is the one exception to
+    "no refs in code" (D12): it is the guard that stops example data, one-click sign-in and the scripts from reaching the
+    live app. Moving the refs to env would let an unset or wrong value switch the guard off, and refs are not secrets.
+    On handover change the two constants and the test next to them (`handover-migration.md`).
+  - Google sign-in with an address nobody added (a personal Gmail) is refused by Supabase before our callback runs, so
+    the person sees "You haven't been added yet", not the company-domain message. The domain message shows only when the
+    address has a user but is off the allowed list. Both refuse and leave no session.
+  - View as round trip works: the MD views as a salesperson, a save shows "Could not save the customer. Try again."
+    and writes nothing, "Back to <MD>" returns to the MD's own session (no sign-out).
+  - Print: the app shell's inset (rounded, dark, margined) and the page background now print white and flush, and the dev
+    role panel is hidden when printing, so a PrintLayout form is one A4 page.
+  - Parity deviations left for the page loops (this loop is the shell only): the Dashboard content differs from the demo
+    (tile set, "Sales activity" / "MOF & projects" tabs, columns); Costing, Tasks, Tools & Forms, Leave, HR and Log work
+    are not built so they are hidden; Sales Performance shows for admins only.

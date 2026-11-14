@@ -1,8 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { requireRole } from "@/lib/auth/require-role";
+import { textField } from "@/lib/form/form-fields";
+import { requestOrigin } from "@/lib/request-origin";
 import {
   ADMIN_UNAVAILABLE_MESSAGE,
   createAdminClient,
@@ -12,7 +13,6 @@ import { buildInvite, type Invite } from "./invite-message";
 import {
   addPersonSchema,
   changeRoleSchema,
-  newLinkSchema,
   personSettingsSchema,
 } from "./schemas";
 
@@ -21,15 +21,9 @@ export type AddPersonState = {
   invite: Invite | null;
 };
 
-async function requestOrigin(): Promise<string> {
-  const requestHeaders = await headers();
-  const host =
-    requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
-  const protocol =
-    requestHeaders.get("x-forwarded-proto") ??
-    (host?.startsWith("localhost") ? "http" : "https");
-  return `${protocol}://${host}`;
-}
+/** Must match the message in the check_reports_to trigger. */
+const REPORTS_TO_REFUSED =
+  "A person can only report to a Sales Director or Marketing Director.";
 
 export async function addPerson(formData: FormData): Promise<AddPersonState> {
   await requireRole("admin");
@@ -39,7 +33,11 @@ export async function addPerson(formData: FormData): Promise<AddPersonState> {
     email: formData.get("email"),
     role: formData.get("role"),
     jobRole: formData.get("jobRole") ?? undefined,
-    mobile: formData.get("mobile") ?? "",
+    mobile: textField(formData, "mobile"),
+    title: textField(formData, "title"),
+    joinedOn: textField(formData, "joinedOn"),
+    reportsTo: textField(formData, "reportsTo"),
+    language: formData.get("language") ?? "en",
   });
   if (!parsed.success) {
     return {
@@ -47,15 +45,16 @@ export async function addPerson(formData: FormData): Promise<AddPersonState> {
       invite: null,
     };
   }
-  const { fullName, email, role, jobRole, mobile } = parsed.data;
+  const { fullName, email, role, jobRole, mobile, ...person } = parsed.data;
 
   const admin = createAdminClient();
   if (!admin) return { error: ADMIN_UNAVAILABLE_MESSAGE, invite: null };
 
-  const { data, error } = await admin.auth.admin.generateLink({
-    type: "invite",
+  // Confirmed up front so their first Google sign-in links to this person (same email).
+  const { data, error } = await admin.auth.admin.createUser({
     email,
-    options: { data: { full_name: fullName } },
+    email_confirm: true,
+    user_metadata: { full_name: fullName },
   });
   if (error) {
     if (error.code !== "email_exists")
@@ -69,82 +68,40 @@ export async function addPerson(formData: FormData): Promise<AddPersonState> {
     };
   }
 
-  // The link is checked on the set-password page, not by Supabase's own redirect.
-  const link = `${await requestOrigin()}/set-password?${new URLSearchParams({
-    token_hash: data.properties.hashed_token,
-    type: data.properties.verification_type,
-  })}`;
-  const invite = buildInvite(fullName, link, mobile);
+  const invite = buildInvite(
+    fullName,
+    email,
+    `${await requestOrigin()}/sign-in`,
+    mobile,
+  );
 
   // The sign-up trigger always creates a salesperson on staff; set what was asked.
-  if (role === "admin" || jobRole !== "sales") {
-    const { error: roleError } = await admin
-      .from("profiles")
-      .update({ ...(role === "admin" ? { role } : {}), job_role: jobRole })
-      .eq("id", data.user.id);
-    if (roleError) {
-      console.error("Could not set the new person's roles", roleError);
-      revalidatePath("/people");
-      return {
-        error:
-          "They were added, but their role could not be set. Change it in the list.",
-        invite,
-      };
-    }
+  const { error: profileError } = await admin
+    .from("profiles")
+    .update({
+      role,
+      job_role: jobRole,
+      title: person.title,
+      joined_on: person.joinedOn,
+      reports_to: person.reportsTo,
+      whatsapp: mobile,
+      language: person.language,
+    })
+    .eq("id", data.user.id);
+  if (profileError) {
+    console.error("Could not set the new person's details", profileError);
+    revalidatePath("/people");
+    return {
+      error:
+        profileError.message === REPORTS_TO_REFUSED
+          ? "They were added, but they can only report to a Sales Director or Marketing Director. Change it in Settings."
+          : "They were added, but their details could not be saved. Change them in Settings.",
+      invite,
+    };
   }
 
   revalidatePath("/people");
   return { error: null, invite };
-}
-
-/** A fresh set-password link for someone already added: lost link, or a forgotten password. The old link stops working. */
-export async function newSignInLink(userId: string): Promise<AddPersonState> {
-  await requireRole("admin");
-
-  const parsed = newLinkSchema.safeParse({ userId });
-  if (!parsed.success) {
-    return {
-      error: "Could not find that person. Reload the page.",
-      invite: null,
-    };
-  }
-
-  const admin = createAdminClient();
-  if (!admin) return { error: ADMIN_UNAVAILABLE_MESSAGE, invite: null };
-
-  const { data: found, error: findError } = await admin.auth.admin.getUserById(
-    parsed.data.userId,
-  );
-  const email = found?.user?.email;
-  if (findError || !email) {
-    console.error("Could not find the person's email", findError);
-    return {
-      error: "Could not find that person. Reload the page.",
-      invite: null,
-    };
-  }
-
-  const { data, error } = await admin.auth.admin.generateLink({
-    type: "recovery",
-    email,
-  });
-  if (error) {
-    console.error("Could not make a new link", error);
-    return {
-      error: "Could not make a new link. Try again in a moment.",
-      invite: null,
-    };
-  }
-
-  const link = `${await requestOrigin()}/set-password?${new URLSearchParams({
-    token_hash: data.properties.hashed_token,
-    type: data.properties.verification_type,
-  })}`;
-  const fullName =
-    typeof found.user.user_metadata?.full_name === "string"
-      ? found.user.user_metadata.full_name
-      : "there";
-  return { error: null, invite: buildInvite(fullName, link, null) };
 }
 
 export type ChangeRoleResult = { error: string | null };
@@ -196,41 +153,78 @@ export async function changeRole(input: unknown): Promise<ChangeRoleResult> {
 
 export type PersonSettingsResult = { error: string | null };
 
+// Fields whose own message says what to fix; the rest are picked from a list.
+const SPECIFIC_MESSAGE_FIELDS = new Set([
+  "yearlyTarget",
+  "whatsapp",
+  "title",
+  "joinedOn",
+  "leftOn",
+  "leftReason",
+]);
+
 export async function updatePersonSettings(
   formData: FormData,
 ): Promise<PersonSettingsResult> {
-  await requireRole("admin");
+  const me = await requireRole("admin");
 
   const parsed = personSettingsSchema.safeParse({
     userId: formData.get("userId"),
     jobRole: formData.get("jobRole"),
     arrangesStock: formData.get("arrangesStock"),
+    sells: formData.get("sells"),
+    seesMargin: formData.get("seesMargin"),
     commissionMode: formData.get("commissionMode"),
-    yearlyTarget: formData.get("yearlyTarget"),
+    yearlyTarget: textField(formData, "yearlyTarget"),
+    whatsapp: textField(formData, "whatsapp"),
+    title: textField(formData, "title"),
+    joinedOn: textField(formData, "joinedOn"),
+    reportsTo: textField(formData, "reportsTo"),
+    language: formData.get("language"),
+    hasLeft: formData.get("hasLeft"),
+    leftOn: textField(formData, "leftOn"),
+    leftReason: textField(formData, "leftReason"),
   });
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
     return {
       error:
-        issue?.path[0] === "yearlyTarget"
+        issue && SPECIFIC_MESSAGE_FIELDS.has(String(issue.path[0]))
           ? issue.message
-          : "Choose a job role and commission setting.",
+          : "Choose a job role, language and commission setting.",
     };
   }
-  const { userId, jobRole, arrangesStock, commissionMode, yearlyTarget } =
-    parsed.data;
+  const { userId, ...person } = parsed.data;
+  if (userId === me.id && !person.active) {
+    return { error: "You can't mark yourself as left." };
+  }
 
   const supabase = await createClient();
   const { data: updated, error } = await supabase
     .from("profiles")
     .update({
-      job_role: jobRole,
-      arranges_stock: arrangesStock,
-      commission_mode: commissionMode,
-      yearly_target: yearlyTarget,
+      job_role: person.jobRole,
+      arranges_stock: person.arrangesStock,
+      sells: person.sells,
+      sees_margin: person.seesMargin,
+      commission_mode: person.commissionMode,
+      yearly_target: person.yearlyTarget,
+      whatsapp: person.whatsapp,
+      title: person.title,
+      joined_on: person.joinedOn,
+      reports_to: person.reportsTo,
+      language: person.language,
+      active: person.active,
+      left_on: person.leftOn,
+      left_reason: person.leftReason,
     })
     .eq("id", userId)
     .select("id");
+  if (error?.message === REPORTS_TO_REFUSED) {
+    return {
+      error: "They can only report to a Sales Director or Marketing Director.",
+    };
+  }
   if (error) {
     console.error("Could not update person settings", error);
     return { error: "Could not save their settings. Try again." };

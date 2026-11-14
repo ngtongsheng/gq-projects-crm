@@ -1,4 +1,4 @@
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import {
   creditNoteState,
@@ -13,7 +13,7 @@ import { loadLeftovers } from "../leftover-data";
 
 /** The leftover stock list as CSV, in the order the page shows it. */
 export async function GET() {
-  await requireSection("stock");
+  await requirePage("stock");
   const [leftovers, team] = await Promise.all([
     loadLeftovers(),
     getTeamDirectory(),

@@ -15,8 +15,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { canEditRegister, canSeeMofCost } from "@/lib/auth/job-role";
-import { requireSection } from "@/lib/auth/require-section";
+import { canEditRegister } from "@/lib/auth/job-role";
+import { seesMofCost } from "@/lib/auth/page-access";
+import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { isFinalStage, MOF_STAGE_TONE } from "@/lib/domain/mof-stages";
 import { formatDate } from "@/lib/format/date";
@@ -37,7 +38,8 @@ export default async function MofRegisterPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const me = await requireSection("mof");
+  const me = await requirePage("mof");
+  const seesCost = await seesMofCost(me);
   const filters = parseMofFilters(await searchParams);
   const ownOnly = seesOnlyOwnMofs(me.jobRole);
   const canEdit = canEditRegister(me.jobRole);
@@ -61,7 +63,7 @@ export default async function MofRegisterPage({
               path="/mofs/export"
               query={{ stage: filters.stage, person: filters.person }}
             />
-            {canSeeMofCost(me.jobRole) && (
+            {seesCost && (
               <Button asChild variant="outline">
                 <Link href="/mofs/summary">
                   <Calculator data-icon="inline-start" />
@@ -77,7 +79,7 @@ export default async function MofRegisterPage({
                   {
                     value: "mofs",
                     label: "MOFs",
-                    columns: mofImportFields(canSeeMofCost(me.jobRole)).map(
+                    columns: mofImportFields(seesCost).map(
                       (field) => field.label,
                     ),
                   },

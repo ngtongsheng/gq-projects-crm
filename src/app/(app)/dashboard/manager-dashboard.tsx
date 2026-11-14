@@ -12,6 +12,7 @@ import { salespersonRows, salesTotals } from "@/lib/domain/order-rollup";
 import { pace as monthPace } from "@/lib/domain/workdays";
 import { todayMyt } from "@/lib/format/date";
 import { formatRm, sumRm } from "@/lib/format/money";
+import { loadWorkCalendar } from "@/lib/work-calendar";
 import { canDecideOwnership } from "../customers/ownership/ownership-access";
 import { countPendingOwnershipRequests } from "../customers/ownership/pending-count";
 import { loadOtClaims } from "../overtime/overtime-data";
@@ -60,7 +61,7 @@ export async function ManagerDashboard({ me }: { me: Profile }) {
     wants("claimsToVerify") ? loadPendingClaims(me) : [],
   ]);
   const nameOf = new Map(names.map((member) => [member.id, member.name]));
-  const paceNow = monthPace(today);
+  const paceNow = monthPace(today, await loadWorkCalendar("mon-fri"));
 
   const visits = team.rows.reduce((total, row) => total + row.stats.visits, 0);
   const visitTarget = team.rows.reduce(

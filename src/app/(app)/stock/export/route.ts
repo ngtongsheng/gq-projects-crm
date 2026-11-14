@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { requireSection } from "@/lib/auth/require-section";
+import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import {
   availableQty,
@@ -23,7 +23,7 @@ import { loadStockSettings } from "../stock-settings";
 
 /** The Stock page as CSV: `?view=items` for stock items, otherwise the reservations the filter shows. */
 export async function GET(request: NextRequest) {
-  await requireSection("stock");
+  await requirePage("stock");
   const params = request.nextUrl.searchParams;
   const reservations = await loadReservations();
 

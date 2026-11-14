@@ -17,4 +17,6 @@ export type ExampleTable = {
   key: "id" | "mof_id" | "contact_id";
   rows: Row[];
   cleanupKeys?: string[];
+  /** Rows that go when their parent row goes (on delete cascade), so the reset skips them. */
+  clearedByParent?: boolean;
 };

@@ -1,5 +1,11 @@
+import type { PGlite } from "@electric-sql/pglite";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { buildExampleData } from "../../scripts/example-data/dataset";
+import {
+  insertExampleRows,
+  removeExampleRows,
+} from "../../scripts/example-data/example-rows";
 import { exampleId } from "../../scripts/example-data/ids";
 import { TEST_USERS } from "../../scripts/example-data/people";
 import type { People } from "../../scripts/example-data/types";
@@ -20,7 +26,61 @@ afterAll(async () => {
   await t.close();
 });
 
+type Rows = { data: Record<string, unknown>[] | null; error: Error | null };
+
+/** The slice of the Supabase client the seed script uses, run as SQL on the test database. */
+function sqlClient(db: PGlite): SupabaseClient {
+  const run = async (sql: string, params: unknown[]): Promise<Rows> => {
+    try {
+      const { rows } = await db.query<Record<string, unknown>>(sql, params);
+      return { data: rows, error: null };
+    } catch (error) {
+      return { data: null, error: error as Error };
+    }
+  };
+  const from = (table: string) => ({
+    select: (columns: string) => ({
+      in: (column: string, keys: string[]) =>
+        run(
+          `select ${columns} from public.${table} where ${column}::text = any($1)`,
+          [keys],
+        ),
+    }),
+    delete: () => ({
+      in: (column: string, keys: string[]) =>
+        run(`delete from public.${table} where ${column}::text = any($1)`, [
+          keys,
+        ]),
+    }),
+    insert: async (rows: Record<string, unknown>[]) => {
+      for (const row of rows) {
+        const columns = Object.keys(row)
+          .map((name) => `"${name}"`)
+          .join(", ");
+        const { error } = await run(
+          `insert into public.${table} (${columns})
+           select ${columns} from jsonb_populate_record(null::public.${table}, $1::jsonb)`,
+          [JSON.stringify(row)],
+        );
+        if (error) return { error };
+      }
+      return { error: null };
+    },
+    update: (values: Record<string, unknown>) => ({
+      in: (column: string, keys: string[]) =>
+        run(
+          `update public.${table} set status = $2 where ${column}::text = any($1)`,
+          [keys, values.status],
+        ),
+    }),
+  });
+  return { from } as unknown as SupabaseClient;
+}
+
+let peopleAdded: People | undefined;
+
 async function addPeople(): Promise<People> {
+  if (peopleAdded) return peopleAdded;
   await t.actAs(null);
   const people: Record<string, string> = {};
   for (const user of TEST_USERS) {
@@ -62,7 +122,8 @@ async function addPeople(): Promise<People> {
       [people[user.key], people[user.reportsTo]],
     );
   }
-  return people as People;
+  peopleAdded = people as People;
+  return peopleAdded;
 }
 
 describe("example dataset", () => {
@@ -87,5 +148,48 @@ describe("example dataset", () => {
       "select count(*)::int as count from public.commission_payouts",
     );
     expect(rows[0].count).toBeGreaterThan(0);
+  });
+
+  it("seeds twice to the same rows, and the reset clears quotes the team changed", async () => {
+    const people = await addPeople();
+    const data = buildExampleData({ people, today: todayMyt() });
+    const client = sqlClient(t.db);
+    const count = async (table: string) =>
+      (
+        await t.db.query<{ n: number }>(
+          `select count(*)::int as n from public.${table}`,
+        )
+      ).rows[0].n;
+    const quoteTables = [
+      "quotes",
+      "quote_revisions",
+      "quote_options",
+      "quote_items",
+      "quote_revision_history",
+      "fob_enquiries",
+    ];
+
+    await removeExampleRows(client, data);
+    await insertExampleRows(client, data);
+    const first = await Promise.all(quoteTables.map(count));
+
+    // The team picks an option on an approved example quote, then adds a quote of its own on
+    // an example project: the reset must still clear both so the project can be deleted.
+    const approved = exampleId("quote_revisions", "meridian-showroom");
+    await t.db.query(
+      "update public.quote_revisions set chosen_option_id = $2 where id = $1",
+      [approved, exampleId("quote_options", "meridian-showroom:A")],
+    );
+    await t.db.query(
+      `insert into public.quotes (quote_no, project_id, project_name, customer_name, salesperson_id)
+       values ('GQ9999', $1, 'Added', 'Added', $2)`,
+      [exampleId("projects", "meridian-showroom"), people.vernice],
+    );
+
+    await removeExampleRows(client, data);
+    await insertExampleRows(client, data);
+
+    expect(await Promise.all(quoteTables.map(count))).toEqual(first);
+    expect(first.every((n) => n > 0)).toBe(true);
   });
 });

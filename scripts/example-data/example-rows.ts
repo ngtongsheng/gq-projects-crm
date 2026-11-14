@@ -76,6 +76,7 @@ export async function removeExampleRows(
 ): Promise<void> {
   const ids = await idsToClear(supabase, data);
   for (const spec of [...data.tables].reverse()) {
+    if (spec.clearedByParent) continue;
     for (const [column, parent] of parentsOf(spec.table)) {
       await deleteWhere(supabase, spec.table, column, ids.get(parent) ?? []);
     }

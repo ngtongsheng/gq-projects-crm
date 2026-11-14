@@ -31,8 +31,8 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 | 08 | Client quote preview | done | 05 | sonnet/high |
 | 09 | Project card costing lines | done | 06 | sonnet/high |
 | 10 | Chinese strings for Costing | done | 04, 05, 06, 07, 08 | sonnet/medium |
-| 11 | Dev seed: sample quotes | in-progress | 02 | sonnet/medium |
-| 12 | Parity pass, docs, merge | todo | 01-11 | sonnet/medium |
+| 11 | Dev seed: sample quotes | done | 02 | sonnet/medium |
+| 12 | Parity pass, docs, merge | in-progress | 01-11 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - None planned. Tell Vicky one line when it is live (message to a person, so the owner sends it).
@@ -75,3 +75,6 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 2026-11-15 · #10 · done · ~295 zh.ts entries, LanguageProvider/useT/getT, Noto Sans SC; check/typecheck/test pass (1579)
 2026-11-15 · #10 · decision · language reaches client components via new context in (app)/layout.tsx (only sidebar used t() before); Noto Sans SC via next/font/google (no npm package, preload false); client quote sheet and TSV stay English; value-bearing server messages and metadata titles English only (debt.md row) · no existing mechanism; customer-facing sheet is English in demo
 2026-11-15 · #11 · in-progress
+2026-11-15 · #11 · done · scripts/example-data/quotes.ts, reset handles quote FK, idempotence proved on PGlite; check/typecheck/test pass (1583)
+2026-11-15 · #11 · decision · six quotes (two below 30%: submitted 24%, returned 26%), fixed m2 areas, chosen_option_id null, replied_by/at omitted (trigger) · demo parity / DB constraints
+2026-11-15 · #12 · in-progress · orchestrator splits: subagent does parity + docs; orchestrator does rebase, PR, merge

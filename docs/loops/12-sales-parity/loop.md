@@ -27,7 +27,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 | 05 | Log outcome flow | done | 04 | opus/medium |
 | 06 | Appointment invitations | done | 04 | sonnet/high |
 | 07 | Calendar views, My team filter, Plan a call | done | 05, 06 | sonnet/high |
-| 08 | Weekly outcomes + weekly reports | todo | 05 | opus/medium |
+| 08 | Weekly outcomes + weekly reports | done | 05 | opus/medium |
 | 09 | Projects: site role scoping | todo | - | opus/medium |
 | 10 | Parity pass, docs, merge | todo | 01-09 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
@@ -64,3 +64,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 2026-11-15 · #07 · decision · Monthly list replaces the sales Month grid (old ?view=month opens the list); Week keeps one row per day, not the demo's 7-column grid (phone); Plan a call is a ?call=<date> dialog; Marketing Director with a team gets no Who filter (isManager) · repo patterns
 2026-11-15 · #07 · decision · Weekly outcomes tab is a placeholder until #08 replaces weekly-outcomes.tsx; Excel / Copy list buttons not built · scope
 2026-11-15 · #07 · done · check, typecheck, test pass (1382 tests); UI not seen in browser, parity in #10 · next: #08
+2026-11-15 · #08 · in-progress
+2026-11-15 · #08 · decision · rows from my_team() or picked person; MD / Accounts see report_filers() sales and bd plus anyone with a visit or report that week; default week on Monday = week just ended (demo's Sunday logic buggy); submit blocked while outcomes unlogged (server-enforced in the action, not the database) · no migration changes, team_directory has no job roles
+2026-11-15 · #08 · decision · weekly_report_due_at added to READ_ONLY_FUNCTIONS in view-only-fetch.ts so View as keeps working · needed by the tab
+2026-11-15 · #08 · done · check, typecheck, test pass (1400 tests) · next: #09

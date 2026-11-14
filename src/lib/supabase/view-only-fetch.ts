@@ -18,6 +18,7 @@ const READ_ONLY_FUNCTIONS = new Set([
   "report_filers",
   "site_supervisors",
   "team_directory",
+  "weekly_report_due_at",
 ]);
 
 /** Auth calls that only move this browser's own session: refresh, switch back, sign out. */

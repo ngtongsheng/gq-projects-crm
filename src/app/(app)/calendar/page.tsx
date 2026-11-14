@@ -30,6 +30,7 @@ import { TodaysCalls } from "./todays-calls";
 import { ViewTabs } from "./view-tabs";
 import { WeekView } from "./week-view";
 import { WeeklyOutcomes } from "./weekly-outcomes";
+import { defaultOutcomesDate } from "./weekly-outcomes-data";
 
 export const metadata: Metadata = { title: "Sales Calendar" };
 
@@ -40,9 +41,14 @@ export default async function SalesCalendarPage({
 }) {
   const me = await requirePage("cal");
   const today = todayMyt();
-  const params = parseCalendarParams(await searchParams, today, "week");
+  const query = await searchParams;
+  const parsed = parseCalendarParams(query, today, "week");
   // The grid view belongs to installation; an old link to it opens the Monthly list.
-  const view = params.view === "month" ? "list" : params.view;
+  const view = parsed.view === "month" ? "list" : parsed.view;
+  const params =
+    view === "outcomes" && query.date === undefined
+      ? { ...parsed, date: defaultOutcomesDate(today) }
+      : parsed;
   const canAdd = canLogActivity(me.jobRole);
   const manager = isManager(me.jobRole);
 
@@ -145,7 +151,9 @@ export default async function SalesCalendarPage({
           replyHref={replyHref}
         />
       )}
-      {view === "outcomes" && <WeeklyOutcomes />}
+      {view === "outcomes" && (
+        <WeeklyOutcomes me={me} date={params.date} picked={filter?.who} />
+      )}
       <p className="text-sm text-muted-foreground">
         Green = completed · Blue = planned · Amber = outcome not logged · Grey =
         cancelled · Dashed amber = invitation waiting for your reply. "+ Eddie

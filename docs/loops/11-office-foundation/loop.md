@@ -32,8 +32,8 @@ two at a time without touching the same files. Everything account-bound is code 
 | 04 | Team scoping: helpers + customers, activities, projects | done | 03 | opus/medium |
 | 05 | Team scoping: MOFs, payments, commission, reports | done | 04 | opus/medium |
 | 06 | Page registry + access matrix | done | 03 | opus/medium |
-| 07 | Shell parity | in-progress | 02, 06 | sonnet/high |
-| 08 | Read-only View as | todo | 07 | opus/medium |
+| 07 | Shell parity | done | 02, 06 | sonnet/high |
+| 08 | Read-only View as | in-progress | 07 | opus/medium |
 | 09 | Google sign-in | todo | 03 | opus/medium |
 | 10 | Storage foundation | todo | 03 | sonnet/high |
 | 11 | A4 print layout | todo | 07 | sonnet/medium |
@@ -73,3 +73,7 @@ two at a time without touching the same files. Everything account-bound is code 
 2026-11-14 · #06 · decision · People-matrix parity screenshot deferred to #15 (needs test copy on laptop, same as #02)
 2026-11-14 · #06 · done · check/typecheck/test (1193)/guard pass · next: #07
 2026-11-14 · #07 · started (sonnet/high)
+2026-11-14 · #07 · decision · module tabs removed, one demo sidebar from the registry (sidebar-items.ts); Ownership requests nav link dropped (demo has none; reachable via dashboard attention panel + Dashboard badge)
+2026-11-14 · #07 · decision · sidebar outline matched to demo for 6 roles via test + Chrome DOM; md screenshots demo vs fixture-rendered shell; signed-in screenshots for other roles deferred to #15 (test copy)
+2026-11-14 · #07 · done · check/typecheck/test (1205) pass · next: #08
+2026-11-14 · #08 · started (opus/medium)

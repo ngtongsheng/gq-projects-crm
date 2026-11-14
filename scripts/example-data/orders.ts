@@ -431,7 +431,7 @@ export function buildMoney({ people, today }: BuildContext): ExampleTable[] {
   const paymentSeeds: Array<[string, string, number, number, string | null]> = [
     // key, mof, amount, days ago, note
     ["pay1", "m1", 97250, 40, "50% deposit"],
-    ["pay2", "m1", 58350, 8, "Progress payment"],
+    ["pay2", "m1", 80000, 8, "Progress payment"],
     ["pay3", "m2", 28800, 30, "30% deposit"],
     ["pay4", "m4", 48780, 50, "Progress payment"],
     ["pay5", "m5", 15900, 190, "Deposit"],
@@ -447,9 +447,12 @@ export function buildMoney({ people, today }: BuildContext): ExampleTable[] {
   const payoutSeeds: Array<
     [string, keyof BuildContext["people"], string, number, number]
   > = [
-    // key, person, mof, amount, days ago
-    ["pout1", "vanessa", "m5", 1590, 150],
-    ["pout2", "vernice", "m4", 1355, 45],
+    // key, person, mof, amount, days ago. The database refuses a payout past what is payable
+    // (commission_payable_now), so these stay under it: m5 low margin 1.5% of 31,800 is exactly
+    // 477; m4 is 1.5% of the 48,780 received; m1 has passed the 90% collected mark (pay1 + pay2
+    // are 91%) and Vernice's half share earns 3% of 177,250.
+    ["pout1", "vanessa", "m5", 477, 150],
+    ["pout2", "vernice", "m4", 500, 45],
     ["pout3", "vernice", "m1", 2400, 7],
   ];
   const payouts: Row[] = payoutSeeds.map(([key, person, mof, amount, ago]) => ({

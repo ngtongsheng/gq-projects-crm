@@ -6,6 +6,7 @@ import type { JobRole } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { textField } from "@/lib/form/form-fields";
 import { createClient } from "@/lib/supabase/server";
+import { inviteColleagues } from "../calendar/invitation-actions";
 import {
   canEditActivity,
   canLogActivity,
@@ -26,6 +27,8 @@ const existingActivityRow = z.object({
   status: ActivityStatus,
   starts_at: z.string(),
 });
+
+const createdRow = z.array(z.object({ id: z.string() }));
 
 type Change = { ok: false; error: string } | { ok: true; startsAt: string };
 
@@ -95,18 +98,40 @@ export async function saveActivity(
   const supabase = await createClient();
 
   if (!activityId) {
-    const { error } = await supabase.from("activities").insert({
-      contact_id: form.contactId,
-      owner_id: me.id,
-      type: form.type,
-      purpose: form.purpose,
-      outcome: form.outcome,
-      starts_at: form.startsAt.toISOString(),
-      status: form.status,
-    });
+    const { data, error } = await supabase
+      .from("activities")
+      .insert({
+        contact_id: form.contactId,
+        owner_id: me.id,
+        type: form.type,
+        purpose: form.purpose,
+        outcome: form.outcome,
+        starts_at: form.startsAt.toISOString(),
+        status: form.status,
+      })
+      .select("id");
     if (error) {
       console.error("Could not save activity", error);
       return fail("Could not save the activity. Try again.");
+    }
+    // Nobody goes along on a call, so any ticked colleague is ignored.
+    const inviteeIds =
+      form.type === "call"
+        ? []
+        : formData
+            .getAll("inviteeId")
+            .filter((id): id is string => typeof id === "string");
+    const createdId =
+      inviteeIds.length > 0 ? createdRow.parse(data)[0]?.id : undefined;
+    if (createdId) {
+      const invited = await inviteColleagues(createdId, inviteeIds);
+      if (invited.error) {
+        revalidatePath("/customers", "layout");
+        revalidatePath("/calendar");
+        return fail(
+          "The activity is saved, but the invitations did not go out.",
+        );
+      }
     }
   } else {
     const checked = await checkChange(me, activityId, form.status);

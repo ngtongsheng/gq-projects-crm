@@ -12,6 +12,10 @@ export type CalendarEvent = {
   href: string;
   /** Shown struck through and faded, e.g. a cancelled visit. */
   muted?: boolean;
+  /** An invitation still waiting for the viewer's reply: dashed amber border. */
+  awaitingReply?: boolean;
+  /** An extra line under the detail, e.g. who was invited along. */
+  tag?: string;
 };
 
 const toneBorder: Record<StatusTone, string> = {
@@ -29,6 +33,8 @@ export function CalendarEventLink({ event }: { event: CalendarEvent }) {
       className={cn(
         "grid min-w-0 gap-px rounded-md border border-l-[3px] bg-card px-2 py-1 text-xs hover:bg-muted",
         toneBorder[event.tone],
+        event.awaitingReply &&
+          "border-dashed border-warn border-l-warn bg-warn-bg [border-left-style:solid] hover:bg-warn-bg",
         event.muted && "line-through opacity-60",
       )}
     >
@@ -37,6 +43,9 @@ export function CalendarEventLink({ event }: { event: CalendarEvent }) {
       </span>
       <span className="truncate font-medium">{event.title}</span>
       <span className="truncate text-muted-foreground">{event.detail}</span>
+      {event.tag && (
+        <span className="truncate text-muted-foreground">{event.tag}</span>
+      )}
     </Link>
   );
 }

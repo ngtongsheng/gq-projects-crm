@@ -25,7 +25,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 | 03 | Company sheet | done | 02 | sonnet/high |
 | 04 | Migration: outcomes, invitees, weekly reports, deadline | done | - | opus/medium |
 | 05 | Log outcome flow | done | 04 | opus/medium |
-| 06 | Appointment invitations | todo | 04 | sonnet/high |
+| 06 | Appointment invitations | done | 04 | sonnet/high |
 | 07 | Calendar views, My team filter, Plan a call | todo | 05, 06 | sonnet/high |
 | 08 | Weekly outcomes + weekly reports | todo | 05 | opus/medium |
 | 09 | Projects: site role scoping | todo | - | opus/medium |
@@ -56,3 +56,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 2026-11-15 · #05 · decision · logOutcome is three separate writes, not a transaction; logged in docs/debt.md · needs a new SQL function
 2026-11-15 · #05 · decision · lead copies saveProject's schema and permission rule (needs the new project id); lead source fixed to cold_call; next step requires a follow-up date; follow-up belongs to the person logging; "needs outcome" = planned and start time passed · RLS and existing guards
 2026-11-15 · #05 · done · check, typecheck, test pass (1353 tests) · next: #06
+2026-11-15 · #06 · in-progress
+2026-11-15 · #06 · decision · invite list is every colleague except the creator (demo limits to md/director/bd/sales; team_directory has no job roles, filtering needs a migration) · no new migration
+2026-11-15 · #06 · decision · invitations sent only when an activity is created; no re-invite or change of answer after the fact (no activity detail view); invitee picker hidden for calls · demo behaviour, scope
+2026-11-15 · #06 · done · check, typecheck, test pass (1367 tests) · next: #07

@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
+import { type Colleague, InviteePicker } from "../calendar/invitee-picker";
 import { saveActivity } from "./actions";
 import { parseMytInput, toMytInput } from "./activity-time";
 import {
@@ -101,6 +102,8 @@ type ActivityFormProps = {
   /** Customers to choose from when `contactId` is not known, e.g. on the calendar. */
   customers?: CustomerOption[];
   activity?: EditableActivity;
+  /** Colleagues who can be invited along, for a new activity. None to hide the choice. */
+  colleagues?: Colleague[];
   /** Starting date and time for a new activity, as a datetime-local value. Defaults to now. */
   defaultStartsAt?: string;
   onSaved: () => void;
@@ -110,11 +113,13 @@ export function ActivityForm({
   contactId,
   customers,
   activity,
+  colleagues,
   defaultStartsAt,
   onSaved,
 }: ActivityFormProps) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [type, setType] = useState<ActivityType>(activity?.type ?? "visit");
   const [startsAt] = useState(() =>
     activity
       ? toMytInput(activity.startsAt)
@@ -165,7 +170,11 @@ export function ActivityForm({
         )}
         <Field>
           <FieldLabel htmlFor="type">Type</FieldLabel>
-          <Select name="type" defaultValue={activity?.type ?? "visit"}>
+          <Select
+            name="type"
+            value={type}
+            onValueChange={(value) => setType(ActivityType.parse(value))}
+          >
             <SelectTrigger id="type">
               <SelectValue />
             </SelectTrigger>
@@ -232,6 +241,9 @@ export function ActivityForm({
             )}
           </Field>
         </div>
+        {colleagues && type !== "call" && (
+          <InviteePicker colleagues={colleagues} />
+        )}
         <Field>
           <FieldLabel htmlFor="outcome">Outcome</FieldLabel>
           <Textarea

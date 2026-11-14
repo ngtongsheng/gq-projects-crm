@@ -111,6 +111,35 @@ describe("saveActivity", () => {
     });
   });
 
+  it("invites the ticked colleagues to a new activity, waiting for their answer", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    const calls = fakeSupabase([
+      { data: [{ id: ACTIVITY }], error: null },
+      { data: { status: "planned" }, error: null },
+      { data: null, error: null },
+    ]);
+    const data = form({ status: "planned", startsAt: "2999-01-01T10:00" });
+    data.append("inviteeId", ARUN);
+
+    const result = await saveActivity(data);
+
+    expect(result.error).toBeNull();
+    expect(calls[2]?.payload).toEqual([
+      { activity_id: ACTIVITY, profile_id: ARUN, status: "pending" },
+    ]);
+  });
+
+  it("ignores invitees on a call", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    const calls = fakeSupabase([{ data: [{ id: ACTIVITY }], error: null }]);
+    const data = form({ type: "call" });
+    data.append("inviteeId", ARUN);
+
+    await saveActivity(data);
+
+    expect(calls).toHaveLength(1);
+  });
+
   it("refuses a completed activity dated in the future", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
     const calls = fakeSupabase([]);

@@ -2,7 +2,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { z } from "zod";
-import type { CalendarEvent } from "@/components/app/calendar-event";
+import {
+  type CalendarEvent,
+  CalendarEventLink,
+} from "@/components/app/calendar-event";
 import { MonthCalendar } from "@/components/app/month-calendar";
 import { PageHeader } from "@/components/app/page-header";
 import { WeekList } from "@/components/app/week-list";
@@ -36,6 +39,12 @@ import {
 } from "../activities/schemas";
 import { AddActivityDialog } from "./add-activity-dialog";
 import { calendarHref, parseCalendarParams, stepDate } from "./calendar-params";
+import { InvitationCard } from "./invitation-card";
+import {
+  InviteeStatus,
+  invitationTag,
+  isAwaitingReply,
+} from "./invitation-view";
 
 export const metadata: Metadata = { title: "Sales Calendar" };
 
@@ -50,12 +59,17 @@ const activityRows = z.array(
     purpose: z.string(),
     starts_at: z.string(),
     status: ActivityStatus,
+    activity_invitees: z.array(
+      z.object({ profile_id: z.string(), status: InviteeStatus }),
+    ),
     contacts: z.object({
       name: z.string(),
       companies: z.object({ name: z.string() }),
     }),
   }),
 );
+
+const invitedRows = z.array(z.object({ activity_id: z.string() }));
 
 const customerRows = z.array(
   z.object({
@@ -85,15 +99,31 @@ export default async function SalesCalendarPage({
   const to = days[days.length - 1];
 
   const supabase = await createClient();
+  const windowStart = `${from}T00:00:00+08:00`;
+  const windowEnd = `${addDays(to, 1)}T00:00:00+08:00`;
   let activityQuery = supabase
     .from("activities")
     .select(
-      "id, contact_id, owner_id, type, purpose, starts_at, status, contacts(name, companies(name))",
+      "id, contact_id, owner_id, type, purpose, starts_at, status, activity_invitees(profile_id, status), contacts(name, companies(name))",
     )
-    .gte("starts_at", `${from}T00:00:00+08:00`)
-    .lt("starts_at", `${addDays(to, 1)}T00:00:00+08:00`)
+    .gte("starts_at", windowStart)
+    .lt("starts_at", windowEnd)
     .order("starts_at");
-  if (personId) activityQuery = activityQuery.eq("owner_id", personId);
+  if (personId) {
+    // Someone's diary holds what they own plus what they have accepted; their own diary
+    // also holds the invitations still waiting for a reply.
+    const invitedTo = await loadInvitedActivityIds(
+      personId,
+      personId === me.id ? ["pending", "accepted"] : ["accepted"],
+      windowStart,
+      windowEnd,
+    );
+    activityQuery = activityQuery.or(
+      invitedTo.length > 0
+        ? `owner_id.eq.${personId},id.in.(${invitedTo.join(",")})`
+        : `owner_id.eq.${personId}`,
+    );
+  }
 
   const [activityResult, team, customers] = await Promise.all([
     activityQuery,
@@ -108,12 +138,31 @@ export default async function SalesCalendarPage({
   const activities = activityRows.parse(activityResult.data);
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
   const showOwner = personId === undefined;
+  const keep = { view, who: params.who };
 
   const eventsByDay = new Map<string, CalendarEvent[]>();
   for (const activity of activities) {
     const day = activityDay(activity.starts_at);
     const clock = toMytInput(activity.starts_at).slice(11);
     const owner = nameOf.get(activity.owner_id) ?? "Unnamed";
+    const awaitingReply = isAwaitingReply(
+      activity.owner_id,
+      activity.activity_invitees,
+      me.id,
+    );
+    const tag = awaitingReply
+      ? undefined
+      : invitationTag({
+          ownerName: owner,
+          ownerIsMe: activity.owner_id === me.id,
+          invitees: activity.activity_invitees.map((invitee) => ({
+            profileId: invitee.profile_id,
+            name: nameOf.get(invitee.profile_id) ?? "Unnamed",
+            status: invitee.status,
+          })),
+          meId: me.id,
+        });
+    const byOwner = showOwner || activity.owner_id !== personId;
     // A planned visit whose time has passed waits for its outcome on the customer page.
     const due = needsOutcome({
       status: activity.status,
@@ -122,12 +171,21 @@ export default async function SalesCalendarPage({
     const detail = `${ActivityTypeLabel[activity.type]} · ${activity.purpose}`;
     const event: CalendarEvent = {
       id: activity.id,
-      time: showOwner ? `${clock} · ${owner}` : clock,
+      time: byOwner ? `${clock} · ${owner}` : clock,
       title: activity.contacts.companies.name,
-      detail: due ? `Log outcome · ${detail}` : detail,
-      tone: due ? "warn" : activityStatusTone[activity.status],
-      href: `/customers/${activity.contact_id}`,
+      detail: awaitingReply
+        ? `Invitation · reply · ${detail}`
+        : due
+          ? `Log outcome · ${detail}`
+          : detail,
+      tone: awaitingReply || due ? "warn" : activityStatusTone[activity.status],
+      // A reply is given in the week view, so a month cell opens that week.
+      href: awaitingReply
+        ? calendarHref({ ...keep, view: "week", date: day })
+        : `/customers/${activity.contact_id}`,
       muted: activity.status === "cancelled",
+      awaitingReply,
+      tag,
     };
     eventsByDay.set(day, [...(eventsByDay.get(day) ?? []), event]);
   }
@@ -142,7 +200,6 @@ export default async function SalesCalendarPage({
   const periodTitle = weeks
     ? formatMonthTitle(params.date)
     : `${formatDate(from)} – ${formatDate(to)}`;
-  const keep = { view, who: params.who };
   const here = { ...keep, date: params.date };
   const addHref = canAdd
     ? (date: string) => calendarHref({ ...here, add: date })
@@ -241,17 +298,27 @@ export default async function SalesCalendarPage({
           today={today}
           eventsByDay={eventsByDay}
           addHref={addHref}
+          renderEvent={(event) =>
+            event.awaitingReply ? (
+              <InvitationCard event={event} />
+            ) : (
+              <CalendarEventLink event={event} />
+            )
+          }
         />
       )}
       <p className="text-sm text-muted-foreground">
         Green = completed · Blue = planned · Amber = outcome not logged · Grey =
-        cancelled. Only completed visits and site visits count toward the
-        50-visit target; calls and online meetings keep a customer active.
+        cancelled · Dashed amber = invitation waiting for your reply. "+ Eddie
+        ?" means Eddie has not replied yet. Only completed visits and site
+        visits count toward the 50-visit target; calls and online meetings keep
+        a customer active.
       </p>
       {params.add && customers && (
         <AddActivityDialog
           date={params.add}
           customers={customers}
+          colleagues={team.filter((member) => member.id !== me.id)}
           closeHref={calendarHref(here)}
         />
       )}
@@ -271,4 +338,23 @@ async function loadCustomerOptions() {
     id: row.id,
     label: `${row.name} · ${row.companies.name}`,
   }));
+}
+
+/** Activities in the window that `profileId` is invited to with one of these answers. */
+async function loadInvitedActivityIds(
+  profileId: string,
+  statuses: string[],
+  windowStart: string,
+  windowEnd: string,
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("activity_invitees")
+    .select("activity_id, activities!inner(starts_at)")
+    .eq("profile_id", profileId)
+    .in("status", statuses)
+    .gte("activities.starts_at", windowStart)
+    .lt("activities.starts_at", windowEnd);
+  if (error) throw new Error(`Could not load invitations: ${error.message}`);
+  return invitedRows.parse(data).map((row) => row.activity_id);
 }

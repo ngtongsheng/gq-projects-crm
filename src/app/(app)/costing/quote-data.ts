@@ -19,7 +19,8 @@ const DEFAULT_MIN_MARGIN_PCT = 30;
 
 const minMarginRows = z.array(z.object({ value: z.number() }));
 
-async function loadMinMarginPct(supabase: Supabase): Promise<number> {
+/** The costing_min_margin_pct setting, e.g. 30. */
+export async function loadMinMarginPct(supabase: Supabase): Promise<number> {
   const { data, error } = await supabase
     .from("app_settings")
     .select("value")
@@ -48,10 +49,8 @@ async function viewContext(
   };
 }
 
-/** Every quote the viewer can read (the database decides which), most recently changed first. */
-export async function loadQuoteRegister(
-  viewer: Viewer,
-): Promise<QuoteRegisterRow[]> {
+/** Every quote the viewer can read (the database decides which), with every revision. */
+export async function loadQuotes(viewer: Viewer): Promise<QuoteView[]> {
   const supabase = await createClient();
   const [result, context] = await Promise.all([
     supabase.from("quotes").select(QUOTE_SELECT),
@@ -63,7 +62,15 @@ export async function loadQuoteRegister(
   return z
     .array(QuoteRow)
     .parse(result.data)
-    .map((row) => toRegisterRow(toQuoteView(row, context)))
+    .map((row) => toQuoteView(row, context));
+}
+
+/** Every quote the viewer can read, most recently changed first. */
+export async function loadQuoteRegister(
+  viewer: Viewer,
+): Promise<QuoteRegisterRow[]> {
+  return (await loadQuotes(viewer))
+    .map(toRegisterRow)
     .filter((row) => row !== null)
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }

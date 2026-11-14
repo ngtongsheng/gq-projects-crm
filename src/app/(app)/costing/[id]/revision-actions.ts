@@ -5,7 +5,7 @@ import { z } from "zod";
 import { seesMofCost } from "@/lib/auth/page-access";
 import { requirePage } from "@/lib/auth/require-page";
 import { createClient } from "@/lib/supabase/server";
-import { ITEM_SELECT, quoteItemRow } from "../quote-view";
+import { copyLines, type DbError, firstError } from "./copy-lines";
 import {
   loadRevisionToEdit,
   NOT_FOUND,
@@ -25,8 +25,6 @@ export type AddOptionResult = RevisionResult & { optionKey?: string };
 
 const fail = (error: string): RevisionResult => ({ error });
 
-type DbError = { code?: string; message?: string };
-
 const CHANGED_UNDER_YOU =
   "This costing can't be changed any more. Reload the page.";
 const NOT_VALID =
@@ -42,9 +40,6 @@ function dbMessage(error: DbError): string {
   console.error("Could not save the costing", error);
   return TRY_AGAIN;
 }
-
-const firstError = (results: { error: DbError | null }[]) =>
-  results.find((result) => result.error)?.error ?? null;
 
 const letter = (index: number) => String.fromCharCode(65 + index);
 
@@ -272,55 +267,6 @@ export async function addOption(
   }
   revalidateCosting(revision.quoteId);
   return { error: null, optionKey: key };
-}
-
-async function copyLines(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  fromOptionId: string,
-  toOptionId: string,
-): Promise<DbError | null> {
-  const source = await supabase
-    .from("quote_items")
-    .select(ITEM_SELECT)
-    .eq("option_id", fromOptionId)
-    .order("position");
-  if (source.error) return source.error;
-  const lines = z.array(quoteItemRow).parse(source.data);
-
-  // Lines are copied without their links first; a link then points at the copy, not the original.
-  const copies = new Map<string, string>();
-  const inserted = await Promise.all(
-    lines.map(async ({ id, linked_item_id: _link, ...columns }) => {
-      const copy = await supabase
-        .from("quote_items")
-        .insert({ ...columns, option_id: toOptionId, linked_item_id: null })
-        .select("id")
-        .single();
-      if (!copy.error) {
-        copies.set(id, z.object({ id: z.string() }).parse(copy.data).id);
-      }
-      return copy;
-    }),
-  );
-  const insertError = firstError(inserted);
-  if (insertError) return insertError;
-
-  const links = await Promise.all(
-    lines.flatMap((line) => {
-      const copyId = copies.get(line.id);
-      const target = line.linked_item_id
-        ? copies.get(line.linked_item_id)
-        : undefined;
-      if (!copyId || !target) return [];
-      return [
-        supabase
-          .from("quote_items")
-          .update({ linked_item_id: target })
-          .eq("id", copyId),
-      ];
-    }),
-  );
-  return firstError(links);
 }
 
 const removeOptionInput = z.object({ optionId: z.uuid() });

@@ -3,12 +3,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
+import { canApproveQuote } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { formatDateTime } from "@/lib/format/date";
+import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { loadQuote } from "../quote-data";
 import { QUOTE_STATUS_TONE, QuoteStatusLabel } from "../quote-status";
 import type { QuoteView } from "../quote-view";
+import { ApprovalBar } from "./approval-bar";
+import { loadApprovalRevision } from "./approval-revision";
 import { MissingRevision } from "./missing-revision";
 import { QuoteEditor } from "./quote-editor";
 
@@ -74,6 +78,13 @@ export default async function CostingRecordPage({
     ? `Read-only. Only ${quote.salespersonName} can change this costing.`
     : "OK to quote, so it is locked. Open a new version to change it.";
   const last = revision.history.at(-1);
+  const latestRev = quote.revisions.at(-1)?.rev ?? revision.rev;
+  // Whether the owner may confirm alone is worked out from the stored cost, whoever is looking.
+  const readiness =
+    isOwner && !approved
+      ? ((await loadApprovalRevision(await createClient(), revision.id))
+          ?.readiness ?? null)
+      : null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -138,8 +149,42 @@ export default async function CostingRecordPage({
         lockNote={lockNote}
         initialOptionKey={single(search.option)}
       >
-        {/* The approval buttons (task 06) go here, beside Save. */}
+        <ApprovalBar
+          revisionId={revision.id}
+          status={revision.status}
+          nextRevisionName={revisionName(quote.quoteNo, latestRev + 1)}
+          isOwner={isOwner}
+          isApprover={canApproveQuote(me.jobRole)}
+          isLatest={revision.rev === latestRev}
+          readiness={readiness}
+          options={revision.options.map(({ id, key, label }) => ({
+            id,
+            key,
+            label,
+          }))}
+          chosenOptionId={revision.chosenOptionId}
+        />
       </QuoteEditor>
+      <section aria-label="History" className="flex flex-col gap-2">
+        <h2 className="font-heading text-base font-semibold">History</h2>
+        <ol className="flex flex-col gap-1.5 text-sm">
+          {[...revision.history].reverse().map((entry) => (
+            <li key={`${entry.at}:${entry.action}`}>
+              <span className="font-medium">{HISTORY_TEXT[entry.action]}</span>
+              <span className="text-muted-foreground">
+                {" "}
+                · {entry.byName} ·{" "}
+                <span className="font-mono tabular-nums">
+                  {formatDateTime(entry.at)}
+                </span>
+              </span>
+              {entry.note && (
+                <p className="text-muted-foreground">{entry.note}</p>
+              )}
+            </li>
+          ))}
+        </ol>
+      </section>
     </div>
   );
 }

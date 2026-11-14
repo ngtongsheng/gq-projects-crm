@@ -26,8 +26,8 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 | 03 | Quote loader + margin gating | done | 01, 02 | opus/medium |
 | 04 | Register + New quote | done | 03 | sonnet/high |
 | 05 | Quote record editor | done | 03 | sonnet/high |
-| 06 | Approval flow + Approvals page | in-progress | 05 | opus/medium |
-| 07 | FOB Enquiry | todo | 05 | sonnet/high |
+| 06 | Approval flow + Approvals page | done | 05 | opus/medium |
+| 07 | FOB Enquiry | in-progress | 05 | sonnet/high |
 | 08 | Client quote preview | todo | 05 | sonnet/high |
 | 09 | Project card costing lines | todo | 06 | sonnet/high |
 | 10 | Chinese strings for Costing | todo | 04, 05, 06, 07, 08 | sonnet/medium |
@@ -60,3 +60,6 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 2026-11-15 · #05 · decision · editor is line cards with category select (not per-category tables); project/customer read-only; no unsaved-edit warning, history list, Versions panel or auto "Installation for X" text · outside goal; save/add/remove option are multi-write (debt.md row)
 2026-11-15 · #05 · decision · lines keyed without margin flag have cost 0; task 06 blocks owner self-confirm unless every non-discount line has cost keyed and lowest margin >= min · avoids bypass. Owner may later want a sales cost exception
 2026-11-15 · #06 · in-progress
+2026-11-15 · #06 · done · approval actions, readiness/decideStep, Approvals page, history list; check/typecheck/test pass (1526)
+2026-11-15 · #06 · decision · approvers may decide their own costing (demo; subagent's self-approval block removed per D9); sent-low costing cannot be resent; Recently decided lists only approval-route costings; choosing the customer option is not undoable; History list added to the costing page · demo parity / needed for return notes
+2026-11-15 · #07 · in-progress

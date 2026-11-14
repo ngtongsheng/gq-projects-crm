@@ -63,6 +63,10 @@ export const isReadOnly = (jobRole: JobRole) => jobRole === "accounts";
 export const canStartQuote = (jobRole: JobRole) =>
   has(jobRole, ["md", "director", "bd", "sales"]);
 
+/** Approves or returns a costing below the minimum margin (SQL: guard_quote_revision_write). */
+export const canApproveQuote = (jobRole: JobRole) =>
+  has(jobRole, ["md", "director"]);
+
 export const canEditRegister = (jobRole: JobRole) =>
   has(jobRole, ["md", "support", "accounts"]);
 

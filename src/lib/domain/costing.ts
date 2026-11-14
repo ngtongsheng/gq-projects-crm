@@ -169,6 +169,14 @@ export function marginLevel(
   return Number((margin * 100).toPrecision(12)) < minMarginPct ? "low" : "high";
 }
 
+/**
+ * Whether the line has a cost keyed in. A line keyed by someone without the margin flag has none,
+ * which would read as a high margin; a discount never has one.
+ */
+export function costKeyed(item: CostingItem): boolean {
+  return item.type === "discount" || unitCostOf(item) > 0;
+}
+
 /** What the customer is quoted: the highest option. */
 export function quoteAmount(options: readonly { sell: number }[]): number {
   return options.reduce((highest, option) => Math.max(highest, option.sell), 0);

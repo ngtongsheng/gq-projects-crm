@@ -44,14 +44,19 @@ export default async function CostingRegisterPage({
         title="Costing Register"
         description="Find every version by Quotation No."
         actions={
-          canStart && (
-            <Button asChild>
-              <Link href="/costing/new">
-                <Plus data-icon="inline-start" />
-                New costing
-              </Link>
+          <>
+            <Button asChild variant="outline">
+              <Link href="/costing/approvals">Below min margin</Link>
             </Button>
-          )
+            {canStart && (
+              <Button asChild>
+                <Link href="/costing/new">
+                  <Plus data-icon="inline-start" />
+                  New costing
+                </Link>
+              </Button>
+            )}
+          </>
         }
       />
       <form action="/costing" className="flex flex-wrap items-center gap-2">

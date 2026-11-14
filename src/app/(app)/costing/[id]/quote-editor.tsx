@@ -47,7 +47,8 @@ export function QuoteEditor({
   /** Why the costing is read-only for this person, when it is. */
   lockNote: string | null;
   initialOptionKey: string | null;
-  /** Extra buttons beside Save: the approval flow adds its buttons here. */
+  /** Extra buttons beside Save: the approval flow. Hidden while there are unsaved changes, since
+   * the approval steps act on the saved costing. */
   children?: ReactNode;
 }) {
   const router = useRouter();
@@ -398,7 +399,7 @@ export function QuoteEditor({
         ) : (
           <span className="text-sm text-muted-foreground">{lockNote}</span>
         )}
-        {children}
+        {!dirty && children}
       </div>
     </div>
   );

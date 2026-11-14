@@ -40,7 +40,7 @@ two at a time without touching the same files. Everything account-bound is code 
 | 12 | i18n EN/BM/中文 | done | 03, 07 | sonnet/high |
 | 13 | Public holidays + workdays | done | - | sonnet/high |
 | 14 | Dev seed: demo people as test personas | done | 03, 04, 06 | sonnet/medium |
-| 15 | Final checks, shell parity pass, docs, merge | blocked: waits on #09 owner steps + test copy connected | 01-14 | sonnet/medium |
+| 15 | Final checks, shell parity pass, docs, merge | blocked: owner — connect laptop to test copy | 01-14 | sonnet/medium |
 ## Owner actions
 - Tell Vicky to pause her own changes until loop 11 is merged (the shell and roles change under her). Message to a
   person, so the owner sends it.

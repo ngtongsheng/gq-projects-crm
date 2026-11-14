@@ -10,7 +10,9 @@ The demo keys records by name and stores JSON blobs; the app models them as tabl
 - Left for later: per-year targets and visit targets, resignation handover (customers and projects to another person,
   handover list), "Sales teams" panel.
 
-## Costing (GQC app ~436-1450, mounted by `vCost` ~1920): L, independent
+## Costing (GQC app ~436-1450, mounted by `vCost` ~1920): L, independent. DONE (loop 13)
+Built: Register, New quote, Quote record, Approvals, FOB Enquiry, client quote, project card lines, EN/中文. Left to
+Integration: nav badge, low-margin banner. `vTeam` not built. Deviations: `docs/decisions.md` "Loop 13".
 - Screens: Register (search, status filter, sort); New quote; Quote record (revision tabs Original/R1/R2, option cards
   A/B/C with sell, cost, margin, item tables by category, action bar); Approvals "Below min margin" (pending + recent);
   FOB Enquiry (global table for purchasing + per-quote panel); client quote preview (single or option compare; print,

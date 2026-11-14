@@ -12,6 +12,7 @@ Job roles: MD, Sales Director, Marketing Director, Salesperson, HR & Accounts, S
 - [Dashboard](#dashboard)
 - [Sales Calendar](#sales-calendar)
 - [Installation](#installation)
+- [Costing](#costing)
 - [Customers](#customers)
 - [Customer detail](#customer-detail)
 - [Ownership requests](#ownership-requests)
@@ -72,6 +73,18 @@ Installation.
 Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Site Supervisor, Purchasing.
 
 ![Installation calendar with scheduled jobs and the Book a site supervisor and Schedule job buttons](screenshots/installation.jpg)
+
+## Costing
+Quotes with revisions (Original, R1, R2) and options (A, B, C) built from line items; sell, cost and margin per option.
+Screens: **Register** (`/costing`: search, status filter, sort), **New quote**, **Quote record** (`/costing/[id]`:
+editor, history, client quote button), **Approvals** (below-minimum-margin quotes: approve or return with a note),
+**FOB Enquiry** (`/costing/enquiries`: ask for a supplier price, purchasing and support reply), **Client quote**
+(`/costing/[id]/preview`: one option or a comparison, print, copy as TSV). Projects show their costing lines on the
+card. A quote at or above the minimum margin (30%) is confirmed by its owner; below it needs a reason and the MD or a
+Director approves. People without the "See margin % and cost" access see "Low / High margin" and no costs. English
+with a 中文 toggle. Sales Directors, the MD, Sales support and HR & Accounts see every quote; salespeople see their own.
+
+Used by: MD, Directors, Salespeople, Sales support, HR & Accounts, Purchasing (FOB Enquiry).
 
 ## Customers
 Every customer with company, mobile, owner, rating, account type and activity. Search and filter, add a

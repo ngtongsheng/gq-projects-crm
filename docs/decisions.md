@@ -150,3 +150,23 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
   - Parity deviations left for the page loops (this loop is the shell only): the Dashboard content differs from the demo
     (tile set, "Sales activity" / "MOF & projects" tabs, columns); Costing, Tasks, Tools & Forms, Leave, HR and Log work
     are not built so they are hidden; Sales Performance shows for admins only.
+
+## Loop 13 (costing), decided 2026-11-15
+- D1: five tables plus `quote_revision_history`: `quotes`, `quote_revisions`, `quote_options`, `quote_items`,
+  `fob_enquiries`. Items are rows with typed nullable cost columns, not the demo's JSON blobs.
+- D3: cost and margin are stripped server-side for people without the margin flag; they see "Low / High margin".
+  Without the flag, lines are edited sell-side only and keyed lines have cost 0. The owner may want a sales exception.
+- D9, where the app differs from the demo:
+  - Directors read all quotes (demo and drift doc; the task text said own team).
+  - Approvers may decide their own costing (demo). A sent-low costing cannot be resent.
+  - The editor is line cards with a category select, not per-category tables. No unsaved-edit warning, Versions panel
+    or automatic "Installation for X" text. Save, add and remove option are multi-write (`debt.md`).
+  - Register shows the lowest-option margin and highest sell per quote; revision copies are `-R<n>`.
+  - FOB Enquiry: only MD, Director, Support, Accounts reply; landed cost is display only; no "Copy to WhatsApp" or
+    "Mine" toggle; sales delete only pending enquiries; the size parser splits on ", " (fixes the demo's
+    thousands-separator bug).
+  - Client quote: product name only in compare view (no rug size); the sheet and TSV stay English; the compare view
+    prints portrait A4.
+  - Project card: lines on the Projects board card only; matched by `project_id`; only the newest revision counts.
+  - Chinese: ~295 strings in `zh.ts`, Noto Sans SC; value-bearing server messages and page titles stay English.
+  - Choosing the customer option cannot be undone. Nav badge and low-margin banner wait for Integration.

@@ -32,7 +32,7 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 | 09 | Project card costing lines | done | 06 | sonnet/high |
 | 10 | Chinese strings for Costing | done | 04, 05, 06, 07, 08 | sonnet/medium |
 | 11 | Dev seed: sample quotes | done | 02 | sonnet/medium |
-| 12 | Parity pass, docs, merge | in-progress | 01-11 | sonnet/medium |
+| 12 | Parity pass, docs, merge | blocked: owner - seed.dev file missing, parity not run | 01-11 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - None planned. Tell Vicky one line when it is live (message to a person, so the owner sends it).
@@ -78,3 +78,5 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 2026-11-15 · #11 · done · scripts/example-data/quotes.ts, reset handles quote FK, idempotence proved on PGlite; check/typecheck/test pass (1583)
 2026-11-15 · #11 · decision · six quotes (two below 30%: submitted 24%, returned 26%), fixed m2 areas, chosen_option_id null, replied_by/at omitted (trigger) · demo parity / DB constraints
 2026-11-15 · #12 · in-progress · orchestrator splits: subagent does parity + docs; orchestrator does rebase, PR, merge
+2026-11-15 · #12 · partial · docs done (features, decisions, drift doc, roadmap 2B); costing migration applied to test copy via pnpm db:test-copy; `pnpm seed:example` failed: `.env.seed.dev` not found, so Chrome parity (7 screens x 6 roles x 2 widths, print compare, Chinese) not run · not merged: parity is part of the goal and `cost` is now a built page
+2026-11-15 · #12 · blocked: owner · put `.env.seed.dev` (test copy service credentials) in ~/work/projects/gq-projects-crm-loops/13-costing, then re-run /execute-loop docs/loops/13-costing to do parity, rebase, PR and merge

@@ -27,4 +27,9 @@ export const EXAMPLE_REFERENCES: Record<string, Record<string, string>> = {
   stock_reservations: { item_id: "stock_items", project_id: "projects" },
   payments: { mof_id: "mofs" },
   commission_payouts: { mof_id: "mofs" },
+  quotes: { project_id: "projects" },
+  quote_revisions: { quote_id: "quotes" },
+  quote_options: { revision_id: "quote_revisions" },
+  quote_revision_history: { revision_id: "quote_revisions" },
+  quote_items: { option_id: "quote_options", linked_item_id: "quote_items" },
 };

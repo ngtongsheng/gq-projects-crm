@@ -22,8 +22,8 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
 | 01 | Costing maths | done | - | sonnet/high |
-| 02 | Migration: costing tables, settings, RLS | in-progress | - | opus/medium |
-| 03 | Quote loader + margin gating | todo | 01, 02 | opus/medium |
+| 02 | Migration: costing tables, settings, RLS | done | - | opus/medium |
+| 03 | Quote loader + margin gating | in-progress | 01, 02 | opus/medium |
 | 04 | Register + New quote | todo | 03 | sonnet/high |
 | 05 | Quote record editor | todo | 03 | sonnet/high |
 | 06 | Approval flow + Approvals page | todo | 05 | opus/medium |
@@ -44,3 +44,7 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 2026-11-15 · #01 · done · costing.ts + 27 tests, check/typecheck/test pass
 2026-11-15 · #01 · decision · added `simple` item type (demo has it); per-line 2 dp rounding per D2; margin is a fraction, null when sell 0; `supply only` flag replaces demo cat check (loader maps it); no lowest-margin-across-options helper yet · task 06/03 adds it
 2026-11-15 · #02 · in-progress
+2026-11-15 · #02 · done · migration 20261115120000_costing.sql, 65 RLS tests, check/typecheck/guard/test pass
+2026-11-15 · #02 · decision · migration timestamp 20261115120000 (clock sorted before existing); sixth table quote_revision_history; FOB enquiry quote_no is free text; sales/bd manage own enquiries, md/director/support/accounts work all · demo rules
+2026-11-15 · #02 · decision · cost-column API exposure and role-based (not page-matrix) read logged in docs/debt.md; self-approve enforcement added to task 06, example-data reset note to task 11 · needs D1 change / not in scope
+2026-11-15 · #03 · in-progress

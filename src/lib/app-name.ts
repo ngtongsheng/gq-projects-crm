@@ -1,1 +1,1 @@
-export const APP_NAME = "GQ Projects";
+export const APP_NAME = "GQP Office";

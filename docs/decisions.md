@@ -41,7 +41,7 @@ Loop 01 decisions: see `docs/loops/01-foundation/loop.md` (D1-D12).
 - Details: `docs/loops/04-vicky-agent-layer/loop.md`.
 
 ## Loop 03
-CRM features: to be grilled after loop 02. Source: Vicky's prototype `docs/mockup/gq-crm-mockup.html` (team roster
+CRM features: to be grilled after loop 02. Source: Vicky's prototype `docs/mockup/gqp-office-demo.html` (team roster
 and roles, lead pipeline, customers/designers, site activities, projects + payment claims, purchasing/POs with
 supplier and warehouse statuses, deliveries, installation schedule and installers, stock/offcuts and returns, staff
 OT claims, guide). The prototype is the spec input, not the data model: grill it into slices.

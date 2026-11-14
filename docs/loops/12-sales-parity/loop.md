@@ -22,7 +22,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 |---|---|---|---|---|
 | 01 | Company list query + status rules | done | - | sonnet/high |
 | 02 | Companies / All people toggle + Companies table | done | 01 | sonnet/high |
-| 03 | Company sheet | todo | 02 | sonnet/high |
+| 03 | Company sheet | done | 02 | sonnet/high |
 | 04 | Migration: outcomes, invitees, weekly reports, deadline | todo | - | opus/medium |
 | 05 | Log outcome flow | todo | 04 | opus/medium |
 | 06 | Appointment invitations | todo | 04 | sonnet/high |
@@ -44,3 +44,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 2026-11-15 · #02 · decision · role/viewport parity (md, director, bd, sales; 1280 + 390px) deferred to #10 · needs sign-in as each role on the test copy, .env files not in worktree and copying them was denied; owner action listed at finish
 2026-11-15 · #02 · decision · Companies is the default view; people list moved to people-table.tsx; Salesperson filter for isManager only (not BD with team); company name is a link, not a whole-row click · DataTable has no row click
 2026-11-15 · #02 · done · check, typecheck, test pass (1318 tests) · next: #03
+2026-11-15 · #03 · in-progress
+2026-11-15 · #03 · decision · added saveCompany (MD / Sales Director only, as the database allows); company-sheet add-person allowed for owners of the company's people, MD, Sales Director, or anyone when the company has no owned people · D1 derived owners, no way to add the first person otherwise
+2026-11-15 · #03 · decision · salesperson-assignment fields and Remove not built; header "Add customer" now also refuses non-owner adding to an existing company (visible behaviour change) · D1, Remove is data loss
+2026-11-15 · #03 · done · check, typecheck, test pass (1327 tests); sheet UI not seen in a browser, parity in #10 · next: #04

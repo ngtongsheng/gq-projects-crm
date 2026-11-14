@@ -10,7 +10,9 @@ import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { createClient } from "@/lib/supabase/server";
 import { CompaniesTable } from "./companies-table";
+import { loadCompanyDetail } from "./company-detail";
 import { parseCompanyFilters } from "./company-rows";
+import { CompanySheet } from "./company-sheet";
 import {
   canAddContact,
   canImportCustomers,
@@ -30,6 +32,8 @@ const companyRows = z.array(
   z.object({ id: z.string(), name: z.string(), rating: z.number().int() }),
 );
 
+const companyParam = z.uuid().optional().catch(undefined);
+
 export default async function CustomersPage({
   searchParams,
 }: {
@@ -41,9 +45,22 @@ export default async function CustomersPage({
   const filters = parseCustomerFilters(params);
   const supabase = await createClient();
 
-  const [companiesResult, team] = await Promise.all([
+  const openCompanyId = companyParam.parse(params.company);
+  const closeParams = new URLSearchParams(
+    Object.entries(params).flatMap(([key, value]) =>
+      key === "company" || value === undefined
+        ? []
+        : [value].flat().map((item): [string, string] => [key, item]),
+    ),
+  );
+  const closeHref = closeParams.size
+    ? `/customers?${closeParams.toString()}`
+    : "/customers";
+
+  const [companiesResult, team, openCompany] = await Promise.all([
     supabase.from("companies").select("id, name, rating").order("name"),
     getTeamDirectory(),
+    openCompanyId ? loadCompanyDetail(me, openCompanyId) : null,
   ]);
   if (companiesResult.error) {
     throw new Error(
@@ -134,6 +151,15 @@ export default async function CustomersPage({
           filters={filters}
           companies={companies}
           team={team}
+        />
+      )}
+      {openCompany && (
+        <CompanySheet
+          detail={openCompany}
+          companies={companies}
+          closeHref={closeHref}
+          canSetAccountType={canSetAccountType(me.jobRole)}
+          canRateCompany={canRateCompany(me.jobRole)}
         />
       )}
     </div>

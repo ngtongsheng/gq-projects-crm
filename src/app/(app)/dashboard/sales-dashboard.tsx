@@ -1,9 +1,10 @@
 import type { Profile } from "@/lib/auth/current-profile";
 import { attentionItems } from "@/lib/domain/attention";
 import { salesTotals, yearPace } from "@/lib/domain/order-rollup";
-import { pace as monthPace } from "@/lib/domain/workdays";
+import { pace as monthPace, weekKindFor } from "@/lib/domain/workdays";
 import { formatDate, todayMyt } from "@/lib/format/date";
 import { formatRm, sumRm } from "@/lib/format/money";
+import { loadWorkCalendar } from "@/lib/work-calendar";
 import { ProjectStageLabel } from "../projects/schemas";
 import { loadInactiveCustomerOwners } from "./customer-data";
 import { loadDashboardOrders } from "./dashboard-orders";
@@ -35,7 +36,8 @@ export async function SalesDashboard({ me }: { me: Profile }) {
       )
       .map((order) => order.outstanding),
   );
-  const paceNow = monthPace(today);
+  const calendar = await loadWorkCalendar(weekKindFor(me.jobRole));
+  const paceNow = monthPace(today, calendar);
 
   const attention = attentionItems(me.jobRole, {
     ownReport: own?.reportOverdue ? 1 : 0,
@@ -76,7 +78,7 @@ export async function SalesDashboard({ me }: { me: Profile }) {
             <PaceBar
               done={totals.year.value}
               target={me.yearlyTarget}
-              pace={yearPace(today)}
+              pace={yearPace(today, calendar)}
               label="Sales this year against yearly target"
               format={formatRm}
             />

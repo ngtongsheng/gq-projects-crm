@@ -20,6 +20,7 @@ import {
 } from "@/lib/domain/sales-performance";
 import { todayMyt } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
+import { loadWorkCalendar } from "@/lib/work-calendar";
 import { loadPerformance } from "./performance-data";
 
 export const metadata: Metadata = { title: "Sales Performance" };
@@ -66,7 +67,10 @@ export default async function SalesPerformancePage({
 
   const { rows, total } = performanceRows(orders, people, year);
   // Behind where the year should be by now; a finished year has to reach the whole target.
-  const expected = (year === thisYear ? yearPace(today) : 1) * 100;
+  const expected =
+    (year === thisYear
+      ? yearPace(today, await loadWorkCalendar("mon-fri"))
+      : 1) * 100;
 
   return (
     <div className="flex flex-col gap-4">

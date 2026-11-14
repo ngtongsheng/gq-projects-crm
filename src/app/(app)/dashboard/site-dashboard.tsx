@@ -13,8 +13,9 @@ import {
   BOOKING_STATUS_LABEL,
   BOOKING_STATUS_TONE,
 } from "@/lib/domain/site-booking";
-import { pace as monthPace } from "@/lib/domain/workdays";
+import { pace as monthPace, weekKindFor } from "@/lib/domain/workdays";
 import { addDays, formatDate, todayMyt } from "@/lib/format/date";
+import { loadWorkCalendar } from "@/lib/work-calendar";
 import {
   loadCalendarBookings,
   loadPendingBookingDays,
@@ -53,7 +54,10 @@ export async function SiteDashboard({ me }: { me: Profile }) {
     ]);
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
   const stats = own?.stats.kind === "site" ? own.stats : null;
-  const paceNow = monthPace(today);
+  const paceNow = monthPace(
+    today,
+    await loadWorkCalendar(weekKindFor(me.jobRole)),
+  );
   const withFollowUps = sites
     .filter((site) => site.openFollowUps > 0)
     .sort((a, b) => b.overdueFollowUps - a.overdueFollowUps);

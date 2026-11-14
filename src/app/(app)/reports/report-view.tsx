@@ -16,6 +16,7 @@ import {
   formatDateTime,
   formatMonth,
 } from "@/lib/format/date";
+import { loadWorkCalendar } from "@/lib/work-calendar";
 import {
   loadLiveStats,
   type MonthlyReport,
@@ -212,7 +213,14 @@ export async function ReportView({
         <h2 className="font-heading text-lg font-semibold">
           {kind === "site" ? "Site work this month" : "Sales this month"}
         </h2>
-        <ReportFigures stats={stats} pace={monthPace(view.month, view.today)} />
+        <ReportFigures
+          stats={stats}
+          pace={monthPace(
+            view.month,
+            view.today,
+            await loadWorkCalendar(kind === "site" ? "mon-sat" : "mon-fri"),
+          )}
+        />
         <p className="text-sm text-muted-foreground">
           {report?.stats
             ? "Figures were frozen when the report was submitted."

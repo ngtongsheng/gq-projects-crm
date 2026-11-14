@@ -10,6 +10,7 @@ import { isManager } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { monthPace } from "@/lib/domain/report-stats";
 import { formatMonth } from "@/lib/format/date";
+import { loadWorkCalendar } from "@/lib/work-calendar";
 import {
   loadLiveStats,
   loadMonthlyReport,
@@ -126,7 +127,11 @@ export default async function TeamReportsPage({
         view={view}
         kind={kind}
         rows={rows}
-        pace={monthPace(view.month, view.today)}
+        pace={monthPace(
+          view.month,
+          view.today,
+          await loadWorkCalendar(kind === "site" ? "mon-sat" : "mon-fri"),
+        )}
       />
       <p className="text-sm text-muted-foreground">
         {kind === "sales"

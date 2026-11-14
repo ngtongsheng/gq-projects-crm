@@ -14,6 +14,9 @@ import {
   salesStats,
   siteStats,
 } from "./report-stats";
+import type { WorkCalendar } from "./workdays";
+
+const CALENDAR: WorkCalendar = { week: "mon-fri", holidays: new Set() };
 
 const ME = "me";
 const OTHER = "other";
@@ -282,8 +285,8 @@ describe("targets and pace", () => {
   });
 
   it("colours achievement against where you should be by now", () => {
-    expect(monthPace("2026-10-01", "2026-11-02")).toBe(1);
-    expect(monthPace("2026-12-01", "2026-11-02")).toBe(0);
+    expect(monthPace("2026-10-01", "2026-11-02", CALENDAR)).toBe(1);
+    expect(monthPace("2026-12-01", "2026-11-02", CALENDAR)).toBe(0);
     expect(achievedTone(45, 50, 1)).toBe("good");
     expect(achievedTone(35, 50, 1)).toBe("warn");
     expect(achievedTone(34, 50, 1)).toBe("bad");

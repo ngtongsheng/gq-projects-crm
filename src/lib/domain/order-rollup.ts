@@ -1,6 +1,6 @@
 import { isSameMonth } from "@/lib/domain/calendar-grid";
 import { MOF_STAGES, type MofStageKey } from "@/lib/domain/mof-stages";
-import { pace } from "@/lib/domain/workdays";
+import { pace, type WorkCalendar } from "@/lib/domain/workdays";
 import { type CalendarDate, daysBetween } from "@/lib/format/date";
 import { sumRm } from "@/lib/format/money";
 
@@ -15,9 +15,9 @@ export type RollupOrder = {
 };
 
 /** Share of the year gone by `today`, so a yearly target splits into twelve monthly ones like the report's pace. */
-export function yearPace(today: CalendarDate): number {
+export function yearPace(today: CalendarDate, calendar: WorkCalendar): number {
   const monthIndex = Number(today.slice(5, 7)) - 1;
-  return (monthIndex + pace(today)) / 12;
+  return (monthIndex + pace(today, calendar)) / 12;
 }
 
 type Total = { count: number; value: number };

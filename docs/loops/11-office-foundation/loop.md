@@ -34,7 +34,7 @@ two at a time without touching the same files. Everything account-bound is code 
 | 06 | Page registry + access matrix | done | 03 | opus/medium |
 | 07 | Shell parity | done | 02, 06 | sonnet/high |
 | 08 | Read-only View as | done | 07 | opus/medium |
-| 09 | Google sign-in | blocked: owner — GCP sign-in for OAuth client; prod email check | 03 | opus/medium |
+| 09 | Google sign-in | blocked: owner — sign personal Gmail into Chrome "Agent", select it in Cloud console | 03 | opus/medium |
 | 10 | Storage foundation | done | 03 | sonnet/high |
 | 11 | A4 print layout | done | 07 | sonnet/medium |
 | 12 | i18n EN/BM/中文 | done | 03, 07 | sonnet/high |
@@ -103,3 +103,5 @@ two at a time without touching the same files. Everything account-bound is code 
 2026-11-14 · #14 · done · check/typecheck/test (1300) pass · seed run + "panel as Eddie" check folded into #15 (needs test copy)
 2026-11-14 · #15 · blocked · depends on #09 (owner) and every signed-in check needs the test copy on the laptop. #15 must cover: seed run, Eddie sidebar, signed-in parity screenshots (#02/#06/#07/#08), View as round trip, storage upload round trip, A4 print preview, Google sign-in e2e, test-copy.ts refs decision
 2026-11-14 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-14-loop-11-office-foundation.md
+2026-11-14 · #09 · owner passed GCP verification in Chrome · resumed: OAuth client, secrets, dev provider
+2026-11-14 · #09 · decision · GCP project goes under the owner's personal Gmail with no organization (owner choice), not the stasheway.com org: a project can't leave an org later; nothing was created in stasheway.com

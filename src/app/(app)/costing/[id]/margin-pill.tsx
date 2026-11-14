@@ -1,5 +1,8 @@
+"use client";
+
 import { StatusBadge, type StatusTone } from "@/components/app/status-badge";
 import { marginBand } from "@/lib/domain/costing";
+import { useT } from "@/lib/i18n/language-context";
 import type { MarginLevel } from "../quote-view";
 
 const BAND_TONE = { red: "bad", amber: "warn", green: "good" } as const;
@@ -17,6 +20,7 @@ export function MarginPill({
   margin: number | null;
   level: MarginLevel;
 }) {
+  const t = useT();
   if (costShown) {
     if (margin === null)
       return <span className="text-muted-foreground">–</span>;
@@ -33,7 +37,7 @@ export function MarginPill({
   if (level === null) return <span className="text-muted-foreground">–</span>;
   return (
     <StatusBadge tone={level === "low" ? "bad" : "good"}>
-      {level === "low" ? "Low margin" : "High margin"}
+      {level === "low" ? t("Low margin") : t("High margin")}
     </StatusBadge>
   );
 }

@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Profile } from "@/lib/auth/current-profile";
 import { canRaiseEnquiry, canWorkEnquiries } from "@/lib/auth/job-role";
 import { todayMyt } from "@/lib/format/date";
+import { getT } from "@/lib/i18n/server-t";
 import { loadEnquiries } from "./enquiry-data";
 import { EnquiryDialog } from "./enquiry-dialog";
 import { EnquiryTable } from "./enquiry-table";
@@ -17,6 +18,7 @@ export async function EnquiryPanel({
   me: Profile;
   quote: { quoteNo: string; salespersonId: string; isOwner: boolean };
 }) {
+  const t = await getT(me.language);
   const desk = canWorkEnquiries(me.jobRole);
   const canRaise = desk || (quote.isOwner && canRaiseEnquiry(me.jobRole));
   const enquiries = (await loadEnquiries(quote.quoteNo)).sort((a, b) =>
@@ -30,10 +32,11 @@ export async function EnquiryPanel({
     <Card>
       <CardHeader className="flex-row items-center justify-between gap-2">
         <div className="flex flex-col gap-0.5">
-          <CardTitle className="font-heading">FOB enquiries</CardTitle>
+          <CardTitle className="font-heading">{t("FOB enquiries")}</CardTitle>
           <span className="text-sm text-muted-foreground">
-            Ask Purchasing for an FOB price here. Their reply shows the landed
-            cost to use in the costing above.
+            {t(
+              "Ask Purchasing for an FOB price here. Their reply shows the landed cost to use in the costing above.",
+            )}
           </span>
         </div>
         {canRaise && (
@@ -54,8 +57,11 @@ export async function EnquiryPanel({
           canReply={desk}
           today={today}
           salespeople={[]}
-          emptyTitle="No enquiry yet"
-          emptyDescription="Raise one when you need an FOB price from the supplier."
+          t={t}
+          emptyTitle={t("No enquiry yet")}
+          emptyDescription={t(
+            "Raise one when you need an FOB price from the supplier.",
+          )}
         />
       </CardContent>
     </Card>

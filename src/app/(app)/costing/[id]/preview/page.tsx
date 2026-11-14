@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PrintLayout } from "@/components/app/print-layout";
 import { requirePage } from "@/lib/auth/require-page";
+import { getT } from "@/lib/i18n/server-t";
 import { cn } from "@/lib/utils";
 import { toClientQuote } from "../../quote-client-view";
 import { loadQuote } from "../../quote-data";
@@ -30,6 +31,7 @@ export default async function ClientQuotePage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const me = await requirePage("cost");
+  const t = await getT(me.language);
   const { id } = await params;
   const search = await searchParams;
   const quote = await loadQuote(me, id);
@@ -55,7 +57,7 @@ export default async function ClientQuotePage({
   return (
     <PrintLayout
       title="Quotation"
-      toolbarTitle={`Client quote · ${name}`}
+      toolbarTitle={`${t("Client quote")} · ${name}`}
       meta={[
         { label: "Quote no.", value: name },
         { label: "Project", value: client.projectName || "–" },
@@ -64,12 +66,13 @@ export default async function ClientQuotePage({
       toolbarActions={
         <>
           {many && (
-            <nav aria-label="What to show" className="flex gap-2">
+            <nav aria-label={t("What to show")} className="flex gap-2">
               <Link
                 href={base}
                 className={cn(tab, comparing && "border-primary bg-card")}
               >
-                Compare {client.options.map((option) => option.key).join(" / ")}
+                {t("Compare")}{" "}
+                {client.options.map((option) => option.key).join(" / ")}
               </Link>
               {client.options.map((option) => (
                 <Link
@@ -80,7 +83,7 @@ export default async function ClientQuotePage({
                     !comparing && option === chosen && "border-primary bg-card",
                   )}
                 >
-                  Option {option.key} only
+                  {t("Option")} {option.key} {t("only")}
                 </Link>
               ))}
             </nav>
@@ -90,7 +93,7 @@ export default async function ClientQuotePage({
             href={`/costing/${quote.id}?rev=${revision.rev}`}
             className={tab}
           >
-            Back to costing
+            {t("Back to costing")}
           </Link>
         </>
       }

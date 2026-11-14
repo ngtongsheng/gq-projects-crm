@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { canStartQuote, canWorkEnquiries } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
+import { getT } from "@/lib/i18n/server-t";
 import { loadQuoteRegister } from "./quote-data";
 import { QuoteStatusLabel } from "./quote-status";
 import { QuoteStatus } from "./quote-view";
@@ -34,6 +35,7 @@ export default async function CostingRegisterPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const me = await requirePage("cost");
+  const t = await getT(me.language);
   const filters = parseRegisterFilters(await searchParams);
   const canStart = canStartQuote(me.jobRole);
   const rows = applyRegisterFilters(await loadQuoteRegister(me), filters);
@@ -41,23 +43,23 @@ export default async function CostingRegisterPage({
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Costing Register"
-        description="Find every version by Quotation No."
+        title={t("Costing Register")}
+        description={t("Find every version by Quotation No.")}
         actions={
           <>
             <Button asChild variant="outline">
-              <Link href="/costing/approvals">Below min margin</Link>
+              <Link href="/costing/approvals">{t("Below min margin")}</Link>
             </Button>
             {canWorkEnquiries(me.jobRole) && (
               <Button asChild variant="outline">
-                <Link href="/costing/enquiries">FOB Enquiry</Link>
+                <Link href="/costing/enquiries">{t("FOB Enquiry")}</Link>
               </Button>
             )}
             {canStart && (
               <Button asChild>
                 <Link href="/costing/new">
                   <Plus data-icon="inline-start" />
-                  New costing
+                  {t("New costing")}
                 </Link>
               </Button>
             )}
@@ -67,49 +69,50 @@ export default async function CostingRegisterPage({
       <form action="/costing" className="flex flex-wrap items-center gap-2">
         <Input
           name="search"
-          aria-label="Search"
-          placeholder="Search quotation no., project, customer"
+          aria-label={t("Search")}
+          placeholder={t("Search quotation no., project, customer")}
           defaultValue={filters.search}
           maxLength={100}
           className="w-full sm:w-80"
         />
         <Select name="status" defaultValue={filters.status ?? ALL}>
-          <SelectTrigger aria-label="Status" className="w-56">
+          <SelectTrigger aria-label={t("Status")} className="w-56">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All statuses</SelectItem>
+            <SelectItem value={ALL}>{t("All statuses")}</SelectItem>
             {QuoteStatus.options.map((status) => (
               <SelectItem key={status} value={status}>
-                {QuoteStatusLabel[status]}
+                {t(QuoteStatusLabel[status])}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select name="sort" defaultValue={filters.sort}>
-          <SelectTrigger aria-label="Sort" className="w-56">
+          <SelectTrigger aria-label={t("Sort")} className="w-56">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {RegisterSort.options.map((sort) => (
               <SelectItem key={sort} value={sort}>
-                {RegisterSortLabel[sort]}
+                {t(RegisterSortLabel[sort])}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Button type="submit" variant="outline">
           <Search data-icon="inline-start" />
-          Filter
+          {t("Filter")}
         </Button>
         <span className="ml-auto font-mono text-sm tabular-nums text-muted-foreground">
-          {rows.length} costings
+          {rows.length} {t("costings")}
         </span>
       </form>
       <RegisterTable
         rows={rows}
         filtered={filters.search !== undefined || filters.status !== undefined}
         canStart={canStart}
+        t={t}
       />
     </div>
   );

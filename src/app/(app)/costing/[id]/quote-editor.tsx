@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatRm } from "@/lib/format/money";
+import { useT } from "@/lib/i18n/language-context";
 import type { QuoteView } from "../quote-view";
 import { ItemTable } from "./item-table";
 import { MarginPill } from "./margin-pill";
@@ -51,6 +52,7 @@ export function QuoteEditor({
    * the approval steps act on the saved costing. */
   children?: ReactNode;
 }) {
+  const t = useT();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [saved] = useState(() => draftFromRevision(revision));
@@ -108,10 +110,10 @@ export function QuoteEditor({
     startTransition(async () => {
       const result = await saveRevision(payloadOf(revision.id, draft));
       if (result.error) {
-        toast.error(result.error);
+        toast.error(t(result.error));
         return;
       }
-      toast.success("Saved.");
+      toast.success(t("Saved."));
       // The page loads again with the saved lines, which starts this editor over from them.
       router.refresh();
     });
@@ -124,13 +126,13 @@ export function QuoteEditor({
         copyFromOptionId,
       });
       if (result.error) {
-        toast.error(result.error);
+        toast.error(t(result.error));
         return;
       }
       toast.success(
         copyFromOptionId
-          ? `Option ${result.optionKey} started as a copy. Change its products and prices.`
-          : `Option ${result.optionKey} added.`,
+          ? `${t("Option")} ${result.optionKey} ${t("started as a copy. Change its products and prices.")}`
+          : `${t("Option")} ${result.optionKey} ${t("added.")}`,
       );
       router.push(`?rev=${revision.rev}&option=${result.optionKey}`);
       router.refresh();
@@ -142,7 +144,7 @@ export function QuoteEditor({
       const result = await removeOption({ optionId });
       setConfirmingRemove(false);
       if (result.error) {
-        toast.error(result.error);
+        toast.error(t(result.error));
         return;
       }
       router.push(`?rev=${revision.rev}`);
@@ -166,15 +168,15 @@ export function QuoteEditor({
     }));
     toast.success(
       count > 0
-        ? `Updated the rate and SST on ${count} imported ${count === 1 ? "line" : "lines"}.`
-        : "No imported lines to update.",
+        ? `${t("Updated the rate and SST on")} ${count} ${t(count === 1 ? "imported line" : "imported lines")}.`
+        : t("No imported lines to update."),
     );
   }
 
   function fillBlankRates() {
     const margin = toNumber(draft.targetMarginPct);
     if (!selected || margin <= 0 || margin >= 100) {
-      toast.error("Key in a target margin between 0 and 100 first.");
+      toast.error(t("Key in a target margin between 0 and 100 first."));
       return;
     }
     let count = 0;
@@ -189,8 +191,8 @@ export function QuoteEditor({
     }));
     toast.success(
       count > 0
-        ? `Filled ${count} blank ${count === 1 ? "rate" : "rates"} at ${margin}% margin, rounded up to whole RM.`
-        : "There are no blank rates.",
+        ? `${t("Filled")} ${count} ${t(count === 1 ? "blank rate" : "blank rates")} ${t("at")} ${margin}% ${t("margin, rounded up to whole RM.")}`
+        : t("There are no blank rates."),
     );
   }
 
@@ -198,30 +200,30 @@ export function QuoteEditor({
     <div className="flex flex-col gap-4">
       {costShown && (
         <section
-          aria-label="Rates and margin"
+          aria-label={t("Rates and margin")}
           className="flex flex-wrap items-end gap-3 rounded-xl border bg-card p-3"
         >
           <NumberBox
-            label="1 USD = RM"
+            label={t("1 USD = RM")}
             value={draft.fxUsd}
             onChange={(fxUsd) => setDraft({ ...draft, fxUsd })}
             disabled={disabled}
           />
           <NumberBox
-            label="1 RMB = RM"
+            label={t("1 RMB = RM")}
             value={draft.fxRmb}
             onChange={(fxRmb) => setDraft({ ...draft, fxRmb })}
             disabled={disabled}
           />
           <NumberBox
-            label="SST %"
+            label={t("SST %")}
             value={draft.sstPct}
             onChange={(sstPct) => setDraft({ ...draft, sstPct })}
             disabled={disabled}
             className="w-24"
           />
           <NumberBox
-            label="Target margin %"
+            label={t("Target margin %")}
             value={draft.targetMarginPct}
             onChange={(targetMarginPct) =>
               setDraft({ ...draft, targetMarginPct })
@@ -238,7 +240,7 @@ export function QuoteEditor({
                 onClick={applyRatesToImports}
                 disabled={disabled}
               >
-                Apply to all imported lines
+                {t("Apply to all imported lines")}
               </Button>
               <Button
                 type="button"
@@ -247,7 +249,7 @@ export function QuoteEditor({
                 onClick={fillBlankRates}
                 disabled={disabled || !selected}
               >
-                Fill blank rates at target margin
+                {t("Fill blank rates at target margin")}
               </Button>
             </div>
           )}
@@ -276,12 +278,12 @@ export function QuoteEditor({
           >
             <span className="flex items-center gap-1.5 font-medium">
               <Copy data-icon="inline-start" />
-              Add option {String.fromCharCode(65 + draft.options.length)}
+              {t("Add option")} {String.fromCharCode(65 + draft.options.length)}
             </span>
             <span className="text-xs font-normal text-muted-foreground">
               {dirty
-                ? "Save your changes first"
-                : `Starts as a copy of option ${selected.key}`}
+                ? t("Save your changes first")
+                : `${t("Starts as a copy of option")} ${selected.key}`}
             </span>
           </Button>
         )}
@@ -289,16 +291,16 @@ export function QuoteEditor({
 
       {selected && selectedSummary ? (
         <section
-          aria-label={`Option ${selected.key}`}
+          aria-label={`${t("Option")} ${selected.key}`}
           className="rounded-xl border bg-card"
         >
           <div className="flex flex-wrap items-end gap-3 border-b p-3">
             <h2 className="font-heading text-lg font-semibold">
-              Option {selected.key}
+              {t("Option")} {selected.key}
             </h2>
-            <Labeled label="Option name" className="w-72 max-w-full">
+            <Labeled label={t("Option name")} className="w-72 max-w-full">
               <Input
-                aria-label="Option name"
+                aria-label={t("Option name")}
                 value={selected.label}
                 onChange={(event) =>
                   setOption(selected.id, (option) => ({
@@ -306,7 +308,7 @@ export function QuoteEditor({
                     label: event.target.value,
                   }))
                 }
-                placeholder="e.g. Axminster 42oz"
+                placeholder={t("e.g. Axminster 42oz")}
                 maxLength={200}
                 disabled={disabled}
               />
@@ -325,10 +327,10 @@ export function QuoteEditor({
               >
                 <Trash2 data-icon="inline-start" />
                 {confirmingRemove
-                  ? "Click again to remove"
+                  ? t("Click again to remove")
                   : dirty
-                    ? "Save first to remove"
-                    : "Remove this option"}
+                    ? t("Save first to remove")
+                    : t("Remove this option")}
               </Button>
             )}
           </div>
@@ -344,11 +346,16 @@ export function QuoteEditor({
           <div className="flex flex-wrap items-center justify-end gap-x-8 gap-y-2 border-t p-3 text-sm">
             {selectedSummary.costShown && (
               <>
-                <Total label="Total cost" value={selectedSummary.cost} />
-                <Total label="Quote amount" value={selectedSummary.sell} />
-                <Total label="Est. profit" value={selectedSummary.profit} />
+                <Total label={t("Total cost")} value={selectedSummary.cost} />
+                <Total label={t("Quote amount")} value={selectedSummary.sell} />
+                <Total
+                  label={t("Est. profit")}
+                  value={selectedSummary.profit}
+                />
                 <div className="flex flex-col items-end gap-1">
-                  <span className="text-xs text-muted-foreground">Margin</span>
+                  <span className="text-xs text-muted-foreground">
+                    {t("Margin")}
+                  </span>
                   <MarginPill
                     costShown
                     margin={selectedSummary.margin}
@@ -359,7 +366,7 @@ export function QuoteEditor({
             )}
             {!selectedSummary.costShown && (
               <>
-                <Total label="Quote amount" value={selectedSummary.sell} />
+                <Total label={t("Quote amount")} value={selectedSummary.sell} />
                 {selectedSummary.level !== "unsaved" && (
                   <MarginPill
                     costShown={false}
@@ -374,12 +381,14 @@ export function QuoteEditor({
       ) : (
         <div className="flex flex-col items-start gap-3 rounded-xl border bg-card p-6">
           <p className="text-sm">
-            This version has no option yet. Starting the costing did not finish.
+            {t(
+              "This version has no option yet. Starting the costing did not finish.",
+            )}
           </p>
           {canEdit && (
             <Button type="button" onClick={() => add(null)} disabled={pending}>
               <Plus data-icon="inline-start" />
-              Add option A
+              {t("Add option A")}
             </Button>
           )}
         </div>
@@ -390,10 +399,10 @@ export function QuoteEditor({
           <>
             <Button type="button" onClick={save} disabled={pending || !dirty}>
               <Save data-icon="inline-start" />
-              {pending ? "Saving..." : "Save"}
+              {pending ? t("Saving...") : t("Save")}
             </Button>
             <span className="text-sm text-muted-foreground" aria-live="polite">
-              {dirty ? "You have unsaved changes." : "All changes saved."}
+              {dirty ? t("You have unsaved changes.") : t("All changes saved.")}
             </span>
           </>
         ) : (

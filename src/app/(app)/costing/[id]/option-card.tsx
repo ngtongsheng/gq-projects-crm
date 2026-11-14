@@ -1,5 +1,6 @@
 import { StatusBadge } from "@/components/app/status-badge";
 import { formatRm } from "@/lib/format/money";
+import { useT } from "@/lib/i18n/language-context";
 import { cn } from "@/lib/utils";
 import type { MarginLevel } from "../quote-view";
 import { MarginPill } from "./margin-pill";
@@ -26,6 +27,7 @@ export function OptionCard({
   selected: boolean;
   onSelect: () => void;
 }) {
+  const t = useT();
   return (
     <button
       type="button"
@@ -38,11 +40,11 @@ export function OptionCard({
     >
       <div className="flex items-center justify-between gap-2">
         <span className="font-medium">
-          Option {option.key}
+          {t("Option")} {option.key}
           {option.label ? ` · ${option.label}` : ""}
         </span>
         {option.chosen && (
-          <StatusBadge tone="good">Customer's pick</StatusBadge>
+          <StatusBadge tone="good">{t("Customer's pick")}</StatusBadge>
         )}
       </div>
       <div className="flex items-center justify-between gap-2">
@@ -58,17 +60,17 @@ export function OptionCard({
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 text-sm text-muted-foreground">
         {option.costShown && (
           <>
-            <dt>Total cost</dt>
+            <dt>{t("Total cost")}</dt>
             <dd className="text-right font-mono tabular-nums">
               {formatRm(option.cost)}
             </dd>
-            <dt>Est. profit</dt>
+            <dt>{t("Est. profit")}</dt>
             <dd className="text-right font-mono tabular-nums">
               {formatRm(option.profit)}
             </dd>
           </>
         )}
-        <dt>Items</dt>
+        <dt>{t("Items")}</dt>
         <dd className="text-right font-mono tabular-nums">
           {option.itemCount}
         </dd>

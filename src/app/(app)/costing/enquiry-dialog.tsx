@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
+import { useT } from "@/lib/i18n/language-context";
 import { deleteEnquiry, saveEnquiry } from "./enquiry-actions";
 import {
   DEFAULT_FX,
@@ -62,6 +63,7 @@ const numberText = (value: number | null | undefined) =>
 
 /** Radix unmounts the content on close, so each opening starts from the saved values. */
 export function EnquiryDialog(props: DialogProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const { enquiry } = props;
 
@@ -71,24 +73,30 @@ export function EnquiryDialog(props: DialogProps) {
         {enquiry ? (
           <Button size="sm" variant="outline">
             <Pencil data-icon="inline-start" />
-            {props.canReply && enquiry.status === "pending" ? "Reply" : "Edit"}
+            {props.canReply && enquiry.status === "pending"
+              ? t("Reply")
+              : t("Edit")}
           </Button>
         ) : (
           <Button size="sm">
             <Plus data-icon="inline-start" />
-            New enquiry
+            {t("New enquiry")}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            {enquiry ? "FOB enquiry" : "New FOB enquiry"}
+            {enquiry ? t("FOB enquiry") : t("New FOB enquiry")}
           </DialogTitle>
           <DialogDescription>
             {props.canReply
-              ? "Note what sales asked for, then fill in the supplier's reply."
-              : "Purchasing replies here with the FOB price, rate and shipping."}
+              ? t(
+                  "Note what sales asked for, then fill in the supplier's reply.",
+                )
+              : t(
+                  "Purchasing replies here with the FOB price, rate and shipping.",
+                )}
           </DialogDescription>
         </DialogHeader>
         <EnquiryForm {...props} onDone={() => setOpen(false)} />
@@ -106,6 +114,7 @@ function EnquiryForm({
   salespersonId,
   onDone,
 }: DialogProps & { onDone: () => void }) {
+  const t = useT();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [currency, setCurrency] = useState<EnquiryCurrency>(
@@ -117,9 +126,9 @@ function EnquiryForm({
   function save(formData: FormData) {
     startTransition(async () => {
       const result = await saveEnquiry(formData);
-      setError(result.error);
+      setError(result.error && t(result.error));
       if (result.error) return;
-      toast.success(enquiry ? "Enquiry saved." : "Enquiry added.");
+      toast.success(enquiry ? t("Enquiry saved.") : t("Enquiry added."));
       onDone();
     });
   }
@@ -128,10 +137,10 @@ function EnquiryForm({
     if (!enquiry) return;
     startTransition(async () => {
       const result = await deleteEnquiry(enquiry.id);
-      setError(result.error);
+      setError(result.error && t(result.error));
       setConfirmRemove(false);
       if (result.error) return;
-      toast.success("Enquiry removed.");
+      toast.success(t("Enquiry removed."));
       onDone();
     });
   }
@@ -144,10 +153,10 @@ function EnquiryForm({
       )}
       <FieldGroup>
         <FieldSet>
-          <FieldLegend variant="label">What sales asked for</FieldLegend>
+          <FieldLegend variant="label">{t("What sales asked for")}</FieldLegend>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field>
-              <FieldLabel htmlFor="enquiryDate">Date</FieldLabel>
+              <FieldLabel htmlFor="enquiryDate">{t("Date")}</FieldLabel>
               <Input
                 id="enquiryDate"
                 name="enquiryDate"
@@ -157,7 +166,7 @@ function EnquiryForm({
               />
             </Field>
             <Field>
-              <FieldLabel htmlFor="quoteNo">Quotation No.</FieldLabel>
+              <FieldLabel htmlFor="quoteNo">{t("Quotation No.")}</FieldLabel>
               <Input
                 id="quoteNo"
                 name="quoteNo"
@@ -168,13 +177,15 @@ function EnquiryForm({
                 placeholder="GQ5127"
               />
               <FieldDescription>
-                Leave blank if the costing is not started yet.
+                {t("Leave blank if the costing is not started yet.")}
               </FieldDescription>
             </Field>
           </div>
           {pickSalesperson && (
             <Field>
-              <FieldLabel htmlFor="salespersonId">Salesperson</FieldLabel>
+              <FieldLabel htmlFor="salespersonId">
+                {t("Salesperson")}
+              </FieldLabel>
               <Select
                 name="salespersonId"
                 defaultValue={enquiry?.salespersonId ?? NONE}
@@ -183,7 +194,9 @@ function EnquiryForm({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NONE}>Same as the costing</SelectItem>
+                  <SelectItem value={NONE}>
+                    {t("Same as the costing")}
+                  </SelectItem>
                   {salespeople.map((person) => (
                     <SelectItem key={person.id} value={person.id}>
                       {person.name}
@@ -194,7 +207,7 @@ function EnquiryForm({
             </Field>
           )}
           <Field>
-            <FieldLabel htmlFor="product">Product / spec</FieldLabel>
+            <FieldLabel htmlFor="product">{t("Product / spec")}</FieldLabel>
             <Input
               id="product"
               name="product"
@@ -205,7 +218,7 @@ function EnquiryForm({
             />
           </Field>
           <Field>
-            <FieldLabel htmlFor="sizes">Sizes (optional)</FieldLabel>
+            <FieldLabel htmlFor="sizes">{t("Sizes (optional)")}</FieldLabel>
             <Textarea
               id="sizes"
               name="sizes"
@@ -216,13 +229,14 @@ function EnquiryForm({
               placeholder={"1.83x1.5 x 799\n2.2x1.35 x 799"}
             />
             <FieldDescription>
-              One line each: length x width in metres x pieces. The quantity
-              below is then worked out in m².
+              {t(
+                "One line each: length x width in metres x pieces. The quantity below is then worked out in m².",
+              )}
             </FieldDescription>
           </Field>
           <div className="grid gap-4 sm:grid-cols-3">
             <Field>
-              <FieldLabel htmlFor="qty">Quantity</FieldLabel>
+              <FieldLabel htmlFor="qty">{t("Quantity")}</FieldLabel>
               <Input
                 id="qty"
                 name="qty"
@@ -232,7 +246,7 @@ function EnquiryForm({
               />
             </Field>
             <Field>
-              <FieldLabel htmlFor="unit">Unit</FieldLabel>
+              <FieldLabel htmlFor="unit">{t("Unit")}</FieldLabel>
               <Select name="unit" defaultValue={enquiry?.unit ?? "m2"}>
                 <SelectTrigger id="unit">
                   <SelectValue />
@@ -240,14 +254,14 @@ function EnquiryForm({
                 <SelectContent>
                   {EnquiryUnit.options.map((unit) => (
                     <SelectItem key={unit} value={unit}>
-                      {EnquiryUnitLabel[unit]}
+                      {t(EnquiryUnitLabel[unit])}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </Field>
             <Field>
-              <FieldLabel htmlFor="supplier">Supplier</FieldLabel>
+              <FieldLabel htmlFor="supplier">{t("Supplier")}</FieldLabel>
               <Input
                 id="supplier"
                 name="supplier"
@@ -259,10 +273,12 @@ function EnquiryForm({
         </FieldSet>
         {canReply && (
           <FieldSet>
-            <FieldLegend variant="label">The supplier's reply</FieldLegend>
+            <FieldLegend variant="label">
+              {t("The supplier's reply")}
+            </FieldLegend>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
-                <FieldLabel htmlFor="currency">Currency</FieldLabel>
+                <FieldLabel htmlFor="currency">{t("Currency")}</FieldLabel>
                 <Select
                   name="currency"
                   value={currency}
@@ -283,7 +299,7 @@ function EnquiryForm({
                 </Select>
               </Field>
               <Field>
-                <FieldLabel htmlFor="fob">FOB per unit</FieldLabel>
+                <FieldLabel htmlFor="fob">{t("FOB per unit")}</FieldLabel>
                 <Input
                   id="fob"
                   name="fob"
@@ -292,7 +308,7 @@ function EnquiryForm({
                   defaultValue={numberText(enquiry?.fob)}
                 />
                 <FieldDescription>
-                  Leave blank while the supplier has not replied.
+                  {t("Leave blank while the supplier has not replied.")}
                 </FieldDescription>
               </Field>
               <Field>
@@ -307,7 +323,9 @@ function EnquiryForm({
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="shipping">Shipping RM per unit</FieldLabel>
+                <FieldLabel htmlFor="shipping">
+                  {t("Shipping RM per unit")}
+                </FieldLabel>
                 <Input
                   id="shipping"
                   name="shipping"
@@ -319,13 +337,13 @@ function EnquiryForm({
               </Field>
             </div>
             <Field>
-              <FieldLabel htmlFor="notes">Notes</FieldLabel>
+              <FieldLabel htmlFor="notes">{t("Notes")}</FieldLabel>
               <Input
                 id="notes"
                 name="notes"
                 defaultValue={enquiry?.notes}
                 maxLength={500}
-                placeholder="Lead time, MOQ"
+                placeholder={t("Lead time, MOQ")}
               />
             </Field>
           </FieldSet>
@@ -333,7 +351,7 @@ function EnquiryForm({
         {error && <FieldError>{error}</FieldError>}
         <div className="flex flex-wrap items-center gap-2">
           <Button type="submit" disabled={pending}>
-            {pending ? "Saving..." : "Save enquiry"}
+            {pending ? t("Saving...") : t("Save enquiry")}
           </Button>
           {enquiry &&
             (confirmRemove ? (
@@ -344,14 +362,14 @@ function EnquiryForm({
                   disabled={pending}
                   onClick={remove}
                 >
-                  Yes, remove it
+                  {t("Yes, remove it")}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setConfirmRemove(false)}
                 >
-                  Keep it
+                  {t("Keep it")}
                 </Button>
               </>
             ) : (
@@ -360,7 +378,7 @@ function EnquiryForm({
                 variant="outline"
                 onClick={() => setConfirmRemove(true)}
               >
-                Remove
+                {t("Remove")}
               </Button>
             ))}
         </div>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Figtree, IBM_Plex_Mono, Saira } from "next/font/google";
+import { Figtree, IBM_Plex_Mono, Noto_Sans_SC, Saira } from "next/font/google";
 import { DevRolePanel } from "@/components/app/dev-role-panel";
 import { ThemeProvider } from "@/components/app/theme-provider";
 import { ThemeScript } from "@/components/app/theme-script";
@@ -11,6 +11,11 @@ import "./globals.css";
 
 const figtree = Figtree({ variable: "--font-figtree", subsets: ["latin"] });
 const saira = Saira({ variable: "--font-saira", subsets: ["latin"] });
+// Only fetched by browsers that meet Chinese text, so English pages do not pay for it.
+const notoSansSc = Noto_Sans_SC({
+  variable: "--font-noto-sans-sc",
+  preload: false,
+});
 const plexMono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
   subsets: ["latin"],
@@ -38,7 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${figtree.variable} ${saira.variable} ${plexMono.variable} h-full antialiased`}
+      className={`${figtree.variable} ${saira.variable} ${plexMono.variable} ${notoSansSc.variable} h-full antialiased`}
     >
       <head>
         <ThemeScript />

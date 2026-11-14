@@ -10,6 +10,7 @@ import { canApproveQuote } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { formatDateTime } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
+import { getT } from "@/lib/i18n/server-t";
 import { MarginPill } from "../[id]/margin-pill";
 import { loadQuotes } from "../quote-data";
 import { QUOTE_STATUS_TONE, QuoteStatusLabel } from "../quote-status";
@@ -52,6 +53,7 @@ const lastAt = (revision: Revision) =>
 
 export default async function CostingApprovalsPage() {
   const me = await requirePage("cost");
+  const t = await getT(me.language);
   const quotes = await loadQuotes(me);
   const approver = canApproveQuote(me.jobRole);
   const costShown = quotes[0]?.costShown ?? false;
@@ -78,7 +80,7 @@ export default async function CostingApprovalsPage() {
   ): DataTableColumn<OptionRow>[] => [
     {
       key: "quoteNo",
-      header: "Quotation No.",
+      header: t("Quotation No."),
       cell: (row) =>
         shared(
           row,
@@ -92,8 +94,8 @@ export default async function CostingApprovalsPage() {
             {row.revision.status === "submitted" && (
               <span className="text-xs text-muted-foreground">
                 {approver
-                  ? "You can approve"
-                  : "Waiting for the MD or Sales Director"}
+                  ? t("You can approve")
+                  : t("Waiting for the MD or Sales Director")}
               </span>
             )}
           </div>,
@@ -101,26 +103,28 @@ export default async function CostingApprovalsPage() {
     },
     {
       key: "customer",
-      header: "Customer",
+      header: t("Customer"),
       cell: (row) => shared(row, row.quote.customerName),
     },
     {
       key: "project",
-      header: "Project",
+      header: t("Project"),
       cell: (row) => shared(row, row.quote.projectName),
     },
     {
       key: "salesperson",
-      header: "Salesperson",
+      header: t("Salesperson"),
       cell: (row) => shared(row, row.quote.salespersonName),
     },
     {
       key: "option",
-      header: "Option",
+      header: t("Option"),
       cell: (row) => (
         <span>
           {row.revision.options.length > 1 && (
-            <span className="font-medium">Option {row.option.key} </span>
+            <span className="font-medium">
+              {t("Option")} {row.option.key}{" "}
+            </span>
           )}
           <span className="text-muted-foreground">{row.option.label}</span>
         </span>
@@ -130,7 +134,7 @@ export default async function CostingApprovalsPage() {
       ? [
           {
             key: "cost",
-            header: "Total cost",
+            header: t("Total cost"),
             numeric: true,
             cell: (row: OptionRow) =>
               "cost" in row.option ? formatRm(row.option.cost) : null,
@@ -139,7 +143,7 @@ export default async function CostingApprovalsPage() {
       : []),
     {
       key: "sell",
-      header: "Quote amount",
+      header: t("Quote amount"),
       numeric: true,
       cell: (row) => formatRm(row.option.sell),
     },
@@ -147,7 +151,7 @@ export default async function CostingApprovalsPage() {
       ? [
           {
             key: "profit",
-            header: "Est. profit",
+            header: t("Est. profit"),
             numeric: true,
             cell: (row: OptionRow) =>
               "profit" in row.option ? formatRm(row.option.profit) : null,
@@ -156,7 +160,7 @@ export default async function CostingApprovalsPage() {
       : []),
     {
       key: "margin",
-      header: "Margin",
+      header: t("Margin"),
       cell: (row) =>
         "margin" in row.option ? (
           <MarginPill costShown margin={row.option.margin} level={null} />
@@ -170,7 +174,7 @@ export default async function CostingApprovalsPage() {
     },
     {
       key: "last",
-      header: last,
+      header: t(last),
       cell: (row) => {
         const entry = row.revision.history.at(-1);
         return shared(
@@ -178,7 +182,7 @@ export default async function CostingApprovalsPage() {
           <div className="flex flex-col items-start gap-1">
             {last === "Decision" && (
               <StatusBadge tone={QUOTE_STATUS_TONE[row.revision.status]}>
-                {QuoteStatusLabel[row.revision.status]}
+                {t(QuoteStatusLabel[row.revision.status])}
               </StatusBadge>
             )}
             <span className="font-mono text-xs tabular-nums text-muted-foreground">
@@ -194,12 +198,14 @@ export default async function CostingApprovalsPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Below min margin"
-        description="A costing whose lowest option meets the minimum margin is quoted straight away. Only lower ones come here for the MD or Sales Director to approve."
+        title={t("Below min margin")}
+        description={t(
+          "A costing whose lowest option meets the minimum margin is quoted straight away. Only lower ones come here for the MD or Sales Director to approve.",
+        )}
       />
       <section className="flex flex-col gap-2">
         <h2 className="font-heading text-lg font-semibold">
-          Waiting for approval ·{" "}
+          {t("Waiting for approval")} ·{" "}
           <span className="font-mono tabular-nums">{pending.length}</span>
         </h2>
         <DataTable
@@ -209,22 +215,24 @@ export default async function CostingApprovalsPage() {
           empty={
             <EmptyState
               icon={CheckCircle2}
-              title="Nothing waiting"
-              description="No costing is waiting for approval."
+              title={t("Nothing waiting")}
+              description={t("No costing is waiting for approval.")}
             />
           }
         />
       </section>
       <section className="flex flex-col gap-2">
-        <h2 className="font-heading text-lg font-semibold">Recently decided</h2>
+        <h2 className="font-heading text-lg font-semibold">
+          {t("Recently decided")}
+        </h2>
         <DataTable
           rows={optionRows(recent)}
           getRowKey={(row) => row.key}
           columns={columns("Decision")}
           empty={
             <EmptyState
-              title="No decisions yet"
-              description="Approved and returned costings appear here."
+              title={t("No decisions yet")}
+              description={t("Approved and returned costings appear here.")}
             />
           }
         />

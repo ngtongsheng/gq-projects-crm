@@ -2,6 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n/language-context";
 import { CATEGORIES, CATEGORY_LABEL, isSupplyCategory } from "./item-kinds";
 import { ItemRow } from "./item-row";
 import {
@@ -30,6 +31,7 @@ export function ItemTable({
   defaults: Defaults;
   onItemsChange: (items: DraftItem[]) => void;
 }) {
+  const t = useT();
   const replace = (index: number, next: DraftItem) =>
     onItemsChange(
       followLinkedLines(items.map((item, i) => (i === index ? next : item))),
@@ -41,7 +43,7 @@ export function ItemTable({
         ? [
             {
               ref: other.ref,
-              label: `#${position + 1} ${other.product || "(no name)"}`,
+              label: `#${position + 1} ${other.product || t("(no name)")}`,
             },
           ]
         : [],
@@ -51,8 +53,8 @@ export function ItemTable({
     <div className="flex flex-col">
       {items.length === 0 && (
         <p className="p-6 text-center text-sm text-muted-foreground">
-          No items yet.{" "}
-          {disabled ? "" : "Use the buttons below to add the first line."}
+          {t("No items yet.")}{" "}
+          {disabled ? "" : t("Use the buttons below to add the first line.")}
         </p>
       )}
       {items.map((item, index) => (
@@ -80,7 +82,9 @@ export function ItemTable({
       ))}
       {!disabled && (
         <div className="flex flex-wrap items-center gap-2 border-t p-3">
-          <span className="text-sm text-muted-foreground">Add a line:</span>
+          <span className="text-sm text-muted-foreground">
+            {t("Add a line:")}
+          </span>
           {CATEGORIES.map((category) => (
             <Button
               key={category}
@@ -95,7 +99,7 @@ export function ItemTable({
               }
             >
               <Plus data-icon="inline-start" />
-              {CATEGORY_LABEL[category]}
+              {t(CATEGORY_LABEL[category])}
             </Button>
           ))}
         </div>

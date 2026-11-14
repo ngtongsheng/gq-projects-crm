@@ -14,6 +14,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import type { ItemTotals } from "@/lib/domain/costing";
 import { formatRm } from "@/lib/format/money";
+import { useT } from "@/lib/i18n/language-context";
+import type { Translate } from "@/lib/i18n/translate";
 import {
   CATEGORIES,
   CATEGORY_LABEL,
@@ -53,27 +55,27 @@ type CostField = {
 };
 
 /** The boxes each kind of line needs, in the order the demo shows them. */
-function costFields(item: DraftItem): CostField[] {
+function costFields(item: DraftItem, t: Translate): CostField[] {
   const per = UNIT_LABEL[item.unit];
   const supplyOnly = item.category === "supply";
-  const wastage: CostField = { key: "wastagePct", label: "Wastage %" };
+  const wastage: CostField = { key: "wastagePct", label: t("Wastage %") };
   const installing = (fields: CostField[]) => (supplyOnly ? [] : fields);
   const perM2 = item.unit === "sqft" || item.unit === "m2" ? "m²" : per;
   const landed = (unit: string): CostField[] => [
-    { key: "fob", label: `FOB / ${unit}` },
+    { key: "fob", label: `${t("FOB /")} ${unit}` },
     { key: "fx", label: `1 ${item.currency} = RM` },
-    { key: "sstPct", label: "SST %" },
-    { key: "shipping", label: `Shipment RM / ${unit}` },
+    { key: "sstPct", label: t("SST %") },
+    { key: "shipping", label: `${t("Shipment RM /")} ${unit}` },
   ];
   switch (item.type) {
     case "local":
       return [
-        { key: "material", label: `Supply price RM / ${per}` },
+        { key: "material", label: `${t("Supply price RM /")} ${per}` },
         wastage,
         ...installing([
-          { key: "install", label: `Installation RM / ${per}` },
-          { key: "underlay", label: `Underlay RM / ${per}` },
-          { key: "accessories", label: `Accessories RM / ${per}` },
+          { key: "install", label: `${t("Installation RM /")} ${per}` },
+          { key: "underlay", label: `${t("Underlay RM /")} ${per}` },
+          { key: "accessories", label: `${t("Accessories RM /")} ${per}` },
         ]),
       ];
     case "import":
@@ -81,40 +83,43 @@ function costFields(item: DraftItem): CostField[] {
         ...landed(perM2),
         wastage,
         ...installing([
-          { key: "install", label: `Installation RM / ${per}` },
-          { key: "underlay", label: `Underlay RM / ${per}` },
+          { key: "install", label: `${t("Installation RM /")} ${per}` },
+          { key: "underlay", label: `${t("Underlay RM /")} ${per}` },
         ]),
       ];
     case "rug":
       return [
-        { key: "length", label: "Length L (m)", sellSide: true },
-        { key: "width", label: "Width W (m)", sellSide: true },
+        { key: "length", label: t("Length L (m)"), sellSide: true },
+        { key: "width", label: t("Width W (m)"), sellSide: true },
         ...(item.rugMode === "piece"
-          ? [{ key: "pieceCost" as const, label: "Price per piece RM" }]
+          ? [{ key: "pieceCost" as const, label: t("Price per piece RM") }]
           : landed("m²")),
         wastage,
-        { key: "edging", label: "Edging RM / pc" },
-        ...installing([{ key: "install", label: "Installation RM / pc" }]),
+        { key: "edging", label: t("Edging RM / pc") },
+        ...installing([{ key: "install", label: t("Installation RM / pc") }]),
       ];
     case "labour":
       return [
-        { key: "install", label: `Labour RM / ${per}` },
-        { key: "underlay", label: `Underlay RM / ${per}` },
-        { key: "accessories", label: `Adhesive / accessories RM / ${per}` },
+        { key: "install", label: `${t("Labour RM /")} ${per}` },
+        { key: "underlay", label: `${t("Underlay RM /")} ${per}` },
+        {
+          key: "accessories",
+          label: `${t("Adhesive / accessories RM /")} ${per}`,
+        },
       ];
     case "lump":
-      return [{ key: "lumpCost", label: `Cost RM / ${per}` }];
+      return [{ key: "lumpCost", label: `${t("Cost RM /")} ${per}` }];
     case "simple":
       if (item.category === "acc") {
-        return [{ key: "material", label: `Cost RM / ${per}` }];
+        return [{ key: "material", label: `${t("Cost RM /")} ${per}` }];
       }
       if (item.category === "sl") {
         return [
-          { key: "material", label: `Material RM / ${per}` },
-          { key: "install", label: `Labour RM / ${per}` },
+          { key: "material", label: `${t("Material RM /")} ${per}` },
+          { key: "install", label: `${t("Labour RM /")} ${per}` },
         ];
       }
-      return [{ key: "install", label: `Labour cost RM / ${per}` }];
+      return [{ key: "install", label: `${t("Labour cost RM /")} ${per}` }];
     case "discount":
       return [];
   }
@@ -148,6 +153,7 @@ export function ItemRow({
   onChangeSource: (source: Source) => void;
   onRemove: () => void;
 }) {
+  const t = useT();
   const [confirmingRemove, setConfirmingRemove] = useState(false);
   const discount = item.type === "discount";
   const followsLine = item.type === "labour" && item.linkRef !== "";
@@ -159,7 +165,7 @@ export function ItemRow({
     : CATEGORIES.filter((category) =>
         item.id === null ? true : typeAllowedIn(category, item.type),
       );
-  const fields = costFields(item).filter(
+  const fields = costFields(item, t).filter(
     (field) => costShown || field.sellSide,
   );
   const showsSupplier =
@@ -177,19 +183,19 @@ export function ItemRow({
         </span>
         <div className="flex flex-col gap-1.5">
           <Input
-            aria-label={`Item ${index + 1} product`}
+            aria-label={`${t("Item")} ${index + 1} ${t("product")}`}
             value={item.product}
             onChange={(event) => onChange({ product: event.target.value })}
-            placeholder="e.g. Carpet Tile: FTP-202B Essential Color"
+            placeholder={t("e.g. Carpet Tile: FTP-202B Essential Color")}
             maxLength={200}
             disabled={disabled}
             className="font-semibold"
           />
           <Textarea
-            aria-label={`Item ${index + 1} description`}
+            aria-label={`${t("Item")} ${index + 1} ${t("description")}`}
             value={item.description}
             onChange={(event) => onChange({ description: event.target.value })}
-            placeholder="Description for the quotation (optional)"
+            placeholder={t("Description for the quotation (optional)")}
             rows={Math.max(1, item.description.split("\n").length)}
             maxLength={2000}
             disabled={disabled}
@@ -206,7 +212,7 @@ export function ItemRow({
             disabled={disabled}
           >
             <SelectTrigger
-              aria-label={`Item ${index + 1} category`}
+              aria-label={`${t("Item")} ${index + 1} ${t("category")}`}
               className="w-full font-medium"
             >
               <SelectValue />
@@ -214,7 +220,7 @@ export function ItemRow({
             <SelectContent>
               {categories.map((category) => (
                 <SelectItem key={category} value={category}>
-                  {CATEGORY_LABEL[category]}
+                  {t(CATEGORY_LABEL[category])}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -229,7 +235,7 @@ export function ItemRow({
               disabled={disabled}
             >
               <SelectTrigger
-                aria-label={`Item ${index + 1} source`}
+                aria-label={`${t("Item")} ${index + 1} ${t("source")}`}
                 className="w-full"
               >
                 <SelectValue />
@@ -237,7 +243,7 @@ export function ItemRow({
               <SelectContent>
                 {SOURCES.map((source) => (
                   <SelectItem key={source} value={source}>
-                    {SOURCE_LABEL[source]}
+                    {t(SOURCE_LABEL[source])}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -249,14 +255,14 @@ export function ItemRow({
             type="button"
             variant={confirmingRemove ? "destructive" : "ghost"}
             size={confirmingRemove ? "sm" : "icon-sm"}
-            aria-label={`Remove item ${index + 1}`}
+            aria-label={`${t("Remove item")} ${index + 1}`}
             onClick={() => {
               if (!confirmingRemove) return setConfirmingRemove(true);
               onRemove();
             }}
             onBlur={() => setConfirmingRemove(false)}
           >
-            {confirmingRemove ? "Sure?" : <X />}
+            {confirmingRemove ? t("Sure?") : <X />}
           </Button>
         )}
       </div>
@@ -264,7 +270,7 @@ export function ItemRow({
       <div className="flex flex-wrap items-end gap-2 sm:pl-8">
         {discount ? (
           <NumberBox
-            label="Discount RM (taken off the total)"
+            label={t("Discount RM (taken off the total)")}
             value={item.rate}
             onChange={(rate) => onChange({ rate })}
             disabled={disabled}
@@ -273,13 +279,13 @@ export function ItemRow({
         ) : (
           <>
             <NumberBox
-              label="Qty"
+              label={t("Qty")}
               value={item.qty}
               onChange={(qty) => onChange({ qty })}
               disabled={disabled || followsLine}
               className="w-24"
             />
-            <Labeled label="Unit" className="w-24">
+            <Labeled label={t("Unit")} className="w-24">
               <Select
                 value={item.unit}
                 onValueChange={(value) => {
@@ -288,20 +294,20 @@ export function ItemRow({
                 }}
                 disabled={disabled || followsLine || item.type === "rug"}
               >
-                <SelectTrigger aria-label="Unit" className="w-full">
+                <SelectTrigger aria-label={t("Unit")} className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {UNITS.map((unit) => (
                     <SelectItem key={unit} value={unit}>
-                      {UNIT_LABEL[unit]}
+                      {t(UNIT_LABEL[unit])}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </Labeled>
             <NumberBox
-              label="Rate RM"
+              label={t("Rate RM")}
               value={item.rate}
               onChange={(rate) => onChange({ rate })}
               disabled={disabled}
@@ -309,29 +315,29 @@ export function ItemRow({
           </>
         )}
         {showsSupplier && (
-          <Labeled label="Supplier" className="w-40">
+          <Labeled label={t("Supplier")} className="w-40">
             <Input
               value={item.supplier}
               onChange={(event) => onChange({ supplier: event.target.value })}
-              placeholder="China supplier"
+              placeholder={t("China supplier")}
               maxLength={200}
               disabled={disabled}
             />
           </Labeled>
         )}
-        <Labeled label="Area" className="w-40">
+        <Labeled label={t("Area")} className="w-40">
           <Input
-            aria-label="Area"
+            aria-label={t("Area")}
             value={item.area}
             onChange={(event) => onChange({ area: event.target.value })}
-            placeholder="e.g. Level 3 office"
+            placeholder={t("e.g. Level 3 office")}
             maxLength={200}
             disabled={disabled}
           />
         </Labeled>
         <div className="ml-auto flex items-end gap-4">
           <div className="flex flex-col items-end gap-1">
-            <span className="text-xs text-muted-foreground">Amount</span>
+            <span className="text-xs text-muted-foreground">{t("Amount")}</span>
             <span className="font-mono text-sm font-medium tabular-nums">
               {formatRm(totals.sell)}
             </span>
@@ -340,14 +346,16 @@ export function ItemRow({
             <>
               <div className="flex flex-col items-end gap-1">
                 <span className="text-xs text-muted-foreground">
-                  Total cost
+                  {t("Total cost")}
                 </span>
                 <span className="font-mono text-sm tabular-nums">
                   {formatRm(totals.cost)}
                 </span>
               </div>
               <div className="flex flex-col items-end gap-1">
-                <span className="text-xs text-muted-foreground">Margin</span>
+                <span className="text-xs text-muted-foreground">
+                  {t("Margin")}
+                </span>
                 <MarginPill costShown margin={totals.margin} level={null} />
               </div>
             </>
@@ -361,7 +369,7 @@ export function ItemRow({
         showsCurrency) && (
         <div className="flex flex-wrap items-end gap-2 rounded-lg bg-muted/40 p-2 sm:ml-8">
           {item.type === "rug" && costShown && (
-            <Labeled label="Priced by" className="w-48">
+            <Labeled label={t("Priced by")} className="w-48">
               <Select
                 value={item.rugMode}
                 onValueChange={(value) =>
@@ -369,20 +377,22 @@ export function ItemRow({
                 }
                 disabled={disabled}
               >
-                <SelectTrigger aria-label="Priced by" className="w-full">
+                <SelectTrigger aria-label={t("Priced by")} className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="area">FOB per m² (imported)</SelectItem>
+                  <SelectItem value="area">
+                    {t("FOB per m² (imported)")}
+                  </SelectItem>
                   <SelectItem value="piece">
-                    Supplier price per piece
+                    {t("Supplier price per piece")}
                   </SelectItem>
                 </SelectContent>
               </Select>
             </Labeled>
           )}
           {showsCurrency && (
-            <Labeled label="Currency" className="w-24">
+            <Labeled label={t("Currency")} className="w-24">
               <Select
                 value={item.currency}
                 onValueChange={(value) =>
@@ -393,7 +403,7 @@ export function ItemRow({
                 }
                 disabled={disabled}
               >
-                <SelectTrigger aria-label="Currency" className="w-full">
+                <SelectTrigger aria-label={t("Currency")} className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -404,7 +414,7 @@ export function ItemRow({
             </Labeled>
           )}
           {item.type === "labour" && (
-            <Labeled label="Installs which item" className="w-56">
+            <Labeled label={t("Installs which item")} className="w-56">
               <Select
                 value={item.linkRef === "" ? NO_LINK : item.linkRef}
                 onValueChange={(value) =>
@@ -413,13 +423,13 @@ export function ItemRow({
                 disabled={disabled}
               >
                 <SelectTrigger
-                  aria-label="Installs which item"
+                  aria-label={t("Installs which item")}
                   className="w-full"
                 >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NO_LINK}>Not linked</SelectItem>
+                  <SelectItem value={NO_LINK}>{t("Not linked")}</SelectItem>
                   {linkChoices.map((choice) => (
                     <SelectItem key={choice.ref} value={choice.ref}>
                       {choice.label}
@@ -441,9 +451,9 @@ export function ItemRow({
         </div>
       )}
       <div className="flex flex-wrap items-end gap-2 sm:pl-8">
-        <Labeled label="Internal remark" className="w-full sm:w-72">
+        <Labeled label={t("Internal remark")} className="w-full sm:w-72">
           <Input
-            aria-label="Internal remark"
+            aria-label={t("Internal remark")}
             value={item.remark}
             onChange={(event) => onChange({ remark: event.target.value })}
             maxLength={500}

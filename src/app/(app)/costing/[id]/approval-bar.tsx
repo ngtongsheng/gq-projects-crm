@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import type { Readiness } from "@/lib/domain/quote-status";
+import { useT } from "@/lib/i18n/language-context";
+import type { Translate } from "@/lib/i18n/translate";
 import type { QuoteStatus } from "../quote-view";
 import {
   type ApprovalResult,
@@ -26,6 +28,22 @@ import {
 } from "./approval-actions";
 
 const APPROVERS = "the MD or Sales Director";
+
+/** The readiness problems the domain writes in English; the two with a count or option letter are matched by shape. */
+function translateProblem(t: Translate, problem: string): string {
+  const noLines = /^Option (\S+) has no lines yet\.$/.exec(problem);
+  if (noLines) {
+    return `${t("Option")} ${noLines[1]} ${t("has no lines yet.")}`;
+  }
+  const unpriced =
+    /^(\d+) (line has|lines have) no price for the customer yet\.$/.exec(
+      problem,
+    );
+  if (unpriced) {
+    return `${unpriced[1]} ${t(unpriced[2] === "line has" ? "line has no price for the customer yet." : "lines have no price for the customer yet.")}`;
+  }
+  return t(problem);
+}
 
 /**
  * The demo's action bar under a costing: the owner confirms or sends it, the MD or Sales Director
@@ -55,6 +73,8 @@ export function ApprovalBar({
   options: { id: string; key: string; label: string }[];
   chosenOptionId: string | null;
 }) {
+  const t = useT();
+  const approvers = t(APPROVERS);
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [note, setNote] = useState("");
@@ -63,10 +83,10 @@ export function ApprovalBar({
     startTransition(async () => {
       const result = await action();
       if (result.error) {
-        toast.error(result.error);
+        toast.error(t(result.error));
         return;
       }
-      toast.success(done);
+      toast.success(t(done));
       setNote("");
       router.refresh();
     });
@@ -76,10 +96,12 @@ export function ApprovalBar({
     startTransition(async () => {
       const result = await openRevision({ revisionId });
       if (result.error) {
-        toast.error(result.error);
+        toast.error(t(result.error));
         return;
       }
-      toast.success(`${nextRevisionName} opened. You can change it now.`);
+      toast.success(
+        `${nextRevisionName} ${t("opened. You can change it now.")}`,
+      );
       router.push(`?rev=${result.rev}`);
       router.refresh();
     });
@@ -89,8 +111,8 @@ export function ApprovalBar({
     return (
       <Bar>
         <NoteBox
-          label="Note (needed to return it)"
-          placeholder="What should the salesperson change?"
+          label={t("Note (needed to return it)")}
+          placeholder={t("What should the salesperson change?")}
           value={note}
           onChange={setNote}
         />
@@ -106,7 +128,7 @@ export function ApprovalBar({
           }
         >
           <Undo2 data-icon="inline-start" />
-          Return for changes
+          {t("Return for changes")}
         </Button>
         <Button
           type="button"
@@ -119,7 +141,7 @@ export function ApprovalBar({
           }
         >
           <Check data-icon="inline-start" />
-          Approve
+          {t("Approve")}
         </Button>
       </Bar>
     );
@@ -127,14 +149,15 @@ export function ApprovalBar({
 
   if (isOwner && readiness && status !== "approved") {
     if (!readiness.ready) {
-      return <Hint>{readiness.problem}</Hint>;
+      return <Hint>{translateProblem(t, readiness.problem)}</Hint>;
     }
     if (readiness.ownerConfirms) {
       return (
         <Bar>
           <Hint>
-            The lowest option meets the minimum margin. Confirm it and you can
-            quote straight away.
+            {t(
+              "The lowest option meets the minimum margin. Confirm it and you can quote straight away.",
+            )}
           </Hint>
           <Button
             type="button"
@@ -144,7 +167,7 @@ export function ApprovalBar({
             }
           >
             <Check data-icon="inline-start" />
-            Confirm costing
+            {t("Confirm costing")}
           </Button>
         </Bar>
       );
@@ -152,8 +175,10 @@ export function ApprovalBar({
     if (status === "submitted") {
       return (
         <Hint>
-          Waiting for {APPROVERS} to approve. You can still change it; once
-          every option meets the minimum margin you can confirm it yourself.
+          {t("Waiting for")} {approvers}{" "}
+          {t(
+            "to approve. You can still change it; once every option meets the minimum margin you can confirm it yourself.",
+          )}
         </Hint>
       );
     }
@@ -161,12 +186,12 @@ export function ApprovalBar({
       <Bar>
         <Hint>
           {readiness.costMissing
-            ? `Some lines have no cost keyed in, so ${APPROVERS} must approve this costing.`
-            : `The lowest option is below the minimum margin. Raise the prices, or write why and send it to ${APPROVERS}.`}
+            ? `${t("Some lines have no cost keyed in, so")} ${approvers} ${t("must approve this costing.")}`
+            : `${t("The lowest option is below the minimum margin. Raise the prices, or write why and send it to")} ${approvers}.`}
         </Hint>
         <NoteBox
-          label="Reason (needed to send it)"
-          placeholder="Why should this go out below the minimum margin?"
+          label={t("Reason (needed to send it)")}
+          placeholder={t("Why should this go out below the minimum margin?")}
           value={note}
           onChange={setNote}
         />
@@ -176,12 +201,12 @@ export function ApprovalBar({
           onClick={() =>
             run(
               () => sendCosting({ revisionId, note }),
-              `Sent to ${APPROVERS} for approval.`,
+              `${t("Sent to")} ${approvers} ${t("for approval.")}`,
             )
           }
         >
           <Send data-icon="inline-start" />
-          Send for approval
+          {t("Send for approval")}
         </Button>
       </Bar>
     );
@@ -190,7 +215,9 @@ export function ApprovalBar({
   if (isOwner && status === "approved") {
     return (
       <Bar>
-        <Hint>OK to quote. You can send this quote to the customer.</Hint>
+        <Hint>
+          {t("OK to quote. You can send this quote to the customer.")}
+        </Hint>
         {options.length > 1 && (
           <Select
             value={chosenOptionId ?? ""}
@@ -202,13 +229,15 @@ export function ApprovalBar({
               )
             }
           >
-            <SelectTrigger aria-label="Customer's option" className="w-64">
-              <SelectValue placeholder="Which option did the customer choose?" />
+            <SelectTrigger aria-label={t("Customer's option")} className="w-64">
+              <SelectValue
+                placeholder={t("Which option did the customer choose?")}
+              />
             </SelectTrigger>
             <SelectContent>
               {options.map((option) => (
                 <SelectItem key={option.id} value={option.id}>
-                  Option {option.key}
+                  {t("Option")} {option.key}
                   {option.label ? ` · ${option.label}` : ""}
                 </SelectItem>
               ))}
@@ -218,7 +247,7 @@ export function ApprovalBar({
         {isLatest && (
           <Button type="button" disabled={pending} onClick={revise}>
             <CopyPlus data-icon="inline-start" />
-            Open {nextRevisionName}
+            {t("Open")} {nextRevisionName}
           </Button>
         )}
       </Bar>
@@ -227,7 +256,10 @@ export function ApprovalBar({
 
   if (status === "submitted") {
     return (
-      <Hint>Below the minimum margin. Waiting for {APPROVERS} to approve.</Hint>
+      <Hint>
+        {t("Below the minimum margin. Waiting for")} {approvers}{" "}
+        {t("to approve.")}
+      </Hint>
     );
   }
   return null;

@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
+import { useT } from "@/lib/i18n/language-context";
 import { createQuote } from "../quote-actions";
 
 export type ProjectChoice = {
@@ -41,6 +42,7 @@ export function NewQuoteForm({
   initialProjectId: string;
   salespersonName: string;
 }) {
+  const t = useT();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -60,12 +62,12 @@ export function NewQuoteForm({
   function save(formData: FormData) {
     startTransition(async () => {
       const result = await createQuote(formData);
-      setError(result.error);
+      setError(result.error && t(result.error));
       if (result.error || !result.quoteId) return;
       toast.success(
         result.existing
-          ? "That number already has a costing. Opened it."
-          : "Costing started.",
+          ? t("That number already has a costing. Opened it.")
+          : t("Costing started."),
       );
       router.push(`/costing/${result.quoteId}`);
     });
@@ -75,7 +77,7 @@ export function NewQuoteForm({
     <form onSubmit={submitKeepingValues(save)} className="max-w-2xl">
       <FieldGroup>
         <Field>
-          <FieldLabel htmlFor="quoteNo">Quotation No.</FieldLabel>
+          <FieldLabel htmlFor="quoteNo">{t("Quotation No.")}</FieldLabel>
           <Input
             id="quoteNo"
             name="quoteNo"
@@ -85,12 +87,15 @@ export function NewQuoteForm({
             required
           />
           <FieldDescription>
-            Get the number from Zoho first, then key it in here. A number that
-            already has a costing opens that costing.
+            {t(
+              "Get the number from Zoho first, then key it in here. A number that already has a costing opens that costing.",
+            )}
           </FieldDescription>
         </Field>
         <Field>
-          <FieldLabel htmlFor="projectPicker">Link to a project</FieldLabel>
+          <FieldLabel htmlFor="projectPicker">
+            {t("Link to a project")}
+          </FieldLabel>
           <input
             type="hidden"
             name="projectId"
@@ -101,7 +106,9 @@ export function NewQuoteForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={NONE}>Not linked to a project</SelectItem>
+              <SelectItem value={NONE}>
+                {t("Not linked to a project")}
+              </SelectItem>
               {projects.map((project) => (
                 <SelectItem key={project.id} value={project.id}>
                   {project.name}
@@ -110,12 +117,12 @@ export function NewQuoteForm({
             </SelectContent>
           </Select>
           <FieldDescription>
-            A linked project fills in the project and customer below.
+            {t("A linked project fills in the project and customer below.")}
           </FieldDescription>
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field>
-            <FieldLabel htmlFor="projectName">Project</FieldLabel>
+            <FieldLabel htmlFor="projectName">{t("Project")}</FieldLabel>
             <Input
               id="projectName"
               name="projectName"
@@ -125,7 +132,7 @@ export function NewQuoteForm({
             />
           </Field>
           <Field>
-            <FieldLabel htmlFor="customerName">Customer</FieldLabel>
+            <FieldLabel htmlFor="customerName">{t("Customer")}</FieldLabel>
             <Input
               id="customerName"
               name="customerName"
@@ -136,13 +143,13 @@ export function NewQuoteForm({
           </Field>
         </div>
         <Field>
-          <FieldLabel htmlFor="salesperson">Salesperson</FieldLabel>
+          <FieldLabel htmlFor="salesperson">{t("Salesperson")}</FieldLabel>
           <Input id="salesperson" value={salespersonName} disabled readOnly />
         </Field>
         {error && <FieldError>{error}</FieldError>}
         <div>
           <Button type="submit" disabled={pending}>
-            {pending ? "Starting..." : "Create costing"}
+            {pending ? t("Starting...") : t("Create costing")}
           </Button>
         </div>
       </FieldGroup>

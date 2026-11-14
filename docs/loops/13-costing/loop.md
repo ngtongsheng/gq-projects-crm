@@ -30,8 +30,8 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 | 07 | FOB Enquiry | done | 05 | sonnet/high |
 | 08 | Client quote preview | done | 05 | sonnet/high |
 | 09 | Project card costing lines | done | 06 | sonnet/high |
-| 10 | Chinese strings for Costing | in-progress | 04, 05, 06, 07, 08 | sonnet/medium |
-| 11 | Dev seed: sample quotes | todo | 02 | sonnet/medium |
+| 10 | Chinese strings for Costing | done | 04, 05, 06, 07, 08 | sonnet/medium |
+| 11 | Dev seed: sample quotes | in-progress | 02 | sonnet/medium |
 | 12 | Parity pass, docs, merge | todo | 01-11 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
@@ -72,3 +72,6 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 2026-11-15 · #09 · done · project-costing-lines, setValueFromCosting + 14 tests; check/typecheck/test pass (1579)
 2026-11-15 · #09 · decision · action named setValueFromCosting (lint rejects use* prefix); lines on the Projects board card only (not list view, customer-projects or edit dialog); matched by project_id only; only the newest revision counts; value is 2 dp sell · minimal card edit per D7
 2026-11-15 · #10 · in-progress
+2026-11-15 · #10 · done · ~295 zh.ts entries, LanguageProvider/useT/getT, Noto Sans SC; check/typecheck/test pass (1579)
+2026-11-15 · #10 · decision · language reaches client components via new context in (app)/layout.tsx (only sidebar used t() before); Noto Sans SC via next/font/google (no npm package, preload false); client quote sheet and TSV stay English; value-bearing server messages and metadata titles English only (debt.md row) · no existing mechanism; customer-facing sheet is English in demo
+2026-11-15 · #11 · in-progress

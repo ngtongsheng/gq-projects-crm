@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { canStartQuote } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
+import { getT } from "@/lib/i18n/server-t";
 import { createClient } from "@/lib/supabase/server";
 import { NewQuoteForm, type ProjectChoice } from "./new-quote-form";
 
@@ -38,15 +39,18 @@ export default async function NewCostingPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const me = await requirePage("cost");
+  const t = await getT(me.language);
   if (!canStartQuote(me.jobRole)) {
     return (
       <div className="flex flex-col gap-4">
-        <PageHeader title="New costing" />
+        <PageHeader title={t("New costing")} />
         <div className="rounded-xl border bg-card">
           <EmptyState
             icon={Calculator}
-            title="Salespeople start the costings"
-            description="Your role does not start a costing. Open the Costing Register to see them."
+            title={t("Salespeople start the costings")}
+            description={t(
+              "Your role does not start a costing. Open the Costing Register to see them.",
+            )}
           />
         </div>
       </div>
@@ -58,14 +62,16 @@ export default async function NewCostingPage({
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="New costing"
-        description="Key in the quotation number from Zoho to start. You add the products next."
+        title={t("New costing")}
+        description={t(
+          "Key in the quotation number from Zoho to start. You add the products next.",
+        )}
       />
       <NewQuoteForm
         key={typeof project === "string" ? project : ""}
         projects={projects}
         initialProjectId={typeof project === "string" ? project : ""}
-        salespersonName={me.fullName ?? "Unnamed"}
+        salespersonName={me.fullName ?? t("Unnamed")}
       />
     </div>
   );

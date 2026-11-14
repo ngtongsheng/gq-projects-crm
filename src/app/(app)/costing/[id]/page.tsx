@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { canApproveQuote } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { formatDateTime } from "@/lib/format/date";
+import { getT } from "@/lib/i18n/server-t";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { EnquiryPanel } from "../enquiry-panel";
@@ -47,6 +48,7 @@ export default async function CostingRecordPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const me = await requirePage("cost");
+  const t = await getT(me.language);
   const { id } = await params;
   const search = await searchParams;
   const quote = await loadQuote(me, id);
@@ -63,7 +65,7 @@ export default async function CostingRecordPage({
       <div className="flex flex-col gap-4">
         <PageHeader
           title={quote.quoteNo}
-          description={`${quote.projectName || "No project"} · ${quote.customerName || "No customer"}`}
+          description={`${quote.projectName || t("No project")} · ${quote.customerName || t("No customer")}`}
         />
         <MissingRevision
           quoteId={quote.id}
@@ -77,8 +79,8 @@ export default async function CostingRecordPage({
   const approved = revision.status === "approved";
   const canEdit = isOwner && !approved;
   const lockNote = !isOwner
-    ? `Read-only. Only ${quote.salespersonName} can change this costing.`
-    : "OK to quote, so it is locked. Open a new version to change it.";
+    ? `${t("Read-only. Only")} ${quote.salespersonName} ${t("can change this costing.")}`
+    : t("OK to quote, so it is locked. Open a new version to change it.");
   const last = revision.history.at(-1);
   const latestRev = quote.revisions.at(-1)?.rev ?? revision.rev;
   // Whether the owner may confirm alone is worked out from the stored cost, whoever is looking.
@@ -94,39 +96,39 @@ export default async function CostingRecordPage({
         title={revisionName(quote.quoteNo, revision.rev)}
         description={
           last
-            ? `${HISTORY_TEXT[last.action]} · ${last.byName} · ${formatDateTime(last.at)}`
+            ? `${t(HISTORY_TEXT[last.action])} · ${last.byName} · ${formatDateTime(last.at)}`
             : undefined
         }
         actions={
           <>
             <Button asChild variant="outline">
               <Link href={`/costing/${quote.id}/preview?rev=${revision.rev}`}>
-                Client quote
+                {t("Client quote")}
               </Link>
             </Button>
             <StatusBadge tone={QUOTE_STATUS_TONE[revision.status]}>
-              {QuoteStatusLabel[revision.status]}
+              {t(QuoteStatusLabel[revision.status])}
             </StatusBadge>
           </>
         }
       />
       <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-3">
         <div>
-          <dt className="text-xs text-muted-foreground">Project</dt>
+          <dt className="text-xs text-muted-foreground">{t("Project")}</dt>
           <dd>{quote.projectName || "–"}</dd>
         </div>
         <div>
-          <dt className="text-xs text-muted-foreground">Customer</dt>
+          <dt className="text-xs text-muted-foreground">{t("Customer")}</dt>
           <dd>{quote.customerName || "–"}</dd>
         </div>
         <div>
-          <dt className="text-xs text-muted-foreground">Salesperson</dt>
+          <dt className="text-xs text-muted-foreground">{t("Salesperson")}</dt>
           <dd>{quote.salespersonName}</dd>
         </div>
       </dl>
       <div
         role="tablist"
-        aria-label="Versions"
+        aria-label={t("Versions")}
         className="flex flex-wrap gap-2"
       >
         {quote.revisions.map((candidate) => (
@@ -141,10 +143,10 @@ export default async function CostingRecordPage({
             )}
           >
             <span className="font-mono">
-              {candidate.rev > 0 ? `R${candidate.rev}` : "Original"}
+              {candidate.rev > 0 ? `R${candidate.rev}` : t("Original")}
             </span>
             <StatusBadge tone={QUOTE_STATUS_TONE[candidate.status]}>
-              {QuoteStatusLabel[candidate.status]}
+              {t(QuoteStatusLabel[candidate.status])}
             </StatusBadge>
           </Link>
         ))}
@@ -182,12 +184,14 @@ export default async function CostingRecordPage({
           isOwner,
         }}
       />
-      <section aria-label="History" className="flex flex-col gap-2">
-        <h2 className="font-heading text-base font-semibold">History</h2>
+      <section aria-label={t("History")} className="flex flex-col gap-2">
+        <h2 className="font-heading text-base font-semibold">{t("History")}</h2>
         <ol className="flex flex-col gap-1.5 text-sm">
           {[...revision.history].reverse().map((entry) => (
             <li key={`${entry.at}:${entry.action}`}>
-              <span className="font-medium">{HISTORY_TEXT[entry.action]}</span>
+              <span className="font-medium">
+                {t(HISTORY_TEXT[entry.action])}
+              </span>
               <span className="text-muted-foreground">
                 {" "}
                 · {entry.byName} ·{" "}
@@ -196,7 +200,7 @@ export default async function CostingRecordPage({
                 </span>
               </span>
               {entry.note && (
-                <p className="text-muted-foreground">{entry.note}</p>
+                <p className="text-muted-foreground">{t(entry.note)}</p>
               )}
             </li>
           ))}

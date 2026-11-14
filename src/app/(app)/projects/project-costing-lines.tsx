@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { StatusBadge } from "@/components/app/status-badge";
 import { Button } from "@/components/ui/button";
 import { formatRm } from "@/lib/format/money";
+import { useT } from "@/lib/i18n/language-context";
 import type { ProjectCostingLine } from "../costing/project-costing-data";
 import { QUOTE_STATUS_TONE, QuoteStatusLabel } from "../costing/quote-status";
 import { setValueFromCosting } from "../costing/use-as-project-value-action";
@@ -19,12 +20,13 @@ function UseAsValueButton({
   quoteId: string;
   amount: number;
 }) {
+  const t = useT();
   const [pending, startTransition] = useTransition();
   const use = () =>
     startTransition(async () => {
       const result = await setValueFromCosting({ projectId, quoteId });
-      if (result.error) toast.error(result.error);
-      else toast.success("Project value updated.");
+      if (result.error) toast.error(t(result.error));
+      else toast.success(t("Project value updated."));
     });
   return (
     <Button
@@ -35,7 +37,7 @@ function UseAsValueButton({
       disabled={pending}
       onClick={use}
     >
-      Use {formatRm(amount)} as project value
+      {t("Use")} {formatRm(amount)} {t("as project value")}
     </Button>
   );
 }
@@ -48,17 +50,20 @@ export function ProjectCostingLines({
   projectId: string;
   lines: ProjectCostingLine[];
 }) {
+  const t = useT();
   if (lines.length === 0) return null;
   return (
     <div className="flex flex-col gap-1.5 border-t pt-2">
-      <h3 className="text-xs font-semibold">Costing ({lines.length})</h3>
+      <h3 className="text-xs font-semibold">
+        {t("Costing")} ({lines.length})
+      </h3>
       <ul className="flex flex-col gap-2">
         {lines.map((line) => (
           <li key={line.quoteId} className="flex flex-col gap-0.5 text-xs">
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="font-mono font-medium">{line.quoteNo}</span>
               <StatusBadge tone={QUOTE_STATUS_TONE[line.status]}>
-                {QuoteStatusLabel[line.status]}
+                {t(QuoteStatusLabel[line.status])}
               </StatusBadge>
             </div>
             <p className="font-mono tabular-nums">
@@ -81,7 +86,7 @@ export function ProjectCostingLines({
                 href={`/costing/${line.quoteId}`}
                 className="text-foreground underline-offset-2 hover:underline"
               >
-                Open costing
+                {t("Open costing")}
               </Link>
             </p>
           </li>

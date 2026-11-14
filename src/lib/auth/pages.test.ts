@@ -32,6 +32,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "inst",
       "cust",
       "proj",
+      "cost",
       "mof",
       "site",
       "stock",
@@ -50,6 +51,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "inst",
       "cust",
       "proj",
+      "cost",
       "site",
       "stock",
       "coll",
@@ -67,6 +69,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "inst",
       "cust",
       "proj",
+      "cost",
       "mof",
       "site",
       "stock",
@@ -84,6 +87,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "inst",
       "cust",
       "proj",
+      "cost",
       "site",
       "stock",
       "coll",
@@ -100,6 +104,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "inst",
       "cust",
       "proj",
+      "cost",
       "site",
       "stock",
       "coll",
@@ -116,6 +121,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "inst",
       "cust",
       "proj",
+      "cost",
       "mof",
       "site",
       "stock",
@@ -136,7 +142,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
   marketing: { person: viewer("marketing"), keys: ["dash", "site", "stock"] },
   support: {
     person: viewer("support"),
-    keys: ["dash", "mof", "inst", "site", "stock"],
+    keys: ["dash", "cost", "mof", "inst", "site", "stock"],
   },
 };
 
@@ -158,6 +164,7 @@ describe("navPagesFor: defaults", () => {
     ]);
     expect(labels(viewer("support"))).toEqual([
       "Dashboard",
+      "Costing",
       "MOF Register",
       "Delivery & Installation",
       "Site Work",
@@ -180,7 +187,6 @@ describe("navPagesFor: defaults", () => {
   });
 
   it("hides pages that are not built, even from the MD", () => {
-    expect(canOpenPage(viewer("md"), "cost", {})).toBe(false);
     expect(canOpenPage(viewer("md"), "leave", {})).toBe(false);
   });
 });
@@ -196,7 +202,7 @@ describe("overrides", () => {
   it("adds a page in the role's own order, or after the role's pages", () => {
     const overrides = { sales: { mof: true, drep: true, srep: true } };
     const keys = navKeys(viewer("sales"), overrides);
-    expect(keys.slice(4, 7)).toEqual(["proj", "mof", "site"]);
+    expect(keys.slice(4, 8)).toEqual(["proj", "cost", "mof", "site"]);
     expect(keys.slice(-2)).toEqual(["srep", "drep"]);
     expect(navPagesFor(viewer("sales"), overrides)).toContainEqual(
       expect.objectContaining({ key: "mof", label: "My Sales" }),

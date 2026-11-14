@@ -30,7 +30,7 @@ const outline = (
 
 // Read from the demo's sidebar (docs/mockup/gqp-office-demo.html, Chrome, 2026-11-14) signed in
 // as Vicky, Eddie, Vernice, Awal, Wai Mun and Affifa, keeping the pages built so far. The demo
-// also lists Costing, Log work, HR, Sales Performance, Tasks, Tools & Forms and Leave, which are
+// also lists Log work, HR, Sales Performance, Tasks, Tools & Forms and Leave, which are
 // hidden until their pages exist.
 describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide", () => {
   it("md", () => {
@@ -41,6 +41,7 @@ describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide",
         "Installation",
         "Customers",
         "Projects",
+        "Costing",
         "MOF Register",
         "Site Work",
         "Stock",
@@ -62,6 +63,7 @@ describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide",
         "Installation",
         "Customers",
         "Projects",
+        "Costing",
         "Site Work",
         "Stock",
         "Collection",
@@ -82,6 +84,7 @@ describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide",
         "Installation",
         "Customers",
         "Projects",
+        "Costing",
         "Site Work",
         "Stock",
         "Collection",
@@ -117,6 +120,7 @@ describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide",
     expect(outline("support")).toEqual({
       main: [
         "Dashboard",
+        "Costing",
         "MOF Register",
         "Delivery & Installation",
         "Site Work",

@@ -24,8 +24,8 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 | 01 | Costing maths | done | - | sonnet/high |
 | 02 | Migration: costing tables, settings, RLS | done | - | opus/medium |
 | 03 | Quote loader + margin gating | done | 01, 02 | opus/medium |
-| 04 | Register + New quote | in-progress | 03 | sonnet/high |
-| 05 | Quote record editor | todo | 03 | sonnet/high |
+| 04 | Register + New quote | done | 03 | sonnet/high |
+| 05 | Quote record editor | in-progress | 03 | sonnet/high |
 | 06 | Approval flow + Approvals page | todo | 05 | opus/medium |
 | 07 | FOB Enquiry | todo | 05 | sonnet/high |
 | 08 | Client quote preview | todo | 05 | sonnet/high |
@@ -52,3 +52,7 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 2026-11-15 · #03 · decision · restricted view also drops fx, SST, target margin, wastage, supplier price per piece; empty option has null level; register "updated" = later of quote/revision · cost-only fields
 2026-11-15 · #03 · decision · D3 holds in editor: viewers without margin flag edit sell-side only (added to task 05); no margin/cost in history notes (added to task 06) · demo hides cost without flag; owner may want a sales exception
 2026-11-15 · #04 · in-progress
+2026-11-15 · #04 · done · register, new quote, createQuote action + tests; check/typecheck/test pass (1433)
+2026-11-15 · #04 · decision · per-task desktop/390px parity needs the test copy and role panel (environment step); deferred to task 12 parity pass · acceptance covers it once
+2026-11-15 · #04 · decision · register shows lowest-option margin and highest sell (register row carries only that); `-R<n>` quote no rejected, revision copy belongs to 05/06; createQuote non-transactional, editor copes (added to task 05) · demo has per-option values
+2026-11-15 · #05 · in-progress

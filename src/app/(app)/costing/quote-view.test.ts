@@ -227,6 +227,8 @@ describe("toRegisterRow", () => {
     expect(full).toMatchObject({
       costShown: true,
       rev: 0,
+      revisionCount: 1,
+      optionKeys: ["A", "B"],
       status: "draft",
       amount: 45303,
       marginLevel: "high",

@@ -277,6 +277,9 @@ const RestrictedRegisterRow = z.object({
   salespersonName: z.string(),
   /** The latest revision's number and status. */
   rev: z.number(),
+  revisionCount: z.number(),
+  /** The latest revision's option letters, A, B, C. */
+  optionKeys: z.array(z.string()),
   status: QuoteStatus,
   amount: z.number(),
   marginLevel: MarginLevel,
@@ -488,6 +491,8 @@ export function toRegisterRow(quote: QuoteView): QuoteRegisterRow | null {
     salespersonId: quote.salespersonId,
     salespersonName: quote.salespersonName,
     rev: latest.rev,
+    revisionCount: quote.revisions.length,
+    optionKeys: latest.options.map((option) => option.key),
     status: latest.status,
     amount: latest.amount,
     marginLevel: latest.marginLevel,

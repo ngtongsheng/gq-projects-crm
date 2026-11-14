@@ -80,3 +80,4 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 2026-11-15 · #12 · in-progress · orchestrator splits: subagent does parity + docs; orchestrator does rebase, PR, merge
 2026-11-15 · #12 · partial · docs done (features, decisions, drift doc, roadmap 2B); costing migration applied to test copy via pnpm db:test-copy; `pnpm seed:example` failed: `.env.seed.dev` not found, so Chrome parity (7 screens x 6 roles x 2 widths, print compare, Chinese) not run · not merged: parity is part of the goal and `cost` is now a built page
 2026-11-15 · #12 · blocked: owner · put `.env.seed.dev` (test copy service credentials) in ~/work/projects/gq-projects-crm-loops/13-costing, then re-run /execute-loop docs/loops/13-costing to do parity, rebase, PR and merge
+2026-11-15 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-15-loop-13-costing.md

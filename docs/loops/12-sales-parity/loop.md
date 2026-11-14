@@ -24,7 +24,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 | 02 | Companies / All people toggle + Companies table | done | 01 | sonnet/high |
 | 03 | Company sheet | done | 02 | sonnet/high |
 | 04 | Migration: outcomes, invitees, weekly reports, deadline | done | - | opus/medium |
-| 05 | Log outcome flow | todo | 04 | opus/medium |
+| 05 | Log outcome flow | done | 04 | opus/medium |
 | 06 | Appointment invitations | todo | 04 | sonnet/high |
 | 07 | Calendar views, My team filter, Plan a call | todo | 05, 06 | sonnet/high |
 | 08 | Weekly outcomes + weekly reports | todo | 05 | opus/medium |
@@ -52,3 +52,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 2026-11-15 · #04 · decision · migration timestamp 20261115110000 (after main's newest) · D5
 2026-11-15 · #04 · decision · DB trigger stamps logged_at / late_logged (client cannot write); lead stored as activities.lead_project_id; existing outcome text stays as learnings; deadline row weekly_report_due = {weekday:5,time:"18:00"}; only sales and bd file weekly reports · demo rules
 2026-11-15 · #04 · done · check, typecheck, guard:migrations, test pass (1338 tests, 11 new RLS tests) · next: #05
+2026-11-15 · #05 · in-progress
+2026-11-15 · #05 · decision · logOutcome is three separate writes, not a transaction; logged in docs/debt.md · needs a new SQL function
+2026-11-15 · #05 · decision · lead copies saveProject's schema and permission rule (needs the new project id); lead source fixed to cold_call; next step requires a follow-up date; follow-up belongs to the person logging; "needs outcome" = planned and start time passed · RLS and existing guards
+2026-11-15 · #05 · done · check, typecheck, test pass (1353 tests) · next: #06

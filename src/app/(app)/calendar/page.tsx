@@ -28,6 +28,7 @@ import { canLogActivity } from "../activities/activity-access";
 import { activityStatusTone } from "../activities/activity-status-tone";
 import { toMytInput } from "../activities/activity-time";
 import { activityDay } from "../activities/last-activity";
+import { needsOutcome } from "../activities/outcome-schema";
 import {
   ActivityStatus,
   ActivityType,
@@ -113,12 +114,18 @@ export default async function SalesCalendarPage({
     const day = activityDay(activity.starts_at);
     const clock = toMytInput(activity.starts_at).slice(11);
     const owner = nameOf.get(activity.owner_id) ?? "Unnamed";
+    // A planned visit whose time has passed waits for its outcome on the customer page.
+    const due = needsOutcome({
+      status: activity.status,
+      startsAt: activity.starts_at,
+    });
+    const detail = `${ActivityTypeLabel[activity.type]} · ${activity.purpose}`;
     const event: CalendarEvent = {
       id: activity.id,
       time: showOwner ? `${clock} · ${owner}` : clock,
       title: activity.contacts.companies.name,
-      detail: `${ActivityTypeLabel[activity.type]} · ${activity.purpose}`,
-      tone: activityStatusTone[activity.status],
+      detail: due ? `Log outcome · ${detail}` : detail,
+      tone: due ? "warn" : activityStatusTone[activity.status],
       href: `/customers/${activity.contact_id}`,
       muted: activity.status === "cancelled",
     };
@@ -237,9 +244,9 @@ export default async function SalesCalendarPage({
         />
       )}
       <p className="text-sm text-muted-foreground">
-        Green = completed · Blue = planned · Grey = cancelled. Only completed
-        visits and site visits count toward the 50-visit target; calls and
-        online meetings keep a customer active.
+        Green = completed · Blue = planned · Amber = outcome not logged · Grey =
+        cancelled. Only completed visits and site visits count toward the
+        50-visit target; calls and online meetings keep a customer active.
       </p>
       {params.add && customers && (
         <AddActivityDialog

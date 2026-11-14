@@ -49,6 +49,7 @@ const profile = (overrides: Partial<Profile> = {}): Profile => ({
   seesMargin: false,
   commissionMode: "standard",
   yearlyTarget: null,
+  language: "en",
   ...overrides,
 });
 

@@ -19,6 +19,7 @@ const signedInAs = (role: Profile["role"]): Profile => ({
   seesMargin: false,
   commissionMode: "standard",
   yearlyTarget: null,
+  language: "en",
 });
 
 describe("requireRole", () => {

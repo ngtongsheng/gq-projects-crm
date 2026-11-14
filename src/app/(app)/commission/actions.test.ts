@@ -31,6 +31,7 @@ const profile = (jobRole: Profile["jobRole"]): Profile => ({
   seesMargin: false,
   commissionMode: "standard",
   yearlyTarget: null,
+  language: "en",
 });
 
 /** Sarah has RM 1,000 left to pay out on the order. */

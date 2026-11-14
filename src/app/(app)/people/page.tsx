@@ -13,6 +13,7 @@ import {
 import { type RoleKey, roleKeyOf } from "@/lib/auth/pages";
 import { requireRole } from "@/lib/auth/require-role";
 import { formatDate, todayMyt } from "@/lib/format/date";
+import { Language } from "@/lib/i18n/dictionary";
 import {
   ADMIN_UNAVAILABLE_MESSAGE,
   createAdminClient,
@@ -22,7 +23,7 @@ import { AddPersonDialog } from "./add-person-dialog";
 import { PersonSettingsDialog } from "./person-settings-dialog";
 import { RoleAccess } from "./role-access";
 import { RoleSelect } from "./role-select";
-import { Language, roleSchema } from "./schemas";
+import { roleSchema } from "./schemas";
 import { ViewAsButton } from "./view-as-button";
 
 export const metadata: Metadata = { title: "People" };

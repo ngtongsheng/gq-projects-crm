@@ -29,6 +29,7 @@ const profile = (
   seesMargin: false,
   commissionMode: "standard",
   yearlyTarget: null,
+  language: "en",
   ...overrides,
 });
 

@@ -28,9 +28,9 @@ import {
 } from "@/components/ui/select";
 import { JobRole, JobRoleLabel } from "@/lib/auth/job-role";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
+import { Language, LanguageLabel } from "@/lib/i18n/dictionary";
 import { type AddPersonState, addPerson } from "./actions";
 import { InviteShare } from "./invite-share";
-import { Language, LanguageLabel } from "./schemas";
 
 const initialState: AddPersonState = { error: null, invite: null };
 

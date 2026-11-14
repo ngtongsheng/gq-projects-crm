@@ -30,6 +30,7 @@ const profile = (role: Profile["role"]): Profile => ({
   seesMargin: false,
   commissionMode: "standard",
   yearlyTarget: null,
+  language: "en",
 });
 
 const OTHER_ID = "22222222-2222-4222-8222-222222222222";

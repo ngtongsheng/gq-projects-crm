@@ -29,6 +29,7 @@ const profile = (jobRole: Profile["jobRole"]): Profile => ({
   seesMargin: false,
   commissionMode: "standard",
   yearlyTarget: null,
+  language: "en",
 });
 
 type Result = {

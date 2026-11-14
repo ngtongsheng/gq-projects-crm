@@ -25,6 +25,7 @@ const signedInAs = (jobRole: JobRole): Profile => ({
   seesMargin: false,
   commissionMode: "standard",
   yearlyTarget: null,
+  language: "en",
 });
 
 describe("requirePage", () => {

@@ -43,6 +43,7 @@ const siteSupervisor: Profile = {
   seesMargin: false,
   commissionMode: "standard",
   yearlyTarget: null,
+  language: "en",
 };
 
 const network = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>

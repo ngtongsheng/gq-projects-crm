@@ -32,6 +32,7 @@ const row = {
   sees_margin: false,
   commission_mode: "standard",
   yearly_target: null,
+  language: "bm",
   active: true,
 };
 
@@ -46,6 +47,7 @@ describe("getCurrentProfile", () => {
       arrangesStock: true,
       sells: false,
       seesMargin: false,
+      language: "bm",
     });
   });
 

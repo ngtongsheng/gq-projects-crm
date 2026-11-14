@@ -2,18 +2,9 @@ import { z } from "zod";
 import { CommissionMode, JobRole } from "@/lib/auth/job-role";
 import { normaliseMobile } from "@/lib/domain/mobile";
 import { optionalId, optionalText } from "@/lib/form/form-fields";
+import { Language } from "@/lib/i18n/dictionary";
 
 export const roleSchema = z.enum(["admin", "staff"]);
-
-/** The language the app speaks to this person in. */
-export const Language = z.enum(["en", "bm", "zh"]);
-export type Language = z.infer<typeof Language>;
-
-export const LanguageLabel: Record<Language, string> = {
-  en: "English",
-  bm: "Bahasa Melayu",
-  zh: "中文",
-};
 
 // Blank is no number; saved as digits with the country code, like the contacts' mobiles.
 const whatsappSchema = z

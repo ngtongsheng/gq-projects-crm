@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { Language } from "@/lib/i18n/dictionary";
 import type { JobRole } from "./job-role";
 import type { Viewer } from "./pages";
 import { sidebarItemsFor } from "./sidebar-items";
@@ -10,11 +11,16 @@ const viewer = (jobRole: JobRole): Viewer => ({
   seesMargin: false,
 });
 
-const outline = (jobRole: JobRole, isAdmin = false) => {
+const outline = (
+  jobRole: JobRole,
+  isAdmin = false,
+  language: Language = "en",
+) => {
   const { main, after } = sidebarItemsFor({
     viewer: viewer(jobRole),
     isAdmin,
     overrides: {},
+    language,
   });
   return {
     main: main.map((item) => item.label),
@@ -92,6 +98,19 @@ describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide",
       main: ["My schedule", "Site Work", "My Report", "My claims"],
       after: ["Guide"],
     });
+  });
+
+  // The demo's site supervisor with BM selected: tr() turns Log work, My schedule, Site Work and My
+  // Report into Bahasa Malaysia; the other labels have no BM in the demo's TT and stay English.
+  it("site in Bahasa Malaysia", () => {
+    expect(outline("site", false, "bm")).toEqual({
+      main: ["Jadual saya", "Kerja tapak", "Laporan saya", "My claims"],
+      after: ["Guide"],
+    });
+  });
+
+  it("keeps the English labels when a language has no translation", () => {
+    expect(outline("md", true, "zh").main).toContain("Dashboard");
   });
 
   it("support", () => {

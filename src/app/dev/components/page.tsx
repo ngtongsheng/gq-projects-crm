@@ -4,6 +4,7 @@ import { AppShell } from "@/components/app/app-shell";
 import type { CalendarEvent } from "@/components/app/calendar-event";
 import { DataTable, type DataTableColumn } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
+import { LanguageToggle } from "@/components/app/language-toggle";
 import { MonthCalendar } from "@/components/app/month-calendar";
 import { PageHeader } from "@/components/app/page-header";
 import { PrintLayout, PrintSignatureRow } from "@/components/app/print-layout";
@@ -47,6 +48,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { SidebarItems } from "@/lib/auth/sidebar-items";
 import { monthWeeks, weekDays } from "@/lib/domain/calendar-grid";
 import { formatRm } from "@/lib/format/money";
+import { resolveLanguage } from "@/lib/i18n/current-language";
 import { FileUploadDemo } from "./file-upload-demo";
 import { ToastDemo } from "./toast-demo";
 
@@ -135,8 +137,9 @@ function Section({
   );
 }
 
-export default function ComponentCatalogPage() {
+export default async function ComponentCatalogPage() {
   if (process.env.VERCEL_ENV === "production") notFound();
+  const language = await resolveLanguage("en");
 
   return (
     <AppShell nav={nav}>
@@ -218,6 +221,11 @@ export default function ComponentCatalogPage() {
             <FileUploadDemo />
           </Field>
         </FieldGroup>
+      </Section>
+
+      <Section title="LanguageToggle">
+        <LanguageToggle language={language} />
+        <LanguageToggle language={language} languages={["en", "zh"]} />
       </Section>
 
       <Section title="Overlays and feedback">

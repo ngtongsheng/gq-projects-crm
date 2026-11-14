@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { cache } from "react";
 import { z } from "zod";
+import { Language } from "@/lib/i18n/dictionary";
 import { createClient } from "@/lib/supabase/server";
 import { CommissionMode, JobRole } from "./job-role";
 
@@ -20,6 +21,7 @@ const profileRow = z
     sees_margin: z.boolean(),
     commission_mode: CommissionMode,
     yearly_target: z.coerce.number().nullable(),
+    language: Language,
     active: z.boolean(),
   })
   .transform((row) => ({
@@ -34,6 +36,7 @@ const profileRow = z
       seesMargin: row.sees_margin,
       commissionMode: row.commission_mode,
       yearlyTarget: row.yearly_target,
+      language: row.language,
     },
   }));
 
@@ -52,7 +55,7 @@ export const getCurrentProfile = cache(async (): Promise<Profile | null> => {
   const { data: row, error } = await supabase
     .from("profiles")
     .select(
-      "id, full_name, role, job_role, arranges_stock, sells, sees_margin, commission_mode, yearly_target, active",
+      "id, full_name, role, job_role, arranges_stock, sells, sees_margin, commission_mode, yearly_target, language, active",
     )
     .eq("id", userId)
     .single();

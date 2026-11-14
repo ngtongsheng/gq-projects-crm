@@ -27,6 +27,7 @@ const profile = (jobRole: Profile["jobRole"]): Profile => ({
   seesMargin: false,
   commissionMode: "standard",
   yearlyTarget: null,
+  language: "en",
 });
 
 type Current = { stage: string; payment_checked: boolean } | null;

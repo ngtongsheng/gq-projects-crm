@@ -31,8 +31,8 @@ import {
 } from "@/lib/auth/job-role";
 import { formatMobile } from "@/lib/domain/mobile";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
+import { Language, LanguageLabel } from "@/lib/i18n/dictionary";
 import { updatePersonSettings } from "./actions";
-import { Language, LanguageLabel } from "./schemas";
 
 export type PersonSettings = {
   userId: string;

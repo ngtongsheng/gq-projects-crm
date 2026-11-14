@@ -1,3 +1,5 @@
+import type { Language } from "@/lib/i18n/dictionary";
+import { t } from "@/lib/i18n/t";
 import {
   type AccessOverrides,
   GUIDE_PAGE,
@@ -26,6 +28,8 @@ type SidebarInput = {
   /** Admins keep the Sales Performance and People links until those pages join the registry. */
   isAdmin: boolean;
   overrides: AccessOverrides;
+  /** The labels' language; the registry's English text where there is no translation. Default English. */
+  language?: Language;
   /** The count each page's badge shows, e.g. open ownership requests on the Dashboard. */
   badges?: Partial<Record<PageKey, number>>;
 };
@@ -34,6 +38,7 @@ export function sidebarItemsFor({
   viewer,
   isAdmin,
   overrides,
+  language = "en",
   badges = {},
 }: SidebarInput): SidebarItems {
   const pages = navPagesFor(viewer, overrides);
@@ -62,5 +67,10 @@ export function sidebarItemsFor({
     after.splice(at < 0 ? after.length : at, 0, ...adminLinks);
   }
 
-  return { main, after: [{ key: "guide", ...GUIDE_PAGE }, ...after] };
+  const translated = (items: SidebarItem[]) =>
+    items.map((entry) => ({ ...entry, label: t(language, entry.label) }));
+  return {
+    main: translated(main),
+    after: translated([{ key: "guide", ...GUIDE_PAGE }, ...after]),
+  };
 }

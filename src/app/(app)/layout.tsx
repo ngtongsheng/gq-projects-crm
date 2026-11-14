@@ -7,6 +7,7 @@ import { JobRoleLabel } from "@/lib/auth/job-role";
 import { requireRole } from "@/lib/auth/require-role";
 import { sidebarItemsFor } from "@/lib/auth/sidebar-items";
 import { signOut } from "@/lib/auth/sign-out";
+import { resolveLanguage } from "@/lib/i18n/current-language";
 import { canDecideOwnership } from "./customers/ownership/ownership-access";
 import { countPendingOwnershipRequests } from "./customers/ownership/pending-count";
 
@@ -23,6 +24,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
     viewer: profile,
     isAdmin: profile.role === "admin",
     overrides: await loadAccessOverrides(),
+    language: await resolveLanguage(profile.language),
     badges: { dash: pendingRequests },
   });
 

@@ -85,9 +85,9 @@ collapsed blocks, so you can act without asking her.
 
 ## GitHub secrets (names only)
 
-`SUPABASE_ACCESS_TOKEN`, `SUPABASE_DEV_PROJECT_REF`, `SUPABASE_DEV_DB_PASSWORD`, `SUPABASE_PROD_PROJECT_REF`, `SUPABASE_PROD_DB_PASSWORD`
+`SUPABASE_ACCESS_TOKEN`, `SUPABASE_DEV_PROJECT_REF`, `SUPABASE_DEV_DB_PASSWORD`, `SUPABASE_PROD_PROJECT_REF`, `SUPABASE_PROD_DB_PASSWORD`, `SUPABASE_DEV_PUBLISHABLE_KEY`, `SUPABASE_PROD_PUBLISHABLE_KEY` (the public keys, only used by `health.yml`)
 
-`SUPABASE_ACCESS_TOKEN` is a full-account Supabase token (`gq-crm-github-ci`) that expires after 90 days. `health.yml` checks it every week and opens an `Urgent:` issue before it bites. To renew, create a new token at supabase.com/dashboard/account/tokens and run `gh secret set SUPABASE_ACCESS_TOKEN`.
+`SUPABASE_ACCESS_TOKEN` is a full-account Supabase token (`gq-crm-github-ci`) that expires after 90 days. `health.yml` checks it twice a week and opens an `Urgent:` issue before it bites. To renew, create a new token at supabase.com/dashboard/account/tokens and run `gh secret set SUPABASE_ACCESS_TOKEN`.
 
 `SUPABASE_DEV_DB_PASSWORD` is also what the owner sends Vicky (below). If it is lost, reset it in the `gq-crm-dev` dashboard (Database settings), run `gh secret set SUPABASE_DEV_DB_PASSWORD`, and send her the new one.
 
@@ -100,7 +100,7 @@ Workflows live in `.github/workflows/`. Node and pnpm versions come from `mise.t
 | `checks.yml` | pull request (also on label add/remove) | `checks` (biome, typecheck, test, build), `migration-guard` (label `data-loss-approved` sets `DATA_LOSS_APPROVED`), `migrate-dev` (needs the guard; pushes to `gq-crm-dev` only when the PR changes `supabase/migrations/`, otherwise does nothing) |
 | `migrate-prod.yml` | push to `main` touching `supabase/migrations/**` | `backup` (runs `backup.yml`; a failed dump stops here), then `migrate-prod` (`supabase db push` to `gq-crm-prod`, one run at a time, never cancelled) |
 | `backup.yml` | nightly 18:00 UTC, manual, and called by `migrate-prod` | `backup-prod`: `supabase db dump` of schema and data to the Actions artifact `prod-backup-encrypted` (GPG, AES256, passphrase in the `BACKUP_PASSPHRASE` secret), kept 30 days. The repo is public, so the dump is only ever uploaded encrypted |
-| `health.yml` | Mondays 01:00 UTC, manual (`simulate_failure` input tests the report) | queries the test copy and the live database (a query keeps Supabase Free from pausing them after 7 idle days) and checks `SUPABASE_ACCESS_TOKEN`; any failure opens or updates an `Urgent: CRM health check failed` issue assigned to the owner, label `from:crm` |
+| `health.yml` | Mondays and Thursdays 01:00 UTC, manual (`simulate_failure` input tests the report) | sends each project a request through its REST API (Supabase counts API and database activity, see the pausing doc at supabase.com/docs/guides/platform/pausing, so Free projects are not paused after 7 low-activity days), runs a database query as a bonus, and checks `SUPABASE_ACCESS_TOKEN`; any failure opens or updates an `Urgent: CRM health check failed` issue assigned to the owner, label `from:crm` |
 
 Vercel deploys from its own GitHub integration, not from these workflows. Migrations and the Vercel prod build run in parallel on merge (see `docs/debt.md`).
 

@@ -36,8 +36,8 @@ two at a time without touching the same files. Everything account-bound is code 
 | 08 | Read-only View as | done | 07 | opus/medium |
 | 09 | Google sign-in | blocked: owner — GCP sign-in for OAuth client; prod email check | 03 | opus/medium |
 | 10 | Storage foundation | done | 03 | sonnet/high |
-| 11 | A4 print layout | in-progress | 07 | sonnet/medium |
-| 12 | i18n EN/BM/中文 | todo | 03, 07 | sonnet/high |
+| 11 | A4 print layout | done | 07 | sonnet/medium |
+| 12 | i18n EN/BM/中文 | in-progress | 03, 07 | sonnet/high |
 | 13 | Public holidays + workdays | todo | - | sonnet/high |
 | 14 | Dev seed: demo people as test personas | todo | 03, 04, 06 | sonnet/medium |
 | 15 | Final checks, shell parity pass, docs, merge | todo | 01-14 | sonnet/medium |
@@ -90,3 +90,6 @@ two at a time without touching the same files. Everything account-bound is code 
 2026-11-14 · #10 · decision · #15 must run one real upload round trip on the test copy (owner_id set by signed upload is assumed, PGlite stub only)
 2026-11-14 · #10 · done · check/typecheck/test (1271)/guard pass · next: #11
 2026-11-14 · #11 · started (sonnet/medium)
+2026-11-14 · #11 · decision · PrintLayout + PrintSignatureRow, @page A4 10mm, shell hidden via data-slot print CSS; print-preview screenshot deferred to #15 (/dev/components needs sign-in → test copy)
+2026-11-14 · #11 · done · check/typecheck/test (1271) pass · next: #12
+2026-11-14 · #12 · started (sonnet/high)

@@ -30,12 +30,18 @@ Vercel stores the dev values for both Preview and Development (the secret key as
 
 ## Google sign-in
 
-Status: code, Vercel `ALLOWED_EMAIL_DOMAINS` and the `AUTH_*` repo variables are in place. The GCP project, the
-`GOOGLE_OAUTH_*` secrets and the first `auth-config.yml` run are still to do (needs the owner's Google sign-in).
+Status: GCP project, OAuth client, `GOOGLE_OAUTH_*` secrets, Vercel `ALLOWED_EMAIL_DOMAINS` and the `AUTH_*` repo
+variables are in place, and the test copy has the Google provider on (set by hand). Still to do: run `auth-config.yml`
+once it is on `main` (sets the live app), and publish the consent screen (still in Testing, see below).
 
-People sign in with Google only (loop 11, D2). The OAuth client lives in the GCP project `gqp-office` (External consent
-screen "GQP Office", scopes email and profile), owned for now by the owner's Google account. Its authorised redirect
-URIs are each Supabase project's `https://<ref>.supabase.co/auth/v1/callback`.
+People sign in with Google only (loop 11, D2). The OAuth client "GQP Office" (Web application) lives in the GCP project
+`gqp-office`, owned for now by the owner's personal Google account (no organisation). Consent screen: External, app
+"GQP Office", scopes `openid`, `userinfo.email`, `userinfo.profile`. Its authorised redirect URIs are each Supabase
+project's `https://<ref>.supabase.co/auth/v1/callback` (test copy and live app).
+
+The consent screen is still in **Testing**: only Google accounts listed under Audience, Test users can sign in (max
+100). Publishing needs the Branding page completed (app home page, privacy policy link, authorised domain); do it
+before the team uses the live app.
 
 - Invite-only: Supabase sign-ups stay off, so a Google account nobody added is refused by Supabase itself. Adding a
   person in People creates their user with a confirmed email; their first Google sign-in with the same email links to

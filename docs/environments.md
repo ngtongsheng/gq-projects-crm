@@ -30,7 +30,7 @@ Vercel stores the dev values for both Preview and Development (the secret key as
 
 ## Google sign-in
 
-Status: GCP project, OAuth client, `GOOGLE_OAUTH_*` secrets, Vercel `ALLOWED_EMAIL_DOMAINS` and the `AUTH_*` repo
+Status (checked 2026-11-15 on the laptop): an address nobody added is refused, with no session. GCP project, OAuth client, `GOOGLE_OAUTH_*` secrets, Vercel `ALLOWED_EMAIL_DOMAINS` and the `AUTH_*` repo
 variables are in place, and the test copy has the Google provider on (set by hand). Still to do: run `auth-config.yml`
 once it is on `main` (sets the live app), and publish the consent screen (still in Testing, see below).
 

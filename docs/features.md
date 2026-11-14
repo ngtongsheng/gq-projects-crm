@@ -4,7 +4,7 @@ One section per screen, in sidebar order. Screenshots are the Sales Director's v
 example records, so a colleague with another job role sees fewer or different screens and records. The in-app
 **Guide** lists what each role can open.
 
-Job roles: MD, Sales Director, BD Director, Sales, HR & Accounts, Site Supervisor, Purchasing.
+Job roles: MD, Sales Director, Marketing Director, Salesperson, HR & Accounts, Site Supervisor, Purchasing, Sales support, Designer, Marketing Executive. The MD sets which pages each role sees in People ("What each role can see") and can open the app as anyone with **View as** (read only).
 
 ## Contents
 - [Header and sidebar](#header-and-sidebar)

@@ -131,3 +131,22 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
   are POST too and need the same. Any cookie counts, even an expired or altered one, and the cookie outlives its 8-hour
   view, so a lapsed view stays read-only until "Back to ..." (which then signs out). Actions show their own failure
   text, not the demo's "View only – not saved." toast; the banner says nothing is saved.
+- Final checks (task 15), found on the test copy:
+  - Team work shows its customer: a Sales or Marketing Director read their team's projects and activities but not the
+    customer behind them when someone else owned or added it, so "project at company" screens crashed (the Dashboard did,
+    as Eddie). `20261115100000_team_work_shows_its_customer.sql` lets them read customers and companies their team has a
+    project or activity on.
+  - `src/lib/supabase/test-copy.ts` keeps the test copy and live app project refs in code. This is the one exception to
+    "no refs in code" (D12): it is the guard that stops example data, one-click sign-in and the scripts from reaching the
+    live app. Moving the refs to env would let an unset or wrong value switch the guard off, and refs are not secrets.
+    On handover change the two constants and the test next to them (`handover-migration.md`).
+  - Google sign-in with an address nobody added (a personal Gmail) is refused by Supabase before our callback runs, so
+    the person sees "You haven't been added yet", not the company-domain message. The domain message shows only when the
+    address has a user but is off the allowed list. Both refuse and leave no session.
+  - View as round trip works: the MD views as a salesperson, a save shows "Could not save the customer. Try again."
+    and writes nothing, "Back to <MD>" returns to the MD's own session (no sign-out).
+  - Print: the app shell's inset (rounded, dark, margined) and the page background now print white and flush, and the dev
+    role panel is hidden when printing, so a PrintLayout form is one A4 page.
+  - Parity deviations left for the page loops (this loop is the shell only): the Dashboard content differs from the demo
+    (tile set, "Sales activity" / "MOF & projects" tabs, columns); Costing, Tasks, Tools & Forms, Leave, HR and Log work
+    are not built so they are hidden; Sales Performance shows for admins only.

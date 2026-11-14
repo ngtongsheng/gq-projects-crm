@@ -163,3 +163,20 @@ describe("a director adding a customer", () => {
     expect(companies).toEqual([{ name: "Director New Co" }]);
   });
 });
+
+describe("a director and work on someone else's customer", () => {
+  it("reads the customer and company behind their team's project", async () => {
+    const [project] = await asService<{ id: string }>(
+      `insert into public.projects (contact_id, name, lead_source, pic_id)
+       values ($1, 'Cross-team project', 'referral', $2) returning id`,
+      [vanessaTeam.contactId, t.profileIds.sales],
+    );
+    expect(await visible("director", "projects")).toContain(project.id);
+    expect(await visible("director", "contacts")).toContain(
+      vanessaTeam.contactId,
+    );
+    expect(await visible("director", "companies")).toContain(
+      vanessaTeam.companyId,
+    );
+  });
+});

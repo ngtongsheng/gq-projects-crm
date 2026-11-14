@@ -20,7 +20,10 @@ Words to use with the person, and what they mean underneath. Say the left column
 | a change that removes or reshapes stored information | destructive SQL the migration guard blocks until she approves the loss (`data-loss-approved` label) |
 | the building blocks | the design system: `src/components/ui` and `src/components/app` |
 | ask Tong Sheng for help | the `get-help` skill (a GitHub issue assigned to `ngtongsheng`) |
-| sign-in, password link | Supabase Auth and the one-time set-password link |
+| sign-in | Sign in with Google (Supabase Auth); only people added in People can get in |
+| job role | the person's title in the demo (MD, Sales Director, Marketing Director, Salesperson, HR & Accounts, Site supervisor, Purchasing, Sales support, Designer, Marketing Executive); it decides the pages they see |
+| what each role can see | the page-access table in People, where the MD ticks pages per job role |
+| View as | the MD sees the app exactly as another person does, read only: nothing saved while viewing; "Back to" returns to the MD's own account |
 
 ## Words that stay out of the conversation
 git, branch, commit, push, pull request, merge, worktree, migration, deploy, pipeline, CI, TypeScript, lint, build,

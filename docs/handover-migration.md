@@ -38,3 +38,11 @@ config or migrations applied by script or CI. Later tasks add rows.
 | `ALLOWED_EMAIL_DOMAINS` | Vercel env (Production `gqprojects.com.my`; Preview and Development also `example.invalid`) and `.env.development` | Copy to the new Vercel project. Unset means nobody can sign in with Google. |
 | Storage buckets (file uploads) | Private bucket `attachments` (images and PDFs, 1.5 MB cap, files at `<area>/<record-id>/<file>`), its policies and the files in it | The bucket and its `storage.objects` policies come from `supabase/migrations/20261114160000_storage_attachments.sql`, applied with the other migrations; nothing is created by hand and no ref, URL or key is in code. Existing files: copy with the Supabase storage API or `supabase storage cp` between projects, keeping the same paths. Files are shown only through short-lived signed links made with the server secret key (`SUPABASE_SERVICE_ROLE_KEY` in Vercel env), so that key must be set in the new project. Later modules add a folder name (area), not a bucket. |
 | Health workflow | `.github/workflows/health.yml` | Moves with the repo; needs the GitHub secrets above. Delete after a Supabase Pro upgrade (Pro never pauses). |
+
+## Code-bound project refs and unused values
+
+- `src/lib/supabase/test-copy.ts` holds the test copy and live app project refs (`DEV_PROJECT_REF`,
+  `PROD_PROJECT_REF`) on purpose: it is the guard that keeps example data, one-click sign-in and the test-copy scripts
+  away from the live app (decision in `docs/decisions.md`, loop 11 task 15). On handover edit the two constants and
+  `src/lib/supabase/test-copy.test.ts` to the new projects' refs.
+- `PROD_ADMIN_TEST_PASSWORD` in the owner's `.env.local` is no longer read by any code and can be removed.

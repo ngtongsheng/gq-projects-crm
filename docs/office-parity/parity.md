@@ -105,13 +105,14 @@ Demo, "Signed in as" Vicky, 1280 px (lists shortened where marked):
 }
 ```
 
-App, same snippet on the app's sign-in page (the only screen reachable in this run, see below):
+App, same snippet, signed in as Vicky (MD) through the dev panel, 1280 px, 2026-11-15:
 
 ```json
-{ "page": "app", "nav": [], "heading": [], "tiles": [], "filters": ["email","password"], "tabs": [], "columns": [], "buttons": ["Sign in","Forgot password?"] }
+{"page":"app","nav":["Dashboard","Sales Calendar","Installation","Customers","Projects","MOF Register","Site Work","Stock","Collection","Commission","Claims","Team Reports","Director Report","Guide","Sales Performance","People"],"heading":["Team dashboard"],"tiles":["Sales year to date","Balance not yet received","POs issued this month","Sales this month","New MOFs this month","Team visits this month","New customers this month","Open pipeline"],"filters":[],"tabs":[],"columns":["Name","Visits / target","Sales this year","New","Open projects","No activity 90d+","Last month's report"],"buttons":[]}
 ```
 
-The snippet runs and detects both pages. The app's Dashboard run is pending: on 2026-11-14 the dev role panel refused
-to sign in ("Adding people works on the preview link or the live site") because this laptop is not connected to the
-test copy. The first loop that connects it (task 14 seeds the people) must replace this block with the app's Dashboard
-output as MD and record any difference as a deviation or a fix.
+Differences: the sidebar matches except the pages not built yet, which the app hides (Costing, HR, Tasks, Tools & Forms,
+Leave). The heading matches. The Dashboard content differs (tiles, the two tabs are links, columns): page content is
+for the page loops, logged in `docs/decisions.md`. The same check on the sidebar passed for Eddie, Vanessa, Cavan,
+Jany, Akmal (BM), Jess, Wai Mun, Liza and Sarah, and the People "What each role can see" table matches the demo's rows,
+columns and every tick.

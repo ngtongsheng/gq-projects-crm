@@ -45,7 +45,7 @@ export function DevRolePanel({
         type="button"
         size="sm"
         variant="outline"
-        className="fixed bottom-16 left-4 z-50 shadow-md"
+        className="fixed bottom-16 left-4 z-50 shadow-md print:hidden"
         onClick={() => setOpen(true)}
       >
         <UserRound aria-hidden />
@@ -57,7 +57,7 @@ export function DevRolePanel({
   return (
     <section
       aria-label="Sign in as a person"
-      className="fixed bottom-16 left-4 z-50 w-[min(20rem,calc(100vw-2rem))] rounded-lg border bg-card p-3 text-card-foreground shadow-md"
+      className="fixed bottom-16 left-4 z-50 w-[min(20rem,calc(100vw-2rem))] print:hidden rounded-lg border bg-card p-3 text-card-foreground shadow-md"
     >
       <div className="mb-2 flex items-center justify-between gap-2">
         <p className="text-sm">

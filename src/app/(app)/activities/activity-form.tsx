@@ -106,6 +106,10 @@ type ActivityFormProps = {
   colleagues?: Colleague[];
   /** Starting date and time for a new activity, as a datetime-local value. Defaults to now. */
   defaultStartsAt?: string;
+  /** The type a new activity starts as. Defaults to a visit. */
+  defaultType?: ActivityType;
+  /** The status a new activity starts as. Defaults to planned when in the future, else completed. */
+  defaultStatus?: ActivityStatus;
   onSaved: () => void;
 };
 
@@ -115,11 +119,13 @@ export function ActivityForm({
   activity,
   colleagues,
   defaultStartsAt,
+  defaultType = "visit",
+  defaultStatus,
   onSaved,
 }: ActivityFormProps) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [type, setType] = useState<ActivityType>(activity?.type ?? "visit");
+  const [type, setType] = useState<ActivityType>(activity?.type ?? defaultType);
   const [startsAt] = useState(() =>
     activity
       ? toMytInput(activity.startsAt)
@@ -127,6 +133,7 @@ export function ActivityForm({
   );
   // A day picked in the future is a plan; today or earlier is something that already happened.
   const [newStatus] = useState<ActivityStatus>(() => {
+    if (defaultStatus) return defaultStatus;
     const picked = parseMytInput(startsAt);
     return picked && picked > new Date() ? "planned" : "completed";
   });

@@ -26,7 +26,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 | 04 | Migration: outcomes, invitees, weekly reports, deadline | done | - | opus/medium |
 | 05 | Log outcome flow | done | 04 | opus/medium |
 | 06 | Appointment invitations | done | 04 | sonnet/high |
-| 07 | Calendar views, My team filter, Plan a call | todo | 05, 06 | sonnet/high |
+| 07 | Calendar views, My team filter, Plan a call | done | 05, 06 | sonnet/high |
 | 08 | Weekly outcomes + weekly reports | todo | 05 | opus/medium |
 | 09 | Projects: site role scoping | todo | - | opus/medium |
 | 10 | Parity pass, docs, merge | todo | 01-09 | sonnet/medium |
@@ -60,3 +60,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 2026-11-15 · #06 · decision · invite list is every colleague except the creator (demo limits to md/director/bd/sales; team_directory has no job roles, filtering needs a migration) · no new migration
 2026-11-15 · #06 · decision · invitations sent only when an activity is created; no re-invite or change of answer after the fact (no activity detail view); invitee picker hidden for calls · demo behaviour, scope
 2026-11-15 · #06 · done · check, typecheck, test pass (1367 tests) · next: #07
+2026-11-15 · #07 · in-progress
+2026-11-15 · #07 · decision · Monthly list replaces the sales Month grid (old ?view=month opens the list); Week keeps one row per day, not the demo's 7-column grid (phone); Plan a call is a ?call=<date> dialog; Marketing Director with a team gets no Who filter (isManager) · repo patterns
+2026-11-15 · #07 · decision · Weekly outcomes tab is a placeholder until #08 replaces weekly-outcomes.tsx; Excel / Copy list buttons not built · scope
+2026-11-15 · #07 · done · check, typecheck, test pass (1382 tests); UI not seen in browser, parity in #10 · next: #08

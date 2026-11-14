@@ -1,10 +1,10 @@
-import type { JobRole } from "../../src/lib/auth/job-role.ts";
 import type { CalendarDate } from "../../src/lib/format/date.ts";
+import type { PersonKey } from "./people.ts";
 
 export type Row = Record<string, unknown>;
 
-/** Profile id of the test sign-in for each job role. */
-export type People = Record<JobRole, string>;
+/** Profile id of each test person. */
+export type People = Record<PersonKey, string>;
 
 export type BuildContext = { people: People; today: CalendarDate };
 

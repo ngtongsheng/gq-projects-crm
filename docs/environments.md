@@ -60,7 +60,7 @@ Admins are created once per environment by `scripts/seed-admin.ts`, never by a m
 
 ## Example data on the test copy
 
-`pnpm seed:example` fills the test copy (`gq-crm-dev`) with fictional records for every module and creates one test sign-in per job role (`test-md@example.invalid`, `test-director@`, `test-bd@`, `test-sales@`, `test-accounts@`, `test-site@`, `test-support@`). It refuses to run unless the URL is the test copy, so it cannot touch the live app.
+`pnpm seed:example` fills the test copy (`gq-crm-dev`) with fictional records for every module and creates one test sign-in per person in the demo's People list (17 people, e.g. `test-vicky@example.invalid`, `test-eddie@`, `test-waimun@`), with their job role, title, flags and team (`reports_to`); Lisa and Marketing Exec are seeded as left. The old per-role test sign-ins (`test-md@` ... `test-support@`) are marked inactive on the next run. The laptop's "Sign in as" panel lists the active ones as "Name — title". It refuses to run unless the URL is the test copy, so it cannot touch the live app.
 
 1. Create `.env.seed.dev` (gitignored by `.env*`) with one line: `SUPABASE_SERVICE_ROLE_KEY=<secret key of gq-crm-dev>`. The URL comes from `.env.development`.
 2. Run `pnpm seed:example`. It prints row counts and each sign-in's password once; passwords change on every run and are never stored.

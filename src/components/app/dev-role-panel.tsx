@@ -1,25 +1,40 @@
 "use client";
 
 import { UserRound, X } from "lucide-react";
-import { useState, useTransition } from "react";
-import { devSignIn } from "@/app/dev/dev-sign-in-actions";
+import { useEffect, useState, useTransition } from "react";
+import {
+  type DevPerson,
+  devSignIn,
+  listDevPeople,
+} from "@/app/dev/dev-sign-in-actions";
 import { Button } from "@/components/ui/button";
-import { JobRole, JobRoleLabel } from "@/lib/auth/job-role";
+import { type JobRole, JobRoleLabel } from "@/lib/auth/job-role";
 
 /**
- * Laptop only (`pnpm dev`): signs in as any job role's test person with one click. Bottom left above
+ * Laptop only (`pnpm dev`): signs in as any active test person ("Name — title") with one click. Bottom left above
  * the Next.js dev badge, collapsed by default, so it stays clear of the sign-in button and toasts.
  */
-export function DevRolePanel({ currentRole }: { currentRole: JobRole | null }) {
+export function DevRolePanel({
+  currentId,
+  currentRole,
+}: {
+  currentId: string | null;
+  currentRole: JobRole | null;
+}) {
   const [open, setOpen] = useState(false);
+  const [people, setPeople] = useState<DevPerson[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const current = currentRole ? JobRoleLabel[currentRole] : "Signed out";
 
-  function signInAs(jobRole: JobRole) {
+  useEffect(() => {
+    if (open) void listDevPeople().then(setPeople);
+  }, [open]);
+
+  function signInAs(personId: string) {
     setError(null);
     startTransition(async () => {
-      const result = await devSignIn(jobRole);
+      const result = await devSignIn(personId);
       setError(result.error);
     });
   }
@@ -41,8 +56,8 @@ export function DevRolePanel({ currentRole }: { currentRole: JobRole | null }) {
 
   return (
     <section
-      aria-label="Sign in as a job role"
-      className="fixed bottom-16 left-4 z-50 w-[min(18rem,calc(100vw-2rem))] rounded-lg border bg-card p-3 text-card-foreground shadow-md"
+      aria-label="Sign in as a person"
+      className="fixed bottom-16 left-4 z-50 w-[min(20rem,calc(100vw-2rem))] rounded-lg border bg-card p-3 text-card-foreground shadow-md"
     >
       <div className="mb-2 flex items-center justify-between gap-2">
         <p className="text-sm">
@@ -59,17 +74,20 @@ export function DevRolePanel({ currentRole }: { currentRole: JobRole | null }) {
           <X aria-hidden />
         </Button>
       </div>
-      <div className="grid grid-cols-2 gap-1.5">
-        {JobRole.options.map((jobRole) => (
+      <div className="grid max-h-80 gap-1.5 overflow-y-auto">
+        {people.map((person) => (
           <Button
-            key={jobRole}
+            key={person.id}
             type="button"
             size="sm"
-            variant={jobRole === currentRole ? "secondary" : "outline"}
+            variant={person.id === currentId ? "secondary" : "outline"}
+            className="justify-start"
             disabled={pending}
-            onClick={() => signInAs(jobRole)}
+            onClick={() => signInAs(person.id)}
           >
-            {JobRoleLabel[jobRole]}
+            {person.title
+              ? `${person.fullName} — ${person.title}`
+              : person.fullName}
           </Button>
         ))}
       </div>

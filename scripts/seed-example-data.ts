@@ -1,5 +1,5 @@
 // Fills the test copy with fictional records for every module, and creates one test sign-in
-// per job role. Never the live app: the guard refuses anything but the test copy.
+// per demo person. Never the live app: the guard refuses anything but the test copy.
 //
 // Usage: pnpm seed:example   (needs .env.seed.dev, see docs/environments.md)
 import { createClient } from "@supabase/supabase-js";
@@ -36,6 +36,6 @@ for (const [table, count] of Object.entries(counts)) {
   if (count > 0) console.log(`  ${table}: ${count}`);
 }
 console.log("\nTest sign-ins (passwords shown once, new on every run):");
-for (const { jobRole, email, password } of signIns) {
-  console.log(`  ${jobRole.padEnd(9)} ${email}  ${password}`);
+for (const { fullName, email, password } of signIns) {
+  console.log(`  ${fullName.padEnd(15)} ${email}  ${password}`);
 }

@@ -29,7 +29,7 @@ export function buildJobs({ people, today }: BuildContext): Jobs {
       days: 9,
       start_time: "09:00",
       installer: "Apex Installers",
-      site_supervisor_id: people.site,
+      site_supervisor_id: people.awal,
       notes: "Ballroom first, then the foyer.",
     },
     {
@@ -41,7 +41,7 @@ export function buildJobs({ people, today }: BuildContext): Jobs {
       days: 1,
       start_time: "08:00",
       installer: null,
-      site_supervisor_id: people.site,
+      site_supervisor_id: people.awal,
       notes: null,
     },
     {
@@ -53,7 +53,7 @@ export function buildJobs({ people, today }: BuildContext): Jobs {
       days: 1,
       start_time: "09:30",
       installer: null,
-      site_supervisor_id: people.site,
+      site_supervisor_id: people.awal,
       notes: "Lorry needs a tail lift.",
     },
     {
@@ -65,7 +65,7 @@ export function buildJobs({ people, today }: BuildContext): Jobs {
       days: 1,
       start_time: "10:00",
       installer: null,
-      site_supervisor_id: people.site,
+      site_supervisor_id: people.awal,
       notes: null,
     },
     {
@@ -77,7 +77,7 @@ export function buildJobs({ people, today }: BuildContext): Jobs {
       days: 1,
       start_time: "14:00",
       installer: null,
-      site_supervisor_id: people.site,
+      site_supervisor_id: people.awal,
       notes: "Measurements sent to the office.",
     },
     {
@@ -89,7 +89,7 @@ export function buildJobs({ people, today }: BuildContext): Jobs {
       days: 5,
       start_time: "09:00",
       installer: "Apex Installers",
-      site_supervisor_id: people.site,
+      site_supervisor_id: people.awal,
       notes: null,
     },
     {
@@ -101,7 +101,7 @@ export function buildJobs({ people, today }: BuildContext): Jobs {
       days: 1,
       start_time: "11:00",
       installer: null,
-      site_supervisor_id: people.site,
+      site_supervisor_id: people.awal,
       notes: null,
     },
     {
@@ -125,7 +125,7 @@ export function buildJobs({ people, today }: BuildContext): Jobs {
       days: 3,
       start_time: "09:00",
       installer: null,
-      site_supervisor_id: people.site,
+      site_supervisor_id: people.awal,
       notes: null,
     },
   ];
@@ -213,7 +213,7 @@ export function buildSiteBookings({
   const seeds: Row[] = [
     {
       key: "b1",
-      requested_by: people.sales,
+      requested_by: people.vernice,
       purpose: "site_measurement",
       project_id: projectId("kiara-hotel"),
       site: null,
@@ -225,7 +225,7 @@ export function buildSiteBookings({
     },
     {
       key: "b2",
-      requested_by: people.md,
+      requested_by: people.vicky,
       purpose: "handover",
       project_id: null,
       site: "Sutera Hospitality, Jalan Sutera",
@@ -237,7 +237,7 @@ export function buildSiteBookings({
     },
     {
       key: "b3",
-      requested_by: people.bd,
+      requested_by: people.vanessa,
       purpose: "shooting",
       project_id: null,
       site: "Rimba Residences Sales Gallery",
@@ -249,7 +249,7 @@ export function buildSiteBookings({
     },
     {
       key: "b4",
-      requested_by: people.director,
+      requested_by: people.eddie,
       purpose: "meet_client",
       project_id: projectId("harbour-studio"),
       site: null,
@@ -262,7 +262,7 @@ export function buildSiteBookings({
   ];
   const rows: Row[] = seeds.map(({ key, offset, ...row }) => ({
     id: exampleId("site_bookings", String(key)),
-    supervisor_id: people.site,
+    supervisor_id: people.awal,
     visit_on: addDays(today, Number(offset)),
     ...row,
   }));
@@ -326,7 +326,7 @@ export function buildSiteWork({ people, today }: BuildContext): ExampleTable[] {
     id: siteLogId(key),
     mof_id: mofId(mof),
     visited_on: addDays(today, -ago),
-    supervisor_id: people.site,
+    supervisor_id: people.awal,
     ...row,
   }));
   // Closing a follow-up is stamped with the signed-in user, so the examples stay open.
@@ -376,7 +376,7 @@ export function buildOtClaims({ people, today }: BuildContext): ExampleTable {
   const seeds: Seed[] = [
     {
       key: "o1",
-      person: "site",
+      person: "awal",
       ago: 2,
       from: "18:00",
       to: "21:30",
@@ -387,7 +387,7 @@ export function buildOtClaims({ people, today }: BuildContext): ExampleTable {
     },
     {
       key: "o2",
-      person: "site",
+      person: "awal",
       ago: 9,
       from: "17:30",
       to: "20:00",
@@ -396,11 +396,11 @@ export function buildOtClaims({ people, today }: BuildContext): ExampleTable {
       claimAs: "ot",
       status: "approved",
       approvedAs: "ot",
-      decidedBy: "md",
+      decidedBy: "vicky",
     },
     {
       key: "o3",
-      person: "site",
+      person: "awal",
       ago: 25,
       from: "18:00",
       to: "22:00",
@@ -409,11 +409,11 @@ export function buildOtClaims({ people, today }: BuildContext): ExampleTable {
       claimAs: "ot",
       status: "approved",
       approvedAs: "replacement_leave",
-      decidedBy: "director",
+      decidedBy: "eddie",
     },
     {
       key: "o4",
-      person: "sales",
+      person: "vernice",
       ago: 5,
       from: "19:00",
       to: "21:00",
@@ -421,11 +421,11 @@ export function buildOtClaims({ people, today }: BuildContext): ExampleTable {
       reason: "Client meeting after office hours.",
       claimAs: "replacement_leave",
       status: "rejected",
-      decidedBy: "md",
+      decidedBy: "vicky",
     },
     {
       key: "o5",
-      person: "support",
+      person: "waimun",
       ago: 1,
       from: "17:30",
       to: "19:30",
@@ -591,7 +591,7 @@ export function buildStock({ people, today }: BuildContext): ExampleTable[] {
       item_id: stockItemId(item),
       qty,
       project_id: projectId(project),
-      reserved_by: people.sales,
+      reserved_by: people.vernice,
       status,
       reserved_at: reservedAgo === null ? null : addDays(today, -reservedAgo),
       expires_on: expiresIn === null ? null : addDays(today, expiresIn),

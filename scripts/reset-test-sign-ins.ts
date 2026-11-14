@@ -1,4 +1,4 @@
-// Gives each job role's test sign-in on the test copy a new password and prints them. Nothing is saved.
+// Gives each demo person's test sign-in on the test copy a new password and prints them. Nothing is saved.
 // Never the live app: the guard refuses anything but the test copy.
 //
 // Usage: pnpm reset:sign-ins   (needs SUPABASE_SERVICE_ROLE_KEY in .env.local, see the connect-test-copy skill)
@@ -21,6 +21,6 @@ const supabase = createClient(url, requireEnv("SUPABASE_SERVICE_ROLE_KEY"), {
 
 const { signIns } = await ensureTestUsers(supabase);
 console.log("Test sign-ins (new passwords, shown once):");
-for (const { jobRole, email, password } of signIns) {
-  console.log(`  ${jobRole.padEnd(9)} ${email}  ${password}`);
+for (const { fullName, email, password } of signIns) {
+  console.log(`  ${fullName.padEnd(15)} ${email}  ${password}`);
 }

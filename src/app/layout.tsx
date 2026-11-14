@@ -25,7 +25,12 @@ export const metadata: Metadata = {
 /** Reads who is signed in only under `pnpm dev`, so built pages stay static. */
 async function DevRolePanelSlot() {
   const profile = await getCurrentProfile();
-  return <DevRolePanel currentRole={profile?.jobRole ?? null} />;
+  return (
+    <DevRolePanel
+      currentId={profile?.id ?? null}
+      currentRole={profile?.jobRole ?? null}
+    />
+  );
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

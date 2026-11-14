@@ -1,0 +1,13 @@
+---
+model: sonnet
+effort: medium
+why: Checklist work: parity screenshots, docs, rebase and merge
+depends: [01, 02, 03, 04, 05, 06, 07, 08]
+---
+# 09 Parity pass, docs, merge
+## Steps
+1. Parity per `docs/office-parity/parity.md` (Chrome profile "Agent") for Claims (and Commission's link), each role that sees them; desktop + 390px.
+2. Update `docs/features.md`, `docs/decisions.md` (D1, D2, D3, D7), `docs/office-parity/drift-money-reports.md` (mark Claims done), `docs/office-parity/roadmap.md` row 4A.
+3. Rebase on `main`; rename migrations older than main's newest. Full checks. PR, merge, clean up.
+## Acceptance
+- `pnpm check`, `pnpm typecheck`, `pnpm test`, `pnpm guard:migrations` pass locally and on the PR; merged to `main`.

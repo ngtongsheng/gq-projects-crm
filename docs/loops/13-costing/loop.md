@@ -21,8 +21,8 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Costing maths | todo | - | sonnet/high |
-| 02 | Migration: costing tables, settings, RLS | todo | - | opus/medium |
+| 01 | Costing maths | done | - | sonnet/high |
+| 02 | Migration: costing tables, settings, RLS | in-progress | - | opus/medium |
 | 03 | Quote loader + margin gating | todo | 01, 02 | opus/medium |
 | 04 | Register + New quote | todo | 03 | sonnet/high |
 | 05 | Quote record editor | todo | 03 | sonnet/high |
@@ -39,3 +39,8 @@ Enquiry, client quote preview, project card link, EN/中文. Parity checked per 
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-15 · plan · loop written from drift-new-modules.md "Costing" · next: #01
+2026-11-15 · #01 · in-progress · worktree ../gq-projects-crm-loops/13-costing
+2026-11-15 · #02 · decision · directors read all quotes (demo + drift doc; task 02 acceptance said own team, Context said all) · D9 follow demo
+2026-11-15 · #01 · done · costing.ts + 27 tests, check/typecheck/test pass
+2026-11-15 · #01 · decision · added `simple` item type (demo has it); per-line 2 dp rounding per D2; margin is a fraction, null when sell 0; `supply only` flag replaces demo cat check (loader maps it); no lowest-margin-across-options helper yet · task 06/03 adds it
+2026-11-15 · #02 · in-progress

@@ -21,6 +21,6 @@ Tables for D1, settings for D6, RLS for every job role.
 - generated DB types if the repo has them
 ## Acceptance
 - `pnpm check`, `pnpm typecheck`, `pnpm test`, `pnpm guard:migrations` pass. RLS tests: sales reads own only; director
-  reads own team; support reads all and edits enquiries only; site role reads nothing; approved revision not editable.
+  reads all (demo rule); support reads all and edits enquiries only; site role reads nothing; approved revision not editable.
 ## Out of scope
 UI, loader.

@@ -19,7 +19,9 @@ import {
   canPayOutCommission,
   isManager,
 } from "@/lib/auth/job-role";
+import { loadMyTeam } from "@/lib/auth/my-team";
 import { requireSection } from "@/lib/auth/require-section";
+import { inMyTeam } from "@/lib/auth/team";
 import { todayMyt } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
 import { loadCommissionLines } from "./commission-data";
@@ -44,10 +46,11 @@ export default async function CommissionPage({
   const person = personParam.parse((await searchParams).person);
   const today = todayMyt();
 
-  const all = await loadCommissionLines();
-  // The database already limits what a salesperson gets; this keeps their own view to their own lines.
+  const [all, team] = await Promise.all([loadCommissionLines(), loadMyTeam()]);
+  // The database limits the orders; a director's team order can still carry a line for someone
+  // outside the team, whose payouts they cannot read. Lines follow the person, as in the demo.
   const mine = seesEveryone
-    ? all
+    ? all.filter((line) => inMyTeam(team, line.personId))
     : all.filter((line) => line.personId === me.id);
   const people = groupByPerson(mine).map((group) => ({
     id: group.personId,

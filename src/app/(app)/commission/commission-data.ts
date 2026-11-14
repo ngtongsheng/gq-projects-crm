@@ -84,8 +84,8 @@ const basisRows = z.array(
 );
 
 /**
- * Commission per person per order, for the orders this person may see: all of them for the MD,
- * Sales Director and HR & Accounts, their own for a salesperson. The database decides which;
+ * Commission per person per order, for the orders this person may see: all of them for the MD
+ * and HR & Accounts, their team's for a director, their own for a salesperson. The database decides which;
  * the cost never leaves it, only the margin tier (commission_basis).
  */
 export async function loadCommissionLines(

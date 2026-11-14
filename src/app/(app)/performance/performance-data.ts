@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { loadMyTeam } from "@/lib/auth/my-team";
+import { inMyTeam } from "@/lib/auth/team";
 import { orderTotal } from "@/lib/domain/mof-totals";
 import type {
   PerformanceOrder,
@@ -38,7 +40,7 @@ export async function loadPerformance(seesCost: boolean): Promise<{
   people: PerformancePerson[];
 }> {
   const supabase = await createClient();
-  const [mofsResult, costsResult, profilesResult] = await Promise.all([
+  const [mofsResult, costsResult, profilesResult, team] = await Promise.all([
     supabase
       .from("mofs")
       .select(
@@ -49,6 +51,7 @@ export async function loadPerformance(seesCost: boolean): Promise<{
       ? supabase.from("mof_costs").select("mof_id, cost")
       : Promise.resolve({ data: [], error: null }),
     supabase.from("profiles").select("id, full_name, yearly_target"),
+    loadMyTeam(),
   ]);
   if (mofsResult.error) {
     throw new Error(`Could not load orders: ${mofsResult.error.message}`);
@@ -74,10 +77,15 @@ export async function loadPerformance(seesCost: boolean): Promise<{
       received: sumRm(row.payments.map((payment) => payment.amount)),
       cost: costOf.get(row.id) ?? null,
     })),
-    people: profileRows.parse(profilesResult.data).map((row) => ({
-      id: row.id,
-      name: row.full_name ?? "Unnamed",
-      yearlyTarget: row.yearly_target,
-    })),
+    // Orders are already the team's (mofs policy); people with a target are listed even without
+    // sales, so a director's list is cut to the team here.
+    people: profileRows
+      .parse(profilesResult.data)
+      .filter((row) => inMyTeam(team, row.id))
+      .map((row) => ({
+        id: row.id,
+        name: row.full_name ?? "Unnamed",
+        yearlyTarget: row.yearly_target,
+      })),
   };
 }

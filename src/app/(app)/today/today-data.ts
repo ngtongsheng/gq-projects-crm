@@ -1,10 +1,6 @@
 import { z } from "zod";
 import { BOOKING_PURPOSES, BOOKING_STATUSES } from "@/lib/domain/site-booking";
-import {
-  FOLLOW_UP_OWNERS,
-  SITE_ACTIVITIES,
-  type SiteActivity,
-} from "@/lib/domain/site-log";
+import { SITE_ACTIVITIES, type SiteActivity } from "@/lib/domain/site-log";
 import type { PlanBooking } from "@/lib/domain/site-plan";
 import type { CalendarDate } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
@@ -157,34 +153,5 @@ export async function loadMyBookings(
     projectId: row.project_id,
     siteLabel: row.projects?.name ?? row.site ?? "",
     notes: row.notes ?? "",
-  }));
-}
-
-const openFollowUpRows = z.array(
-  z.object({
-    owner_group: z.enum(FOLLOW_UP_OWNERS),
-    assignee_id: z.string().nullable(),
-    due_on: z.iso.date().nullable(),
-  }),
-);
-
-export type OpenFollowUp = {
-  ownerGroup: (typeof FOLLOW_UP_OWNERS)[number];
-  assigneeId: string | null;
-  dueOn: CalendarDate | null;
-};
-
-/** Every open follow-up; the caller keeps the ones that are this person's to chase. */
-export async function loadOpenFollowUps(): Promise<OpenFollowUp[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("site_follow_ups")
-    .select("owner_group, assignee_id, due_on")
-    .is("done_at", null);
-  if (error) throw new Error(`Could not load follow-ups: ${error.message}`);
-  return openFollowUpRows.parse(data).map((row) => ({
-    ownerGroup: row.owner_group,
-    assigneeId: row.assignee_id,
-    dueOn: row.due_on,
   }));
 }

@@ -236,6 +236,14 @@ export function canCloseFollowUp(
   }
 }
 
+/** Closing or snoozing: the owning group, a manager, or the person the follow-up was assigned to. */
+export const canChaseFollowUp = (
+  person: { id: string; jobRole: JobRole },
+  followUp: { ownerGroup: FollowUpOwner; assigneeId: string | null },
+): boolean =>
+  canCloseFollowUp(person.jobRole, followUp.ownerGroup) ||
+  followUp.assigneeId === person.id;
+
 /** Open and past its due date; a follow-up with no due date is never overdue. */
 export const isFollowUpOverdue = (
   followUp: { dueOn: string | null; done: boolean },

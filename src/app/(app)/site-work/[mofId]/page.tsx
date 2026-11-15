@@ -10,10 +10,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { canEditSite, type JobRole } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
+import { isSnoozed } from "@/lib/domain/follow-up-snooze";
 import { canRecordLeftover, LEFTOVER_UNIT_LABEL } from "@/lib/domain/leftover";
 import { MOF_STAGE_LABEL, MOF_STAGE_TONE } from "@/lib/domain/mof-stages";
 import {
-  canCloseFollowUp,
+  canChaseFollowUp,
   FOLLOW_UP_OWNER_LABEL,
   isFollowUpOverdue,
   SITE_ACTIVITY_LABEL,
@@ -24,7 +25,11 @@ import { cn } from "@/lib/utils";
 import { LeftoverBadges } from "../../stock/leftover/leftover-badges";
 import { loadLeftovers } from "../../stock/leftover/leftover-data";
 import { RecordLeftoverDialog } from "../../stock/leftover/record-leftover-dialog";
-import { FollowUpCheck, FollowUpDialog } from "../follow-up-parts";
+import {
+  FollowUpCheck,
+  FollowUpDialog,
+  StillWaitingDialog,
+} from "../follow-up-parts";
 import { SiteLogDialog } from "../site-log-dialog";
 import { SiteStageSelect } from "../site-stage-select";
 import { loadSite, type SiteLog } from "../site-work-data";
@@ -33,6 +38,7 @@ import { StageProgress } from "../stage-progress";
 export const metadata: Metadata = { title: "Site Work" };
 
 type FollowUpListProps = {
+  me: { id: string };
   mofId: string;
   log: SiteLog;
   jobRole: JobRole;
@@ -41,6 +47,7 @@ type FollowUpListProps = {
 };
 
 function FollowUpList({
+  me,
   mofId,
   log,
   jobRole,
@@ -50,7 +57,9 @@ function FollowUpList({
   return (
     <ul className="flex flex-col gap-2">
       {log.followUps.map((followUp) => {
-        const overdue = isFollowUpOverdue(followUp, today);
+        const snoozed = isSnoozed(followUp.wait, today);
+        const overdue = isFollowUpOverdue(followUp, today) && !snoozed;
+        const canChase = canChaseFollowUp({ id: me.id, jobRole }, followUp);
         return (
           <li key={followUp.id} className="flex items-start gap-2.5">
             <div className="pt-0.5">
@@ -58,9 +67,10 @@ function FollowUpList({
                 mofId={mofId}
                 followUpId={followUp.id}
                 ownerGroup={followUp.ownerGroup}
+                assigneeId={followUp.assigneeId}
                 done={followUp.done}
                 label={`Done: ${followUp.action}`}
-                canClose={canCloseFollowUp(jobRole, followUp.ownerGroup)}
+                canClose={canChase}
               />
             </div>
             <div className="flex min-w-0 flex-col">
@@ -74,6 +84,8 @@ function FollowUpList({
               </span>
               <span className="text-xs text-muted-foreground">
                 {FOLLOW_UP_OWNER_LABEL[followUp.ownerGroup]}
+                {followUp.assigneeId &&
+                  ` · ${nameOf.get(followUp.assigneeId) ?? "Unnamed"}`}
                 {followUp.dueOn && (
                   <>
                     {" · due "}
@@ -87,6 +99,23 @@ function FollowUpList({
                   followUp.doneAt &&
                   ` · done ${formatDateTime(followUp.doneAt)}${followUp.doneBy ? ` by ${nameOf.get(followUp.doneBy) ?? "Unnamed"}` : ""}`}
               </span>
+              {!followUp.done && followUp.wait && (
+                <span className="text-xs text-muted-foreground">
+                  Waiting: {followUp.wait.note}
+                  {snoozed &&
+                    ` · chase again ${formatDate(followUp.wait.snoozedUntil)}`}
+                </span>
+              )}
+              {!followUp.done && canChase && (
+                <div className="pt-1.5">
+                  <StillWaitingDialog
+                    mofId={mofId}
+                    followUpId={followUp.id}
+                    ownerGroup={followUp.ownerGroup}
+                    assigneeId={followUp.assigneeId}
+                  />
+                </div>
+              )}
             </div>
           </li>
         );
@@ -245,6 +274,7 @@ export default async function SiteDetailPage({
                       Follow-ups
                     </span>
                     <FollowUpList
+                      me={me}
                       mofId={site.id}
                       log={log}
                       jobRole={me.jobRole}
@@ -255,7 +285,11 @@ export default async function SiteDetailPage({
                 )}
                 {canEdit && (
                   <div>
-                    <FollowUpDialog mofId={site.id} siteLogId={log.id} />
+                    <FollowUpDialog
+                      mofId={site.id}
+                      siteLogId={log.id}
+                      people={team}
+                    />
                   </div>
                 )}
               </CardContent>

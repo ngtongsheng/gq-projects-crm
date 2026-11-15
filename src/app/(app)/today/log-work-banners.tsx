@@ -2,12 +2,20 @@ import { BellRing, CalendarClock, ClipboardX } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { SITE_OFF_KIND_LABEL } from "@/lib/domain/site-log";
+import {
+  FOLLOW_UP_OWNER_LABEL,
+  SITE_OFF_KIND_LABEL,
+} from "@/lib/domain/site-log";
 import type { PlannedWork } from "@/lib/domain/site-plan";
 import { type CalendarDate, formatDate } from "@/lib/format/date";
 import type { Translate } from "@/lib/i18n/translate";
 import { cn } from "@/lib/utils";
+import {
+  FollowUpDoneButton,
+  StillWaitingDialog,
+} from "../site-work/follow-up-parts";
 import { AwayChooser, type LeaveSheetProps } from "./away-chooser";
+import type { OpenFollowUp } from "./open-follow-ups";
 import { recordHref } from "./record-link";
 import { RemoveAwayButton } from "./remove-away-button";
 import type { SiteOffDay } from "./today-data";
@@ -115,31 +123,59 @@ export function PlannedNotRecordedBanner({
   );
 }
 
-/** How many follow-ups are the supervisor's to chase; the list and Done buttons live in Site Work. */
+/** The follow-ups that are this person's to chase, each with Done and Still waiting. */
 export function FollowUpBanner({
-  open,
-  dueNow,
+  followUps,
+  today,
   t,
 }: {
-  open: number;
-  dueNow: number;
+  followUps: readonly OpenFollowUp[];
+  today: CalendarDate;
   t: Translate;
 }) {
-  if (open === 0) return null;
+  if (followUps.length === 0) return null;
+  const dueNow = followUps.filter(
+    (followUp) => followUp.dueOn !== null && followUp.dueOn <= today,
+  ).length;
   return (
     <Banner
       tone={dueNow > 0 ? "bad" : "warn"}
-      title={`${t("Follow up")} (${open})${dueNow > 0 ? ` · ${dueNow} ${t("due now")}` : ""}`}
+      title={`${t("Follow up")} (${followUps.length})${dueNow > 0 ? ` · ${dueNow} ${t("due now")}` : ""}`}
       icon={<BellRing className="size-4" />}
     >
-      <div>
-        <Button asChild size="sm" variant="outline">
-          <Link href="/site-work">{t("Site Work")}</Link>
-        </Button>
-      </div>
+      <ul className="flex flex-col gap-3">
+        {followUps.map((followUp) => (
+          <li key={followUp.id} className="flex flex-col gap-2">
+            <span className="min-w-0">
+              <span className="font-medium">{followUp.action}</span>
+              <span className="block text-xs opacity-80">
+                {followUp.siteLabel && `${followUp.siteLabel} · `}
+                {t(FOLLOW_UP_OWNER_LABEL[followUp.ownerGroup])}
+                {followUp.dueOn && ` · ${formatDate(followUp.dueOn)}`}
+              </span>
+              {followUp.wait && (
+                <span className="block text-xs opacity-80">
+                  {t("Waiting")}: {followUp.wait.note}
+                </span>
+              )}
+            </span>
+            <span className="flex flex-wrap gap-2">
+              <FollowUpDoneButton {...followUpTarget(followUp)} />
+              <StillWaitingDialog {...followUpTarget(followUp)} />
+            </span>
+          </li>
+        ))}
+      </ul>
     </Banner>
   );
 }
+
+const followUpTarget = (followUp: OpenFollowUp) => ({
+  mofId: followUp.mofId,
+  followUpId: followUp.id,
+  ownerGroup: followUp.ownerGroup,
+  assigneeId: followUp.assigneeId,
+});
 
 /** The selected day is already marked away: an office or other day can be taken back out. */
 export function AwayDayBanners({

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { canEditSite } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import {
-  canCloseFollowUp,
+  canChaseFollowUp,
   FOLLOW_UP_OWNERS,
   SITE_ACTIVITIES,
   type SiteActivity,
@@ -64,6 +64,9 @@ const followUpForm = z.object({
     .min(1, "Enter what needs to be done.")
     .max(300, "Keep the action under 300 characters."),
   ownerGroup: z.enum(FOLLOW_UP_OWNERS, "Choose who owns it."),
+  assigneeId: z
+    .union([z.literal(""), z.uuid("Choose who it is assigned to.")])
+    .transform((value) => (value === "" ? null : value)),
   dueOn: z
     .union([z.literal(""), z.iso.date("Choose the due date.")])
     .transform((value) => (value === "" ? null : value)),
@@ -75,9 +78,11 @@ const stageForm = z.object({
 });
 
 const doneForm = z.object({
-  mofId,
+  // A follow-up from a visit with no MOF has no site page to refresh.
+  mofId: mofId.nullable(),
   followUpId: z.uuid({ error: NOT_FOUND_FOLLOW_UP }),
   ownerGroup: z.enum(FOLLOW_UP_OWNERS, NOT_FOUND_FOLLOW_UP),
+  assigneeId: z.uuid({ error: NOT_FOUND_FOLLOW_UP }).nullable(),
 });
 
 /** Maps a database refusal to a message she can act on, or null when it is something else. */
@@ -87,9 +92,10 @@ function refusal(error: { code?: string }): string | null {
   return null;
 }
 
-function revalidateSite(id: string) {
+function revalidateSite(id: string | null) {
   revalidatePath("/site-work");
-  revalidatePath(`/site-work/${id}`);
+  revalidatePath("/today");
+  if (id) revalidatePath(`/site-work/${id}`);
 }
 
 /** Moves a site along its stages. The database function checks the job role again. */
@@ -375,6 +381,7 @@ export async function addFollowUp(formData: FormData): Promise<SiteWorkResult> {
     siteLogId: textField(formData, "siteLogId"),
     action: textField(formData, "action"),
     ownerGroup: textField(formData, "ownerGroup"),
+    assigneeId: textField(formData, "assigneeId"),
     dueOn: textField(formData, "dueOn"),
   });
   if (!parsed.success) {
@@ -387,6 +394,7 @@ export async function addFollowUp(formData: FormData): Promise<SiteWorkResult> {
     site_log_id: followUp.siteLogId,
     action: followUp.action,
     owner_group: followUp.ownerGroup,
+    assignee_id: followUp.assigneeId,
     due_on: followUp.dueOn,
   });
   if (error) {
@@ -402,14 +410,15 @@ export async function addFollowUp(formData: FormData): Promise<SiteWorkResult> {
 }
 
 /**
- * Ticks a follow-up done, or reopens it. Only the group that owns it, or a manager, may; the
- * database checks the same and stamps who and when.
+ * Ticks a follow-up done, or reopens it. Only the group that owns it, a manager or the person
+ * it is assigned to may; the database checks the same and stamps who and when.
  */
 export async function setFollowUpDone(
-  mofIdValue: string,
+  mofIdValue: string | null,
   followUpId: string,
   ownerGroup: string,
   done: boolean,
+  assigneeId: string | null = null,
 ): Promise<SiteWorkResult> {
   const me = await requirePage("site");
 
@@ -417,11 +426,12 @@ export async function setFollowUpDone(
     mofId: mofIdValue,
     followUpId,
     ownerGroup,
+    assigneeId,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Check the details." };
   }
-  if (!canCloseFollowUp(me.jobRole, parsed.data.ownerGroup)) {
+  if (!canChaseFollowUp(me, parsed.data)) {
     return { error: NOT_CLOSER };
   }
 

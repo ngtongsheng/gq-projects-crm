@@ -247,9 +247,19 @@ describe("addFollowUp", () => {
         site_log_id: LOG,
         action: "Order 2 more rolls",
         owner_group: "purchasing",
+        assignee_id: null,
         due_on: "2026-11-09",
       },
     });
+  });
+
+  it("saves who the follow-up is assigned to", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
+    const calls = fakeSupabase({ data: null, error: null });
+
+    await addFollowUp(followUpForm({ assigneeId: SALES }));
+
+    expect(calls[0]?.payload).toMatchObject({ assignee_id: SALES });
   });
 
   it("allows no due date", async () => {
@@ -312,6 +322,30 @@ describe("setFollowUpDone", () => {
 
     expect(result.error).toMatch(/group that owns/);
     expect(calls).toHaveLength(0);
+  });
+
+  it("lets the person it is assigned to close it", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    fakeSupabase({ data: [{ id: FOLLOW_UP }], error: null });
+
+    const result = await setFollowUpDone(
+      MOF,
+      FOLLOW_UP,
+      "purchasing",
+      true,
+      ME,
+    );
+
+    expect(result).toEqual({ error: null });
+  });
+
+  it("closes a follow-up from a visit with no MOF", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
+    fakeSupabase({ data: [{ id: FOLLOW_UP }], error: null });
+
+    const result = await setFollowUpDone(null, FOLLOW_UP, "client", true);
+
+    expect(result).toEqual({ error: null });
   });
 
   it("reports a follow-up the database hides", async () => {

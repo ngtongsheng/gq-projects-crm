@@ -1,6 +1,11 @@
 import { z } from "zod";
 import type { Profile } from "@/lib/auth/current-profile";
 import {
+  currentWait,
+  type FollowUpWait,
+  isSnoozed,
+} from "@/lib/domain/follow-up-snooze";
+import {
   INSTALLER_CLAIM_TYPES,
   type InstallerClaimType,
 } from "@/lib/domain/installer-claim";
@@ -13,12 +18,16 @@ import {
 } from "@/lib/domain/site-log";
 import { SITE_STAGES, type SiteStage } from "@/lib/domain/site-stage";
 import { createClient } from "@/lib/supabase/server";
+import { toWaits, WAITS_SELECT, waitRows } from "./follow-up-waits";
 
 export type FollowUp = {
   id: string;
   action: string;
   ownerGroup: FollowUpOwner;
+  assigneeId: string | null;
   dueOn: string | null;
+  /** The latest "still waiting" entry, which holds the follow-up back until its day. */
+  wait: FollowUpWait | null;
   done: boolean;
   doneBy: string | null;
   doneAt: string | null;
@@ -71,9 +80,11 @@ const followUpRow = z.object({
   id: z.string(),
   action: z.string(),
   owner_group: z.enum(FOLLOW_UP_OWNERS),
+  assignee_id: z.string().nullable(),
   due_on: z.string().nullable(),
   done_at: z.string().nullable(),
   done_by: z.string().nullable(),
+  site_follow_up_waits: waitRows,
 });
 
 const logRow = z.object({
@@ -112,6 +123,7 @@ const summaryRows = z.array(
           z.object({
             due_on: z.string().nullable(),
             done_at: z.string().nullable(),
+            site_follow_up_waits: waitRows,
           }),
         ),
       }),
@@ -125,7 +137,7 @@ export async function loadActiveSites(today: string): Promise<SiteSummary[]> {
   const { data, error } = await supabase
     .from("mofs")
     .select(
-      `${mofColumns}, site_logs(visited_on, activity, site_follow_ups(due_on, done_at))`,
+      `${mofColumns}, site_logs(visited_on, activity, site_follow_ups(due_on, done_at, ${WAITS_SELECT}))`,
     )
     .not("stage", "in", "(closed,cancelled)")
     .order("mof_no", { ascending: false });
@@ -151,7 +163,13 @@ export async function loadActiveSites(today: string): Promise<SiteSummary[]> {
         : null,
       openFollowUps: open.length,
       overdueFollowUps: open.filter(
-        (followUp) => followUp.due_on !== null && followUp.due_on < today,
+        (followUp) =>
+          followUp.due_on !== null &&
+          followUp.due_on < today &&
+          !isSnoozed(
+            currentWait(toWaits(followUp.site_follow_up_waits)),
+            today,
+          ),
       ).length,
     };
   });
@@ -169,7 +187,7 @@ export async function loadSite(
   const { data, error } = await supabase
     .from("mofs")
     .select(
-      `${mofColumns}, site_logs(id, visited_on, supervisor_id, activity, notes, measurement_received, drive_link, handover_signed, site_follow_ups(id, action, owner_group, due_on, done_at, done_by))`,
+      `${mofColumns}, site_logs(id, visited_on, supervisor_id, activity, notes, measurement_received, drive_link, handover_signed, site_follow_ups(id, action, owner_group, assignee_id, due_on, done_at, done_by, ${WAITS_SELECT}))`,
     )
     .eq("id", mofId);
   if (error) throw new Error(`Could not load the site: ${error.message}`);
@@ -201,7 +219,9 @@ export async function loadSite(
             id: followUp.id,
             action: followUp.action,
             ownerGroup: followUp.owner_group,
+            assigneeId: followUp.assignee_id,
             dueOn: followUp.due_on,
+            wait: currentWait(toWaits(followUp.site_follow_up_waits)),
             done: followUp.done_at !== null,
             doneBy: followUp.done_by,
             doneAt: followUp.done_at,

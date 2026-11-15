@@ -21,8 +21,8 @@ Log work wizard (site role landing page) and the seven Site Work tabs match Vick
 | 02 | Site log rules | done | 01 | opus/medium |
 | 03 | Log work home | done | 02 | sonnet/high |
 | 04 | Log work wizard | done | 02 | sonnet/high |
-| 05 | Follow-ups: owner, still waiting, snooze | in-progress | 01 | sonnet/high |
-| 06 | Site Work: Jobs + Site log tabs | todo | 02 | sonnet/high |
+| 05 | Follow-ups: owner, still waiting, snooze | done | 01 | sonnet/high |
+| 06 | Site Work: Jobs + Site log tabs | in-progress | 02 | sonnet/high |
 | 07 | Site Work: Measurements + Photos & videos | todo | 01 | sonnet/high |
 | 08 | Site Work: Actions, Stock returns, Daily log | todo | 05 | sonnet/high |
 | 09 | Site nav, BM strings, dev seed | todo | 03, 04, 06, 07, 08 | sonnet/medium |
@@ -48,3 +48,6 @@ Log work wizard (site role landing page) and the seven Site Work tabs match Vick
 2026-11-15 · #04 · done · verified: check, typecheck, test (2498) pass; parity deferred to #10 (also verify the `mofs` query's `.not("site_logs.inst_pct","is",null)` embedded filter on the test copy)
 2026-11-15 · #04 · decision · new-site salesperson list = all team_directory (site role cannot read job roles); balance stock stored only as return_answer text (items per row go to loop 18); no office WhatsApp number setting, link opens WhatsApp to pick chat; date from URL param only; BM strings in #09 · scope
 2026-11-15 · #05 · in-progress · delegated (sonnet/high)
+2026-11-15 · #05 · done · verified: check, typecheck, test (2516) pass; parity deferred to #10
+2026-11-15 · #05 · decision · added optional "Assigned to" select to the Add follow-up dialog (nothing wrote assignee_id); snooze uses the person's week pattern (site Mon-Sat, others Mon-Fri); supabase/tests need a DB and were not run here · scope
+2026-11-15 · #06 · in-progress · delegated (sonnet/high)

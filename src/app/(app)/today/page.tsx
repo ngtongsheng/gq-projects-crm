@@ -5,9 +5,10 @@ import { PageHeader } from "@/components/app/page-header";
 import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { isSameMonth, startOfMonth } from "@/lib/domain/calendar-grid";
+import { isSnoozed } from "@/lib/domain/follow-up-snooze";
 import { LEAVE_TYPE_LABEL } from "@/lib/domain/leave-labels";
 import {
-  canCloseFollowUp,
+  canChaseFollowUp,
   countSiteVisits,
   type LoggedSiteJob,
   missedLogDays,
@@ -48,12 +49,8 @@ import {
   PlannedJobs,
   RecordSiteButton,
 } from "./log-work-parts";
-import {
-  loadMyBookings,
-  loadMyLogs,
-  loadMySiteOff,
-  loadOpenFollowUps,
-} from "./today-data";
+import { loadOpenFollowUps } from "./open-follow-ups";
+import { loadMyBookings, loadMyLogs, loadMySiteOff } from "./today-data";
 
 export const metadata: Metadata = { title: "Log work" };
 
@@ -172,13 +169,10 @@ export default async function LogWorkPage({
     planned,
     logs: loggedSites,
   });
+  // Still-waiting follow-ups stay out of sight until their snooze day.
   const chased = followUps.filter(
     (followUp) =>
-      followUp.assigneeId === me.id ||
-      canCloseFollowUp(me.jobRole, followUp.ownerGroup),
-  );
-  const dueNow = chased.filter(
-    (followUp) => followUp.dueOn !== null && followUp.dueOn <= today,
+      canChaseFollowUp(me, followUp) && !isSnoozed(followUp.wait, today),
   );
   const remind =
     day === today &&
@@ -212,7 +206,7 @@ export default async function LogWorkPage({
           by: alert.createdBy ? nameOf(alert.createdBy) : "–",
         }))}
       />
-      <FollowUpBanner open={chased.length} dueNow={dueNow.length} t={t} />
+      <FollowUpBanner followUps={chased} today={today} t={t} />
       <PlannedNotRecordedBanner jobs={plannedMissed} t={t} />
       <MissedDaysBanner days={missedDays} leave={leave} t={t} />
       {remind && <EndOfDayBanner t={t} />}

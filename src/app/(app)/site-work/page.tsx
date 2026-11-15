@@ -14,9 +14,11 @@ import { todayMyt } from "@/lib/format/date";
 import { getT } from "@/lib/i18n/server-t";
 import { recordHref } from "../today/record-link";
 import { JobsTab } from "./jobs-tab";
+import { MeasurementsTab } from "./measurements-tab";
 import { MofFinder } from "./mof-finder";
 import { NewMofBanner } from "./new-mof-banner";
 import { PendingClaims } from "./pending-claims";
+import { PhotosTab } from "./photos-tab";
 import { loadSiteJobs } from "./site-jobs-data";
 import { SiteLogTab } from "./site-log-tab";
 import { loadSiteTabCounts } from "./site-tab-counts";
@@ -40,7 +42,7 @@ export default async function SiteWorkPage({
 
   const [jobs, counts, team, claims, canRecord] = await Promise.all([
     loadSiteJobs(),
-    me.jobRole === "marketing" ? {} : loadSiteTabCounts(),
+    loadSiteTabCounts(),
     getTeamDirectory(),
     view === "jobs" && canEditSite(me.jobRole)
       ? loadPendingClaims(me)
@@ -103,6 +105,10 @@ export default async function SiteWorkPage({
         </div>
       ) : view === "log" ? (
         <SiteLogTab me={me} params={params} nameOf={nameOf} t={t} />
+      ) : view === "meas" ? (
+        <MeasurementsTab me={me} nameOf={nameOf} t={t} />
+      ) : view === "shots" ? (
+        <PhotosTab me={me} jobs={jobs} nameOf={nameOf} t={t} />
       ) : (
         <div className="rounded-xl border bg-card">
           <EmptyState

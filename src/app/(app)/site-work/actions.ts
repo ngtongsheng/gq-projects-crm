@@ -19,6 +19,7 @@ import {
 } from "@/lib/domain/site-stage";
 import { optionalText, textField } from "@/lib/form/form-fields";
 import { createClient } from "@/lib/supabase/server";
+import { markShootRequestsDone } from "./shoot-request-done";
 
 export type SiteWorkResult = { error: string | null };
 
@@ -267,6 +268,9 @@ export async function saveSiteVisit(input: unknown): Promise<SiteVisitResult> {
   }
   if (visit.mofId) revalidateSite(visit.mofId);
   else revalidatePath("/site-work");
+  if (visit.mofId && visit.activities.includes("shooting")) {
+    await markShootRequestsDone(supabase, visit.mofId);
+  }
 
   if (visit.followUp) {
     const [first] = z.array(z.object({ id: z.string() })).parse(saved);

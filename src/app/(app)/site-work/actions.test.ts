@@ -283,7 +283,7 @@ describe("saveSiteVisit", () => {
 
   it("saves one log per activity with each one's answers", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
-    const calls = fakeSupabase(mofAt("ongoing"), savedLogs, ok);
+    const calls = fakeSupabase(mofAt("ongoing"), savedLogs, ok, ok);
 
     const result = await saveSiteVisit(
       visit({
@@ -317,9 +317,22 @@ describe("saveSiteVisit", () => {
     expect(rows[1]).toMatchObject({ measurement_to: null });
     expect(rows[2]).toMatchObject({ delivery_ok: true });
     expect(calls[2]).toEqual({
+      name: "shoot_requests",
+      payload: { status: "done" },
+    });
+    expect(calls[3]).toEqual({
       name: "set_site_stage",
       payload: { mof_id: MOF, stage: "delivered" },
     });
+  });
+
+  it("leaves shooting requests alone when no shooting was logged", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
+    const calls = fakeSupabase(mofAt("ongoing"), savedLogs);
+
+    await saveSiteVisit(visit({ activities: ["inspection"] }));
+
+    expect(calls.map((call) => call.name)).not.toContain("shoot_requests");
   });
 
   it("moves the stage to installation and completes it on a signed handover", async () => {

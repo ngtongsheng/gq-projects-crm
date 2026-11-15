@@ -12,6 +12,8 @@ export const jobRows = z.array(
     ends_on: z.string(),
     start_time: z.string().nullable(),
     installer: z.string().nullable(),
+    installer_id: z.string().nullable(),
+    supervisor_only: z.boolean(),
     site_supervisor_id: z.string().nullable(),
     notes: z.string().nullable(),
   }),
@@ -30,7 +32,7 @@ export const orderRows = z.array(
 );
 
 export const JOB_COLUMNS =
-  "id, job_type, status, scheduled_on, ends_on, start_time, installer, site_supervisor_id, notes";
+  "id, job_type, status, scheduled_on, ends_on, start_time, installer, installer_id, supervisor_only, site_supervisor_id, notes";
 export const ORDER_COLUMNS =
   "job_id, running_no, transporter, delivered_on, items, is_final, signed_returned";
 
@@ -50,6 +52,8 @@ export function toJobRow(
     endsOn: job.ends_on,
     startTime: job.start_time?.slice(0, 5) ?? "",
     installer: job.installer ?? "",
+    installerId: job.installer_id ?? "",
+    supervisorOnly: job.supervisor_only,
     siteSupervisorId: job.site_supervisor_id ?? "",
     notes: job.notes ?? "",
     order: order

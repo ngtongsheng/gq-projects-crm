@@ -8,6 +8,7 @@ import {
   JOB_TYPE_LABEL,
   missingDeliveryChecks,
 } from "@/lib/domain/delivery-status";
+import type { JobPeople } from "@/lib/domain/job-team";
 import { type CalendarDate, formatDate } from "@/lib/format/date";
 import { cn } from "@/lib/utils";
 import { BookingCard } from "./booking-card";
@@ -23,6 +24,8 @@ type JobListProps = {
   today: CalendarDate;
   eventsByDay: ReadonlyMap<CalendarDate, CalendarItem[]>;
   team: Team;
+  /** For the job form's pickers; absent for people who cannot schedule. */
+  people?: JobPeople;
   /** The signed-in person; a Site Supervisor moves only the jobs assigned to them. */
   meId: string;
   canSchedule: boolean;
@@ -38,6 +41,7 @@ type JobListProps = {
 /** One row per day with a card per job or booking: the phone-friendly way to read the calendar. */
 export function JobList({
   team,
+  people,
   meId,
   canSchedule,
   canUpdateStatus,
@@ -66,6 +70,7 @@ export function JobList({
             job={event.job}
             supervisor={nameOf.get(event.job.siteSupervisorId)}
             team={team}
+            people={people}
             canSchedule={canSchedule}
             canMove={
               canUpdateStatus &&
@@ -83,6 +88,7 @@ type JobCardProps = {
   job: CalendarJob;
   supervisor: string | undefined;
   team: Team;
+  people: JobPeople | undefined;
   canSchedule: boolean;
   canMove: boolean;
   canOpenMof: boolean;
@@ -92,6 +98,7 @@ function JobCard({
   job,
   supervisor,
   team,
+  people,
   canSchedule,
   canMove,
   canOpenMof,
@@ -100,7 +107,12 @@ function JobCard({
     ? deliveryOrderNumber(job.mofNo, job.order.runningNo)
     : null;
   const title = `${job.mofNo} · ${job.companyName}`;
-  const crew = [job.installer, supervisor].filter(Boolean).join(" · ");
+  const crew = [
+    job.supervisorOnly ? "Supervisor only" : job.installer,
+    supervisor,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <div
@@ -156,12 +168,13 @@ function JobCard({
               status={job.status}
             />
           )}
-          {canSchedule && (
+          {canSchedule && people && (
             <JobDialog
               mofId={job.mofId}
               mofNo={job.mofNo}
               job={job}
               team={team}
+              people={people}
               defaultInstaller={job.mofInstaller}
               missingChecks={missingDeliveryChecks({
                 paymentChecked: job.paymentChecked,

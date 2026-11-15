@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { JobPeople } from "@/lib/domain/job-team";
 import { formatDate } from "@/lib/format/date";
 import { JobForm } from "./job-form";
 
@@ -33,6 +34,7 @@ type AddJobDialogProps = {
   date: string;
   mofs: MofOption[];
   team: { id: string; name: string }[];
+  people: JobPeople;
   /** The calendar address without the add day; closing goes back to it. */
   closeHref: string;
 };
@@ -42,6 +44,7 @@ export function AddJobDialog({
   date,
   mofs,
   team,
+  people,
   closeHref,
 }: AddJobDialogProps) {
   const router = useRouter();
@@ -79,6 +82,7 @@ export function AddJobDialog({
             mofId={mof.id}
             mofNo={mof.mofNo}
             team={team}
+            people={people}
             defaultInstaller={mof.installer}
             missingChecks={mof.missingChecks}
             defaultDate={date}

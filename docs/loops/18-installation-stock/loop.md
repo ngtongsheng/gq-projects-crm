@@ -20,8 +20,8 @@ Merged to `main`. Starts after loop 17 merges.
 |---|---|---|---|---|
 | 01 | Installers migration + backfill | done | - | opus/medium |
 | 02 | Installer directory + calendar views | done | 01 | sonnet/high |
-| 03 | Supervisor bookings + job form extras | in-progress | 01 | sonnet/high |
-| 04 | DO numbering + lines migration | todo | - | opus/medium |
+| 03 | Supervisor bookings + job form extras | done | 01 | sonnet/high |
+| 04 | DO numbering + lines migration | in-progress | - | opus/medium |
 | 05 | DO on the job + print + delivery log | todo | 04 | sonnet/high |
 | 06 | Stock page deltas | todo | - | sonnet/medium |
 | 07 | Samples migration + rules | todo | - | opus/medium |
@@ -45,3 +45,6 @@ Merged to `main`. Starts after loop 17 merges.
 2026-11-15 · #02 · decision · no "Coming up" table, no Team size, text WhatsApp link, phone required on save; Site supervisors tab comes in #03 · subagent deviations, sensible
 2026-11-15 · #02 · decision · renaming an installer does not rewrite old job text (RLS blocks editors from jobs); calendar filters by installer_id · fix in #12 via a trigger on installers, or log as debt
 2026-11-15 · #03 · started
+2026-11-15 · #03 · done · verified: check, typecheck, test (2644), guard:migrations pass; parity deferred to #12 (also verify `salespeople()` RPC, grouped Select, `supervisor_only` in JOB_COLUMNS queries)
+2026-11-15 · #03 · decision · supervisors tab uses day-by-day week list not 7-col grid; reply saved only on decline (DB check); booking list shows today..+365d incl. Declined; no Cancel (no cancelled status); added migration 20261118110000 (supervisor_only, salespeople()) · subagent deviations, sensible
+2026-11-15 · #04 · started

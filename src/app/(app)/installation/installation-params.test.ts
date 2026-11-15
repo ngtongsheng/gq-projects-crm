@@ -8,7 +8,8 @@ import {
 const ID = "11111111-1111-4111-8111-111111111111";
 
 describe("parseInstallationTab", () => {
-  it("knows the directory tab and falls back to the calendar", () => {
+  it("knows the supervisors and directory tabs and falls back to the calendar", () => {
+    expect(parseInstallationTab("supervisors")).toBe("supervisors");
     expect(parseInstallationTab("contacts")).toBe("contacts");
     expect(parseInstallationTab("nonsense")).toBe("installers");
     expect(parseInstallationTab(undefined)).toBe("installers");
@@ -34,6 +35,12 @@ describe("installationHref", () => {
     expect(installationHref({ installer: ID })).toBe(
       `/installation?installer=${ID}`,
     );
+  });
+
+  it("keeps the supervisors tab in a week link", () => {
+    expect(
+      installationHref({ date: "2026-11-16", who: ID, tab: "supervisors" }),
+    ).toBe(`/installation?date=2026-11-16&who=${ID}&tab=supervisors`);
   });
 
   it("stays the plain path without filters", () => {

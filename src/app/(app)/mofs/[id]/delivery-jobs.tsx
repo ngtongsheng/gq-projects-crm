@@ -10,6 +10,7 @@ import {
   JOB_STATUS_TONE,
   JOB_TYPE_LABEL,
 } from "@/lib/domain/delivery-status";
+import type { JobPeople } from "@/lib/domain/job-team";
 import { formatDate } from "@/lib/format/date";
 import { JobDialog, type JobRow } from "../../installation/job-form";
 
@@ -18,6 +19,8 @@ type DeliveryJobsProps = {
   mofNo: string;
   jobs: JobRow[];
   team: { id: string; name: string }[];
+  /** For the job form's pickers; absent for people who cannot schedule. */
+  people?: JobPeople;
   defaultInstaller: string;
   missingChecks: string[];
   canSchedule: boolean;
@@ -29,6 +32,7 @@ export function DeliveryJobs({
   mofNo,
   jobs,
   team,
+  people,
   defaultInstaller,
   missingChecks,
   canSchedule,
@@ -42,7 +46,10 @@ export function DeliveryJobs({
       })),
   );
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
-  const dialog = { mofId, mofNo, team, defaultInstaller, missingChecks };
+  const dialog =
+    canSchedule && people
+      ? { mofId, mofNo, team, people, defaultInstaller, missingChecks }
+      : null;
 
   return (
     <Card>
@@ -57,7 +64,7 @@ export function DeliveryJobs({
             </StatusBadge>
           </div>
         </div>
-        {canSchedule && <JobDialog {...dialog} />}
+        {dialog && <JobDialog {...dialog} />}
       </CardHeader>
       <CardContent>
         <DataTable
@@ -93,7 +100,11 @@ export function DeliveryJobs({
               header: "Team",
               cell: (row) => (
                 <div className="flex flex-col">
-                  <span>{row.installer || "–"}</span>
+                  <span>
+                    {row.supervisorOnly
+                      ? "Supervisor only"
+                      : row.installer || "–"}
+                  </span>
                   {row.siteSupervisorId && (
                     <span className="text-sm text-muted-foreground">
                       {nameOf.get(row.siteSupervisorId) ?? "Unnamed"}
@@ -144,14 +155,14 @@ export function DeliveryJobs({
             },
             {
               key: "notes",
-              header: "Note",
+              header: "Remarks",
               cell: (row) => (
                 <span className="block max-w-56 whitespace-normal">
                   {row.notes || "–"}
                 </span>
               ),
             },
-            ...(canSchedule
+            ...(dialog
               ? [
                   {
                     key: "edit",

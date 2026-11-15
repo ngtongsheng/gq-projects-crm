@@ -24,7 +24,9 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -37,6 +39,12 @@ import {
   type JobType,
   TRANSPORTERS,
 } from "@/lib/domain/delivery-status";
+import {
+  inChargeGroups,
+  installerIdByName,
+  type JobPeople,
+  SUPERVISOR_ONLY,
+} from "@/lib/domain/job-team";
 import { isOneOf } from "@/lib/form/one-of";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { saveJob } from "./actions";
@@ -49,7 +57,12 @@ export type JobRow = {
   endsOn: string;
   /** HH:MM, or empty when no time is set. */
   startTime: string;
+  /** The installer's name, as written on the job. */
   installer: string;
+  installerId: string;
+  /** No installer crew: only the supervisor attends. */
+  supervisorOnly: boolean;
+  /** The person in charge: a site supervisor or a salesperson. */
   siteSupervisorId: string;
   notes: string;
   /** Only delivery jobs have a DO. */
@@ -67,7 +80,9 @@ type JobDialogProps = {
   mofId: string;
   mofNo: string;
   job?: JobRow;
+  /** Everyone, for naming a person already on the job. */
   team: { id: string; name: string }[];
+  people: JobPeople;
   defaultInstaller: string;
   /** What is not yet ticked on the MOF before goods go out; shown for a delivery. */
   missingChecks: string[];
@@ -120,6 +135,7 @@ export function JobForm({
   mofNo,
   job,
   team,
+  people,
   defaultInstaller,
   missingChecks,
   defaultDate,
@@ -135,6 +151,23 @@ export function JobForm({
   );
   const [endDate, setEndDate] = useState(job?.endsOn ?? defaultDate ?? "");
   const [supervisor, setSupervisor] = useState(job?.siteSupervisorId || NONE);
+  const [crew, setCrew] = useState(
+    job
+      ? job.supervisorOnly
+        ? SUPERVISOR_ONLY
+        : job.installerId || NONE
+      : (installerIdByName(people.installers, defaultInstaller) ?? NONE),
+  );
+  // An installer made inactive since stays pickable on the jobs they already have.
+  const crewChoices =
+    job?.installerId &&
+    !people.installers.some((installer) => installer.id === job.installerId)
+      ? [...people.installers, { id: job.installerId, name: job.installer }]
+      : people.installers;
+  const inCharge = inChargeGroups(
+    people,
+    team.find((member) => member.id === job?.siteSupervisorId) ?? null,
+  );
   const order = job?.order;
 
   function save(formData: FormData) {
@@ -153,6 +186,7 @@ export function JobForm({
       <input type="hidden" name="mofId" value={mofId} />
       {job && <input type="hidden" name="jobId" value={job.id} />}
       <input type="hidden" name="jobType" value={jobType} />
+      <input type="hidden" name="team" value={crew === NONE ? "" : crew} />
       <input
         type="hidden"
         name="siteSupervisorId"
@@ -247,13 +281,21 @@ export function JobForm({
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field>
-            <FieldLabel htmlFor="installer">Installer / crew</FieldLabel>
-            <Input
-              id="installer"
-              name="installer"
-              defaultValue={job ? job.installer : defaultInstaller}
-              maxLength={100}
-            />
+            <FieldLabel htmlFor="crewSelect">Team</FieldLabel>
+            <Select value={crew} onValueChange={setCrew}>
+              <SelectTrigger id="crewSelect">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NONE}>Not decided yet</SelectItem>
+                {crewChoices.map((installer) => (
+                  <SelectItem key={installer.id} value={installer.id}>
+                    {installer.name}
+                  </SelectItem>
+                ))}
+                <SelectItem value={SUPERVISOR_ONLY}>Supervisor only</SelectItem>
+              </SelectContent>
+            </Select>
           </Field>
           <Field>
             <FieldLabel htmlFor="supervisorSelect">
@@ -264,12 +306,16 @@ export function JobForm({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={NONE}>No supervisor in charge</SelectItem>
-                {team.map((member) => (
-                  <SelectItem key={member.id} value={member.id}>
-                    {member.name}
-                  </SelectItem>
-                ))}
+                <SelectItem value={NONE}>No one in charge</SelectItem>
+                <PersonGroup
+                  label="Site supervisors"
+                  people={inCharge.supervisors}
+                />
+                <PersonGroup
+                  label="Salesperson in charge"
+                  people={inCharge.salespeople}
+                />
+                <PersonGroup label="Others" people={inCharge.others} />
               </SelectContent>
             </Select>
           </Field>
@@ -357,7 +403,7 @@ export function JobForm({
           </>
         )}
         <Field>
-          <FieldLabel htmlFor="notes">Note</FieldLabel>
+          <FieldLabel htmlFor="notes">Remarks</FieldLabel>
           <Input
             id="notes"
             name="notes"
@@ -372,5 +418,25 @@ export function JobForm({
         </Button>
       </FieldGroup>
     </form>
+  );
+}
+
+function PersonGroup({
+  label,
+  people,
+}: {
+  label: string;
+  people: { id: string; name: string }[];
+}) {
+  if (people.length === 0) return null;
+  return (
+    <SelectGroup>
+      <SelectLabel>{label}</SelectLabel>
+      {people.map((person) => (
+        <SelectItem key={person.id} value={person.id}>
+          {person.name}
+        </SelectItem>
+      ))}
+    </SelectGroup>
   );
 }

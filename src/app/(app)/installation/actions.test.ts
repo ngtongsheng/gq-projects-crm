@@ -19,6 +19,8 @@ const MOF = "33333333-3333-4333-8333-333333333333";
 const JOB = "66666666-6666-4666-8666-666666666666";
 const NEW_JOB = "77777777-7777-4777-8777-777777777777";
 const SUPERVISOR = "88888888-8888-4888-8888-888888888888";
+const SALESPERSON = "55555555-5555-4555-8555-555555555555";
+const INSTALLER = "44444444-4444-4444-8444-444444444444";
 
 const profile = (jobRole: Profile["jobRole"]): Profile => ({
   id: "11111111-1111-4111-8111-111111111111",
@@ -79,7 +81,7 @@ function form(fields: Record<string, string> = {}) {
     scheduledOn: "2026-11-10",
     endsOn: "2026-11-12",
     startTime: "08:30",
-    installer: " Leong ",
+    team: INSTALLER,
     siteSupervisorId: SUPERVISOR,
     notes: "",
     ...fields,
@@ -120,10 +122,44 @@ describe("saveJob", () => {
       scheduled_on: "2026-11-10",
       ends_on: "2026-11-12",
       start_time: "08:30",
-      installer: "Leong",
+      installer_id: INSTALLER,
+      supervisor_only: false,
       site_supervisor_id: SUPERVISOR,
       notes: null,
     });
+  });
+
+  it("schedules a supervisor-only job with no installer", async () => {
+    const calls = fakeSupabase([one(NEW_JOB)]);
+
+    const result = await saveJob(form({ team: "supervisor_only" }));
+
+    expect(result).toEqual({ error: null });
+    expect(calls[0]?.payload).toMatchObject({
+      installer_id: null,
+      supervisor_only: true,
+    });
+  });
+
+  it("lets the installer be decided later, and a salesperson be in charge", async () => {
+    const calls = fakeSupabase([one(NEW_JOB)]);
+
+    await saveJob(form({ team: "", siteSupervisorId: SALESPERSON }));
+
+    expect(calls[0]?.payload).toMatchObject({
+      installer_id: null,
+      supervisor_only: false,
+      site_supervisor_id: SALESPERSON,
+    });
+  });
+
+  it("refuses a team that is neither an installer nor supervisor only", async () => {
+    const calls = fakeSupabase([one(NEW_JOB)]);
+
+    const result = await saveJob(form({ team: "Leong" }));
+
+    expect(result.error).toBe("Choose the installer.");
+    expect(calls).toHaveLength(0);
   });
 
   it("schedules a delivery with its DO", async () => {

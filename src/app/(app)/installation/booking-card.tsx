@@ -75,7 +75,7 @@ export function BookingCard({
   );
 }
 
-function AnswerButtons({ bookingId }: { bookingId: string }) {
+export function AnswerButtons({ bookingId }: { bookingId: string }) {
   const [pending, startTransition] = useTransition();
 
   function confirm() {

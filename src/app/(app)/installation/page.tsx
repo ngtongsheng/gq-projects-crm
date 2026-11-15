@@ -44,7 +44,9 @@ import { InstallationTabs } from "./installation-tabs";
 import { InstallerContacts } from "./installer-contacts";
 import { loadInstallerChoices } from "./installer-data";
 import { JobList } from "./job-list";
+import { loadSalespeople } from "./job-people-data";
 import { loadMofOptions } from "./mof-options";
+import { SupervisorBookings } from "./supervisor-bookings";
 import { loadUnsignedDos } from "./unsigned-do-data";
 import { UnsignedDosPanel } from "./unsigned-dos-panel";
 
@@ -62,6 +64,9 @@ export default async function InstallationPage({
   const title = pageLabel("inst", me);
   if (parseInstallationTab(query.tab) === "contacts") {
     return <InstallerContacts title={title} canEdit={canEditInstallers(me)} />;
+  }
+  if (parseInstallationTab(query.tab) === "supervisors") {
+    return <SupervisorBookings me={me} query={query} title={title} />;
   }
   const params = parseCalendarParams(query);
   const { view } = params;
@@ -90,6 +95,7 @@ export default async function InstallationPage({
     pendingDays,
     installers,
     unsignedDos,
+    salespeople,
   ] = await Promise.all([
     loadCalendarJobs(from, to, supervisorFilter, installerId),
     // A booking has no installer, so filtering by installer leaves none.
@@ -103,7 +109,9 @@ export default async function InstallationPage({
     answersBookings ? loadPendingBookingDays(me.id) : Promise.resolve([]),
     loadInstallerChoices(installerId),
     loadUnsignedDos(supervisorFilter, installerId),
+    canSchedule ? loadSalespeople() : Promise.resolve([]),
   ]);
+  const people = { installers, supervisors, salespeople };
 
   const keep = {
     view,
@@ -143,6 +151,7 @@ export default async function InstallationPage({
       today={today}
       eventsByDay={eventsByDay}
       team={team}
+      people={canSchedule ? people : undefined}
       meId={me.id}
       canSchedule={canSchedule}
       canUpdateStatus={canUpdateJobStatus(me.jobRole)}
@@ -286,6 +295,7 @@ export default async function InstallationPage({
           date={params.add}
           mofs={mofs}
           team={team}
+          people={people}
           closeHref={href(here)}
         />
       )}

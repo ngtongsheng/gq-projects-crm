@@ -3,12 +3,17 @@ import { type CalendarParams, calendarHref } from "../calendar/calendar-params";
 
 export const INSTALLATION_PATH = "/installation";
 
-/** The page's views: the calendar, and the installer directory (demo: S.iView "jobs" and "dir"). */
-export const INSTALLATION_TABS = ["installers", "contacts"] as const;
+/** The page's views: the calendar, the site supervisors' bookings and the installer directory (demo: S.iView "jobs", "sup" and "dir"). */
+export const INSTALLATION_TABS = [
+  "installers",
+  "supervisors",
+  "contacts",
+] as const;
 export type InstallationTab = (typeof INSTALLATION_TABS)[number];
 
 export const INSTALLATION_TAB_LABEL: Record<InstallationTab, string> = {
   installers: "Installers",
+  supervisors: "Site supervisors",
   contacts: "Installer contacts",
 };
 
@@ -22,12 +27,22 @@ export const parseInstallationTab = (value: unknown): InstallationTab =>
 export const parseInstallerFilter = (value: unknown): string | undefined =>
   installerParam.parse(value);
 
-/** A calendar link that also keeps the installer filter (the supervisor filter is `who`). */
+/**
+ * A calendar link that also keeps the installer filter (the supervisor filter is `who`) and
+ * the tab; the calendar is the default tab and stays out of the link.
+ */
 export function installationHref(
-  params: Partial<CalendarParams> & { installer?: string },
+  params: Partial<CalendarParams> & {
+    installer?: string;
+    tab?: InstallationTab;
+  },
 ): string {
-  const { installer, ...calendar } = params;
+  const { installer, tab, ...calendar } = params;
+  const extra = new URLSearchParams();
+  if (installer) extra.set("installer", installer);
+  if (tab && tab !== "installers") extra.set("tab", tab);
   const base = calendarHref(calendar, INSTALLATION_PATH);
-  if (!installer) return base;
-  return `${base}${base.includes("?") ? "&" : "?"}installer=${installer}`;
+  const text = extra.toString();
+  if (!text) return base;
+  return `${base}${base.includes("?") ? "&" : "?"}${text}`;
 }

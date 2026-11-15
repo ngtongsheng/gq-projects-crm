@@ -23,6 +23,7 @@ import { todayMyt } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
 import { createClient } from "@/lib/supabase/server";
 import { loadSiteSupervisors } from "../../installation/booking-data";
+import { loadJobPeople } from "../../installation/job-people-data";
 import { type MofDraft, MofForm } from "../mof-form";
 import { loadAwardedProjects } from "./awarded-projects";
 import {
@@ -145,6 +146,7 @@ export default async function MofPage({
     jobs,
     variationOrders,
     supervisors,
+    jobPeople,
   ] = await Promise.all([
     supabase
       .from("mofs")
@@ -171,6 +173,7 @@ export default async function MofPage({
     loadJobs(supabase, id),
     loadVariationOrders(supabase, id, showCost),
     loadSiteSupervisors(),
+    canScheduleJobs(me.jobRole) ? loadJobPeople() : Promise.resolve(undefined),
   ]);
   if (mofResult.error) {
     throw new Error(`Could not load MOF: ${mofResult.error.message}`);
@@ -263,6 +266,7 @@ export default async function MofPage({
         mofNo={mof.mof_no}
         jobs={jobs}
         team={team}
+        people={jobPeople}
         defaultInstaller={blankIfNull(mof.installer_name)}
         missingChecks={missingDeliveryChecks({
           paymentChecked: mof.payment_checked,

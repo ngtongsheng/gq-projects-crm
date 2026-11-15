@@ -9,6 +9,7 @@ import {
   JOB_STATUSES,
   JOB_TYPES,
 } from "@/lib/domain/delivery-status";
+import { parseTeamChoice } from "@/lib/domain/job-team";
 import { optionalId, optionalText, textField } from "@/lib/form/form-fields";
 import { isClockTime } from "@/lib/format/clock-time";
 import { createClient } from "@/lib/supabase/server";
@@ -34,7 +35,12 @@ const jobForm = z
         z.string().refine(isClockTime, "Enter the time as HH:MM."),
       ])
       .transform((value) => (value === "" ? null : value)),
-    installer: optionalText(100, "Keep the installer under 100 characters."),
+    team: z.string().transform((value, context) => {
+      const team = parseTeamChoice(value);
+      if (team) return team;
+      context.addIssue({ code: "custom", message: "Choose the installer." });
+      return z.NEVER;
+    }),
     siteSupervisorId: optionalId(
       "Could not find that person. Reload the page.",
     ),
@@ -125,7 +131,7 @@ export async function saveJob(formData: FormData): Promise<JobResult> {
     scheduledOn: textField(formData, "scheduledOn"),
     endsOn: textField(formData, "endsOn"),
     startTime: textField(formData, "startTime"),
-    installer: textField(formData, "installer"),
+    team: textField(formData, "team"),
     siteSupervisorId: textField(formData, "siteSupervisorId"),
     notes: textField(formData, "notes"),
   });
@@ -190,7 +196,9 @@ export async function saveJob(formData: FormData): Promise<JobResult> {
     scheduled_on: job.scheduledOn,
     ends_on: job.endsOn,
     start_time: job.startTime,
-    installer: job.installer,
+    // The database writes the installer's name from the id.
+    installer_id: job.team.installerId,
+    supervisor_only: job.team.supervisorOnly,
     site_supervisor_id: job.siteSupervisorId,
     notes: job.notes,
   };

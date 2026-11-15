@@ -26,7 +26,7 @@ Log work wizard (site role landing page) and the seven Site Work tabs match Vick
 | 07 | Site Work: Measurements + Photos & videos | done | 01 | sonnet/high |
 | 08 | Site Work: Actions, Stock returns, Daily log | done | 05 | sonnet/high |
 | 09 | Site nav, BM strings, dev seed | done | 03, 04, 06, 07, 08 | sonnet/medium |
-| 10 | Parity pass, docs, merge | in-progress | 01-09 | sonnet/medium |
+| 10 | Parity pass, docs, merge | done | 01-09 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Start only after loop 16 is merged: `/execute-loop docs/loops/17-site-work`.
@@ -65,3 +65,4 @@ Log work wizard (site role landing page) and the seven Site Work tabs match Vick
 2026-11-15 · #09 · done · verified: check, typecheck, test (2590) pass; `pnpm seed:example` not runnable here (no supabase CLI/docker), covered by dataset tests
 2026-11-15 · #09 · decision · BM in new src/lib/i18n/bm-site-work.ts; server-action error strings and WhatsApp texts stay untranslated (not passed through t()); one closed follow-up seeded via direct done_at insert · scope
 2026-11-15 · #10 · in-progress · parity cannot run (task 01 migration not on test copy, no browser env); parity checklist for Log work + Site Work recorded as awaiting live parity like loops 12/14/16; delegating docs (sonnet/medium)
+2026-11-15 · #10 · done · docs updated (features, decisions, drift-site-stock, roadmap 4B-i/4B-ii; Claims renumbered 19, Integration 20 per D1); browser parity still to run after go-live (checklist in drift-site-stock.md)

@@ -11,6 +11,7 @@ Job roles: MD, Sales Director, Marketing Director, Salesperson, HR & Accounts, S
 - [Sign in](#sign-in)
 - [Dashboard](#dashboard)
 - [Sales Calendar](#sales-calendar)
+- [Log work](#log-work)
 - [Installation](#installation)
 - [Costing](#costing)
 - [Customers](#customers)
@@ -80,6 +81,27 @@ unlogged); the MD, Sales Director or team lead marks it reviewed.
 Used by: MD, Sales Director, BD Director, Sales, HR & Accounts.
 
 ![Sales calendar for November 2026 showing visits on the month grid](screenshots/calendar.jpg)
+
+## Log work
+The first page a Site Supervisor sees. Built for a phone, with a bar at the bottom that stays in view.
+- **Home**: visits this month against the target, **Jobs planned for you** (installs and bookings), **Already recorded**
+  for the day, and a **Leave / MC / office** button. Banners show open follow-ups, past days with nothing logged ("missed
+  days") and work that was planned but not recorded. They are worked out when the page opens; nothing is sent.
+- **Away days**: Leave and MC open the apply-leave sheet in Leave, so there is one balance in one place. Office and
+  other days are kept on this page. Public holidays are not asked for.
+- **Log a visit, four steps**: 1 Site (pick a MOF, or "new site, no MOF yet" with the salesperson, site name and an
+  optional project); 2 Activities (tick any of Inspection, Measurement, Delivery, Installation, Shooting, Handover,
+  Touch Up, Stock return); 3 Details for each activity (installation % done, with a warning if it is lower than last
+  time; measurement sent to the salesperson; shooting posted; delivery all OK or a problem; handover form signed and
+  four or more completed photos posted; balance stock to send back; a problem, with who owns the follow-up, a due
+  date and a note); 4 Saved, with a WhatsApp link to the office for the stock-return text.
+- Each activity is its own line in the site log. Photos and videos are not uploaded: they go to the WhatsApp group.
+- **Not built yet**: a "Didn't go" choice, and a saved office WhatsApp number (the link opens WhatsApp and you pick the
+  chat). Balance stock is kept as the typed answer only until the Stock loop.
+
+BM labels cover the page, the wizard and Site Work. Messages shown after saving and the WhatsApp texts stay in English.
+
+Used by: Site Supervisor (lands here), and any role the MD gives the page to.
 
 ## Installation
 Delivery, site measurement, handover and installation jobs on a calendar. Schedule a job, or book a site
@@ -168,10 +190,30 @@ Used by: MD, BD Director, Sales, HR & Accounts, Purchasing.
 ![MOF detail form with order, site and contact sections](screenshots/mofs-detail.jpg)
 
 ## Site Work
-Open orders with how far each site has got, plus installer claims waiting to be verified. Accounts pays only
-verified claims. Open a site to log a visit.
+Open orders and the whole site side of the business, in seven tabs. Everyone sees the first six; **Daily log & reminders** is for managers and the Sales support team. Marketing sees only
+**Photos & videos** and **Site log**. A tab name shows a count where something needs doing.
+- **Jobs**: one card per site with the MOF, project, salesperson, stage and delivery status, how much is installed, the
+  last update and the next day on site. Installer claims waiting to be verified stay here (accounts pays only verified
+  claims). A banner lists new MOFs that need a first visit, and each card has **Log** and **MOF summary** buttons.
+- **Site log**: tiles per supervisor against the month's visit target, then the shootings and handover forms logged.
+- **Measurements**: measurements taken on site. The salesperson taps **Received** once they have them.
+- **Photos & videos**: shooting requests (sales, BD, MD and marketing can ask for one), the tracker for completed
+  photos, and **Saved to Drive** for sales support to paste the Drive folder link. Photos and videos are not uploaded
+  here: they go to the WhatsApp group and the Drive link goes on the job.
+- **Actions needed**: open follow-ups, filtered by who owns them (Client, Charge, Purchasing, Installer). Each can be
+  marked done or **Still waiting**, which snoozes it for 1, 2 or 5 working days. Add follow-up has an "Assigned to" choice.
+- **Stock returns**: balance stock the supervisor has said is coming back. Status is only **Sent back** or **To return**
+  until the Stock loop.
+- **Daily log & reminders**: a 7-day grid of what was planned against what was logged, with missing days marked, and
+  the reminder times for managers and support. Only the MD and admins can change the reminders; the Director sees
+  them greyed out. Nothing is sent by WhatsApp yet.
 
-Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Site Supervisor, Purchasing.
+Logging a visit moves the site stage: installation done maps to 60 plus 0.35 of the percentage (never above 95), a
+signed handover means Completed, a delivery means Delivered. A stage never moves backwards by itself.
+
+English with a BM toggle for the tabs and their sheets. Messages shown after saving, and the WhatsApp texts, stay English.
+
+Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Site Supervisor, Purchasing, Marketing.
 
 ![Site Work list with installer claims to verify and a card per site with progress](screenshots/site-work.jpg)
 

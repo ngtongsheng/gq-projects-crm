@@ -5,9 +5,18 @@ import { z } from "zod";
 import { canEditRegister } from "@/lib/auth/job-role";
 import { seesMofCost } from "@/lib/auth/page-access";
 import { requirePage } from "@/lib/auth/require-page";
+import {
+  changeNeedsReason,
+  type DiffLine,
+  type MofSnapshot,
+  mofDiff,
+} from "@/lib/domain/mof-diff";
 import { textField } from "@/lib/form/form-fields";
 import { createClient } from "@/lib/supabase/server";
 import {
+  JobScope,
+  LineUnit,
+  LineUnitLabel,
   type MofForm,
   type MofLine,
   mofCostSchema,
@@ -30,6 +39,8 @@ const NOT_MANAGER =
 const TRY_AGAIN = "Could not save the MOF. Try again.";
 const VO_LIST =
   "The variation orders changed while you were editing. Reload the page; VOs are added on the MOF's VO list.";
+const JOB_DONE =
+  "This job is already completed. Write the reason for the change.";
 
 // The lines editor posts its rows as JSON; an id marks a line that is already saved.
 const postedLines = z.array(
@@ -56,6 +67,57 @@ function readLines(text: string): z.infer<typeof postedLines> | null {
 const existingMofRow = z.object({
   contract_sum: z.number(),
   vo_amount: z.number(),
+  installer_name: z.string().nullable(),
+  scope: JobScope,
+  salesperson_id: z.string(),
+  second_salesperson_id: z.string().nullable(),
+  commission_type: z.string(),
+  loa_date: z.string(),
+  site_stage: z.string(),
+  mof_lines: z.array(
+    z.object({
+      product: z.string(),
+      qty: z.number(),
+      unit: LineUnit,
+      created_at: z.string(),
+    }),
+  ),
+});
+type ExistingMof = z.infer<typeof existingMofRow>;
+
+const savedCostRow = z.object({ cost: z.number() }).nullable();
+
+const diffLine = (line: { product: string; qty: number; unit: LineUnit }) =>
+  ({
+    product: line.product,
+    qty: line.qty,
+    unit: LineUnitLabel[line.unit],
+  }) satisfies DiffLine;
+
+const savedSnapshot = (mof: ExistingMof, cost: number | null): MofSnapshot => ({
+  contractSum: mof.contract_sum,
+  cost,
+  installerName: mof.installer_name,
+  scope: mof.scope,
+  salespersonId: mof.salesperson_id,
+  secondSalespersonId: mof.second_salesperson_id,
+  commissionType: mof.commission_type,
+  loaDate: mof.loa_date,
+  lines: [...mof.mof_lines]
+    .sort((a, b) => a.created_at.localeCompare(b.created_at))
+    .map(diffLine),
+});
+
+const postedSnapshot = (form: MofForm, cost: number | null): MofSnapshot => ({
+  contractSum: form.contractSum,
+  cost,
+  installerName: form.installerName,
+  scope: form.scope,
+  salespersonId: form.salespersonId,
+  secondSalespersonId: form.secondSalespersonId,
+  commissionType: form.commissionType,
+  loaDate: form.loaDate,
+  lines: form.lines.map(diffLine),
 });
 
 const mofColumns = (form: MofForm) => ({
@@ -118,6 +180,9 @@ function dbMessage(error: DbError): string {
   if (error.code === "22023" && error.message?.includes("VO list")) {
     return VO_LIST;
   }
+  if (error.code === "22023" && error.message?.includes("already completed")) {
+    return JOB_DONE;
+  }
   console.error("Could not save MOF", error);
   return TRY_AGAIN;
 }
@@ -150,16 +215,28 @@ export async function saveMof(formData: FormData): Promise<MofResult> {
 
   // The VO amount is the sum of the VO list, never typed here: a new MOF starts at 0 and a
   // saved one keeps what it has. The contract sum changes only with a reason.
-  let existing: z.infer<typeof existingMofRow> | null = null;
+  let existing: ExistingMof | null = null;
+  let savedCost: number | null = null;
   if (mofId) {
     const { data: existingData, error: loadError } = await supabase
       .from("mofs")
-      .select("contract_sum, vo_amount")
+      .select(
+        "contract_sum, vo_amount, installer_name, scope, salesperson_id, second_salesperson_id, commission_type, loa_date, site_stage, mof_lines(product, qty, unit, created_at)",
+      )
       .eq("id", mofId)
       .maybeSingle();
     if (loadError) return fail(dbMessage(loadError));
     if (!existingData) return fail(RELOAD);
     existing = existingMofRow.parse(existingData);
+    if (cost !== null) {
+      const { data: costData, error: costError } = await supabase
+        .from("mof_costs")
+        .select("cost")
+        .eq("mof_id", mofId)
+        .maybeSingle();
+      if (costError) return fail(dbMessage(costError));
+      savedCost = savedCostRow.parse(costData)?.cost ?? null;
+    }
   }
   const voAmount = String(existing?.vo_amount ?? 0);
 
@@ -207,6 +284,10 @@ export async function saveMof(formData: FormData): Promise<MofResult> {
   const form = parsed.data;
   const lineIds = lines.map((line) => line.id ?? "");
   if (!mofId && lineIds.some((id) => id !== "")) return fail(RELOAD);
+  const changes = existing
+    ? mofDiff(savedSnapshot(existing, savedCost), postedSnapshot(form, cost))
+    : [];
+  const reasonText = textField(formData, "reason").trim();
   let reason = "";
   if (mofId && existing && existing.contract_sum !== form.contractSum) {
     const change = mofTotalChangeSchema.safeParse({
@@ -219,6 +300,17 @@ export async function saveMof(formData: FormData): Promise<MofResult> {
       return fail(change.error.issues[0]?.message ?? "Give the reason.");
     }
     reason = change.data.reason;
+  } else if (existing) {
+    if (
+      reasonText === "" &&
+      changeNeedsReason(changes, existing.site_stage === "completed")
+    ) {
+      return fail(JOB_DONE);
+    }
+    if (reasonText.length > 300) {
+      return fail("Keep the reason under 300 characters.");
+    }
+    reason = reasonText;
   }
 
   // One call, one transaction: a failure part-way saves nothing.
@@ -235,6 +327,11 @@ export async function saveMof(formData: FormData): Promise<MofResult> {
     })),
     reason,
     cost,
+    changes: changes.map((change) => ({
+      field: change.field,
+      old_value: change.from,
+      new_value: change.to,
+    })),
   });
   if (error) return fail(dbMessage(error));
   const savedId = z.uuid().parse(data);

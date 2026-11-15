@@ -24,8 +24,8 @@ parallel with loop 15 People & HR.
 | 01 | VO migration | done | - | opus/medium |
 | 02 | VO sales month | done | 01 | sonnet/high |
 | 03 | VO sheet + needs-work reopen | done | 01 | opus/medium |
-| 04 | MOF change history | in-progress | - | opus/medium |
-| 05 | Commission 180-day cut + appeals rules | todo | - | opus/medium |
+| 04 | MOF change history | done | - | opus/medium |
+| 05 | Commission 180-day cut + appeals rules | in-progress | - | opus/medium |
 | 06 | Appeals UI | todo | 05 | sonnet/high |
 | 07 | Performance deltas | todo | 02 | sonnet/high |
 | 08 | Reports two-step review | todo | - | opus/medium |
@@ -46,3 +46,5 @@ parallel with loop 15 People & HR.
 2026-11-15 · #02 · decision · new order-sales.ts rule shared by performance and report-stats; mof-summary.ts unchanged (no monthly view there); report counts and performance margin/count stay by LOA month/year · why: D2 limited to sales value
 2026-11-15 · #03 · done · checks + 1750 tests pass (screens not browser-checked; parity pass #11 covers) · next: #04
 2026-11-15 · #03 · decision · reopen rule in SQL reopen_for_additional_work; site stage -> installation (80%, no 95%); only a new VO reopens; no VO delete; alert on Site Supervisor dashboard only; saveMof ignores posted VO amount · why: app progress derives from site stage; demo parity
+2026-11-15 · #04 · done · checks + 1790 tests pass · next: #05
+2026-11-15 · #04 · decision · mof_changes stores raw values, trigger copies every mof_total_changes row in; save_mof gets changes jsonb arg; "job complete" = site_stage completed; diff computed in app (register editors could post a wrong list directly; DB blocks everyone else) · why: demo mofDiff parity, minimal schema

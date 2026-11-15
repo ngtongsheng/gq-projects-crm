@@ -90,6 +90,8 @@ type MofFormProps = {
   canEdit: boolean;
   /** Present only for managers; the page never loads cost for anyone else. */
   cost?: number | null;
+  /** The site marked the job completed: any change then needs a reason. */
+  jobCompleted?: boolean;
 };
 
 /** Saved values of fields the form no longer shows, sent back unchanged with every save. */
@@ -112,6 +114,7 @@ export function MofForm({
   awardedProjects,
   canEdit,
   cost,
+  jobCompleted = false,
 }: MofFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -405,7 +408,7 @@ export function MofForm({
                     voAmount: draft.voAmount,
                   }),
                 )}
-                . The change and reason are kept in the history below.
+                . The change and reason are kept in the change history below.
               </FieldDescription>
             </Field>
           )}
@@ -530,6 +533,25 @@ export function MofForm({
           )}
         </Section>
 
+        {editing && !totalChanged && (
+          <Field>
+            <FieldLabel htmlFor="reason">
+              Reason for this change{jobCompleted ? "" : " (optional)"}
+            </FieldLabel>
+            <Input
+              id="reason"
+              name="reason"
+              placeholder="e.g. 40 m² omitted at lobby · supplier price revised"
+              maxLength={300}
+            />
+            <FieldDescription>
+              {jobCompleted
+                ? "This job is completed: write why it changes. "
+                : ""}
+              Changes are kept in the change history below.
+            </FieldDescription>
+          </Field>
+        )}
         {error && <FieldError>{error}</FieldError>}
         {canEdit && (
           <div>

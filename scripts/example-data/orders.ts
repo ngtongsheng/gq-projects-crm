@@ -353,9 +353,15 @@ export function buildMofs({ people, today }: BuildContext): ExampleTable[] {
     { table: "mofs", key: "id", rows: mofs },
     { table: "mof_lines", key: "id", rows: lines },
     { table: "mof_costs", key: "mof_id", rows: costs },
-    // Filled by the app when an order total changes; cleaned so a reset is never blocked.
+    // Filled by the app when an order total or MOF field changes; cleaned so a reset is never blocked.
     {
       table: "mof_total_changes",
+      key: "mof_id",
+      rows: [],
+      cleanupKeys: MOFS.map((m) => mofId(m.key)),
+    },
+    {
+      table: "mof_changes",
       key: "mof_id",
       rows: [],
       cleanupKeys: MOFS.map((m) => mofId(m.key)),

@@ -44,7 +44,12 @@ describe("example data", () => {
 
   it("fills every module with rows", () => {
     const empty = data.tables
-      .filter((t) => t.rows.length === 0 && t.table !== "mof_total_changes")
+      .filter(
+        (t) =>
+          t.rows.length === 0 &&
+          t.table !== "mof_total_changes" &&
+          t.table !== "mof_changes",
+      )
       .map((t) => t.table);
     expect(empty).toEqual([]);
   });

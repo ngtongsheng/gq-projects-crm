@@ -15,6 +15,7 @@ export const EXAMPLE_REFERENCES: Record<string, Record<string, string>> = {
   mof_lines: { mof_id: "mofs" },
   mof_costs: { mof_id: "mofs" },
   mof_total_changes: { mof_id: "mofs" },
+  mof_changes: { mof_id: "mofs" },
   mof_variation_orders: { mof_id: "mofs" },
   mof_variation_order_costs: { variation_order_id: "mof_variation_orders" },
   supplier_pos: { mof_id: "mofs" },

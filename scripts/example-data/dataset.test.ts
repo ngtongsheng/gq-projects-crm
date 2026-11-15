@@ -35,6 +35,12 @@ const PROFILE_COLUMNS = [
   "profile_id",
   "reserved_by",
   "reviewed_by",
+  "assignee_id",
+  "assigned_by",
+  "approved_by",
+  "by_id",
+  "person_id",
+  "approver_id",
 ];
 
 describe("example data", () => {
@@ -167,6 +173,40 @@ describe("example data", () => {
     const hours = table("ot_claims").rows.map((r) => r.hours);
     expect(hours).toContain(3.5);
     expect(hours.every((h) => Number(h) > 0)).toBe(true);
+  });
+});
+
+describe("tasks and leave", () => {
+  it("has a task in every status and leave in every status", () => {
+    const statuses = (name: string) =>
+      new Set(table(name).rows.map((r) => r.status));
+    expect(statuses("tasks")).toEqual(
+      new Set([
+        "not_started",
+        "in_progress",
+        "pending_review",
+        "revision_required",
+        "completed",
+      ]),
+    );
+    expect(statuses("leave_requests")).toEqual(
+      new Set(["pending", "approved", "rejected", "cancelled"]),
+    );
+  });
+
+  it("keeps to the task and leave table rules", () => {
+    for (const t of table("tasks").rows) {
+      expect(String(t.due_on) >= String(t.assigned_on)).toBe(true);
+      expect(t.assignee_id).not.toBe(t.assigned_by);
+      expect(t.status === "completed").toBe(t.completed_at !== null);
+    }
+    for (const e of table("leave_entitlements").rows) {
+      expect(e.year).toBeGreaterThanOrEqual(2027);
+    }
+    for (const r of table("leave_requests").rows) {
+      expect(String(r.starts_on).startsWith("2027")).toBe(true);
+      expect(r.status === "pending").toBe(r.decided_at === null);
+    }
   });
 });
 

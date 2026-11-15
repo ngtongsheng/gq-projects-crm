@@ -21,10 +21,11 @@ they fit. Drift found on 2026-11-14 is in the four `drift-*.md` files here; `par
 | 2A (done) | Sales | Companies view, customer sheet, Sales Calendar (invites, calls, outcomes, weekly outcomes and reports), Projects deltas | shell-sales | 11 |
 | 2B (done) | Costing | Whole Costing module + project card link | new-modules | 11 |
 | 3A (done) | MOF & money | Variation orders, MOF change history, commission 180-day cut and appeals, performance, reports two-step review + print, site report | money-reports | 2A |
-| 3B | People & HR | Tasks, Leave, HR, Tools & Forms, People leftovers (targets, handover, sales teams) | new-modules | 2B |
-| 4B | Site & stock | Log work (BM), Site Work tabs, Installation views, installers, DO numbering + lines + print, delivery log, Stock, Samples, Leftover | site-stock | 3B |
-| 4A | Claims | Monthly claims, travel expenses, OT folded in, appeals tab, settings, print | money-reports | 3A, 3B |
-| 5 | Integration | Role dashboards and banners, nav badges, leave in calendar and site work, WhatsApp reminders, PWA | all | all |
+| 3B-i (loop 15) | Tasks & Leave | Tasks, Leave | new-modules | 2B |
+| 3B-ii (loop 16) | HR, Tools & People | HR, Tools & Forms, People leftovers (targets, handover, sales teams) | new-modules | 3B-i |
+| 4B (loop 17) | Site & stock | Log work (BM), Site Work tabs, Installation views, installers, DO numbering + lines + print, delivery log, Stock, Samples, Leftover | site-stock | 3B-ii |
+| 4A (loop 18) | Claims | Monthly claims, travel expenses, OT folded in, appeals tab, settings, print | money-reports | 3A, 3B-ii |
+| 5 (loop 19) | Integration | Role dashboards and banners, nav badges, leave in calendar and site work, WhatsApp reminders, PWA | all | all |
 | later | Zoho | Link to Zoho (Vicky: "later") | - | 5 |
 
 Loop numbers are given when each loop is planned (`/plan-loop`), from this table and its drift doc.

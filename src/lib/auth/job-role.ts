@@ -59,6 +59,10 @@ export const isManager = (jobRole: JobRole) =>
 /** HR & Accounts sees everything but changes only payments and commission. */
 export const isReadOnly = (jobRole: JobRole) => jobRole === "accounts";
 
+/** Edits the leave entitlements and the public holidays (SQL: the leave_entitlements and public_holidays policies). */
+export const canEditLeaveSetup = (jobRole: JobRole) =>
+  has(jobRole, ["md", "accounts"]);
+
 /** Starts a costing of their own (SQL: the "quotes: sellers add their own" policy). */
 export const canStartQuote = (jobRole: JobRole) =>
   has(jobRole, ["md", "director", "bd", "sales"]);

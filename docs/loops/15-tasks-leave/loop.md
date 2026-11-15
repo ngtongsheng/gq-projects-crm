@@ -19,17 +19,17 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Tasks migration | todo | - | opus/medium |
-| 02 | Task flow rules | todo | 01 | opus/medium |
-| 03 | Tasks page: tabs + tiles | todo | 02 | sonnet/high |
-| 04 | Task sheet | todo | 02 | sonnet/high |
-| 05 | Leave migration | todo | - | opus/medium |
-| 06 | Leave maths | todo | 05 | opus/medium |
-| 07 | Leave approval + slip rules | todo | 05 | opus/medium |
-| 08 | Leave page | todo | 06, 07 | sonnet/high |
-| 09 | Who is away, holidays, entitlements | todo | 08 | sonnet/high |
-| 10 | Chinese strings + dev seed | todo | 03, 04, 08, 09 | sonnet/medium |
-| 11 | Parity pass, docs, merge | todo | 01-10 | sonnet/medium |
+| 01 | Tasks migration | done | - | opus/medium |
+| 02 | Task flow rules | done | 01 | opus/medium |
+| 03 | Tasks page: tabs + tiles | done | 02 | sonnet/high |
+| 04 | Task sheet | done | 02 | sonnet/high |
+| 05 | Leave migration | done | - | opus/medium |
+| 06 | Leave maths | done | 05 | opus/medium |
+| 07 | Leave approval + slip rules | done | 05 | opus/medium |
+| 08 | Leave page | done | 06, 07 | sonnet/high |
+| 09 | Who is away, holidays, entitlements | done | 08 | sonnet/high |
+| 10 | Chinese strings + dev seed | done | 03, 04, 08, 09 | sonnet/medium |
+| 11 | Parity pass, docs, merge | done | 01-10 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Start only after loop 13 is merged: `/execute-loop docs/loops/15-tasks-leave`.
@@ -37,3 +37,38 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-15 · plan · loop written from drift-new-modules.md (Tasks, Leave) · next: wait for loop 13 merge, then #01
+2026-11-15 · #01 · in-progress · worktree ../gq-projects-crm-loops/15-tasks-leave on loop/15-tasks-leave
+2026-11-15 · #01 · done · tasks, co-assignees, log, files tables + RLS + 32 tests; checks pass · next: #02
+2026-11-15 · #01 · decision · status rules also enforced by trigger guard_task_write (assignee can't self-complete); #02 task-flow.ts mirrors them; revision comment required in server action · security
+2026-11-15 · #01 · decision · slugs for category/priority/status; customer, bring-me-along, appointment link not modelled (Integration) · not in drift field list
+2026-11-15 · #02 · in-progress
+2026-11-15 · #02 · done · task-flow.ts, tasks/actions.ts + tests; checks pass (1770 tests) · next: #03
+2026-11-15 · #02 · decision · reminder/escalation days are calendar days with parameter defaults (no app_settings row); log write is separate from the change (debt row added); canAssignTasks lives in task-flow.ts · listed files only
+2026-11-15 · #03 · in-progress · must flip `tasks` to built:true in pages.ts (requirePage 404s until then)
+2026-11-15 · #03 · done · tasks page, tiles, workload, new-task dialog; checks pass (1802 tests); visual parity deferred to #11 (needs test copy with migrations) · next: #04
+2026-11-15 · #03 · decision · added migration task_people() for role-aware assignee list (team_directory lacks job role); 4 tiles incl. waiting review; dialog not sheet · follows demo/app patterns
+2026-11-15 · #04 · done · task sheet, files with versions, review panel, log; checks pass (1821 tests); parity deferred to #11 · next: #05
+2026-11-15 · #04 · decision · no edit-task UI (editTask action exists; not in task spec); title-only click; separate Save new date button · DataTable is server component, spec silent
+2026-11-15 · #05 · done · leave_entitlements, leave_requests, leave_approval_steps, decide_leave RPC, policy settings; 45 tests; checks pass (1869) · next: #06
+2026-11-15 · #05 · decision · decisions via decide_leave RPC (#07 must call it); days counted in SQL at insert, not recounted; md decides any step, accounts any MC/hospitalisation step; no record-for-someone · #06 maths must match SQL
+2026-11-15 · #06 · done · leave-balance.ts (leaveDays, defaultEntitlement, leaveBalance) + tests; checks pass (1879) · next: #07
+2026-11-15 · #06 · decision · hospitalisation does not reduce MC balance (demo lvBal); override replaces whole default; types defined in leave-balance.ts · demo parity
+2026-11-15 · #07 · done · leave-approval.ts, leave actions + slip actions + tests; checks pass (1923) · next: #08
+2026-11-15 · #07 · decision · 2026-dated leave not blocked; rejection remark optional; original-slip tick needs uploaded slip (stricter than SQL) · avoid blocking real Dec 2026 leave
+2026-11-15 · #08 · in-progress · must flip `leave` to built:true in pages.ts and update nav tests
+2026-11-15 · #08 · done · leave page, apply dialog, approve/reject, slips; checks pass (1944); parity deferred to #11 · next: #09
+2026-11-15 · #08 · decision · added migration leave_people() (id, job_role, joined_on, reports_to) for team/balance data; tiles show dash before 2027; approvers named by job title · D2/D4
+2026-11-15 · #09 · done · who-is-away grid, holidays panel, entitlement editor + tests; checks pass (1973); parity deferred to #11 · next: #10
+2026-11-15 · #09 · decision · holiday edits do not recount existing leave days (SQL counts at insert); entitlement sheet edits max(current year, 2027); no leave policy editor (not in task) · #05/D2
+2026-11-15 · #10 · done · zh-tasks-leave.ts (~330 entries) wired via t()/useT in both pages; seed tasks.ts + leave.ts; checks pass (1975) · next: #11
+2026-11-15 · #10 · decision · server-action error messages, page metadata titles, calendar month/weekday names stay English; Chinese wording outside demo ZHEN is own wording (needs native read) · scope
+2026-11-15 · #11 · in-progress · merged origin/main (loop 20, sales calendar, site scoping); renamed migrations tasks 20261115130000→143000, task_people 140000→144000 (main has 130000/140000) · D8; 184 files/2078 tests pass, guard clean
+2026-11-15 · #11 · decision · Chrome parity needs test-copy credentials (.env.local read denied, .env.seed.dev absent) and migrations on the test copy; parked as owner step, docs done first · stop rule: credentials
+2026-11-15 · #11 · partial · docs done; branch pushed; PR #45 open, not merged · blocked: owner · put `.env.local` (SUPABASE_DEV_DB_URL) and `.env.seed.dev` in the loop 15 worktree, then re-run /execute-loop docs/loops/15-tasks-leave: apply migrations, seed, Chrome parity (Tasks and Leave, each role, 1280 and 390 px), fix, merge
+2026-11-15 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-15-loop-15-tasks-leave.md
+2026-11-15 · #11 · in-progress · owner supplied credentials; test copy migrated and seeded; subagent runs Chrome parity + fixes, orchestrator merges PR #45
+2026-11-15 · #11 · parity pass 1 · Vicky(md), Cavan(sales), Jany(accounts), Affifa(designer), Akmal(site) at 1280 + 390px iframe; no 5xx/console errors; fixed Approve hidden off-card in Leave waiting/team tables, mounted language toggle on Tasks and Leave · checks pass (2078)
+2026-11-15 · #11 · decision · accepted deviations: sheet not modal, no Customer/Edit/WhatsApp, 4 tiles for sales, Workload lists all, job-title approver names, seed differs from demo, shared file-upload strings English, Apply dialog has only X · logged in decisions.md
+2026-11-15 · #11 · parity pass 2 · Eddie(director), Vanessa(bd), Wai Mun(support), Jess(ssup) desktop: no errors, tabs/tiles/assign/approve visible per role; no marketing or team-lead person in seed (not checked); test copy holds a pending 1-day leave for Vanessa (16 Nov 2026) · done
+2026-11-15 · #11 · done · all tasks done · next: merge PR #45
+2026-11-15 · merged to main · PR #45; checks, migrate-dev, migration-guard, Vercel pass

@@ -23,8 +23,8 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 | 02 | HR: Policies & schemes | done | 01 | sonnet/high |
 | 03 | HR: Staff packages + outstation | done | 01 | sonnet/high |
 | 04 | HR: Sales grades & bonus | done | 01 | sonnet/high |
-| 05 | Per-year targets migration | in-progress | 01 | opus/medium |
-| 06 | People: targets + Sales teams | todo | 05 | sonnet/high |
+| 05 | Per-year targets migration | done | 01 | opus/medium |
+| 06 | People: targets + Sales teams | in-progress | 05 | sonnet/high |
 | 07 | Resignation handover | todo | - | opus/medium |
 | 08 | Tools: calculators | todo | - | sonnet/high |
 | 09 | Tools: A4 forms + links | todo | - | sonnet/high |
@@ -58,3 +58,7 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 2026-11-15 · #04 · decision · per-person grade table drops demo's 2026 target/sales so far/bonus columns and per-person basic override · D2; per-year targets come in #05/#06
 2026-11-15 · #04 · decision · appendix signed date stamps the current scheme version · demo parity
 2026-11-15 · #05 · in-progress
+2026-11-15 · #05 · done · check, typecheck, test (2359), guard:migrations pass; migration 20261116110000_yearly_targets.sql · next: #06
+2026-11-15 · #05 · decision · table yearly_targets (person, year, sales_target nullable, visit_target); team-lead read via in_my_team · D3 leaves name and team-lead source open
+2026-11-15 · #05 · decision · #06 must (a) move People's target edit to yearly_targets and drop the edit grant on profiles.yearly_target, (b) fix the 1 January rollover (yearly_target stale until next change) · gaps reported by #05
+2026-11-15 · #06 · in-progress

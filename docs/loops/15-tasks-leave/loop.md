@@ -24,8 +24,8 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 | 03 | Tasks page: tabs + tiles | done | 02 | sonnet/high |
 | 04 | Task sheet | done | 02 | sonnet/high |
 | 05 | Leave migration | done | - | opus/medium |
-| 06 | Leave maths | in-progress | 05 | opus/medium |
-| 07 | Leave approval + slip rules | todo | 05 | opus/medium |
+| 06 | Leave maths | done | 05 | opus/medium |
+| 07 | Leave approval + slip rules | in-progress | 05 | opus/medium |
 | 08 | Leave page | todo | 06, 07 | sonnet/high |
 | 09 | Who is away, holidays, entitlements | todo | 08 | sonnet/high |
 | 10 | Chinese strings + dev seed | todo | 03, 04, 08, 09 | sonnet/medium |
@@ -51,3 +51,5 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 2026-11-15 · #04 · decision · no edit-task UI (editTask action exists; not in task spec); title-only click; separate Save new date button · DataTable is server component, spec silent
 2026-11-15 · #05 · done · leave_entitlements, leave_requests, leave_approval_steps, decide_leave RPC, policy settings; 45 tests; checks pass (1869) · next: #06
 2026-11-15 · #05 · decision · decisions via decide_leave RPC (#07 must call it); days counted in SQL at insert, not recounted; md decides any step, accounts any MC/hospitalisation step; no record-for-someone · #06 maths must match SQL
+2026-11-15 · #06 · done · leave-balance.ts (leaveDays, defaultEntitlement, leaveBalance) + tests; checks pass (1879) · next: #07
+2026-11-15 · #06 · decision · hospitalisation does not reduce MC balance (demo lvBal); override replaces whole default; types defined in leave-balance.ts · demo parity

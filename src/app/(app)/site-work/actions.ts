@@ -9,6 +9,7 @@ import {
   FOLLOW_UP_OWNERS,
   SITE_ACTIVITIES,
   type SiteActivity,
+  VISIT_SAVED_BUT,
 } from "@/lib/domain/site-log";
 import {
   SITE_STAGE_LABEL,
@@ -335,7 +336,7 @@ export async function saveSiteVisit(input: unknown): Promise<SiteVisitResult> {
     if (followUp.error) {
       console.error("Could not save the visit's follow-up", followUp.error);
       return {
-        error: "The visit is saved, but the follow-up was not. Add it again.",
+        error: `${VISIT_SAVED_BUT} the follow-up was not. Add it again.`,
         movedTo: null,
       };
     }
@@ -357,7 +358,7 @@ export async function saveSiteVisit(input: unknown): Promise<SiteVisitResult> {
   if (moved.error) {
     console.error("Could not move the site stage after a visit", moved.error);
     return {
-      error: `The visit is saved, but the site stage did not move to ${SITE_STAGE_LABEL[next]}. Set it on the MOF.`,
+      error: `${VISIT_SAVED_BUT} the site stage did not move to ${SITE_STAGE_LABEL[next]}. Set it on the MOF.`,
       movedTo: null,
     };
   }

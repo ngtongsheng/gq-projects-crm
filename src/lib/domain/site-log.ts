@@ -147,6 +147,9 @@ export function plannedJobsNotRecorded<Job extends PlannedSiteJob>(
   );
 }
 
+/** Starts the message when a visit was saved but a step after it failed, so it must not be saved again. */
+export const VISIT_SAVED_BUT = "The visit is saved, but";
+
 export const STOCK_RETURN_WAYS = [
   "installer",
   "transport",

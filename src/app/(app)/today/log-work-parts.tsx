@@ -1,40 +1,18 @@
-import {
-  Camera,
-  ClipboardCheck,
-  FileCheck,
-  Hammer,
-  MapPin,
-  Package,
-  Plus,
-  Ruler,
-  Truck,
-  Wrench,
-} from "lucide-react";
+import { Package, Plus } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { StatusBadge } from "@/components/app/status-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SITE_ACTIVITY_LABEL, type SiteActivity } from "@/lib/domain/site-log";
+import { SITE_ACTIVITY_LABEL } from "@/lib/domain/site-log";
 import type { PlannedWork } from "@/lib/domain/site-plan";
 import { addDays, type CalendarDate } from "@/lib/format/date";
 import type { Translate } from "@/lib/i18n/translate";
 import { cn } from "@/lib/utils";
 import { PaceBar } from "../dashboard/dashboard-parts";
+import { ACTIVITY_ICON } from "./activity-icon";
 import { recordHref } from "./record-link";
 import type { MyLog } from "./today-data";
-
-const ACTIVITY_ICON: Record<SiteActivity, typeof Hammer> = {
-  measurement: Ruler,
-  inspection: ClipboardCheck,
-  installation: Hammer,
-  handover: FileCheck,
-  shooting: Camera,
-  touch_up: Wrench,
-  delivery: Truck,
-  stock_return: Package,
-  others: MapPin,
-};
 
 function Section({
   title,

@@ -231,7 +231,7 @@ const claimRows = z.array(
 const mofIdRows = z.array(z.object({ mof_id: z.string() }));
 
 /** The MOFs a Site Supervisor has a job on or has logged a visit to. */
-async function ownSiteIds(supabase: Supabase, supervisorId: string) {
+export async function ownSiteIds(supabase: Supabase, supervisorId: string) {
   const [jobs, logs] = await Promise.all([
     supabase
       .from("jobs")

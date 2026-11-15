@@ -17,7 +17,7 @@ her opencode settings, and the decision is recorded.
 ## Tasks
 | # | Task | Status | Depends | Tier |
 |---|---|---|---|---|
-| 01 | Prove the Chrome connection with the package CLI | todo | - | standard |
+| 01 | Prove the Chrome connection with the package CLI | blocked: owner — enable remote debugging at chrome://inspect (open a Chrome window first) | - | standard |
 | 02 | Owner pastes the opencode setting | todo | 01 | economy |
 | 03 | End to end through opencode | todo | 02 | standard |
 | 04 | Record the decision | todo | 03 | economy |
@@ -36,3 +36,8 @@ Do these before task 01; the agent parks task 01 if Chrome cannot be reached.
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-15 · plan · loop written; autoConnect + CLI + V1 permission path verified on this machine · next: owner actions 1-2, then #01
+2026-11-15 · #01 · start · delegating (tier standard -> session model, downgrade) · proving CLI/Chrome connection
+2026-11-15 · planner · asked w7:tN to close; answered YES; tab closed · continue
+2026-11-15 · #01 · blocked: owner · CLI starts fine, `navigate_page` fails `Could not find DevToolsActivePort`; Chrome 157 runs window-less with no debug port · owner enables remote debugging, then rerun
+2026-11-15 · #01 · decision · `Could not find DevToolsActivePort` treated as remote-debugging-off (owner action 1), not macOS Files & Folders (action 2) · profile dir is listable, so the permission exists
+2026-11-15 · #02-#04 · skipped · all depend on #01 · loop parked until Chrome is reachable

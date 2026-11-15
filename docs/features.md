@@ -29,6 +29,8 @@ Job roles: MD, Sales Director, Marketing Director, Salesperson, HR & Accounts, S
 - [Commission settings](#commission-settings)
 - [Team Reports](#team-reports)
 - [Director Report](#director-report)
+- [Tasks](#tasks)
+- [Leave](#leave)
 - [Guide](#guide)
 - [People](#people)
 
@@ -232,6 +234,29 @@ Team Reports.
 Used by: MD, Sales Director, BD Director, HR & Accounts.
 
 ![Director Report listing each director's monthly report and its status](screenshots/reports-director.jpg)
+
+## Tasks
+Work handed between people, with a due date and a review step. Tabs: **My tasks**, **Assigned by me**, **All tasks**
+and **Workload** (MD and Sales Director). Tiles show overdue, due this week, waiting review and revision. Click a task
+to open its sheet: log, files (each upload is a new version) and the review panel. The flow is Not Started, In
+Progress, Pending Review, Revision Required, Completed. Only the person who assigned a task, or the MD, approves it; a
+revision needs a comment. The MD, Directors, BD, Sales support and Marketing can assign tasks. Reminders are in the
+app only (tiles and overdue marks); WhatsApp reminders come later. A task cannot be edited after it is made yet.
+
+Used by: everyone with the Tasks page.
+
+## Leave
+Apply for leave and see balances. Tabs: **My leave** (balance tiles and requests), **Waiting for approval**, **Team
+leave** (MD, Sales Director, HR & Accounts), **Who is away** (a month grid) and **Public holidays** (the MD edits).
+Types: Annual, MC, Emergency, Hospitalisation, Replacement, Compassionate, Maternity/paternity, Unpaid; only Annual and
+Emergency use up annual leave. Each person gets 14 annual and 14 MC days a year, prorated by join month to the half
+day. Balances start on 1 Jan 2027: HR & Accounts enters each person's carry-forward from 2026 in the entitlements
+sheet. Days count Mon-Fri (Mon-Sat for Site Supervisors) without public holidays; half days count 0.5. A request goes
+to the right approvers by job role (never yourself): sales to their team lead then the MD; BD and site to the Sales
+Director then the MD; everyone else to the MD; HR & Accounts also sees MC. MC and hospitalisation need a slip upload
+and a tick that the original went to HR. English with a 中文 toggle.
+
+Used by: everyone with the Leave page.
 
 ## Guide
 A short in-app list of the screens the signed-in role can open and what each is for.

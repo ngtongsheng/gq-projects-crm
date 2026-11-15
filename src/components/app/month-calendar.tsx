@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { type CalendarEvent, CalendarEventLink } from "./calendar-event";
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const EVENTS_PER_DAY = 3;
+const DEFAULT_EVENTS_PER_DAY = 3;
 
 type MonthCalendarProps = {
   /** Monday-to-Sunday rows from `monthWeeks`. */
@@ -21,6 +21,8 @@ type MonthCalendarProps = {
   dayHref: (date: CalendarDate) => string;
   /** What a day holds, for the "+" label and the phone count. Defaults to activities. */
   noun?: { one: string; many: string };
+  /** How many events a day shows before "+N more". */
+  eventsPerDay?: number;
 };
 
 export function MonthCalendar({
@@ -31,6 +33,7 @@ export function MonthCalendar({
   addHref,
   dayHref,
   noun = { one: "activity", many: "activities" },
+  eventsPerDay = DEFAULT_EVENTS_PER_DAY,
 }: MonthCalendarProps) {
   return (
     <div className="overflow-hidden rounded-lg border bg-border">
@@ -45,7 +48,7 @@ export function MonthCalendar({
         ))}
         {weeks.flat().map((date) => {
           const events = eventsByDay.get(date) ?? [];
-          const hidden = events.length - EVENTS_PER_DAY;
+          const hidden = events.length - eventsPerDay;
           const isWeekend = dayOfWeek(date) === 0 || dayOfWeek(date) === 6;
           return (
             <div
@@ -76,7 +79,7 @@ export function MonthCalendar({
                 )}
               </div>
               <div className="hidden min-w-0 flex-col gap-1 sm:flex">
-                {events.slice(0, EVENTS_PER_DAY).map((event) => (
+                {events.slice(0, eventsPerDay).map((event) => (
                   <CalendarEventLink key={event.id} event={event} />
                 ))}
                 {hidden > 0 && (

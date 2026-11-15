@@ -1,4 +1,5 @@
 import type { Dictionary } from "./dictionary";
+import { zhTasksLeave } from "./zh-tasks-leave";
 
 // Seeded from the demo's ZHEN dictionary, which maps 中文 to English for the Costing screens; turned
 // around here so it is keyed by the English text like the others. Fragment entries are left out.
@@ -603,4 +604,5 @@ export const zh: Dictionary = {
   "Opened as a new version": "已开为新版本",
   "Submitted for approval": "已送去批准",
   "Returned for changes": "已退回修改",
+  ...zhTasksLeave,
 };

@@ -34,7 +34,7 @@ Integration: nav badge, low-margin banner. `vTeam` not built. Deviations: `docs/
 - Links: `costLines(p)` on the project card (quotes by project, status, option totals, "Use RM X as project value" when
   approved and no MOF, "Open costing"). Gated by the cost page access. Nav badge for md/director.
 
-## Tasks (`vTasks` ~3104): M, independent
+## Tasks (`vTasks` ~3104): M, independent. DONE (loop 15; browser parity on the test copy pending)
 - Tabs: My tasks, Assigned by me, All tasks, Workload (md/director). Tiles overdue, due this week, revision. Task sheet
   with log, file upload (versions), review panel.
 - Fields: title, category (11), project (optional), assignee + co-assignees, assigner, priority Low-Urgent, due, status,
@@ -42,7 +42,9 @@ Integration: nav badge, low-margin banner. `vTeam` not built. Deviations: `docs/
   assigner or md approves; revision needs a comment. Assigners: md, director, bd, support, marketing.
 - Reminders: before, after, escalate (`tkCfg`).
 
-## Leave (`vLeave` ~3206): M
+## Leave (`vLeave` ~3206): M. DONE (loop 15; browser parity on the test copy pending)
+Built: all tabs, approvals, slips, balances from 2027, EN/中文. Left to Integration: WhatsApp reminders, leave in the Sales
+Calendar strip and Site Work. Deviations: `docs/decisions.md` "Loop 15".
 - My leave (balance tiles), Waiting for approval, Team leave (md, director, accounts), Who is away (month), Public
   holidays (admin edits; table from loop 11).
 - Types: Annual, MC, Emergency, Hospitalisation, Replacement, Compassionate, Maternity/paternity, Unpaid. Only AL and EL

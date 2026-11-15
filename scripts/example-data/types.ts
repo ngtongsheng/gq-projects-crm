@@ -14,9 +14,11 @@ export type BuildContext = { people: People; today: CalendarDate };
  */
 export type ExampleTable = {
   table: string;
-  key: "id" | "mof_id" | "contact_id";
+  key: "id" | "mof_id" | "contact_id" | "profile_id" | "task_id" | "request_id";
   rows: Row[];
   cleanupKeys?: string[];
   /** Rows that go when their parent row goes (on delete cascade), so the reset skips them. */
   clearedByParent?: boolean;
+  /** Rows the database already made (its triggers), so they are updated, not inserted. */
+  onConflict?: string;
 };

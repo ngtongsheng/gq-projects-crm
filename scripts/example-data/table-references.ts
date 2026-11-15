@@ -33,4 +33,9 @@ export const EXAMPLE_REFERENCES: Record<string, Record<string, string>> = {
   quote_options: { revision_id: "quote_revisions" },
   quote_revision_history: { revision_id: "quote_revisions" },
   quote_items: { option_id: "quote_options", linked_item_id: "quote_items" },
+  tasks: { project_id: "projects" },
+  task_co_assignees: { task_id: "tasks" },
+  task_log_entries: { task_id: "tasks" },
+  task_files: { task_id: "tasks" },
+  leave_approval_steps: { request_id: "leave_requests" },
 };

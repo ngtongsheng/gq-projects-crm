@@ -233,6 +233,35 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
   - Calendar cards and the Monthly list badge open the customer page, where Log outcome lives; the demo logs from the
     row. The invitee list also shows people who have left (`team_directory` has no active flag; needs a migration).
 
+## Loop 15 (tasks and leave), decided 2026-11-15
+- D2: leave balances start 1 Jan 2027; HR & Accounts enters carry-forward from 2026 through the per-person
+  entitlement override. No 2026 records. Leave dated in 2026 is not blocked, so real December 2026 leave can be saved.
+- D3: task and leave reminders are in-app only (tiles, overdue, escalation worked out when the page loads, no cron).
+  Reminder and escalation days are calendar days with parameter defaults, no `app_settings` row. WhatsApp reminders
+  and leave in Sales Calendar / Site Work go to Integration.
+- D4: approvers come from job role and `reports_to`, never names ("Eddie" is the `director` job role). Never your own;
+  the MD's own leave goes to the Sales Director. The MD decides any step; HR & Accounts any MC or hospitalisation
+  step. Task approval: the assigner or the MD. Assigners: MD, Director, BD, Support, Marketing.
+- D7: leave policy (14 AL, 14 MC, prorate by join month to half day) is in `app_settings`; per-person per-year
+  overrides (al, carry, mc) are in `leave_entitlements`. An override replaces the whole default. The entitlement sheet
+  edits the later of this year and 2027. No policy editor yet.
+- Leave decisions go through the `decide_leave` SQL function so the step order and the final result change together.
+  Days are counted in SQL when the request is saved.
+- Holiday edits do not recount leave already saved (`debt.md`).
+- Hospitalisation leave does not reduce the MC balance (demo `lvBal`).
+- Task status rules are also enforced by the `guard_task_write` trigger, so an assignee cannot complete their own task
+  through the API. The server action also requires a comment on a revision.
+- `task_people()` and `leave_people()` SQL functions list assignees and team data with job role, join date and
+  `reports_to`, which `team_directory()` lacks.
+- Not modelled (not in the drift field list, or Integration): task customer, "bring me along", appointment link.
+- Slips: the "original given to HR" tick needs an uploaded slip, stricter than the database. A rejection remark is
+  optional.
+- Chinese: server-action messages, page titles and calendar month and weekday names stay English; wording outside the
+  demo's own strings needs a native read.
+
+### Loop 15 parity pass (Chrome, test copy)
+Checked Vicky (md), Cavan (sales), Jany (accounts), Affifa (designer), Akmal (site) on Tasks and Leave; 390 px via iframe. Accepted differences from the demo: task sheet is a side sheet, not a modal; no Customer field, Edit button or WhatsApp reminder; salespeople see the four task tiles; Workload lists everyone with tasks; approvers named by job title; example data differs; "Attach" strings from the shared file upload stay English; the Apply leave dialog closes with its X only.
+
 ## Loop 20 (browser control in opencode), decided 2026-11-15
 - opencode cannot load Claude in Chrome: those tools exist only inside a Claude session. Control instead comes from
   `chrome-devtools-mcp@1.13.0` with `--autoConnect`, which drives her real Chrome, so her profile and sign-ins are

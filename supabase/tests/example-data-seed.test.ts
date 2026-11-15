@@ -66,6 +66,27 @@ function sqlClient(db: PGlite): SupabaseClient {
       }
       return { error: null };
     },
+    upsert: async (
+      rows: Record<string, unknown>[],
+      { onConflict }: { onConflict: string },
+    ) => {
+      for (const row of rows) {
+        const names = Object.keys(row);
+        const columns = names.map((name) => `"${name}"`).join(", ");
+        const changes = names
+          .filter((name) => !onConflict.split(",").includes(name))
+          .map((name) => `"${name}" = excluded."${name}"`)
+          .join(", ");
+        const { error } = await run(
+          `insert into public.${table} (${columns})
+           select ${columns} from jsonb_populate_record(null::public.${table}, $1::jsonb)
+           on conflict (${onConflict}) do update set ${changes}`,
+          [JSON.stringify(row)],
+        );
+        if (error) return { error };
+      }
+      return { error: null };
+    },
     update: (values: Record<string, unknown>) => ({
       in: (column: string, keys: string[]) =>
         run(
@@ -135,10 +156,20 @@ describe("example dataset", () => {
       for (const row of spec.rows) {
         // Only the row's own columns, so the table's defaults fill the rest as the API does.
         const columns = Object.keys(row).map((name) => `"${name}"`);
+        const keys = spec.onConflict?.split(",") ?? [];
+        const upsert =
+          keys.length > 0
+            ? ` on conflict (${spec.onConflict}) do update set ${Object.keys(
+                row,
+              )
+                .filter((name) => !keys.includes(name))
+                .map((name) => `"${name}" = excluded."${name}"`)
+                .join(", ")}`
+            : "";
         await t.db.query(
           `insert into public.${spec.table} (${columns.join(", ")})
            select ${columns.join(", ")}
-           from jsonb_populate_record(null::public.${spec.table}, $1::jsonb)`,
+           from jsonb_populate_record(null::public.${spec.table}, $1::jsonb)${upsert}`,
           [JSON.stringify(row)],
         );
       }

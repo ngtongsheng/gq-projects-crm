@@ -4,6 +4,7 @@ import {
   buildOwnershipRequests,
   buildProjects,
 } from "./customers.ts";
+import { buildLeave } from "./leave.ts";
 import {
   buildInstallerClaims,
   buildMofs,
@@ -20,6 +21,7 @@ import {
   buildSiteWork,
   buildStock,
 } from "./site.ts";
+import { buildTasks } from "./tasks.ts";
 import type { BuildContext, ExampleTable } from "./types.ts";
 
 export type ExampleData = {
@@ -49,6 +51,8 @@ export function buildExampleData(context: BuildContext): ExampleData {
       ...buildMoney(context),
       buildMonthlyReports(context),
       ...buildQuotes(context),
+      ...buildTasks(context),
+      ...buildLeave(context),
     ],
     deliveriesToFinish: jobs.deliveriesToFinish,
   };

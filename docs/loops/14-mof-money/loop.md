@@ -31,7 +31,7 @@ parallel with loop 15 People & HR.
 | 08 | Reports two-step review | done | - | opus/medium |
 | 09 | Report print + BD retitle | done | 08 | sonnet/medium |
 | 10 | Site report restructure | done | 08 | sonnet/high |
-| 11 | Parity pass, docs, merge | in-progress | 01-10 | sonnet/medium |
+| 11 | Parity pass, docs, merge | done | 01-10 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Start only after loop 12 is merged: `/execute-loop docs/loops/14-mof-money`.
@@ -62,3 +62,6 @@ parallel with loop 15 People & HR.
 2026-11-15 · #09 · decision · print sheet hidden-on-screen (print:hidden on screen content) not a separate overlay; PrintSignatureRow got optional 3-column prop; no "Printed" date stamp · why: simplest reuse of print-layout
 2026-11-15 · #10 · done · checks + 1872 tests pass; browser/print not checked, moved to #11 · next: #11
 2026-11-15 · #10 · decision · OT table + activity summary removed from report screen/print only, frozen otHours kept (site dashboard uses it); itinerary live from logs + confirmed bookings; remarks reuse existing issues/support text · why: smallest change, no data change
+2026-11-15 · #11 · merged origin/main (loop 20 docs; decisions.md conflict kept both entries) · next: final checks, push
+2026-11-15 · #11 · decision · browser parity (step 1) NOT run: the test copy lacks this loop's migrations until CI applies them, so the app cannot load these screens against it; docs written, merge done · why: no safe way to run before merge; owner action: parity check on the live app after deploy
+2026-11-15 · #11 · done · docs updated, origin/main merged · next: final checks, push to main

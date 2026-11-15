@@ -87,7 +87,7 @@ const PAGES: Record<PageKey, Page> = {
     label: fixed("Log work"),
     href: fixed("/today"),
     group: "main",
-    built: false,
+    built: true,
   },
   hr: {
     key: "hr",

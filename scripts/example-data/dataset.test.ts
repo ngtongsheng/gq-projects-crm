@@ -59,6 +59,11 @@ const PROFILE_COLUMNS = [
   "from_id",
   "to_id",
   "handed_over_by",
+  "measurement_to",
+  "photos_to",
+  "photos_saved_by",
+  "done_by",
+  "created_by",
 ];
 
 describe("example data", () => {
@@ -200,6 +205,81 @@ describe("example data", () => {
     const hours = table("ot_claims").rows.map((r) => r.hours);
     expect(hours).toContain(3.5);
     expect(hours.every((h) => Number(h) > 0)).toBe(true);
+  });
+});
+
+describe("site work", () => {
+  const logs = () => table("site_logs").rows;
+
+  it("logs visits with and without an MOF, as the database requires", () => {
+    expect(logs().some((l) => l.mof_id === null)).toBe(true);
+    expect(logs().some((l) => l.mof_id !== null)).toBe(true);
+    for (const log of logs()) {
+      if (log.mof_id === null) {
+        expect(log.site_name, String(log.id)).toBeTruthy();
+        expect(log.salesperson_id, String(log.id)).toBeTruthy();
+      } else {
+        expect(log.site_name ?? null).toBeNull();
+        expect(log.salesperson_id ?? null).toBeNull();
+        expect(log.project_id ?? null).toBeNull();
+      }
+      if (log.inst_pct !== undefined) expect(log.activity).toBe("installation");
+      if (log.delivery_ok !== undefined) expect(log.activity).toBe("delivery");
+      if (log.measurement_to !== undefined) {
+        expect(log.activity).toBe("measurement");
+      }
+      if (log.photos_to !== undefined) {
+        expect(["shooting", "handover"]).toContain(log.activity);
+      }
+      expect(log.photos_saved_at === undefined).toBe(
+        log.photos_saved_by === undefined,
+      );
+    }
+  });
+
+  it("has a log for every activity", () => {
+    expect(new Set(logs().map((l) => l.activity))).toEqual(
+      new Set([
+        "measurement",
+        "inspection",
+        "installation",
+        "handover",
+        "shooting",
+        "delivery",
+        "stock_return",
+      ]),
+    );
+  });
+
+  it("has follow-ups with an assignee, a closed one, and waits on open ones", () => {
+    const followUps = table("site_follow_ups").rows;
+    expect(followUps.some((f) => f.assignee_id)).toBe(true);
+    for (const f of followUps) {
+      expect(f.done_at === undefined).toBe(f.done_by === undefined);
+    }
+    const closed = new Set(followUps.filter((f) => f.done_at).map((f) => f.id));
+    expect(closed.size).toBeGreaterThan(0);
+    const waits = table("site_follow_up_waits").rows;
+    expect(waits.length).toBeGreaterThan(0);
+    for (const w of waits) expect(closed.has(w.follow_up_id)).toBe(false);
+  });
+
+  it("has days off with the end on or after the start", () => {
+    for (const off of table("site_off").rows) {
+      expect(["office", "other"]).toContain(off.kind);
+      expect(String(off.ends_on) >= String(off.starts_on)).toBe(true);
+    }
+  });
+
+  it("has shoot requests in each state, done ones stamped", () => {
+    const requests = table("shoot_requests").rows;
+    expect(new Set(requests.map((r) => r.status))).toEqual(
+      new Set(["requested", "done", "cancelled"]),
+    );
+    for (const r of requests) {
+      expect(r.status === "done").toBe(r.done_at !== undefined);
+      expect(r.done_at === undefined).toBe(r.done_by === undefined);
+    }
   });
 });
 

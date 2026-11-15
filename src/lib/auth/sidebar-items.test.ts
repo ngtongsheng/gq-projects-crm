@@ -30,7 +30,7 @@ const outline = (
 
 // Read from the demo's sidebar (docs/mockup/gqp-office-demo.html, Chrome, 2026-11-14) signed in
 // as Vicky, Eddie, Vernice, Awal, Wai Mun and Affifa, keeping the pages built so far. The demo
-// also lists Log work and Sales Performance, which are hidden until their pages exist.
+// also lists Sales Performance, which is hidden until its page exists.
 describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide", () => {
   it("md", () => {
     expect(outline("md", true)).toEqual({
@@ -105,7 +105,7 @@ describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide",
 
   it("site", () => {
     expect(outline("site")).toEqual({
-      main: ["My schedule", "Site Work", "My Report", "My claims"],
+      main: ["Log work", "My schedule", "Site Work", "My Report", "My claims"],
       after: ["Guide", "Tasks", "Tools & Forms", "Leave"],
     });
   });
@@ -114,7 +114,13 @@ describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide",
   // Report into Bahasa Malaysia; the other labels have no BM in the demo's TT and stay English.
   it("site in Bahasa Malaysia", () => {
     expect(outline("site", false, "bm")).toEqual({
-      main: ["Jadual saya", "Kerja tapak", "Laporan saya", "My claims"],
+      main: [
+        "Rekod kerja",
+        "Jadual saya",
+        "Kerja tapak",
+        "Laporan saya",
+        "My claims",
+      ],
       after: ["Guide", "Tasks", "Tools & Forms", "Leave"],
     });
   });

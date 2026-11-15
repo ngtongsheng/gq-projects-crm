@@ -26,6 +26,8 @@ export const EXAMPLE_REFERENCES: Record<string, Record<string, string>> = {
   site_bookings: { project_id: "projects" },
   site_logs: { mof_id: "mofs" },
   site_follow_ups: { site_log_id: "site_logs" },
+  site_follow_up_waits: { follow_up_id: "site_follow_ups" },
+  shoot_requests: { mof_id: "mofs" },
   ot_claims: { mof_id: "mofs" },
   leftovers: { mof_id: "mofs" },
   stock_reservations: { item_id: "stock_items", project_id: "projects" },

@@ -22,7 +22,7 @@ describe("destructive statements are caught", () => {
     ["TRUNCATE TABLE clients RESTART IDENTITY;"],
     ["DELETE FROM clients;"],
     ["delete\n  from clients where id = 1;"],
-    ["ALTER TABLE clients ALTER COLUMN phone DROP NOT NULL;"],
+    ["ALTER TABLE clients ALTER COLUMN phone DROP NOT NULL, DROP COLUMN fax;"],
     ["ALTER TABLE clients RENAME TO customers;"],
     ["ALTER TABLE clients RENAME COLUMN phone TO mobile;"],
     ["ALTER TABLE clients ALTER COLUMN phone TYPE integer;"],
@@ -72,6 +72,7 @@ describe("safe statements pass", () => {
     ["UPDATE clients SET status = 'x' WHERE id = 1;"],
     ["INSERT INTO clients (a) VALUES (1) ON CONFLICT (a) DO UPDATE SET a = 2;"],
     ["CREATE INDEX ON clients (status);"],
+    ["ALTER TABLE clients ALTER COLUMN phone DROP NOT NULL;"],
     [
       "ALTER TABLE clients DROP CONSTRAINT clients_status_check, ADD CONSTRAINT clients_status_check CHECK (status in ('a', 'b'));",
     ],

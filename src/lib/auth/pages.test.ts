@@ -154,11 +154,21 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
   },
   site: {
     person: viewer("site"),
-    keys: ["inst", "site", "srep", "claims", "tasks", "tools", "leave"],
+    keys: [
+      "today",
+      "inst",
+      "site",
+      "srep",
+      "claims",
+      "tasks",
+      "tools",
+      "leave",
+    ],
   },
   sellingSite: {
     person: viewer("site", { sells: true }),
     keys: [
+      "today",
       "inst",
       "site",
       "srep",
@@ -211,6 +221,7 @@ describe("navPagesFor: defaults", () => {
     const labels = (person: Viewer) =>
       navPagesFor(person, {}).map((page) => page.label);
     expect(labels(viewer("site"))).toEqual([
+      "Log work",
       "My schedule",
       "Site Work",
       "My Report",
@@ -247,7 +258,7 @@ describe("navPagesFor: defaults", () => {
   });
 
   it("hides pages that are not built, even from the MD", () => {
-    expect(canOpenPage(viewer("md"), "today", {})).toBe(false);
+    expect(canOpenPage(viewer("md"), "perf", {})).toBe(false);
   });
 });
 

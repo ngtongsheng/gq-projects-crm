@@ -175,7 +175,14 @@ describe("site figures", () => {
     activity: string,
     handoverSigned = false,
     supervisorId = ME,
-  ) => ({ supervisorId, mofId, visitedOn, activity, handoverSigned });
+  ) => ({
+    supervisorId,
+    mofId,
+    siteName: null,
+    visitedOn,
+    activity,
+    handoverSigned,
+  });
 
   it("counts one visit per site per day, shootings, signed handovers and OT hours", () => {
     const stats = siteStats({

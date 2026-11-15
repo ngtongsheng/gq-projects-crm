@@ -340,6 +340,31 @@ Checked Vicky (md), Cavan (sales), Jany (accounts), Affifa (designer), Akmal (si
   and handover parts do not call `t()`, so they stay English like the rest of People.
 - Browser parity was not run in this loop (needs the seeded test copy and a signed-in Chrome). Run it after go-live.
 
+## Loop 17 (site work), decided 2026-11-15
+- D2: Leave and MC come from the Leave module, so there is one balance in one place. `site_off` stores only office and
+  other days; public holidays come from `public_holidays`. Log work's "Leave / MC" opens the apply-leave sheet. Any
+  approved leave counts as an away day.
+- D5: `site_logs` is extended (installation %, measurement, shooting, completed photos, return answer) instead of a new
+  table. A log can have no MOF: free-text site and salesperson, optional pipeline project.
+- D6: logging moves the site stage. Installation % maps to 60 + 0.35 x pct (cap 95); a signed handover means Completed;
+  a delivery means Delivered. A stage never moves backwards, so a manual stage is not overwritten.
+- Migration guard: `DROP NOT NULL` now passes (it loses no data). `DROP NOT NULL, DROP COLUMN` in one statement is
+  still caught.
+- One `site_logs` row per activity per visit. The `photos_*` columns are shared by shooting and handover rows.
+- Snooze lives only in `site_follow_up_waits`; the follow-up row is not changed.
+- Reminder settings are one JSON row in `app_settings` under the key `site_reminders` (no migration). MD and admin
+  edit it; the Director sees the form disabled. Nothing is sent until Integration.
+- Balance stock is stored only as `return_answer` text. Items, quantities and return method per row wait for loop 18.
+- No "Didn't go" option (there is no table for it) and no office WhatsApp number setting yet: the stock-return link
+  opens WhatsApp to pick a chat. `photos_to` stays empty (no sales-support setting yet).
+- The new-site salesperson list is all of `team_directory`, because the site role cannot read job roles.
+- BM strings are in `src/lib/i18n/bm-site-work.ts`. Server-action messages and WhatsApp texts are not translated.
+- Also decided in the build: the old site-log dialog and `addSiteLog` were retired (the wizard replaces them); logging a
+  shooting closes that MOF's open shoot requests; Add follow-up got an optional "Assigned to"; snooze counts the
+  person's own week (site Mon-Sat, others Mon-Fri); the support team sees "before joined" and leave days as Missing
+  (`leave_people()` is manager-only); Site log and other tables are not scoped per salesperson (RLS gives read to all).
+- Browser parity was not run in this loop (the new migration was not on the test copy yet). Run it after go-live.
+
 ## Loop 20 (browser control in opencode), decided 2026-11-15
 - opencode cannot load Claude in Chrome: those tools exist only inside a Claude session. Control instead comes from
   `chrome-devtools-mcp@1.13.0` with `--autoConnect`, which drives her real Chrome, so her profile and sign-ins are

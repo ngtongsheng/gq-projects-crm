@@ -22,6 +22,11 @@ import {
   buildSiteWork,
   buildStock,
 } from "./site.ts";
+import {
+  buildFollowUpWaits,
+  buildShootRequests,
+  buildSiteOff,
+} from "./site-team.ts";
 import { buildTasks } from "./tasks.ts";
 import type { BuildContext, ExampleTable } from "./types.ts";
 
@@ -46,6 +51,9 @@ export function buildExampleData(context: BuildContext): ExampleData {
       ...jobs.tables,
       buildSiteBookings(context),
       ...buildSiteWork(context),
+      buildFollowUpWaits(context),
+      buildSiteOff(context),
+      buildShootRequests(context),
       buildOtClaims(context),
       buildLeftovers(),
       ...buildStock(context),

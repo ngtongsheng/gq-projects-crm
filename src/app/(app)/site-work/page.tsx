@@ -1,88 +1,123 @@
-import { HardHat } from "lucide-react";
+import { Plus } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
-import { StatusBadge } from "@/components/app/status-badge";
+import { Button } from "@/components/ui/button";
 import { canEditSite } from "@/lib/auth/job-role";
+import { canOpen } from "@/lib/auth/page-access";
 import { requirePage } from "@/lib/auth/require-page";
-import { MOF_STAGE_LABEL, MOF_STAGE_TONE } from "@/lib/domain/mof-stages";
-import { SITE_ACTIVITY_LABEL } from "@/lib/domain/site-log";
-import { formatDate, todayMyt } from "@/lib/format/date";
+import { getTeamDirectory } from "@/lib/auth/team-directory";
+import { jobProgressPercent, parseSiteJobFilter } from "@/lib/domain/site-jobs";
+import { SITE_STAGE_LABEL } from "@/lib/domain/site-stage";
+import { todayMyt } from "@/lib/format/date";
+import { getT } from "@/lib/i18n/server-t";
+import { recordHref } from "../today/record-link";
+import { ActionsTab } from "./actions-tab";
+import { DailyLogTab } from "./daily-log-tab";
+import { JobsTab } from "./jobs-tab";
+import { MeasurementsTab } from "./measurements-tab";
+import { MofFinder } from "./mof-finder";
+import { NewMofBanner } from "./new-mof-banner";
 import { PendingClaims } from "./pending-claims";
-import {
-  loadActiveSites,
-  loadPendingClaims,
-  type SiteSummary,
-} from "./site-work-data";
-import { StageProgress } from "./stage-progress";
+import { PhotosTab } from "./photos-tab";
+import { loadSiteJobs } from "./site-jobs-data";
+import { SiteLogTab } from "./site-log-tab";
+import { loadSiteTabCounts } from "./site-tab-counts";
+import { SiteTabs } from "./site-tabs";
+
+import { parseSiteView, siteViewsFor } from "./site-view";
+import { loadPendingClaims } from "./site-work-data";
+import { StockReturnsTab } from "./stock-returns-tab";
 
 export const metadata: Metadata = { title: "Site Work" };
 
-function SiteCard({ site }: { site: SiteSummary }) {
-  return (
-    <Link
-      href={`/site-work/${site.id}`}
-      className="flex flex-col gap-3 rounded-xl border bg-card p-4 transition-colors hover:bg-sunk"
-    >
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="flex min-w-0 flex-col">
-          <span className="font-heading font-semibold">{site.projectName}</span>
-          <span className="text-sm text-muted-foreground">
-            <span className="font-mono">{site.mofNo}</span> · {site.companyName}
-          </span>
-        </div>
-        <StatusBadge tone={MOF_STAGE_TONE[site.mofStage]}>
-          {MOF_STAGE_LABEL[site.mofStage]}
-        </StatusBadge>
-      </div>
-      <StageProgress stage={site.siteStage} />
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-        <span>
-          {site.lastVisit
-            ? `Last visit: ${SITE_ACTIVITY_LABEL[site.lastVisit.activity]}, ${formatDate(site.lastVisit.visitedOn)}`
-            : "No visits logged yet"}
-        </span>
-        {site.openFollowUps > 0 && (
-          <span className={site.overdueFollowUps > 0 ? "text-bad" : undefined}>
-            {site.openFollowUps} open follow-up
-            {site.openFollowUps === 1 ? "" : "s"}
-            {site.overdueFollowUps > 0 && `, ${site.overdueFollowUps} overdue`}
-          </span>
-        )}
-      </div>
-    </Link>
-  );
-}
-
-export default async function SiteWorkPage() {
+export default async function SiteWorkPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const me = await requirePage("site");
-  const [sites, claims] = await Promise.all([
-    loadActiveSites(todayMyt()),
-    canEditSite(me.jobRole) ? loadPendingClaims(me) : Promise.resolve([]),
+  const t = await getT(me.language);
+  const params = await searchParams;
+  const views = siteViewsFor(me);
+  const view = parseSiteView(params.view, views);
+  const today = todayMyt();
+
+  const [jobs, counts, team, claims, canRecord] = await Promise.all([
+    loadSiteJobs(),
+    loadSiteTabCounts(),
+    getTeamDirectory(),
+    view === "jobs" && canEditSite(me.jobRole)
+      ? loadPendingClaims(me)
+      : Promise.resolve([]),
+    // The Log work wizard is the Site Supervisor's own page.
+    canEditSite(me.jobRole) ? canOpen(me, "today") : false,
   ]);
+  const names = new Map(team.map((member) => [member.id, member.name]));
+  const nameOf = (personId: string) => names.get(personId) ?? t("Unnamed");
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <PageHeader
         title="Site Work"
-        description="Open orders with how far the site has got. Open one to log a visit."
+        description={t(
+          me.jobRole === "site"
+            ? "Log every site visit here. It fills your monthly report automatically."
+            : "Job status by MOF, the site supervisors' log, follow-up actions and balance stock.",
+        )}
+        actions={
+          <>
+            <MofFinder
+              rows={jobs.map((job) => ({
+                id: job.id,
+                mofNo: job.mofNo,
+                projectName: job.projectName,
+                companyName: job.companyName,
+                salesperson: nameOf(job.salespersonId),
+                progress: `${t(SITE_STAGE_LABEL[job.siteStage])} ${jobProgressPercent(job)}%`,
+              }))}
+            />
+            {canRecord && (
+              <Button asChild>
+                <Link href={recordHref(today)}>
+                  <Plus data-icon="inline-start" />
+                  {t("Log site visit")}
+                </Link>
+              </Button>
+            )}
+          </>
+        }
       />
-      <PendingClaims claims={claims} />
-      {sites.length === 0 ? (
-        <div className="rounded-xl border bg-card">
-          <EmptyState
-            icon={HardHat}
-            title="No open sites"
-            description="Orders appear here until they are closed or cancelled."
+      <NewMofBanner
+        jobs={jobs.filter((job) => job.needsFirstVisit)}
+        today={today}
+        nameOf={nameOf}
+        canLog={canRecord}
+        t={t}
+      />
+      <SiteTabs views={views} active={view} counts={counts} t={t} />
+      {view === "jobs" ? (
+        <div className="flex flex-col gap-4">
+          <PendingClaims claims={claims} />
+          <JobsTab
+            jobs={jobs}
+            filter={parseSiteJobFilter(params.show)}
+            nameOf={nameOf}
+            t={t}
           />
         </div>
+      ) : view === "log" ? (
+        <SiteLogTab me={me} params={params} nameOf={nameOf} t={t} />
+      ) : view === "meas" ? (
+        <MeasurementsTab me={me} nameOf={nameOf} t={t} />
+      ) : view === "shots" ? (
+        <PhotosTab me={me} jobs={jobs} nameOf={nameOf} t={t} />
+      ) : view === "actions" ? (
+        <ActionsTab me={me} params={params} nameOf={nameOf} t={t} />
+      ) : view === "returns" ? (
+        <StockReturnsTab me={me} nameOf={nameOf} t={t} />
       ) : (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {sites.map((site) => (
-            <SiteCard key={site.id} site={site} />
-          ))}
-        </div>
+        <DailyLogTab me={me} nameOf={nameOf} t={t} />
       )}
     </div>
   );

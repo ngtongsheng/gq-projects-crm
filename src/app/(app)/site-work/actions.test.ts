@@ -3,7 +3,7 @@ import { getCurrentProfile, type Profile } from "@/lib/auth/current-profile";
 import { createClient } from "@/lib/supabase/server";
 import {
   addFollowUp,
-  addSiteLog,
+  saveSiteVisit,
   setFollowUpDone,
   setSiteStage,
 } from "./actions";
@@ -24,6 +24,7 @@ const ME = "11111111-1111-4111-8111-111111111111";
 const MOF = "33333333-3333-4333-8333-333333333333";
 const LOG = "44444444-4444-4444-8444-444444444444";
 const FOLLOW_UP = "55555555-5555-4555-8555-555555555555";
+const SALES = "66666666-6666-4666-8666-666666666666";
 
 const profile = (jobRole: Profile["jobRole"]): Profile => ({
   id: ME,
@@ -59,7 +60,7 @@ function fakeSupabase(...results: Result[]) {
       calls.push(call);
       const result = next();
       const query: Record<string, unknown> = {};
-      for (const step of ["insert", "update", "eq", "select"]) {
+      for (const step of ["insert", "update", "eq", "select", "maybeSingle"]) {
         query[step] = (...args: unknown[]) => {
           if (step === "insert" || step === "update") call.payload = args[0];
           return Object.assign(Promise.resolve(result), query);
@@ -79,17 +80,6 @@ function form(fields: Record<string, string>) {
   for (const [key, value] of Object.entries(fields)) data.set(key, value);
   return data;
 }
-
-const logForm = (fields: Record<string, string> = {}) =>
-  form({
-    mofId: MOF,
-    visitedOn: "2026-11-02",
-    activity: "inspection",
-    notes: " Skirting not fixed ",
-    driveLink: "https://drive.google.com/drive/folders/abc",
-    handoverSigned: "on",
-    ...fields,
-  });
 
 const followUpForm = (fields: Record<string, string> = {}) =>
   form({
@@ -151,86 +141,6 @@ describe("setSiteStage", () => {
   });
 });
 
-describe("addSiteLog", () => {
-  it("saves a visit with the Drive link and flags", async () => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
-    const calls = fakeSupabase({ data: null, error: null });
-
-    const result = await addSiteLog(logForm());
-
-    expect(result).toEqual({ error: null });
-    expect(calls[0]).toEqual({
-      name: "site_logs",
-      payload: {
-        mof_id: MOF,
-        visited_on: "2026-11-02",
-        activity: "inspection",
-        notes: "Skirting not fixed",
-        measurement_received: false,
-        drive_link: "https://drive.google.com/drive/folders/abc",
-        handover_signed: true,
-      },
-    });
-  });
-
-  it("keeps the Drive link empty when none is given", async () => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
-    const calls = fakeSupabase({ data: null, error: null });
-
-    await addSiteLog(logForm({ driveLink: "  ", notes: "" }));
-
-    expect(calls[0]?.payload).toMatchObject({ drive_link: null, notes: null });
-  });
-
-  it("rejects a Drive link that is not a web address", async () => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
-    for (const driveLink of [
-      "drive folder",
-      "ftp://files.example.com/a",
-      "javascript:alert(1)",
-      "https://",
-    ]) {
-      const calls = fakeSupabase();
-
-      const result = await addSiteLog(logForm({ driveLink }));
-
-      expect(result.error).toMatch(/web address/);
-      expect(calls).toHaveLength(0);
-    }
-  });
-
-  it("rejects an unknown activity", async () => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
-    const calls = fakeSupabase();
-
-    const result = await addSiteLog(logForm({ activity: "napping" }));
-
-    expect(result.error).toMatch(/Choose the activity/);
-    expect(calls).toHaveLength(0);
-  });
-
-  it("refuses roles outside the site team", async () => {
-    for (const role of ["sales", "support", "bd"] as const) {
-      vi.mocked(getCurrentProfile).mockResolvedValue(profile(role));
-      const calls = fakeSupabase();
-
-      const result = await addSiteLog(logForm());
-
-      expect(result.error).toMatch(/Only the MD/);
-      expect(calls).toHaveLength(0);
-    }
-  });
-
-  it("lets the MD and Sales Director log a visit", async () => {
-    for (const role of ["md", "director"] as const) {
-      vi.mocked(getCurrentProfile).mockResolvedValue(profile(role));
-      fakeSupabase({ data: null, error: null });
-
-      expect(await addSiteLog(logForm())).toEqual({ error: null });
-    }
-  });
-});
-
 describe("addFollowUp", () => {
   it("saves a follow-up with an owner and due date", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
@@ -245,9 +155,19 @@ describe("addFollowUp", () => {
         site_log_id: LOG,
         action: "Order 2 more rolls",
         owner_group: "purchasing",
+        assignee_id: null,
         due_on: "2026-11-09",
       },
     });
+  });
+
+  it("saves who the follow-up is assigned to", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
+    const calls = fakeSupabase({ data: null, error: null });
+
+    await addFollowUp(followUpForm({ assigneeId: SALES }));
+
+    expect(calls[0]?.payload).toMatchObject({ assignee_id: SALES });
   });
 
   it("allows no due date", async () => {
@@ -312,6 +232,30 @@ describe("setFollowUpDone", () => {
     expect(calls).toHaveLength(0);
   });
 
+  it("lets the person it is assigned to close it", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    fakeSupabase({ data: [{ id: FOLLOW_UP }], error: null });
+
+    const result = await setFollowUpDone(
+      MOF,
+      FOLLOW_UP,
+      "purchasing",
+      true,
+      ME,
+    );
+
+    expect(result).toEqual({ error: null });
+  });
+
+  it("closes a follow-up from a visit with no MOF", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
+    fakeSupabase({ data: [{ id: FOLLOW_UP }], error: null });
+
+    const result = await setFollowUpDone(null, FOLLOW_UP, "client", true);
+
+    expect(result).toEqual({ error: null });
+  });
+
   it("reports a follow-up the database hides", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("support"));
     fakeSupabase({ data: [], error: null });
@@ -319,5 +263,213 @@ describe("setFollowUpDone", () => {
     const result = await setFollowUpDone(MOF, FOLLOW_UP, "purchasing", true);
 
     expect(result.error).toMatch(/Could not find that follow-up/);
+  });
+});
+
+describe("saveSiteVisit", () => {
+  const ok = { data: null, error: null };
+  const mofAt = (site_stage: string) => ({
+    data: { site_stage, salesperson_id: SALES },
+    error: null,
+  });
+  const savedLogs = { data: [{ id: LOG }], error: null };
+  const visit = (fields: Record<string, unknown> = {}) => ({
+    mofId: MOF,
+    visitedOn: "2026-11-16",
+    activities: ["inspection"],
+    note: " Level 3 ",
+    ...fields,
+  });
+
+  it("saves one log per activity with each one's answers", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
+    const calls = fakeSupabase(mofAt("ongoing"), savedLogs, ok, ok);
+
+    const result = await saveSiteVisit(
+      visit({
+        activities: ["measurement", "shooting", "delivery"],
+        measurementSent: true,
+        photosPosted: false,
+        deliveryOk: true,
+        returnAnswer: "No balance stock",
+      }),
+    );
+
+    expect(result).toEqual({ error: null, movedTo: "delivered" });
+    const rows = calls[1]?.payload as Record<string, unknown>[];
+    expect(rows.map((row) => row.activity)).toEqual([
+      "measurement",
+      "shooting",
+      "delivery",
+    ]);
+    expect(rows[0]).toMatchObject({
+      mof_id: MOF,
+      site_name: null,
+      notes: "Level 3",
+      measurement_to: SALES,
+      measurement_sent_on: "2026-11-16",
+      return_answer: "No balance stock",
+    });
+    expect(rows[1]).toMatchObject({
+      photos_posted_on: null,
+      return_answer: null,
+    });
+    expect(rows[1]).toMatchObject({ measurement_to: null });
+    expect(rows[2]).toMatchObject({ delivery_ok: true });
+    expect(calls[2]).toEqual({
+      name: "shoot_requests",
+      payload: { status: "done" },
+    });
+    expect(calls[3]).toEqual({
+      name: "set_site_stage",
+      payload: { mof_id: MOF, stage: "delivered" },
+    });
+  });
+
+  it("leaves shooting requests alone when no shooting was logged", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
+    const calls = fakeSupabase(mofAt("ongoing"), savedLogs);
+
+    await saveSiteVisit(visit({ activities: ["inspection"] }));
+
+    expect(calls.map((call) => call.name)).not.toContain("shoot_requests");
+  });
+
+  it("moves the stage to installation and completes it on a signed handover", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
+    fakeSupabase(mofAt("delivered"), savedLogs, ok);
+    expect(
+      await saveSiteVisit(
+        visit({ activities: ["installation"], installedPct: 40 }),
+      ),
+    ).toEqual({ error: null, movedTo: "installation" });
+
+    const calls = fakeSupabase(mofAt("installation"), savedLogs, ok);
+    const result = await saveSiteVisit(
+      visit({
+        activities: ["installation", "handover"],
+        installedPct: 100,
+        handoverSigned: true,
+        completedPhotosPosted: true,
+      }),
+    );
+    expect(result).toEqual({ error: null, movedTo: "completed" });
+    const rows = calls[1]?.payload as Record<string, unknown>[];
+    expect(rows[0]).toMatchObject({ inst_pct: 100, handover_signed: false });
+    expect(rows[1]).toMatchObject({
+      inst_pct: null,
+      handover_signed: true,
+      photos_posted_on: "2026-11-16",
+    });
+  });
+
+  it("never moves a stage backwards", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
+    const calls = fakeSupabase(mofAt("completed"), savedLogs);
+
+    const result = await saveSiteVisit(
+      visit({ activities: ["installation"], installedPct: 30 }),
+    );
+
+    expect(result).toEqual({ error: null, movedTo: null });
+    expect(calls.map((call) => call.name)).toEqual(["mofs", "site_logs"]);
+  });
+
+  it("saves a visit to a new site with no MOF and no stage move", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
+    const calls = fakeSupabase(savedLogs);
+
+    const result = await saveSiteVisit(
+      visit({
+        mofId: null,
+        siteName: "Menara KL",
+        salespersonId: SALES,
+        activities: ["measurement"],
+        measurementSent: false,
+      }),
+    );
+
+    expect(result).toEqual({ error: null, movedTo: null });
+    expect(calls).toHaveLength(1);
+    expect((calls[0]?.payload as Record<string, unknown>[])[0]).toMatchObject({
+      mof_id: null,
+      site_name: "Menara KL",
+      salesperson_id: SALES,
+      project_id: null,
+      measurement_to: SALES,
+      measurement_sent_on: null,
+    });
+  });
+
+  it("adds the follow-up to the first log", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
+    const calls = fakeSupabase(mofAt("start"), savedLogs, ok);
+
+    await saveSiteVisit(
+      visit({
+        followUp: {
+          action: " Order 2 more rolls ",
+          ownerGroup: "purchasing",
+          dueOn: "2026-11-18",
+        },
+      }),
+    );
+
+    expect(calls[2]).toEqual({
+      name: "site_follow_ups",
+      payload: {
+        site_log_id: LOG,
+        action: "Order 2 more rolls",
+        owner_group: "purchasing",
+        due_on: "2026-11-18",
+      },
+    });
+  });
+
+  it("needs every question answered before touching the database", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
+    const cases: [Record<string, unknown>, RegExp][] = [
+      [{ activities: [] }, /what you did/],
+      [{ activities: ["installation"] }, /how much of the whole job/],
+      [{ activities: ["handover"], handoverSigned: true }, /completed photos/],
+      [{ activities: ["delivery"] }, /delivery arrived/],
+      [{ mofId: null }, /site name/],
+      [{ mofId: null, siteName: "Menara KL" }, /salesperson/],
+      [{ activities: ["inspection", "inspection"] }, /each activity once/],
+    ];
+    for (const [fields, message] of cases) {
+      const calls = fakeSupabase();
+      const result = await saveSiteVisit(visit(fields));
+      expect(result.error).toMatch(message);
+      expect(calls).toHaveLength(0);
+    }
+  });
+
+  it("refuses roles outside the site team", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    const calls = fakeSupabase();
+
+    const result = await saveSiteVisit(visit());
+
+    expect(result.error).toMatch(/Only the MD/);
+    expect(calls).toHaveLength(0);
+  });
+
+  it("says the visit is saved when the stage could not move", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
+    fakeSupabase(mofAt("shipment"), savedLogs, {
+      data: null,
+      error: { code: "XX000" },
+    });
+
+    const result = await saveSiteVisit(
+      visit({ activities: ["delivery"], deliveryOk: false }),
+    );
+
+    expect(result).toEqual({
+      error:
+        "The visit is saved, but the site stage did not move to Delivered. Set it on the MOF.",
+      movedTo: null,
+    });
   });
 });

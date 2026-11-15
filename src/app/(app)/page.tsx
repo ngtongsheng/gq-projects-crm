@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,6 @@ import { formatDate, todayMyt } from "@/lib/format/date";
 import { loadWorkCalendar } from "@/lib/work-calendar";
 import { ManagerDashboard } from "./dashboard/manager-dashboard";
 import { SalesDashboard } from "./dashboard/sales-dashboard";
-import { SiteDashboard } from "./dashboard/site-dashboard";
 import { SupportDashboard } from "./dashboard/support-dashboard";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -39,8 +39,8 @@ const TITLE: Record<JobRole, string> = {
 };
 
 /**
- * Home for every job role, including the Site Supervisor, who has no Dashboard entry in the
- * sidebar. Each role gets its own view; the database decides what each one can read.
+ * Home for every job role except the Site Supervisor, who lands on Log work. Each role gets
+ * its own view; the database decides what each one can read.
  */
 export default async function Home({
   searchParams,
@@ -48,6 +48,8 @@ export default async function Home({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const me = await requireRole("staff");
+  // The Site Supervisor's landing page is Log work (loop 17).
+  if (me.jobRole === "site") redirect("/today");
   const view = hasViewToggle(me.jobRole)
     ? viewParam.parse((await searchParams).view)
     : "sales";
@@ -92,8 +94,6 @@ export default async function Home({
       />
       {view === "mof" || me.jobRole === "support" || me.jobRole === "ssup" ? (
         <SupportDashboard me={me} />
-      ) : me.jobRole === "site" ? (
-        <SiteDashboard me={me} />
       ) : ["sales", "bd", "marketing", "designer"].includes(me.jobRole) ? (
         <SalesDashboard me={me} />
       ) : (

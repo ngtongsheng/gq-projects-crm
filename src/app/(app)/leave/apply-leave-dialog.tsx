@@ -61,7 +61,10 @@ export function ApplyLeaveDialog({
   approvers,
   available,
   availableYear,
+  onClose,
 }: {
+  /** Set when another control opens the sheet: it starts open, has no button of its own, and calls this on close. */
+  onClose?: () => void;
   today: string;
   /** The applicant's working week, for counting days. */
   week: WeekKind;
@@ -76,7 +79,11 @@ export function ApplyLeaveDialog({
 }) {
   const t = useT();
   const tomorrow = addDays(today, 1);
-  const [open, setOpen] = useState(false);
+  const [open, setOpenState] = useState(onClose !== undefined);
+  const setOpen = (next: boolean) => {
+    setOpenState(next);
+    if (!next) onClose?.();
+  };
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [leaveType, setLeaveType] = useState<LeaveType>("annual");
@@ -156,12 +163,14 @@ export function ApplyLeaveDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus data-icon="inline-start" />
-          {t("Apply leave")}
-        </Button>
-      </DialogTrigger>
+      {onClose === undefined && (
+        <DialogTrigger asChild>
+          <Button>
+            <Plus data-icon="inline-start" />
+            {t("Apply leave")}
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>{t("Apply leave")}</DialogTitle>

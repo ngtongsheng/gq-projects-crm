@@ -18,7 +18,7 @@ her opencode settings, and the decision is recorded.
 | # | Task | Status | Depends | Tier |
 |---|---|---|---|---|
 | 01 | Prove the Chrome connection with the package CLI | done | - | standard |
-| 02 | Owner pastes the opencode setting | blocked: owner — paste the config command | 01 | economy |
+| 02 | Owner pastes the opencode setting | done | 01 | economy |
 | 03 | End to end through opencode | todo | 02 | standard |
 | 04 | Record the decision | todo | 03 | economy |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
@@ -47,3 +47,4 @@ Do these before task 01; the agent parks task 01 if Chrome cannot be reached.
 2026-11-15 · #02 · blocked: owner · `~/.config/opencode/opencode.jsonc` is a symlink to `~/work/config/opencode/opencode.jsonc` and has no `mcp` block yet · owner pastes owner action 3
 2026-11-15 · #02 · decision · the paste writes through the symlink into the synced hub config (tracked in `~/work`) · it is this machine's only opencode config, so that is the right file; commit it with `WORK_SYNC=1` after the paste
 2026-11-15 · #02 · decision · `assets/opencode.jsonc` is a superset of the current file (same instructions line) · pasting loses no setting
+2026-11-15 · #02 · done · paste verified: `opencode debug config` shows the mcp + permission keys, `opencode mcp list` → `✓ chrome-devtools connected`, diff vs asset empty · next #03

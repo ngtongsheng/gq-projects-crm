@@ -10,7 +10,7 @@ import {
 // approval (her own review counts as both). The BD Director's report goes to the MD only.
 // Reports reviewed before the change count as approved.
 
-const MIGRATION = "20261115190000_report_final_approval.sql";
+const MIGRATION = "20261115250000_report_final_approval.sql";
 
 type Row = {
   status: string;

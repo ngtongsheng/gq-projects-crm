@@ -10,7 +10,7 @@ import {
 // keeps mofs.vo_amount equal to the VOs' sum, VOs are read like their MOF, and VO cost adds
 // into the MOF cost.
 
-const MIGRATION = "20261115150000_variation_orders.sql";
+const MIGRATION = "20261115210000_variation_orders.sql";
 
 let t: TestDatabase;
 let n = 0;

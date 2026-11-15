@@ -15,7 +15,7 @@ import {
 // still 120, and a salesperson's late-cut appeal is sent by them and decided by the MD or HR &
 // Accounts. What an approved appeal does to payable-now is in commission-parity.test.ts.
 
-const MIGRATION = "20261115180000_commission_appeals.sql";
+const MIGRATION = "20261115240000_commission_appeals.sql";
 const REASON = "Client is a GLC; finance takes 4 months.";
 
 /** The saved rules after the migration, given what was saved before it. */

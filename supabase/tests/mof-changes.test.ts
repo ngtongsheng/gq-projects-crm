@@ -11,7 +11,7 @@ import {
 // mof_total_changes (the old rows once, new ones by trigger); a completed job needs a reason;
 // cost rows reach only the cost readers.
 
-const MIGRATION = "20261115170000_mof_changes.sql";
+const MIGRATION = "20261115230000_mof_changes.sql";
 
 let t: TestDatabase;
 let backfilledMof: string;

@@ -87,3 +87,4 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 2026-11-15 · #11 · in-progress
 2026-11-15 · #11 · docs done (features, decisions Loop 16, drift-new-modules, roadmap 3B-ii); browser parity deferred to owner after go-live · next: merge main, PR, CI, merge
 2026-11-15 · decision · merge via PR per D8 (not direct push to main) so CI applies migrations to the test copy and checks run · D8 is more specific than the skill default
+2026-11-15 · PR 47 · checks, migrate-dev, migration-guard pass · merged to main

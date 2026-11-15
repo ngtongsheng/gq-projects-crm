@@ -1,4 +1,4 @@
-import { ChevronLeft, ExternalLink } from "lucide-react";
+import { ChevronLeft, ExternalLink, Plus } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -6,8 +6,10 @@ import { z } from "zod";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { canEditSite, type JobRole } from "@/lib/auth/job-role";
+import { canOpen } from "@/lib/auth/page-access";
 import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { isSnoozed } from "@/lib/domain/follow-up-snooze";
@@ -25,12 +27,12 @@ import { cn } from "@/lib/utils";
 import { LeftoverBadges } from "../../stock/leftover/leftover-badges";
 import { loadLeftovers } from "../../stock/leftover/leftover-data";
 import { RecordLeftoverDialog } from "../../stock/leftover/record-leftover-dialog";
+import { recordHref } from "../../today/record-link";
 import {
   FollowUpCheck,
   FollowUpDialog,
   StillWaitingDialog,
 } from "../follow-up-parts";
-import { SiteLogDialog } from "../site-log-dialog";
 import { SiteStageSelect } from "../site-stage-select";
 import { loadSite, type SiteLog } from "../site-work-data";
 import { StageProgress } from "../stage-progress";
@@ -143,6 +145,8 @@ export default async function SiteDetailPage({
 
   const today = todayMyt();
   const canEdit = canEditSite(me.jobRole);
+  // The Log work wizard is the Site Supervisor's own page.
+  const canRecord = canEdit && (await canOpen(me, "today"));
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
 
   return (
@@ -162,7 +166,14 @@ export default async function SiteDetailPage({
             <StatusBadge tone={MOF_STAGE_TONE[site.mofStage]}>
               {MOF_STAGE_LABEL[site.mofStage]}
             </StatusBadge>
-            {canEdit && <SiteLogDialog mofId={site.id} today={today} />}
+            {canRecord && (
+              <Button asChild>
+                <Link href={recordHref(today, { mofId: site.id })}>
+                  <Plus data-icon="inline-start" />
+                  Log site visit
+                </Link>
+              </Button>
+            )}
           </>
         }
       />

@@ -3,7 +3,6 @@ import { getCurrentProfile, type Profile } from "@/lib/auth/current-profile";
 import { createClient } from "@/lib/supabase/server";
 import {
   addFollowUp,
-  addSiteLog,
   saveSiteVisit,
   setFollowUpDone,
   setSiteStage,
@@ -82,17 +81,6 @@ function form(fields: Record<string, string>) {
   return data;
 }
 
-const logForm = (fields: Record<string, string> = {}) =>
-  form({
-    mofId: MOF,
-    visitedOn: "2026-11-02",
-    activity: "inspection",
-    notes: " Skirting not fixed ",
-    driveLink: "https://drive.google.com/drive/folders/abc",
-    handoverSigned: "on",
-    ...fields,
-  });
-
 const followUpForm = (fields: Record<string, string> = {}) =>
   form({
     mofId: MOF,
@@ -150,86 +138,6 @@ describe("setSiteStage", () => {
     const result = await setSiteStage(MOF, "completed");
 
     expect(result.error).toMatch(/Only the MD/);
-  });
-});
-
-describe("addSiteLog", () => {
-  it("saves a visit with the Drive link and flags", async () => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
-    const calls = fakeSupabase({ data: null, error: null });
-
-    const result = await addSiteLog(logForm());
-
-    expect(result).toEqual({ error: null });
-    expect(calls[0]).toEqual({
-      name: "site_logs",
-      payload: {
-        mof_id: MOF,
-        visited_on: "2026-11-02",
-        activity: "inspection",
-        notes: "Skirting not fixed",
-        measurement_received: false,
-        drive_link: "https://drive.google.com/drive/folders/abc",
-        handover_signed: true,
-      },
-    });
-  });
-
-  it("keeps the Drive link empty when none is given", async () => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
-    const calls = fakeSupabase({ data: null, error: null });
-
-    await addSiteLog(logForm({ driveLink: "  ", notes: "" }));
-
-    expect(calls[0]?.payload).toMatchObject({ drive_link: null, notes: null });
-  });
-
-  it("rejects a Drive link that is not a web address", async () => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
-    for (const driveLink of [
-      "drive folder",
-      "ftp://files.example.com/a",
-      "javascript:alert(1)",
-      "https://",
-    ]) {
-      const calls = fakeSupabase();
-
-      const result = await addSiteLog(logForm({ driveLink }));
-
-      expect(result.error).toMatch(/web address/);
-      expect(calls).toHaveLength(0);
-    }
-  });
-
-  it("rejects an unknown activity", async () => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile("site"));
-    const calls = fakeSupabase();
-
-    const result = await addSiteLog(logForm({ activity: "napping" }));
-
-    expect(result.error).toMatch(/Choose the activity/);
-    expect(calls).toHaveLength(0);
-  });
-
-  it("refuses roles outside the site team", async () => {
-    for (const role of ["sales", "support", "bd"] as const) {
-      vi.mocked(getCurrentProfile).mockResolvedValue(profile(role));
-      const calls = fakeSupabase();
-
-      const result = await addSiteLog(logForm());
-
-      expect(result.error).toMatch(/Only the MD/);
-      expect(calls).toHaveLength(0);
-    }
-  });
-
-  it("lets the MD and Sales Director log a visit", async () => {
-    for (const role of ["md", "director"] as const) {
-      vi.mocked(getCurrentProfile).mockResolvedValue(profile(role));
-      fakeSupabase({ data: null, error: null });
-
-      expect(await addSiteLog(logForm())).toEqual({ error: null });
-    }
   });
 });
 

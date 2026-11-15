@@ -5,7 +5,8 @@ import { startOfMonth } from "@/lib/domain/calendar-grid";
 import { type CalendarDate, todayMyt } from "@/lib/format/date";
 import { loadReportSettings, type ReportSettings } from "./report-data";
 
-const monthParam = z
+/** ?month=2026-11 as the first of that month; anything else is ignored. */
+export const monthParam = z
   .string()
   .regex(/^\d{4}-(0[1-9]|1[0-2])$/)
   .transform((month) => `${month}-01`)

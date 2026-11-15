@@ -53,7 +53,7 @@ export function MonthSwitcher({
   view,
   query,
 }: {
-  view: ReportsView;
+  view: Pick<ReportsView, "basePath" | "month" | "today">;
   query?: Record<string, string | undefined>;
 }) {
   const current = startOfMonth(view.today);

@@ -22,8 +22,8 @@ Log work wizard (site role landing page) and the seven Site Work tabs match Vick
 | 03 | Log work home | done | 02 | sonnet/high |
 | 04 | Log work wizard | done | 02 | sonnet/high |
 | 05 | Follow-ups: owner, still waiting, snooze | done | 01 | sonnet/high |
-| 06 | Site Work: Jobs + Site log tabs | in-progress | 02 | sonnet/high |
-| 07 | Site Work: Measurements + Photos & videos | todo | 01 | sonnet/high |
+| 06 | Site Work: Jobs + Site log tabs | done | 02 | sonnet/high |
+| 07 | Site Work: Measurements + Photos & videos | in-progress | 01 | sonnet/high |
 | 08 | Site Work: Actions, Stock returns, Daily log | todo | 05 | sonnet/high |
 | 09 | Site nav, BM strings, dev seed | todo | 03, 04, 06, 07, 08 | sonnet/medium |
 | 10 | Parity pass, docs, merge | todo | 01-09 | sonnet/medium |
@@ -51,3 +51,6 @@ Log work wizard (site role landing page) and the seven Site Work tabs match Vick
 2026-11-15 · #05 · done · verified: check, typecheck, test (2516) pass; parity deferred to #10
 2026-11-15 · #05 · decision · added optional "Assigned to" select to the Add follow-up dialog (nothing wrote assignee_id); snooze uses the person's week pattern (site Mon-Sat, others Mon-Fri); supabase/tests need a DB and were not run here · scope
 2026-11-15 · #06 · in-progress · delegated (sonnet/high)
+2026-11-15 · #06 · done · verified: check, typecheck, test (2537) pass; parity deferred to #10 (also verify `loadSiteJobs` embeds and `loadMonthLogs` on the test copy)
+2026-11-15 · #06 · decision · old site-log dialog and addSiteLog retired (wizard replaces it); Measurements/Photos/Actions/Stock returns/Daily log tabs are "Coming soon" placeholders until #07/#08; Log buttons only for roles that can open `today`; Site log rows not scoped per salesperson (RLS gives read to all); MOF summary opens existing site page; installer-claims card kept on Jobs · scope
+2026-11-15 · #07 · in-progress · delegated (sonnet/high)

@@ -30,30 +30,7 @@ const NOT_FOUND_LOG = "Could not find that site visit. Reload the page.";
 const NOT_FOUND_FOLLOW_UP = "Could not find that follow-up. Reload the page.";
 const TRY_AGAIN = "Could not save. Try again.";
 
-// Files are not uploaded; the Drive link only has to be a web address.
-const driveLink = z
-  .string()
-  .trim()
-  .max(2000, "Keep the Drive link under 2000 characters.")
-  .refine(
-    (value) =>
-      value === "" ||
-      (/^https?:\/\//i.test(value) && z.url().safeParse(value).success),
-    "Enter the Drive link as a web address starting with https://",
-  )
-  .transform((value) => (value === "" ? null : value));
-
 const mofId = z.uuid({ error: NOT_FOUND_MOF });
-
-const logForm = z.object({
-  mofId,
-  visitedOn: z.iso.date("Choose the visit date."),
-  activity: z.enum(SITE_ACTIVITIES, "Choose the activity."),
-  notes: optionalText(1000, "Keep the notes under 1000 characters."),
-  measurementReceived: z.boolean(),
-  driveLink,
-  handoverSigned: z.boolean(),
-});
 
 const followUpForm = z.object({
   mofId,
@@ -125,46 +102,6 @@ export async function setSiteStage(
   }
 
   revalidateSite(parsed.data.mofId);
-  return { error: null };
-}
-
-/** Logs a site visit. The supervisor is whoever is signed in. */
-export async function addSiteLog(formData: FormData): Promise<SiteWorkResult> {
-  const me = await requirePage("site");
-  if (!canEditSite(me.jobRole)) return { error: NOT_SITE_TEAM };
-
-  const parsed = logForm.safeParse({
-    mofId: textField(formData, "mofId"),
-    visitedOn: textField(formData, "visitedOn"),
-    activity: textField(formData, "activity"),
-    notes: textField(formData, "notes"),
-    measurementReceived: formData.get("measurementReceived") === "on",
-    driveLink: textField(formData, "driveLink"),
-    handoverSigned: formData.get("handoverSigned") === "on",
-  });
-  if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Check the details." };
-  }
-  const log = parsed.data;
-
-  const supabase = await createClient();
-  const { error } = await supabase.from("site_logs").insert({
-    mof_id: log.mofId,
-    visited_on: log.visitedOn,
-    activity: log.activity,
-    notes: log.notes,
-    measurement_received: log.measurementReceived,
-    drive_link: log.driveLink,
-    handover_signed: log.handoverSigned,
-  });
-  if (error) {
-    const message = refusal(error);
-    if (message) return { error: message };
-    console.error("Could not save the site visit", error);
-    return { error: TRY_AGAIN };
-  }
-
-  revalidateSite(log.mofId);
   return { error: null };
 }
 

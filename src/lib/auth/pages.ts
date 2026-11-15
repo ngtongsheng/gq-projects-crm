@@ -95,7 +95,7 @@ const PAGES: Record<PageKey, Page> = {
     label: fixed("HR"),
     href: fixed("/hr"),
     group: "main",
-    built: false,
+    built: true,
   },
   tools: {
     key: "tools",

@@ -20,8 +20,8 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
 | 01 | HR migration | done | - | opus/medium |
-| 02 | HR: Policies & schemes | todo | 01 | sonnet/high |
-| 03 | HR: Staff packages + outstation | todo | 01 | sonnet/high |
+| 02 | HR: Policies & schemes | done | 01 | sonnet/high |
+| 03 | HR: Staff packages + outstation | in-progress | 01 | sonnet/high |
 | 04 | HR: Sales grades & bonus | todo | 01 | sonnet/high |
 | 05 | Per-year targets migration | todo | 01 | opus/medium |
 | 06 | People: targets + Sales teams | todo | 05 | sonnet/high |
@@ -43,3 +43,9 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 2026-11-15 · #01 · decision · packages are add-only (typo = new row on a new date) · D4 strict
 2026-11-15 · #01 · decision · Older is derived from replaces_id; bonus bands are a fixed on-screen reference, no table · D7, D2
 2026-11-15 · #01 · decision · demo sample policy and extra rules not seeded here; dev seed (#10) adds them · need a real author
+2026-11-15 · #02 · in-progress
+2026-11-15 · #02 · done · check, typecheck, test pass (2313); browser parity deferred to #11 · next: #03
+2026-11-15 · #02 · decision · policy dialog has a "scheme appendix" checkbox; PDF only, one of file or link · nothing else could flag the first scheme doc
+2026-11-15 · #02 · decision · /hr shows 3 tabs; Staff packages and Grades tabs are "Not built yet" placeholders in hr/page.tsx for #03/#04 · tab control belongs to #02
+2026-11-15 · #02 · note · shared attachments bucket caps uploads at 1.5 MB; large policy PDFs refused (bucket migration not done); signed upload and Open PDF untested against live storage · check in #11
+2026-11-15 · #03 · in-progress

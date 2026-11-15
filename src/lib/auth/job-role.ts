@@ -63,6 +63,9 @@ export const isReadOnly = (jobRole: JobRole) => jobRole === "accounts";
 export const canEditLeaveSetup = (jobRole: JobRole) =>
   has(jobRole, ["md", "accounts"]);
 
+/** Reads and writes HR: policies, packages, grades (SQL: the policies on the hr_* and staff_* tables). The admin role alone grants nothing. */
+export const canSeeHr = (jobRole: JobRole) => has(jobRole, ["md", "accounts"]);
+
 /** Starts a costing of their own (SQL: the "quotes: sellers add their own" policy). */
 export const canStartQuote = (jobRole: JobRole) =>
   has(jobRole, ["md", "director", "bd", "sales"]);

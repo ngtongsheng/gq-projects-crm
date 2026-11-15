@@ -30,7 +30,7 @@ const outline = (
 
 // Read from the demo's sidebar (docs/mockup/gqp-office-demo.html, Chrome, 2026-11-14) signed in
 // as Vicky, Eddie, Vernice, Awal, Wai Mun and Affifa, keeping the pages built so far. The demo
-// also lists Log work, HR, Sales Performance and Tools & Forms, which are
+// also lists Log work, Sales Performance and Tools & Forms, which are
 // hidden until their pages exist.
 describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide", () => {
   it("md", () => {
@@ -50,6 +50,7 @@ describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide",
         "Claims",
         "Team Reports",
         "Director Report",
+        "HR",
       ],
       after: ["Guide", "Sales Performance", "People", "Tasks", "Leave"],
     });

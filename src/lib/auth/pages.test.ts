@@ -43,6 +43,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "leave",
       "rep",
       "drep",
+      "hr",
     ],
   },
   director: {
@@ -142,6 +143,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "leave",
       "rep",
       "drep",
+      "hr",
     ],
   },
   site: {

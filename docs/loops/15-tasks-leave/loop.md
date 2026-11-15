@@ -27,8 +27,8 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 | 06 | Leave maths | done | 05 | opus/medium |
 | 07 | Leave approval + slip rules | done | 05 | opus/medium |
 | 08 | Leave page | done | 06, 07 | sonnet/high |
-| 09 | Who is away, holidays, entitlements | in-progress | 08 | sonnet/high |
-| 10 | Chinese strings + dev seed | todo | 03, 04, 08, 09 | sonnet/medium |
+| 09 | Who is away, holidays, entitlements | done | 08 | sonnet/high |
+| 10 | Chinese strings + dev seed | in-progress | 03, 04, 08, 09 | sonnet/medium |
 | 11 | Parity pass, docs, merge | todo | 01-10 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
@@ -58,3 +58,5 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 2026-11-15 · #08 · in-progress · must flip `leave` to built:true in pages.ts and update nav tests
 2026-11-15 · #08 · done · leave page, apply dialog, approve/reject, slips; checks pass (1944); parity deferred to #11 · next: #09
 2026-11-15 · #08 · decision · added migration leave_people() (id, job_role, joined_on, reports_to) for team/balance data; tiles show dash before 2027; approvers named by job title · D2/D4
+2026-11-15 · #09 · done · who-is-away grid, holidays panel, entitlement editor + tests; checks pass (1973); parity deferred to #11 · next: #10
+2026-11-15 · #09 · decision · holiday edits do not recount existing leave days (SQL counts at insert); entitlement sheet edits max(current year, 2027); no leave policy editor (not in task) · #05/D2

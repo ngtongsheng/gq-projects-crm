@@ -7,6 +7,7 @@ import {
   leaveApprovers,
 } from "@/lib/domain/leave-approval";
 import {
+  defaultEntitlement,
   type LeaveBalance,
   type LeaveEntitlement,
   type LeavePolicy,
@@ -51,6 +52,21 @@ const yearOf = (day: CalendarDate) => Number(day.slice(0, 4));
 
 export const overrideKey = (personId: string, year: number) =>
   `${personId}:${year}`;
+
+/** What a year gives this person: their override, or the company default. Works for years before balances start. */
+export const entitlementFor = (
+  person: Pick<LeavePerson, "id" | "joinedOn">,
+  year: number,
+  setup: LeaveSetup,
+): { entitlement: LeaveEntitlement; isOverride: boolean } => {
+  const override = setup.overrides.get(overrideKey(person.id, year));
+  return override
+    ? { entitlement: override, isOverride: true }
+    : {
+        entitlement: defaultEntitlement(setup.policy, person.joinedOn, year),
+        isOverride: false,
+      };
+};
 
 export function balanceFor(
   rows: readonly LeaveRow[],

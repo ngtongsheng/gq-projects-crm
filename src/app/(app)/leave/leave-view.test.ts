@@ -4,6 +4,7 @@ import {
   approverLine,
   balanceAfter,
   balanceFor,
+  entitlementFor,
   type LeavePerson,
   type LeaveRow,
   type LeaveSetup,
@@ -80,6 +81,29 @@ describe("balanceFor", () => {
 
   test("there is no balance before 2027", () => {
     expect(balanceFor([], anna, 2026, setup)).toBeNull();
+  });
+});
+
+describe("entitlementFor", () => {
+  test("the override when there is one, otherwise the prorated company default", () => {
+    const overridden: LeaveSetup = {
+      ...setup,
+      overrides: new Map([
+        [
+          overrideKey(ANNA, 2027),
+          { annualDays: 16, carriedDays: 2, mcDays: 14 },
+        ],
+      ]),
+    };
+    expect(entitlementFor(anna, 2027, overridden)).toEqual({
+      entitlement: { annualDays: 16, carriedDays: 2, mcDays: 14 },
+      isOverride: true,
+    });
+    const joined = { ...anna, joinedOn: "2027-07-10" };
+    expect(entitlementFor(joined, 2027, setup)).toEqual({
+      entitlement: { annualDays: 7, carriedDays: 0, mcDays: 14 },
+      isOverride: false,
+    });
   });
 });
 

@@ -3,6 +3,7 @@ import { JobRole } from "@/lib/auth/job-role";
 import { LEAVE_STATUSES, LEAVE_TYPES } from "@/lib/domain/leave-balance";
 import { todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
+import type { Holiday } from "./holidays-section";
 import {
   type LeavePerson,
   type LeaveRow,
@@ -162,4 +163,19 @@ export async function loadLeavePeople(
     joinedOn: row.joined_on,
     reportsTo: row.reports_to,
   }));
+}
+
+const holidayRows = z.array(z.object({ day: z.iso.date(), name: z.string() }));
+
+/** Every public holiday, soonest first. */
+export async function loadHolidays(): Promise<Holiday[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("public_holidays")
+    .select("day, name")
+    .order("day");
+  if (error) {
+    throw new Error(`Could not load public holidays: ${error.message}`);
+  }
+  return holidayRows.parse(data);
 }

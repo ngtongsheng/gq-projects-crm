@@ -71,3 +71,4 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 2026-11-15 · #11 · decision · accepted deviations: sheet not modal, no Customer/Edit/WhatsApp, 4 tiles for sales, Workload lists all, job-title approver names, seed differs from demo, shared file-upload strings English, Apply dialog has only X · logged in decisions.md
 2026-11-15 · #11 · parity pass 2 · Eddie(director), Vanessa(bd), Wai Mun(support), Jess(ssup) desktop: no errors, tabs/tiles/assign/approve visible per role; no marketing or team-lead person in seed (not checked); test copy holds a pending 1-day leave for Vanessa (16 Nov 2026) · done
 2026-11-15 · #11 · done · all tasks done · next: merge PR #45
+2026-11-15 · merged to main · PR #45; checks, migrate-dev, migration-guard, Vercel pass

@@ -65,3 +65,4 @@ parallel with loop 15 People & HR.
 2026-11-15 · #11 · merged origin/main (loop 20 docs; decisions.md conflict kept both entries) · next: final checks, push
 2026-11-15 · #11 · decision · browser parity (step 1) NOT run: the test copy lacks this loop's migrations until CI applies them, so the app cannot load these screens against it; docs written, merge done · why: no safe way to run before merge; owner action: parity check on the live app after deploy
 2026-11-15 · #11 · done · docs updated, origin/main merged · next: final checks, push to main
+2026-11-15 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-15-loop-14-mof-money.md

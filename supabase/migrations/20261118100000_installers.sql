@@ -85,6 +85,10 @@ create policy "installers: directory editors edit"
   with check ((select public.has_job_role('md', 'director', 'site', 'support'))
     or (select public.can_edit_stock()));
 
+create policy "left people: no access"
+  on public.installers as restrictive for all to authenticated
+  using ((select public.is_active())) with check ((select public.is_active()));
+
 -- Unchanged from the jobs migration, except a Site Supervisor cannot change the installer_id
 -- either.
 create or replace function public.guard_job()

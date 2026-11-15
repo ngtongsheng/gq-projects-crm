@@ -23,6 +23,8 @@ export const EXAMPLE_REFERENCES: Record<string, Record<string, string>> = {
   installer_claims: { installer_po_id: "installer_pos" },
   jobs: { mof_id: "mofs" },
   delivery_orders: { mof_id: "mofs", job_id: "jobs" },
+  cancelled_delivery_order_numbers: { mof_id: "mofs", job_id: "jobs" },
+  delivery_order_lines: { delivery_order_id: "delivery_orders" },
   site_bookings: { project_id: "projects" },
   site_logs: { mof_id: "mofs" },
   site_follow_ups: { site_log_id: "site_logs" },

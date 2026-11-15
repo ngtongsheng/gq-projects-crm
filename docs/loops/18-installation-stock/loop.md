@@ -21,8 +21,8 @@ Merged to `main`. Starts after loop 17 merges.
 | 01 | Installers migration + backfill | done | - | opus/medium |
 | 02 | Installer directory + calendar views | done | 01 | sonnet/high |
 | 03 | Supervisor bookings + job form extras | done | 01 | sonnet/high |
-| 04 | DO numbering + lines migration | in-progress | - | opus/medium |
-| 05 | DO on the job + print + delivery log | todo | 04 | sonnet/high |
+| 04 | DO numbering + lines migration | done | - | opus/medium |
+| 05 | DO on the job + print + delivery log | in-progress | 04 | sonnet/high |
 | 06 | Stock page deltas | todo | - | sonnet/medium |
 | 07 | Samples migration + rules | todo | - | opus/medium |
 | 08 | Samples page + pickup form print | todo | 07 | sonnet/high |
@@ -48,3 +48,7 @@ Merged to `main`. Starts after loop 17 merges.
 2026-11-15 · #03 · done · verified: check, typecheck, test (2644), guard:migrations pass; parity deferred to #12 (also verify `salespeople()` RPC, grouped Select, `supervisor_only` in JOB_COLUMNS queries)
 2026-11-15 · #03 · decision · supervisors tab uses day-by-day week list not 7-col grid; reply saved only on decline (DB check); booking list shows today..+365d incl. Declined; no Cancel (no cancelled status); added migration 20261118110000 (supervisor_only, salespeople()) · subagent deviations, sensible
 2026-11-15 · #04 · started
+2026-11-15 · #04 · done · verified: check, typecheck, test (2660), guard:migrations pass; concurrency proven by row lock (`for update` on numbering row) + unique running_no, PGlite is single-connection
+2026-11-15 · #04 · decision · no cancel function: number is voided automatically when running_no is changed/cleared/DO deleted (task 05 cancels by postponing job + clearing number); next-number in own one-row table not app_settings (so "must exceed last used" can't be bypassed); issue_do_number limited to md/director/support; void-list FKs cascade (example-data reset) · subagent deviations, sensible
+2026-11-15 · #01 · decision · added missing "left people: no access" restrictive policy to installers migration (subagent #04 spotted it; branch unmerged so edited in place) · security fix
+2026-11-15 · #05 · started

@@ -23,8 +23,8 @@ Merged to `main`. Starts after loop 17 merges.
 | 03 | Supervisor bookings + job form extras | done | 01 | sonnet/high |
 | 04 | DO numbering + lines migration | done | - | opus/medium |
 | 05 | DO on the job + print + delivery log | done | 04 | sonnet/high |
-| 06 | Stock page deltas | in-progress | - | sonnet/medium |
-| 07 | Samples migration + rules | todo | - | opus/medium |
+| 06 | Stock page deltas | done | - | sonnet/medium |
+| 07 | Samples migration + rules | in-progress | - | opus/medium |
 | 08 | Samples page + pickup form print | todo | 07 | sonnet/high |
 | 09 | Leftover migration + rules | todo | - | opus/medium |
 | 10 | Leftover page | todo | 09 | sonnet/high |
@@ -55,3 +55,7 @@ Merged to `main`. Starts after loop 17 merges.
 2026-11-15 · #05 · done · verified: check, typecheck, test (2696), guard:migrations pass; parity + print preview deferred to #12 (verify on test copy: `delivery_orders` `jobs!inner` embed, nested `mofs(projects(contacts(companies(address))))` embed, `delivery_order_lines` `delivery_orders!inner` filter, rpcs next_do_number/delivered_to_date/replace_delivery_order_lines/issue_do_number/set_next_do_number)
 2026-11-15 · #05 · decision · added migration 20261118130000 replace_delivery_order_lines (atomic save); DO items in a dialog on the MOF page not the job form; free-text items input removed (old DOs keep text); only MD can correct an issued number; cancel = postpone job + clear running_no; print never blocks (D3); delivery log not paged (>1000 DOs would be cut by PostgREST limit) · subagent deviations, sensible; log limit as debt in #12
 2026-11-15 · #06 · started
+2026-11-15 · #06 · done · verified: check, typecheck, test (2712), guard:migrations pass; parity deferred to #12 (check tile labels/order, segment labels, Email suppliers dialog, status-cell notices, segment wrap at 390px)
+2026-11-15 · #06 · decision · "Paste from sheet" already existed; kept "Stock items" as 4th segment; migration 20261118140000 (supplier_notice trigger); mailto To empty (supplier emails not stored); Samples segment links /samples, no count yet · subagent deviations, sensible
+2026-11-15 · #06 · follow-up · #08 adds (N) to Samples label in stock-tabs.tsx; #10 changes Leftover count to "available after sold allocations" (leftAvail)
+2026-11-15 · #07 · started

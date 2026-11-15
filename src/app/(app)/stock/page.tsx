@@ -11,8 +11,10 @@ import {
 } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
-import { availableQty, holdState } from "@/lib/domain/reservation";
+import { availableQty, holdState, isLive } from "@/lib/domain/reservation";
+import { pendingNotices, supplierEmails } from "@/lib/domain/supplier-notice";
 import { todayMyt } from "@/lib/format/date";
+import { StatTile, TileGrid } from "../dashboard/dashboard-parts";
 import { importStockItems, previewStockImport } from "./import-actions";
 import {
   FILTERS,
@@ -32,6 +34,7 @@ import { StockItemsTable } from "./stock-items-table";
 import { loadStockSettings } from "./stock-settings";
 import { StockSettingsDialog } from "./stock-settings-dialog";
 import { StockTabs } from "./stock-tabs";
+import { SupplierEmailDialog } from "./supplier-email-dialog";
 
 export const metadata: Metadata = { title: "Stock" };
 
@@ -71,6 +74,12 @@ export default async function StockPage({
   const waiting = withHold.filter(
     ({ hold }) => hold?.kind === "waiting",
   ).length;
+  const active = reservations.filter((line) => isLive(line.status)).length;
+  const toEmail = pendingNotices(reservations);
+  const emails = supplierEmails(toEmail, {
+    sender: me.fullName ?? "GQ Projects",
+    today,
+  });
   const summary = [
     expired > 0 && `${expired} expired`,
     expiring > 0 && `${expiring} expiring soon`,
@@ -99,6 +108,13 @@ export default async function StockPage({
         query={view === "items" ? { view } : { filter }}
       />
       {canSetSettings && <StockSettingsDialog settings={settings} />}
+      {arranges && toEmail.length > 0 && (
+        <SupplierEmailDialog
+          emails={emails}
+          pendingCount={toEmail.length}
+          trigger="button"
+        />
+      )}
       {arranges && (
         <PasteImportDialog
           title="Paste stock from sheet"
@@ -159,6 +175,42 @@ export default async function StockPage({
     <div className="flex flex-col gap-6">
       {header}
       <StockTabs active="reservations" />
+      <TileGrid className="lg:grid-cols-4">
+        <StatTile
+          label="Active reservations"
+          value={active}
+          note="Reserved, PO issued or requested"
+        />
+        <StatTile
+          label="Expired - follow up"
+          value={
+            <span className={expired > 0 ? "text-bad" : undefined}>
+              {expired}
+            </span>
+          }
+          note="Extend or release"
+        />
+        <StatTile
+          label="Expiring soon"
+          value={expiring}
+          note={`Within ${settings.warningDays} days`}
+        />
+        <StatTile
+          label="Supplier emails to send"
+          value={toEmail.length}
+          note={
+            arranges && toEmail.length > 0 ? (
+              <SupplierEmailDialog
+                emails={emails}
+                pendingCount={toEmail.length}
+                trigger="link"
+              />
+            ) : (
+              "Reserve / extend / release"
+            )
+          }
+        />
+      </TileGrid>
       <div className="flex flex-wrap gap-2">
         {FILTERS.map((option) => (
           <Button

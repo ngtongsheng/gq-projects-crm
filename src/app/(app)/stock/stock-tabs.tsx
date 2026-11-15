@@ -1,33 +1,28 @@
-import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { SegmentLinks } from "../site-work/segment-links";
+import { countLeftoverAtBestLink } from "./leftover/leftover-count";
 
-const TABS = [
-  { key: "reservations", label: "Reservations", href: "/stock" },
-  { key: "items", label: "Stock items", href: "/stock?view=items" },
-  { key: "leftover", label: "Leftover stock", href: "/stock/leftover" },
-] as const;
+export type StockTab = "reservations" | "items" | "leftover" | "samples";
 
-export type StockTab = (typeof TABS)[number]["key"];
-
-/** Links between the Stock pages; the current one is marked. */
-export function StockTabs({ active }: { active: StockTab }) {
+/**
+ * The demo's segments across the Stock pages. Samples links to its own page (loop 18 task 08);
+ * its count joins the label once the samples table exists.
+ */
+export async function StockTabs({ active }: { active: StockTab }) {
+  const leftover = await countLeftoverAtBestLink();
   return (
-    <nav aria-label="Stock" className="flex gap-1 border-b">
-      {TABS.map((tab) => (
-        <Link
-          key={tab.key}
-          href={tab.href}
-          aria-current={tab.key === active ? "page" : undefined}
-          className={cn(
-            "-mb-px border-b-2 px-3 py-2 text-sm font-medium",
-            tab.key === active
-              ? "border-primary text-foreground"
-              : "border-transparent text-muted-foreground hover:text-foreground",
-          )}
-        >
-          {tab.label}
-        </Link>
-      ))}
-    </nav>
+    <SegmentLinks
+      label="Stock"
+      active={active}
+      items={[
+        { key: "reservations", label: "Reserved for clients", href: "/stock" },
+        { key: "items", label: "Stock items", href: "/stock?view=items" },
+        {
+          key: "leftover",
+          label: `Leftover stock at Best Link (${leftover})`,
+          href: "/stock/leftover",
+        },
+        { key: "samples", label: "Samples at Best Link", href: "/samples" },
+      ]}
+    />
   );
 }

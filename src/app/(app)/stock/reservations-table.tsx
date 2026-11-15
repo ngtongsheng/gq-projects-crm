@@ -6,11 +6,16 @@ import {
   STOCK_UNIT_LABEL,
   supplierMailto,
 } from "@/lib/domain/reservation";
-import { formatDate } from "@/lib/format/date";
+import {
+  pendingNotices,
+  SUPPLIER_NOTICE_LABEL,
+} from "@/lib/domain/supplier-notice";
+import { formatDate, todayMyt } from "@/lib/format/date";
 import { formatQuantity } from "@/lib/format/quantity";
 import { ReservationActions } from "./reservation-actions";
 import { ReservationBadges } from "./reservation-badges";
 import { type HeldReservation, reservedOnLabel } from "./reservation-filters";
+import type { Reservation } from "./stock-data";
 
 /** The reservation lines the filter shows, with the hold actions for those who arrange stock. */
 export function ReservationsTable({
@@ -96,7 +101,10 @@ export function ReservationsTable({
           key: "status",
           header: "Status",
           cell: ({ line, hold }) => (
-            <ReservationBadges status={line.status} hold={hold} />
+            <div className="flex flex-col items-start gap-1">
+              <ReservationBadges status={line.status} hold={hold} />
+              <SupplierNoticeNote line={line} />
+            </div>
           ),
         },
         {
@@ -123,5 +131,21 @@ export function ReservationsTable({
         },
       ]}
     />
+  );
+}
+
+/** Whether the supplier still has to be emailed about this line, or was told and when. */
+function SupplierNoticeNote({ line }: { line: Reservation }) {
+  if (!line.supplierNotice) return null;
+  const label = SUPPLIER_NOTICE_LABEL[line.supplierNotice];
+  if (pendingNotices([line]).length > 0) {
+    return <span className="text-xs text-warn">Email supplier: {label}</span>;
+  }
+  if (!line.supplierNotifiedAt) return null;
+  return (
+    <span className="text-xs text-muted-foreground">
+      Supplier told ({label}){" "}
+      {formatDate(todayMyt(new Date(line.supplierNotifiedAt)))}
+    </span>
   );
 }

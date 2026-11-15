@@ -126,7 +126,7 @@ export default async function ProjectsPage({
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Projects"
+        title="Project pipeline"
         description={
           readsOwnProjectsOnly(me.jobRole)
             ? "Your deals by stage: the ones you lead, support or passed down. Add a project from the customer's page."

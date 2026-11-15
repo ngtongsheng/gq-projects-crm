@@ -86,7 +86,7 @@ export default async function SalesCalendarPage({
   const visitsDone = activities.filter(
     (a) =>
       a.status === "completed" &&
-      (a.type === "visit" || a.type === "site_visit"),
+      (a.type === "visit" || a.type === "site_visit" || a.type === "walk_in"),
   ).length;
   const planned = activities.filter((a) => a.status === "planned").length;
   const teamLabel = filter?.allLabel === "My team" ? "my team" : "whole team";
@@ -94,7 +94,7 @@ export default async function SalesCalendarPage({
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Sales Calendar"
+        title="Calendar & itinerary"
         description={`${visitsDone} visits done · ${planned} planned this ${period.isMonth ? "month" : "week"}${showOwner && manager ? ` · ${teamLabel}` : ""}`}
         actions={
           <>

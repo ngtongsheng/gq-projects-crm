@@ -185,3 +185,17 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
   stay English only (D4).
 - Migrations (D5): ours are `20261115130000` and `20261115140000` (renamed after loop 13 took `20261115120000`); rename again at merge if `main` has a
   newer one.
+- Parity pass (2026-11-15, test copy, md, Sales Director, BD, sales, site, site who sells; 1280 and 390 px, no
+  horizontal overflow). Page headings now read "Calendar & itinerary" and "Project pipeline" as in the demo, and the
+  calendar's "visits done" counts walk-ins like the demo and Weekly outcomes. Deviations left, all deliberate:
+  - All people keeps the existing people table (Position, Company, Mobile, Owners, rating, account type, CSV) and its
+    filters, not the demo's six columns.
+  - Weekly outcomes rows are expandable cards (a table does not fit a phone); the same numbers, the Week bar and the
+    report block are there. Monthly list moves months with the arrows, not a Month picker.
+  - Projects keep the existing Person filter and stage filters instead of the demo's per-person count chips; the List
+    columns are the existing ones (Flags, Est. commission, PIC).
+  - Sales and Site who sell read every company and customer (existing "read all" rules) and request ownership to edit;
+    the demo lists only their own under "My customers". Site who sell see only their own projects (none in the
+    example data); a Site supervisor who does not sell has no Customers, Calendar or Projects, as in the demo.
+  - Calendar cards and the Monthly list badge open the customer page, where Log outcome lives; the demo logs from the
+    row. The invitee list also shows people who have left (`team_directory` has no active flag; needs a migration).

@@ -20,3 +20,8 @@
 | Windows setup and the Windows agent scripts are untested on a real PC | Built and reviewed as `win32` on a Mac (`SETUP.md` Windows path, Node hook scripts, `free-port`, `copy-env`) and never run on a real Windows PC | First time Vicky pastes the setup link on her Windows PC: watch it, fix what breaks, then remove this row |
 | Repo is public | Kept public until Vercel Pro is in place; backups are encrypted because Actions artifacts of a public repo are readable by any signed-in GitHub user | When Vercel Pro and GitHub Pro (or an org plan) are in place: make the repo private |
 | Logging a visit outcome is three separate database calls (lead project, activity update, follow-up), not one transaction | A transaction needs a database function in a new migration; if a later call fails the earlier ones stay (an unlinked lead, or an outcome without its follow-up) and she sees a message (loop 12 #05) | If partial saves show up in practice: move the three writes into one SQL function called from `logOutcome`. Also: the edit form status select and `setActivityStatus(..., "completed")` can still complete a visit without a result |
+
+## Invitee list shows people who have left (loop 12)
+- What: the Add activity invitee picker lists everyone in `team_directory()`, including people marked left.
+- Why: the function returns no active flag; filtering needs a new migration.
+- When to fix: with the next change to `team_directory` (People & HR loop).

@@ -29,7 +29,7 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 | 07 | Calendar views, My team filter, Plan a call | done | 05, 06 | sonnet/high |
 | 08 | Weekly outcomes + weekly reports | done | 05 | opus/medium |
 | 09 | Projects: site role scoping | done | - | opus/medium |
-| 10 | Parity pass, docs, merge | blocked: owner - parity in Chrome per role; then merge | 01-09 | sonnet/medium |
+| 10 | Parity pass, docs, merge | done | 01-09 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - None planned. Tell Vicky one line when it is live (message to a person, so the owner sends it).
@@ -76,3 +76,5 @@ views with weekly reports, and site-role project scoping. Parity checked per `do
 2026-11-15 · #10 · blocked: owner · parity per docs/office-parity/parity.md needs .env.local + .env.development in the worktree (copy denied by the permission system) and a sign-in per role on the test copy; merge held so unseen UI and two migrations do not reach the live app · next: owner copies env, re-run /execute-loop docs/loops/12-sales-parity
 2026-11-15 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-15-loop-12-sales-parity.md
 2026-11-15 · #10 · decision · owner copied env files; loop 13's costing migration 20261115120000 was already on the test copy, so ours renamed to 20261115130000 (sales calendar) and 20261115140000 (site scoping) and applied to the test copy only via pnpm db:test-copy · D5
+2026-11-15 · #10 · decision · parity run in Chrome on the test copy (md, director, bd, sales, site, site+sells; 1280 + 390) via iframes; headings fixed to "Calendar & itinerary" and "Project pipeline"; visits-done count includes walk-ins; deviations in docs/decisions.md; invitee picker lists people who left (needs team_directory migration, in docs/debt.md) · parity.md
+2026-11-15 · #10 · done · parity pass and end-to-end flows (log outcome, invite, accept, weekly report, review) worked; check, typecheck, test (1405), guard:migrations pass · next: merge

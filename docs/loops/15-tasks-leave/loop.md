@@ -62,3 +62,5 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 2026-11-15 · #09 · decision · holiday edits do not recount existing leave days (SQL counts at insert); entitlement sheet edits max(current year, 2027); no leave policy editor (not in task) · #05/D2
 2026-11-15 · #10 · done · zh-tasks-leave.ts (~330 entries) wired via t()/useT in both pages; seed tasks.ts + leave.ts; checks pass (1975) · next: #11
 2026-11-15 · #10 · decision · server-action error messages, page metadata titles, calendar month/weekday names stay English; Chinese wording outside demo ZHEN is own wording (needs native read) · scope
+2026-11-15 · #11 · in-progress · merged origin/main (loop 20, sales calendar, site scoping); renamed migrations tasks 20261115130000→143000, task_people 140000→144000 (main has 130000/140000) · D8; 184 files/2078 tests pass, guard clean
+2026-11-15 · #11 · decision · Chrome parity needs test-copy credentials (.env.local read denied, .env.seed.dev absent) and migrations on the test copy; parked as owner step, docs done first · stop rule: credentials

@@ -23,8 +23,8 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 | 02 | Task flow rules | done | 01 | opus/medium |
 | 03 | Tasks page: tabs + tiles | done | 02 | sonnet/high |
 | 04 | Task sheet | done | 02 | sonnet/high |
-| 05 | Leave migration | in-progress | - | opus/medium |
-| 06 | Leave maths | todo | 05 | opus/medium |
+| 05 | Leave migration | done | - | opus/medium |
+| 06 | Leave maths | in-progress | 05 | opus/medium |
 | 07 | Leave approval + slip rules | todo | 05 | opus/medium |
 | 08 | Leave page | todo | 06, 07 | sonnet/high |
 | 09 | Who is away, holidays, entitlements | todo | 08 | sonnet/high |
@@ -49,3 +49,5 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 2026-11-15 · #03 · decision · added migration task_people() for role-aware assignee list (team_directory lacks job role); 4 tiles incl. waiting review; dialog not sheet · follows demo/app patterns
 2026-11-15 · #04 · done · task sheet, files with versions, review panel, log; checks pass (1821 tests); parity deferred to #11 · next: #05
 2026-11-15 · #04 · decision · no edit-task UI (editTask action exists; not in task spec); title-only click; separate Save new date button · DataTable is server component, spec silent
+2026-11-15 · #05 · done · leave_entitlements, leave_requests, leave_approval_steps, decide_leave RPC, policy settings; 45 tests; checks pass (1869) · next: #06
+2026-11-15 · #05 · decision · decisions via decide_leave RPC (#07 must call it); days counted in SQL at insert, not recounted; md decides any step, accounts any MC/hospitalisation step; no record-for-someone · #06 maths must match SQL

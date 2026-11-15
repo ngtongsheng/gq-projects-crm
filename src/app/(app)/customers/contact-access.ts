@@ -18,3 +18,20 @@ export const canRateCompany = isOwnerManager;
 
 /** Paste-from-sheet import sets owners and updates companies, which only these roles may. */
 export const canImportCustomers = isOwnerManager;
+
+/** Companies are edited by the MD or Sales Director (SQL: the update policy on companies). */
+export const canEditCompany = isOwnerManager;
+
+/**
+ * Only a company's salespeople (owners of its people) add people there; the MD and Sales Director
+ * always may. A company nobody owns yet is open, so the first person can be added.
+ */
+export const canAddPersonToCompany = (
+  jobRole: JobRole,
+  companyOwnerIds: string[],
+  personId: string,
+) =>
+  canAddContact(jobRole) &&
+  (isOwnerManager(jobRole) ||
+    companyOwnerIds.length === 0 ||
+    companyOwnerIds.includes(personId));

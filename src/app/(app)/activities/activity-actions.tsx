@@ -5,31 +5,31 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { setActivityStatus } from "./actions";
 import { ActivityDialog, type EditableActivity } from "./activity-form";
+import { LogOutcomeDialog } from "./log-outcome-dialog";
+import { ActivityTypeLabel } from "./schemas";
 
 type ActivityActionsProps = {
   contactId: string;
   customerName: string;
   activity: EditableActivity;
+  needsOutcome: boolean;
 };
 
-/** Edit for the owner; complete and cancel while the activity is still planned. */
+/** Edit for the owner; log the outcome once a planned activity's time has come, or cancel it. */
 export function ActivityActions({
   contactId,
   customerName,
   activity,
+  needsOutcome,
 }: ActivityActionsProps) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  function move(status: "completed" | "cancelled") {
+  function cancel() {
     startTransition(async () => {
-      const result = await setActivityStatus(activity.id, status);
+      const result = await setActivityStatus(activity.id, "cancelled");
       setError(result.error);
-      if (!result.error) {
-        toast.success(
-          status === "completed" ? "Marked completed." : "Activity cancelled.",
-        );
-      }
+      if (!result.error) toast.success("Activity cancelled.");
     });
   }
 
@@ -38,18 +38,17 @@ export function ActivityActions({
       <div className="flex flex-wrap gap-2">
         {activity.status === "planned" && (
           <>
-            <Button
-              size="sm"
-              disabled={pending}
-              onClick={() => move("completed")}
-            >
-              Complete
-            </Button>
+            {needsOutcome && (
+              <LogOutcomeDialog
+                activityId={activity.id}
+                summary={`${customerName} · ${ActivityTypeLabel[activity.type]} · ${activity.purpose}`}
+              />
+            )}
             <Button
               size="sm"
               variant="outline"
               disabled={pending}
-              onClick={() => move("cancelled")}
+              onClick={cancel}
             >
               Cancel
             </Button>

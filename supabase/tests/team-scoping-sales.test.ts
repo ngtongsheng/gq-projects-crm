@@ -120,11 +120,26 @@ describe.each(tables)("who reads which %s", (table) => {
   it.each([
     "md",
     "accounts",
-    "site",
   ] as const)("%s reads both teams'", async (jobRole) => {
     const rows = await visible(jobRole, table);
     expect(rows).toContain(idOf(eddieTeam, table));
     expect(rows).toContain(idOf(vanessaTeam, table));
+  });
+});
+
+describe("a Site Supervisor", () => {
+  it.each([
+    "companies",
+    "contacts",
+    "activities",
+  ] as const)("reads both teams' %s", async (table) => {
+    const rows = await visible("site", table);
+    expect(rows).toContain(idOf(eddieTeam, table));
+    expect(rows).toContain(idOf(vanessaTeam, table));
+  });
+
+  it("reads neither team's projects (loop 12 task 09)", async () => {
+    expect(await visible("site", "projects")).toEqual([]);
   });
 });
 

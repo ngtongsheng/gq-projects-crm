@@ -8,6 +8,8 @@ import { textField } from "@/lib/form/form-fields";
 import { createClient } from "@/lib/supabase/server";
 import {
   canAddContact,
+  canAddPersonToCompany,
+  canEditCompany,
   canEditContact,
   canRateCompany,
   canSetAccountType,
@@ -46,6 +48,8 @@ const existingContactRow = z.object({
   passed_by: z.string().nullable(),
   contact_owners: z.array(z.object({ profile_id: z.string() })),
 });
+
+const companyOwnerRows = z.array(z.object({ profile_id: z.string() }));
 
 const duplicateRow = z.object({
   id: z.string(),
@@ -144,6 +148,27 @@ export async function saveContact(
     return fail(newRating.error.issues[0]?.message ?? "Choose a rating.");
   }
 
+  // Adding a person to a company someone else's people belong to is for its salespeople.
+  if (!contactId && !isNewCompany) {
+    const { data: ownerData, error: ownerError } = await supabase
+      .from("contact_owners")
+      .select("profile_id, contacts!inner(company_id)")
+      .eq("contacts.company_id", contact.data.companyId)
+      .is("contacts.archived_at", null);
+    if (ownerError) {
+      console.error("Could not load the company's salespeople", ownerError);
+      return fail("Could not save the customer. Try again.");
+    }
+    const companyOwnerIds = companyOwnerRows
+      .parse(ownerData)
+      .map((owner) => owner.profile_id);
+    if (!canAddPersonToCompany(me.jobRole, companyOwnerIds, me.id)) {
+      return fail(
+        "Only this company's salespeople, the MD or the Sales Director can add people to it.",
+      );
+    }
+  }
+
   const duplicateQuery = supabase
     .from("contacts")
     .select("id, name, companies(name), contact_owners(profile_id)")
@@ -216,4 +241,63 @@ export async function saveContact(
 
   revalidatePath("/customers");
   return { error: null, duplicate: null };
+}
+
+export type SaveCompanyResult = { error: string | null };
+
+/** Changes a company's name, type, rating and commission type. */
+export async function saveCompany(
+  formData: FormData,
+): Promise<SaveCompanyResult> {
+  const me = await requirePage("cust");
+  if (!canEditCompany(me.jobRole)) {
+    return { error: "Only the MD or the Sales Director can change a company." };
+  }
+
+  const companyId = textField(formData, "companyId");
+  if (!z.uuid().safeParse(companyId).success) {
+    return { error: "Could not find that company. Reload the page." };
+  }
+
+  const company = companyFormSchema.safeParse({
+    name: textField(formData, "name"),
+    companyType: textField(formData, "companyType"),
+    rating: textField(formData, "rating"),
+    accountType: textField(formData, "accountType"),
+    passedBy: textField(formData, "passedBy"),
+    address: textField(formData, "address"),
+    notes: textField(formData, "notes"),
+  });
+  if (!company.success) {
+    return { error: company.error.issues[0]?.message ?? "Check the details." };
+  }
+
+  const supabase = await createClient();
+  // RLS lets only the MD and Sales Director update, and hides the row from anyone else.
+  const { data, error } = await supabase
+    .from("companies")
+    .update({
+      name: company.data.name,
+      company_type: company.data.companyType,
+      rating: company.data.rating,
+      account_type: company.data.accountType,
+      passed_by: company.data.passedBy,
+      address: company.data.address,
+      notes: company.data.notes,
+    })
+    .eq("id", companyId)
+    .select("id")
+    .maybeSingle();
+  if (error?.code === UNIQUE_VIOLATION) {
+    return { error: "A company with that name already exists." };
+  }
+  if (error) {
+    console.error("Could not save company", error);
+    return { error: "Could not save the company. Try again." };
+  }
+  if (!data)
+    return { error: "That company no longer exists. Reload the page." };
+
+  revalidatePath("/customers");
+  return { error: null };
 }

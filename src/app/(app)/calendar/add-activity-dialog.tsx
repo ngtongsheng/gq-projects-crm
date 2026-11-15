@@ -13,11 +13,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { formatDate } from "@/lib/format/date";
+import type { Colleague } from "./invitee-picker";
 
 type AddActivityDialogProps = {
   /** The day clicked on the calendar. */
   date: string;
   customers: CustomerOption[];
+  /** Colleagues the salesperson can invite along. */
+  colleagues: Colleague[];
   /** The calendar address without the add day; closing goes back to it. */
   closeHref: string;
 };
@@ -28,6 +31,7 @@ const DEFAULT_TIME = "09:00";
 export function AddActivityDialog({
   date,
   customers,
+  colleagues,
   closeHref,
 }: AddActivityDialogProps) {
   const router = useRouter();
@@ -44,6 +48,7 @@ export function AddActivityDialog({
         </DialogHeader>
         <ActivityForm
           customers={customers}
+          colleagues={colleagues}
           defaultStartsAt={`${date}T${DEFAULT_TIME}`}
           onSaved={close}
         />

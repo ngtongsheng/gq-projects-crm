@@ -10,7 +10,30 @@ test("defaults to this month, everyone, no dialog", () => {
     date: TODAY,
     who: undefined,
     add: undefined,
+    call: undefined,
   });
+});
+
+test("the default tab is the caller's choice, and an unknown one falls back to it", () => {
+  expect(parseCalendarParams({}, TODAY, "week").view).toBe("week");
+  expect(parseCalendarParams({ view: "year" }, TODAY, "week").view).toBe(
+    "week",
+  );
+  expect(parseCalendarParams({ view: "list" }, TODAY, "week").view).toBe(
+    "list",
+  );
+  expect(parseCalendarParams({ view: "outcomes" }, TODAY).view).toBe(
+    "outcomes",
+  );
+});
+
+test("reads a call day and ignores one that is not a real date", () => {
+  expect(parseCalendarParams({ call: "2026-12-03" }, TODAY).call).toBe(
+    "2026-12-03",
+  );
+  expect(parseCalendarParams({ call: "2026-13-03" }, TODAY).call).toBe(
+    undefined,
+  );
 });
 
 test("reads a valid week, date, person and add day", () => {
@@ -31,6 +54,11 @@ test("ignores values that are not a view, a real date or a person", () => {
   ).toEqual({ view: "month", date: TODAY, who: undefined, add: undefined });
 });
 
+test("steps a month in the Monthly list and a week in the other tabs", () => {
+  expect(stepDate("list", "2026-11-20", 1)).toBe("2026-12-01");
+  expect(stepDate("outcomes", "2026-11-02", -1)).toBe("2026-10-26");
+});
+
 test("steps a month or a week", () => {
   expect(stepDate("month", "2026-12-20", 1)).toBe("2027-01-01");
   expect(stepDate("month", "2026-11-20", -1)).toBe("2026-10-01");
@@ -46,6 +74,13 @@ test("links keep what is set and leave month view and everyone out", () => {
   expect(calendarHref({ view: "month", date: "2026-11-02" })).toBe(
     "/calendar?date=2026-11-02",
   );
+});
+
+test("links leave out the default tab and keep any other", () => {
+  expect(calendarHref({ view: "week" }, "/calendar", "week")).toBe("/calendar");
+  expect(
+    calendarHref({ view: "list", call: "2026-11-02" }, "/calendar", "week"),
+  ).toBe("/calendar?view=list&call=2026-11-02");
 });
 
 test("links can point at another calendar page", () => {

@@ -62,6 +62,8 @@ type ContactDialogProps = {
   canRateCompany: boolean;
   /** Salespeople who hit a customer someone else owns can ask for it. */
   canRequestOwnership: boolean;
+  /** Adding from a company's sheet: the company is already chosen. */
+  defaultCompanyId?: string;
 };
 
 const NEW_COMPANY = "new";
@@ -78,6 +80,11 @@ export function ContactDialog(props: ContactDialogProps) {
           <Button size="sm" variant="outline">
             <Pencil data-icon="inline-start" />
             Edit
+          </Button>
+        ) : props.defaultCompanyId ? (
+          <Button size="sm" variant="outline">
+            <UserPlus data-icon="inline-start" />
+            Add person
           </Button>
         ) : (
           <Button>
@@ -108,12 +115,15 @@ function ContactForm({
   canSetAccountType,
   canRateCompany,
   canRequestOwnership,
+  defaultCompanyId,
   onSaved,
 }: ContactDialogProps & { onSaved: () => void }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [duplicate, setDuplicate] = useState<DuplicateContact | null>(null);
-  const [companyId, setCompanyId] = useState(contact?.companyId ?? "");
+  const [companyId, setCompanyId] = useState(
+    contact?.companyId ?? defaultCompanyId ?? "",
+  );
   const chosenCompany = companies.find((company) => company.id === companyId);
   const [accountType, setAccountType] = useState<AccountType>(
     contact?.accountType ?? "own",

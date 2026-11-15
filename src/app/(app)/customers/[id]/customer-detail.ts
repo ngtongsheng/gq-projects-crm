@@ -4,6 +4,7 @@ import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { createClient } from "@/lib/supabase/server";
 import { canEditActivity } from "../../activities/activity-access";
 import type { CustomerActivity } from "../../activities/customer-activities";
+import { needsOutcome, VisitResult } from "../../activities/outcome-schema";
 import { ActivityStatus, ActivityType } from "../../activities/schemas";
 import type { CustomerProject } from "../../projects/customer-projects";
 import { canEditProject } from "../../projects/project-access";
@@ -50,6 +51,8 @@ const activityRows = z.array(
     outcome: z.string().nullable(),
     starts_at: z.string(),
     status: ActivityStatus,
+    result: VisitResult.nullable(),
+    late_logged: z.boolean(),
   }),
 );
 
@@ -103,7 +106,9 @@ export async function loadCustomerDetail(me: Profile, id: string) {
     supabase.from("companies").select("id, name, rating").order("name"),
     supabase
       .from("activities")
-      .select("id, owner_id, type, purpose, outcome, starts_at, status")
+      .select(
+        "id, owner_id, type, purpose, outcome, starts_at, status, result, late_logged",
+      )
       .eq("contact_id", customer.id)
       .order("starts_at", { ascending: false }),
     supabase
@@ -150,6 +155,12 @@ export async function loadCustomerDetail(me: Profile, id: string) {
       outcome: row.outcome,
       startsAt: row.starts_at,
       status: row.status,
+      result: row.result,
+      lateLogged: row.late_logged,
+      needsOutcome: needsOutcome({
+        status: row.status,
+        startsAt: row.starts_at,
+      }),
       canEdit: canEditActivity(me.jobRole, row.owner_id === me.id),
     }));
   const projects: CustomerProject[] = projectRows

@@ -5,9 +5,13 @@ import { createTestDatabase, type TestDatabase } from "./harness";
 
 // Finding 55: BD and Sales read only the projects they are on; everyone else reads all.
 // Loop 11 D6: a director reads their team's; this salesperson reports to no one.
+// Loop 12 task 09: a Site Supervisor reads only the projects they are on, selling or not.
 
 let t: TestDatabase;
-let ids: Record<"others" | "supported" | "passedDown" | "led", string>;
+let ids: Record<
+  "others" | "supported" | "passedDown" | "led" | "siteLeads" | "siteSupports",
+  string
+>;
 
 async function addProject(
   name: string,
@@ -47,6 +51,8 @@ beforeAll(async () => {
     supported: await addProject("Sales supports", "director", "sales", null),
     passedDown: await addProject("BD passed down", "director", null, "bd"),
     led: await addProject("Sales leads", "sales", null, null),
+    siteLeads: await addProject("Site sells", "site", null, null),
+    siteSupports: await addProject("Site supports", "sales", "site", null),
   };
 });
 
@@ -58,8 +64,8 @@ describe("who reads which projects", () => {
   it.each([
     "md",
     "accounts",
-    "site",
     "support",
+    "ssup",
   ] as const)("%s reads every project", async (jobRole) => {
     expect(await visibleTo(jobRole)).toEqual(Object.values(ids).sort());
   });
@@ -71,7 +77,25 @@ describe("who reads which projects", () => {
   });
 
   it("sales reads only the projects they lead or support", async () => {
-    expect(await visibleTo("sales")).toEqual([ids.supported, ids.led].sort());
+    expect(await visibleTo("sales")).toEqual(
+      [ids.supported, ids.led, ids.siteSupports].sort(),
+    );
+  });
+
+  it("site reads only the projects they lead or support", async () => {
+    expect(await visibleTo("site")).toEqual(
+      [ids.siteLeads, ids.siteSupports].sort(),
+    );
+  });
+
+  it("site who also sells reads the same, nothing more", async () => {
+    await t.actAs(null);
+    await t.db.query("update public.profiles set sells = true where id = $1", [
+      t.profileIds.site,
+    ]);
+    expect(await visibleTo("site")).toEqual(
+      [ids.siteLeads, ids.siteSupports].sort(),
+    );
   });
 
   it("bd reads only the projects they passed down", async () => {

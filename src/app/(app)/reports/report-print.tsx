@@ -4,9 +4,11 @@ import { Printer } from "lucide-react";
 import { PrintLayout, PrintSignatureRow } from "@/components/app/print-layout";
 import { Button } from "@/components/ui/button";
 import type { ReportKind, ReportStats } from "@/lib/domain/report-stats";
+import type { SiteReport } from "@/lib/domain/site-report";
 import { type CalendarDate, formatMonth } from "@/lib/format/date";
 import type { MonthlyReport } from "./report-data";
 import { ReportFigures } from "./report-figures";
+import { SiteReportPrintSections } from "./site-report-print";
 
 const STATUS_LABEL: Record<MonthlyReport["status"], string> = {
   draft: "Draft",
@@ -39,6 +41,7 @@ export function ReportPrintSheet({
   personName,
   report,
   stats,
+  siteReport,
   pace,
   reviewerName,
   approverName,
@@ -49,6 +52,8 @@ export function ReportPrintSheet({
   personName: string;
   report: MonthlyReport | null;
   stats: ReportStats;
+  /** The site report's itinerary and tables; null for the other kinds. */
+  siteReport: SiteReport | null;
   pace: number;
   /** Null until someone has reviewed the report. */
   reviewerName: string | null;
@@ -72,6 +77,12 @@ export function ReportPrintSheet({
           {kind === "site" ? "Site work this month" : "Sales this month"}
         </h2>
         <ReportFigures stats={stats} pace={pace} />
+        {siteReport && stats.kind === "site" && (
+          <SiteReportPrintSections
+            report={siteReport}
+            visitTarget={stats.siteVisitTarget}
+          />
+        )}
 
         {report && (
           <div className="mt-4 flex flex-col gap-3">

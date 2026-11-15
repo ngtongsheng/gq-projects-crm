@@ -10,6 +10,17 @@ import {
   salesStats,
   siteStats,
 } from "@/lib/domain/report-stats";
+import {
+  BOOKING_PURPOSE_LABEL,
+  BOOKING_PURPOSES,
+} from "@/lib/domain/site-booking";
+import { SITE_ACTIVITIES } from "@/lib/domain/site-log";
+import {
+  buildItinerary,
+  type SiteReport,
+  shootingHandoverRows,
+  stockReturnCounts,
+} from "@/lib/domain/site-report";
 import { isClockTime } from "@/lib/format/clock-time";
 import { type CalendarDate, todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
@@ -376,4 +387,109 @@ export function loadLiveStats(
   return kind === "site"
     ? loadSiteStats(personId, month, targets)
     : loadSalesStats(kind, personId, month, targets);
+}
+
+const siteReportLogRows = z.array(
+  z.object({
+    mof_id: z.string(),
+    visited_on: z.string(),
+    activity: z.enum(SITE_ACTIVITIES),
+    handover_signed: z.boolean(),
+    drive_link: z.string().nullable(),
+    mofs: z.object({
+      company_name: z.string(),
+      project_name: z.string(),
+      project_id: z.string().nullable(),
+    }),
+  }),
+);
+
+const siteReportBookingRows = z.array(
+  z.object({
+    project_id: z.string().nullable(),
+    site: z.string().nullable(),
+    purpose: z.enum(BOOKING_PURPOSES),
+    visit_on: z.string(),
+    projects: z.object({ name: z.string() }).nullable(),
+  }),
+);
+
+const siteReportLeftoverRows = z.array(
+  z.object({
+    destination: z.enum(["supplier", "gq"]),
+    status: z.string(),
+  }),
+);
+
+/**
+ * A Site Supervisor's month beyond the headline figures: itinerary (booked vs added on the
+ * day), shooting and handover rows, and the leftover stock they recorded. Always live: logs
+ * are never edited, so a filed report's itinerary does not drift; a booking confirmed or
+ * declined afterwards can.
+ */
+export async function loadSiteReport(
+  personId: string,
+  month: CalendarDate,
+  today: CalendarDate,
+): Promise<SiteReport> {
+  const supabase = await createClient();
+  const next = shiftMonth(month, 1);
+  const { from, to } = monthBounds(month);
+  const [logs, bookings, leftovers] = await Promise.all([
+    supabase
+      .from("site_logs")
+      .select(
+        "mof_id, visited_on, activity, handover_signed, drive_link, mofs(company_name, project_name, project_id)",
+      )
+      .eq("supervisor_id", personId)
+      .gte("visited_on", month)
+      .lt("visited_on", next),
+    supabase
+      .from("site_bookings")
+      .select("project_id, site, purpose, visit_on, projects(name)")
+      .eq("supervisor_id", personId)
+      .eq("status", "confirmed")
+      .gte("visit_on", month)
+      .lt("visit_on", next),
+    supabase
+      .from("leftovers")
+      .select("destination, status")
+      .eq("created_by", personId)
+      .gte("created_at", from)
+      .lt("created_at", to),
+  ]);
+  for (const result of [logs, bookings, leftovers]) {
+    if (result.error) {
+      throw new Error(
+        `Could not load the site report: ${result.error.message}`,
+      );
+    }
+  }
+
+  const siteLogs = siteReportLogRows.parse(logs.data).map((row) => ({
+    mofId: row.mof_id,
+    projectId: row.mofs.project_id,
+    siteLabel: `${row.mofs.company_name} · ${row.mofs.project_name}`,
+    visitedOn: row.visited_on,
+    activity: row.activity,
+    handoverSigned: row.handover_signed,
+    driveLink: row.drive_link,
+  }));
+  return {
+    itinerary: buildItinerary({
+      month,
+      today,
+      logs: siteLogs,
+      bookings: siteReportBookingRows.parse(bookings.data).map((row) => ({
+        projectId: row.project_id,
+        siteLabel: row.projects?.name ?? row.site ?? "",
+        visitOn: row.visit_on,
+        purposeLabel: BOOKING_PURPOSE_LABEL[row.purpose],
+      })),
+    }),
+    shootingHandover: shootingHandoverRows(siteLogs, month),
+    stockReturns: stockReturnCounts(
+      siteReportLeftoverRows.parse(leftovers.data),
+    ),
+  };
 }

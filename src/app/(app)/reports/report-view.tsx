@@ -20,10 +20,11 @@ import { loadWorkCalendar } from "@/lib/work-calendar";
 import {
   loadLiveStats,
   loadMyReportReviewers,
+  loadSiteReport,
   type MonthlyReport,
   type ReportSettings,
 } from "./report-data";
-import { ReportFigures } from "./report-figures";
+import { ReportFigures, SiteReportSections } from "./report-figures";
 import { ReportForm } from "./report-form";
 import type { ReportsView } from "./report-params";
 import { PrintReportButton, ReportPrintSheet } from "./report-print";
@@ -216,6 +217,10 @@ export async function ReportView({
   const stats =
     report?.stats ??
     (await loadLiveStats(kind, personId, view.month, view.settings.targets));
+  const siteReport =
+    kind === "site"
+      ? await loadSiteReport(personId, view.month, view.today)
+      : null;
   const canReview =
     report !== null &&
     !own &&
@@ -282,10 +287,17 @@ export async function ReportView({
             {report?.stats
               ? "Figures were frozen when the report was submitted."
               : kind === "site"
-                ? "Counted from the site log and overtime. Frozen when you submit."
+                ? "Counted from the site log. Frozen when you submit."
                 : "Counted from the calendar, projects and MOFs. Frozen when you submit."}
           </p>
         </section>
+
+        {siteReport && stats.kind === "site" && (
+          <SiteReportSections
+            report={siteReport}
+            visitTarget={stats.siteVisitTarget}
+          />
+        )}
 
         {editable ? (
           <ReportForm
@@ -317,6 +329,7 @@ export async function ReportView({
         personName={name}
         report={report}
         stats={stats}
+        siteReport={siteReport}
         pace={pace}
         reviewerName={nameOfId(report?.reviewedBy ?? null)}
         approverName={nameOfId(report?.approvedBy ?? null)}

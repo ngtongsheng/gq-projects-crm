@@ -1,6 +1,17 @@
 import { DataTable } from "@/components/app/data-table";
 import { StatusBadge } from "@/components/app/status-badge";
 import { achievedTone, type ReportStats } from "@/lib/domain/report-stats";
+import {
+  type ItineraryLine,
+  type ItineraryOrigin,
+  ORIGIN_LABEL,
+  type ShootingHandoverRow,
+  type SiteReport,
+  scheduleCheckSummary,
+  shootingHandoverWords,
+  stockReturnSummary,
+} from "@/lib/domain/site-report";
+import { formatDate } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
 
 type FigureRow = {
@@ -32,7 +43,6 @@ function rowsFor(stats: ReportStats): FigureRow[] {
         actual: String(stats.handovers),
         done: stats.handovers,
       },
-      { label: "Overtime hours", target: null, actual: String(stats.otHours) },
     ];
   }
   const rows: FigureRow[] = [
@@ -115,5 +125,129 @@ export function ReportFigures({
         },
       ]}
     />
+  );
+}
+
+const ORIGIN_TONE: Record<
+  ItineraryOrigin,
+  "good" | "info" | "warn" | "bad" | "neutral"
+> = {
+  as_planned: "good",
+  added: "info",
+  not_logged: "bad",
+  upcoming: "neutral",
+};
+
+/** The site report's itinerary, schedule check, shooting and handover table, and stock returns. */
+export function SiteReportSections({
+  report,
+  visitTarget,
+}: {
+  report: SiteReport;
+  visitTarget: number;
+}) {
+  const { itinerary, shootingHandover, stockReturns } = report;
+  const { counts } = itinerary;
+  return (
+    <>
+      <section className="flex flex-col gap-2">
+        <h2 className="font-heading text-lg font-semibold">
+          Itinerary · {counts.visits}/{visitTarget} site visits
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          {scheduleCheckSummary(counts)}
+        </p>
+        <DataTable<ItineraryLine>
+          rows={itinerary.lines}
+          getRowKey={(line) => `${line.day}|${line.siteLabel}`}
+          empty={
+            <p className="p-4 text-sm text-muted-foreground">
+              No site visits or bookings this month.
+            </p>
+          }
+          columns={[
+            {
+              key: "day",
+              header: "Date",
+              numeric: true,
+              cell: (line) => formatDate(line.day),
+            },
+            {
+              key: "site",
+              header: "Site",
+              cell: (line) => (
+                <span className="font-medium">{line.siteLabel}</span>
+              ),
+            },
+            {
+              key: "work",
+              header: "Work",
+              className: "max-sm:hidden",
+              cell: (line) => line.work.join(", "),
+            },
+            {
+              key: "origin",
+              header: "Scheduled or added",
+              cell: (line) => (
+                <StatusBadge tone={ORIGIN_TONE[line.origin]}>
+                  {ORIGIN_LABEL[line.origin]}
+                </StatusBadge>
+              ),
+            },
+          ]}
+        />
+      </section>
+
+      <section className="flex flex-col gap-2">
+        <h2 className="font-heading text-lg font-semibold">
+          Shooting and handover
+        </h2>
+        <DataTable<ShootingHandoverRow>
+          rows={shootingHandover}
+          getRowKey={(row) => `${row.day}|${row.siteLabel}|${row.activity}`}
+          empty={
+            <p className="p-4 text-sm text-muted-foreground">
+              No shootings or handovers this month.
+            </p>
+          }
+          columns={[
+            {
+              key: "day",
+              header: "Date",
+              numeric: true,
+              cell: (row) => formatDate(row.day),
+            },
+            {
+              key: "site",
+              header: "Site",
+              cell: (row) => (
+                <span className="font-medium">{row.siteLabel}</span>
+              ),
+            },
+            {
+              key: "activity",
+              header: "Work",
+              cell: (row) => shootingHandoverWords(row).work,
+            },
+            {
+              key: "result",
+              header: "Result",
+              cell: (row) => (
+                <StatusBadge tone={row.done ? "good" : "warn"}>
+                  {shootingHandoverWords(row).result}
+                </StatusBadge>
+              ),
+            },
+          ]}
+        />
+      </section>
+
+      <section className="flex flex-col gap-1">
+        <h2 className="font-heading text-lg font-semibold">Stock returns</h2>
+        <p className="text-sm text-muted-foreground">
+          {stockReturnSummary(stockReturns)}
+        </p>
+      </section>
+    </>
   );
 }

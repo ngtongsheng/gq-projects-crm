@@ -30,8 +30,8 @@ parallel with loop 15 People & HR.
 | 07 | Performance deltas | done | 02 | sonnet/high |
 | 08 | Reports two-step review | done | - | opus/medium |
 | 09 | Report print + BD retitle | done | 08 | sonnet/medium |
-| 10 | Site report restructure | in-progress | 08 | sonnet/high |
-| 11 | Parity pass, docs, merge | todo | 01-10 | sonnet/medium |
+| 10 | Site report restructure | done | 08 | sonnet/high |
+| 11 | Parity pass, docs, merge | in-progress | 01-10 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Start only after loop 12 is merged: `/execute-loop docs/loops/14-mof-money`.
@@ -60,3 +60,5 @@ parallel with loop 15 People & HR.
 2026-11-15 · #08 · decision · Marketing Director (bd) may review team sales reports in DB but has no Team Reports page; logged in debt.md, not widened · why: page access is a scope/role decision outside this loop
 2026-11-15 · #09 · done · checks + 1864 tests pass; Chrome print preview NOT checked, moved to #11 · next: #10
 2026-11-15 · #09 · decision · print sheet hidden-on-screen (print:hidden on screen content) not a separate overlay; PrintSignatureRow got optional 3-column prop; no "Printed" date stamp · why: simplest reuse of print-layout
+2026-11-15 · #10 · done · checks + 1872 tests pass; browser/print not checked, moved to #11 · next: #11
+2026-11-15 · #10 · decision · OT table + activity summary removed from report screen/print only, frozen otHours kept (site dashboard uses it); itinerary live from logs + confirmed bookings; remarks reuse existing issues/support text · why: smallest change, no data change

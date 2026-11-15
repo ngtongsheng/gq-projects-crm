@@ -4,10 +4,16 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { reviewReport } from "./actions";
+import { approveReport, reviewReport } from "./actions";
 
-/** The reviewer's optional comment and "Mark reviewed". */
-export function ReviewForm({ reportId }: { reportId: string }) {
+/** The reviewer's optional comment and "Mark reviewed". The MD's review is the final approval. */
+export function ReviewForm({
+  reportId,
+  isMd,
+}: {
+  reportId: string;
+  isMd: boolean;
+}) {
   const [pending, startTransition] = useTransition();
   const [note, setNote] = useState("");
 
@@ -29,8 +35,27 @@ export function ReviewForm({ reportId }: { reportId: string }) {
         onChange={(event) => setNote(event.target.value)}
       />
       <Button disabled={pending} onClick={review}>
-        Mark reviewed
+        {isMd ? "Approve" : "Mark reviewed"}
       </Button>
     </div>
+  );
+}
+
+/** The MD's final approval of a report the team lead reviewed. */
+export function ApproveForm({ reportId }: { reportId: string }) {
+  const [pending, startTransition] = useTransition();
+
+  function approve() {
+    startTransition(async () => {
+      const result = await approveReport(reportId);
+      if (result.error) toast.error(result.error);
+      else toast.success(result.message ?? "Approved.");
+    });
+  }
+
+  return (
+    <Button className="self-start" disabled={pending} onClick={approve}>
+      Give final approval
+    </Button>
   );
 }

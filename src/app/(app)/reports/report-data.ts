@@ -38,10 +38,12 @@ export type MonthlyReport = {
   submittedAt: Date | null;
   reviewedBy: string | null;
   reviewNote: string | null;
+  approvedBy: string | null;
+  approvedAt: Date | null;
 };
 
 const REPORT_COLUMNS =
-  "id, profile_id, month, kind, status, stats, highlights, next_month_plan, support_needed, pass_downs_confirmed, submitted_at, reviewed_by, review_note";
+  "id, profile_id, month, kind, status, stats, highlights, next_month_plan, support_needed, pass_downs_confirmed, submitted_at, reviewed_by, review_note, approved_by, approved_at";
 
 const reportRow = z
   .object({
@@ -58,6 +60,8 @@ const reportRow = z
     submitted_at: z.string().nullable(),
     reviewed_by: z.string().nullable(),
     review_note: z.string().nullable(),
+    approved_by: z.string().nullable(),
+    approved_at: z.string().nullable(),
   })
   .transform(
     (row): MonthlyReport => ({
@@ -74,6 +78,8 @@ const reportRow = z
       submittedAt: row.submitted_at ? new Date(row.submitted_at) : null,
       reviewedBy: row.reviewed_by,
       reviewNote: row.review_note,
+      approvedBy: row.approved_by,
+      approvedAt: row.approved_at ? new Date(row.approved_at) : null,
     }),
   );
 
@@ -112,6 +118,32 @@ export async function loadMonthlyReport(
     .maybeSingle();
   if (error) throw new Error(`Could not load the report: ${error.message}`);
   return data ? reportRow.parse(data) : null;
+}
+
+const reviewerRows = z.array(
+  z.object({
+    full_name: z.string().nullable(),
+    step: z.enum(["review", "approve"]),
+  }),
+);
+
+/** Who the signed-in person's report goes to: their team lead(s) for review, then the MD. */
+export async function loadMyReportReviewers(): Promise<{
+  leads: string[];
+  approvers: string[];
+}> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("my_monthly_report_reviewers");
+  if (error) {
+    throw new Error(`Could not load who reviews the report: ${error.message}`);
+  }
+  const rows = reviewerRows.parse(data);
+  const names = (step: "review" | "approve") =>
+    rows
+      .filter((row) => row.step === step)
+      .map((row) => row.full_name ?? "Unnamed")
+      .sort((a, b) => a.localeCompare(b));
+  return { leads: names("review"), approvers: names("approve") };
 }
 
 /** Every report for a month the caller may read (RLS limits it). */

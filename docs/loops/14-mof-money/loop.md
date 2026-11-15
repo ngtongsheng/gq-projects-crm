@@ -28,8 +28,8 @@ parallel with loop 15 People & HR.
 | 05 | Commission 180-day cut + appeals rules | done | - | opus/medium |
 | 06 | Appeals UI | done | 05 | sonnet/high |
 | 07 | Performance deltas | done | 02 | sonnet/high |
-| 08 | Reports two-step review | in-progress | - | opus/medium |
-| 09 | Report print + BD retitle | todo | 08 | sonnet/medium |
+| 08 | Reports two-step review | done | - | opus/medium |
+| 09 | Report print + BD retitle | in-progress | 08 | sonnet/medium |
 | 10 | Site report restructure | todo | 08 | sonnet/high |
 | 11 | Parity pass, docs, merge | todo | 01-10 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
@@ -55,3 +55,6 @@ parallel with loop 15 People & HR.
 2026-11-15 · #06 · decision · Appeals tab md+accounts only; Appeal button only on own line with a cut above 0 and no standing appeal; Decide hidden on own appeal; pill text "Special approval by X", no emoji · why: demo parity + DB rules
 2026-11-15 · #07 · done · checks + 1849 tests pass; browser parity + rendered chart NOT checked, moved to #11 · next: #08
 2026-11-15 · #07 · decision · proration over actual year days (leap-aware); hidden-director rule covers Sales + Marketing Director; best month ties go to earliest; team panel omits visits/new customers/pipeline; dark-mode chart tokens fail lightness/chroma validator, tokens left alone (debt) · why: scope, existing tokens
+2026-11-15 · #08 · done · checks + 1864 tests pass (resumed after usage limit) · next: #09
+2026-11-15 · #08 · decision · new status approved; MD review = approval; site reports stay with Sales Director (demo contradicts itself, D9); salesperson with no lead: MD only; BD director reports go to md only · why: loop 11 team rule, DB enforces each step
+2026-11-15 · #08 · decision · Marketing Director (bd) may review team sales reports in DB but has no Team Reports page; logged in debt.md, not widened · why: page access is a scope/role decision outside this loop

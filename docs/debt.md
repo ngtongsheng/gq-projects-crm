@@ -37,3 +37,8 @@
 - What: the team comparison chart uses theme tokens chart-1..5; in dark mode they pass contrast and colour-blind checks but fail the dataviz lightness band and chroma floor.
 - Why: changing shared theme tokens is outside the performance task.
 - When to fix: next time the theme tokens are revised, or if Vicky finds the dark chart hard to read.
+
+## Marketing Director cannot open Team Reports (loop 14 #08)
+- What: the database lets the Marketing Director (bd) review their team's sales reports, but `bd` has no `rep` page in `src/lib/auth/pages.ts`, so the app cannot reach them and `reviewReport` refuses.
+- Why: giving a role a new page is a access decision outside the reports review task.
+- When to fix: when Vicky says the Marketing Director should review reports; add `rep` for `bd` and a test.

@@ -276,6 +276,9 @@ describe("due and late", () => {
     expect(
       flag({ status: "reviewed", submittedAt: new Date("2026-12-01T00:00Z") }),
     ).toEqual({ label: "Reviewed", tone: "good" });
+    expect(flag({ status: "approved", submittedAt: late }).label).toBe(
+      "Approved · submitted late",
+    );
   });
 });
 
@@ -294,6 +297,11 @@ describe("who files and who reviews", () => {
     expect(canReviewReport("accounts", "sales")).toBe(false);
     expect(canReviewReport("md", "bd")).toBe(true);
     expect(canReviewReport("director", "bd")).toBe(false);
+  });
+
+  it("lets a Marketing Director review sales reports but not site reports", () => {
+    expect(canReviewReport("bd", "sales")).toBe(true);
+    expect(canReviewReport("bd", "site")).toBe(false);
   });
 });
 

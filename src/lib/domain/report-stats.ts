@@ -16,7 +16,13 @@ export type ReportKind = (typeof REPORT_KINDS)[number];
 /** Rows of highlights on the report form. */
 export const HIGHLIGHT_ROWS = 4;
 
-export const REPORT_STATUSES = ["draft", "submitted", "reviewed"] as const;
+/** Reviewed: by the team lead, waiting for the MD. Approved: the MD's final approval. */
+export const REPORT_STATUSES = [
+  "draft",
+  "submitted",
+  "reviewed",
+  "approved",
+] as const;
 export type ReportStatus = (typeof REPORT_STATUSES)[number];
 
 /** The report a job role files, or null for roles that review instead. Mirrors the SQL guard. */
@@ -27,11 +33,15 @@ export function reportKindFor(jobRole: JobRole): ReportKind | null {
   return null;
 }
 
-/** MD or Sales Director for sales and site reports; only the MD for the BD Director's. */
+/**
+ * Who may do the first review of this kind of report: the MD, or a team lead (a Sales or
+ * Marketing Director for their team's salespeople, the Sales Director for Site Supervisors).
+ * Only the MD for the BD Director's. The database also checks the salesperson is in the team.
+ */
 export function canReviewReport(jobRole: JobRole, kind: ReportKind): boolean {
-  return kind === "bd"
-    ? jobRole === "md"
-    : jobRole === "md" || jobRole === "director";
+  if (kind === "bd") return jobRole === "md";
+  if (kind === "site") return jobRole === "md" || jobRole === "director";
+  return jobRole === "md" || jobRole === "director" || jobRole === "bd";
 }
 
 export const ReportTargets = z.object({
@@ -250,6 +260,11 @@ export function reportFlag(input: {
   const late =
     input.submittedAt !== null &&
     isLate(input.month, input.dueTime, input.submittedAt);
+  if (input.status === "approved") {
+    return late
+      ? { label: "Approved · submitted late", tone: "warn" }
+      : { label: "Approved", tone: "good" };
+  }
   if (input.status === "reviewed") {
     return late
       ? { label: "Reviewed · submitted late", tone: "warn" }

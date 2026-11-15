@@ -19,13 +19,14 @@ import {
 import { loadWorkCalendar } from "@/lib/work-calendar";
 import {
   loadLiveStats,
+  loadMyReportReviewers,
   type MonthlyReport,
   type ReportSettings,
 } from "./report-data";
 import { ReportFigures } from "./report-figures";
 import { ReportForm } from "./report-form";
 import type { ReportsView } from "./report-params";
-import { ReviewForm } from "./review-form";
+import { ApproveForm, ReviewForm } from "./review-form";
 
 export const KIND_LABEL: Record<ReportKind, string> = {
   sales: "Sales monthly report",
@@ -97,6 +98,52 @@ export function flagFor(view: ReportsView, report: MonthlyReport | null) {
     submittedAt: report?.submittedAt ?? null,
     now: new Date(),
   });
+}
+
+/** "Goes to <lead> & <MD>." on the person's own report; the MD only for the BD Director's. */
+async function GoesTo() {
+  const { leads, approvers } = await loadMyReportReviewers();
+  const names = [leads.join(" or "), approvers.join(" or ")].filter(Boolean);
+  if (names.length === 0) return null;
+  return (
+    <p className="text-sm text-muted-foreground">
+      Goes to {names.join(" & ")}.
+    </p>
+  );
+}
+
+/** Who reviewed the report and, once given, the MD's final approval. */
+function ReviewNote({
+  report,
+  nameOf,
+}: {
+  report: MonthlyReport;
+  nameOf: Map<string, string>;
+}) {
+  const who = (id: string | null) => (id ? (nameOf.get(id) ?? "Unnamed") : "-");
+  const approvedInOne =
+    report.approvedBy !== null && report.approvedBy === report.reviewedBy;
+  return (
+    <div
+      className={`rounded-xl px-4 py-3 text-sm ${report.status === "approved" ? "bg-good-bg text-good" : "bg-info-bg text-info"}`}
+    >
+      <p>
+        <span className="font-semibold">
+          {approvedInOne ? "Approved" : "Reviewed"} by {who(report.reviewedBy)}
+        </span>
+        {report.reviewNote ? `: ${report.reviewNote}` : null}
+      </p>
+      {report.status === "approved" && !approvedInOne && report.approvedAt ? (
+        <p className="font-semibold">
+          Final approval by {who(report.approvedBy)} on{" "}
+          {formatDateTime(report.approvedAt)}
+        </p>
+      ) : null}
+      {report.status === "reviewed" ? (
+        <p>Waiting for the MD's final approval.</p>
+      ) : null}
+    </div>
+  );
 }
 
 /** A filed report, read-only: highlights, plan and the review. */
@@ -173,6 +220,11 @@ export async function ReportView({
     !own &&
     report.status === "submitted" &&
     canReviewReport(view.me.jobRole, kind);
+  const canApprove =
+    report !== null &&
+    !own &&
+    report.status === "reviewed" &&
+    view.me.jobRole === "md";
   const name = view.nameOf.get(personId) ?? "Unnamed";
 
   return (
@@ -243,18 +295,15 @@ export async function ReportView({
         <ReportText report={report} />
       ) : null}
 
-      {report?.status === "reviewed" && (
-        <p className="rounded-xl bg-good-bg px-4 py-3 text-sm text-good">
-          <span className="font-semibold">
-            Reviewed by{" "}
-            {report.reviewedBy
-              ? (view.nameOf.get(report.reviewedBy) ?? "Unnamed")
-              : "-"}
-          </span>
-          {report.reviewNote ? `: ${report.reviewNote}` : null}
-        </p>
+      {own && editable && <GoesTo />}
+      {report &&
+        (report.status === "reviewed" || report.status === "approved") && (
+          <ReviewNote report={report} nameOf={view.nameOf} />
+        )}
+      {canReview && report && (
+        <ReviewForm reportId={report.id} isMd={view.me.jobRole === "md"} />
       )}
-      {canReview && report && <ReviewForm reportId={report.id} />}
+      {canApprove && report && <ApproveForm reportId={report.id} />}
     </div>
   );
 }

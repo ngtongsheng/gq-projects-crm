@@ -6,7 +6,10 @@ import {
   type LeftoverFacts,
   leftoverAllocationProblem,
   leftoverAvailable,
+  leftoverDestinationDetails,
   leftoverProblem,
+  leftoverTransportDetails,
+  leftoverTransportProblem,
   leftoverTransportState,
   suggestLeftoverDestination,
 } from "./leftover";
@@ -206,5 +209,82 @@ describe("canRecordLeftover", () => {
     expect(person("sales")).toBe(false);
     expect(person("sales", true)).toBe(true);
     expect(person("accounts")).toBe(false);
+  });
+});
+
+describe("leftoverDestinationDetails", () => {
+  const filled = {
+    supplier: "Floor Place",
+    keepReason: "ordered_wrong" as const,
+    orderedWrongBy: "person-1",
+  };
+
+  it("drops the keep-why and who ordered it when the item goes back to the supplier", () => {
+    expect(leftoverDestinationDetails("supplier", filled)).toEqual({
+      supplier: "Floor Place",
+      keepReason: null,
+      orderedWrongBy: null,
+    });
+  });
+
+  it("drops the supplier when GQ keeps the item", () => {
+    expect(leftoverDestinationDetails("gq", filled)).toEqual({
+      supplier: null,
+      keepReason: "ordered_wrong",
+      orderedWrongBy: "person-1",
+    });
+  });
+
+  it("keeps who ordered it only for stock ordered wrongly", () => {
+    expect(
+      leftoverDestinationDetails("gq", { ...filled, keepReason: "custom_made" })
+        .orderedWrongBy,
+    ).toBeNull();
+  });
+});
+
+describe("leftoverTransportDetails", () => {
+  const arranged = {
+    by: "Lalamove",
+    on: "2026-11-20",
+    to: "Best Link",
+    cost: 45,
+  };
+
+  it("keeps transport for an item going back by transport", () => {
+    expect(leftoverTransportDetails("transport", arranged)).toEqual(arranged);
+  });
+
+  it("clears transport for the other return methods and when nobody is named yet", () => {
+    const none = { by: null, on: null, to: null, cost: null };
+    expect(leftoverTransportDetails("installer", arranged)).toEqual(none);
+    expect(leftoverTransportDetails(null, arranged)).toEqual(none);
+    expect(
+      leftoverTransportDetails("transport", { ...arranged, by: null }),
+    ).toEqual(none);
+  });
+});
+
+describe("leftoverTransportProblem", () => {
+  it("needs the pickup date once someone is named", () => {
+    expect(
+      leftoverTransportProblem({
+        by: "Lalamove",
+        on: null,
+        to: null,
+        cost: null,
+      }),
+    ).toMatch(/pickup date/);
+    expect(
+      leftoverTransportProblem({
+        by: "Lalamove",
+        on: "2026-11-20",
+        to: null,
+        cost: null,
+      }),
+    ).toBeNull();
+    expect(
+      leftoverTransportProblem({ by: null, on: null, to: null, cost: null }),
+    ).toBeNull();
   });
 });

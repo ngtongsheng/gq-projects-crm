@@ -1,6 +1,7 @@
 import type { StatusTone } from "@/components/app/status-badge";
 import { canEditStock, type JobRole } from "@/lib/auth/job-role";
 import { formatRm } from "@/lib/format/money";
+import { TRANSPORTERS } from "./delivery-status";
 
 // Values mirror the check constraints in the leftovers migration.
 export const LEFTOVER_UNITS = [
@@ -170,6 +171,81 @@ export function leftoverAllocationProblem(
   if (!(qty > 0)) return "Enter the quantity.";
   if (qty > available) {
     return `Only ${available} ${LEFTOVER_UNIT_LABEL[unit]} left at Best Link.`;
+  }
+  return null;
+}
+
+/** Who takes it back when the office arranges transport: the demo offers Lalamove and the GQ lorry first. */
+export const LEFTOVER_TRANSPORTERS = [
+  "Lalamove",
+  "GQ lorry",
+  ...TRANSPORTERS.filter((name) => name !== "Lalamove"),
+] as const;
+
+export type LeftoverDestinationDetails = {
+  supplier: string | null;
+  keepReason: LeftoverKeepReason | null;
+  orderedWrongBy: string | null;
+};
+
+/**
+ * The supplier, or why GQ keeps the item and who ordered it wrongly, that fit where it goes.
+ * The database refuses a supplier on stock GQ keeps and a keep-why on stock going back, so a
+ * form that flips the destination must drop the other side's values.
+ */
+export function leftoverDestinationDetails(
+  destination: LeftoverDestination,
+  details: LeftoverDestinationDetails,
+): LeftoverDestinationDetails {
+  if (destination === "supplier") {
+    return {
+      supplier: details.supplier,
+      keepReason: null,
+      orderedWrongBy: null,
+    };
+  }
+  return {
+    supplier: null,
+    keepReason: details.keepReason,
+    orderedWrongBy:
+      details.keepReason === "ordered_wrong" ? details.orderedWrongBy : null,
+  };
+}
+
+export type LeftoverTransport = {
+  by: string | null;
+  on: string | null;
+  to: string | null;
+  cost: number | null;
+};
+
+const NO_TRANSPORT: LeftoverTransport = {
+  by: null,
+  on: null,
+  to: null,
+  cost: null,
+};
+
+/**
+ * Transport only exists for items going back by Lalamove or lorry, and only once someone is
+ * named to take it (SQL: leftovers_transport_check, leftovers_transport_arranged_check).
+ */
+export function leftoverTransportDetails(
+  returnMethod: LeftoverReturnMethod | null,
+  transport: LeftoverTransport,
+): LeftoverTransport {
+  if (returnMethod !== "transport" || transport.by === null) {
+    return NO_TRANSPORT;
+  }
+  return transport;
+}
+
+/** Why this transport cannot be saved, or null when it can. Run it on the cleaned details. */
+export function leftoverTransportProblem(
+  transport: LeftoverTransport,
+): string | null {
+  if (transport.by !== null && transport.on === null) {
+    return "Enter the pickup date for the transport.";
   }
   return null;
 }

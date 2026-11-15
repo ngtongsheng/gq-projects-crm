@@ -24,8 +24,10 @@ import {
 import { formatDate, formatDateTime, todayMyt } from "@/lib/format/date";
 import { formatQuantity } from "@/lib/format/quantity";
 import { cn } from "@/lib/utils";
+import { CollectLeftoverDialog } from "../../stock/leftover/collect-leftover-dialog";
 import { LeftoverBadges } from "../../stock/leftover/leftover-badges";
 import { loadLeftovers } from "../../stock/leftover/leftover-data";
+import { LeftoverProgress } from "../../stock/leftover/leftover-progress";
 import { RecordLeftoverDialog } from "../../stock/leftover/record-leftover-dialog";
 import { recordHref } from "../../today/record-link";
 import {
@@ -221,6 +223,22 @@ export default async function SiteDetailPage({
                       </span>
                     </div>
                     <LeftoverBadges leftover={leftover} />
+                    <LeftoverProgress leftover={leftover} nameOf={nameOf} />
+                    {me.jobRole === "site" &&
+                      (leftover.status === "pending_pickup" ||
+                        leftover.status === "collected_by_supervisor") && (
+                        <div>
+                          <CollectLeftoverDialog
+                            leftoverId={leftover.id}
+                            item={leftover.item}
+                            returnMethod={leftover.returnMethod}
+                            whatsappSent={leftover.whatsappSentAt !== null}
+                            collected={
+                              leftover.status === "collected_by_supervisor"
+                            }
+                          />
+                        </div>
+                      )}
                   </li>
                 ))}
               </ul>

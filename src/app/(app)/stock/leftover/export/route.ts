@@ -4,6 +4,8 @@ import {
   creditNoteState,
   LEFTOVER_CONDITION_LABEL,
   LEFTOVER_DESTINATION_LABEL,
+  LEFTOVER_KEEP_REASON_LABEL,
+  LEFTOVER_RETURN_METHOD_LABEL,
   LEFTOVER_STATUS_LABEL,
   LEFTOVER_UNIT_LABEL,
 } from "@/lib/domain/leftover";
@@ -28,6 +30,11 @@ export async function GET() {
       "Unit",
       "Condition",
       "Destination",
+      "Supplier",
+      "Why GQ keeps it",
+      "How it goes back",
+      "Transport",
+      "Available",
       "Status",
       "Credit note",
       "Credit note amount (RM)",
@@ -43,6 +50,17 @@ export async function GET() {
       LEFTOVER_UNIT_LABEL[leftover.unit],
       LEFTOVER_CONDITION_LABEL[leftover.condition],
       LEFTOVER_DESTINATION_LABEL[leftover.destination],
+      leftover.supplier,
+      leftover.keepReason
+        ? LEFTOVER_KEEP_REASON_LABEL[leftover.keepReason]
+        : null,
+      leftover.returnMethod
+        ? LEFTOVER_RETURN_METHOD_LABEL[leftover.returnMethod]
+        : null,
+      leftover.transportBy
+        ? `${leftover.transportBy} ${leftover.transportOn ?? ""}`.trim()
+        : null,
+      leftover.status === "at_best_link" ? leftover.available : null,
       LEFTOVER_STATUS_LABEL[leftover.status],
       leftover.creditNoteNo ??
         (creditNoteState(leftover)?.kind === "pending" ? "Pending" : null),

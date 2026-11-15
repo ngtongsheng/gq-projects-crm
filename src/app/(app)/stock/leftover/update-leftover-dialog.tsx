@@ -25,24 +25,47 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { TeamMember } from "@/lib/auth/team-directory";
 import {
+  guessLeftoverKeepReason,
   LEFTOVER_CONDITION_LABEL,
   LEFTOVER_CONDITIONS,
   LEFTOVER_DESTINATION_LABEL,
   LEFTOVER_DESTINATIONS,
+  LEFTOVER_KEEP_REASON_LABEL,
+  LEFTOVER_KEEP_REASONS,
+  LEFTOVER_RETURN_METHOD_LABEL,
+  LEFTOVER_RETURN_METHODS,
   LEFTOVER_STATUS_LABEL,
   LEFTOVER_STATUSES,
   type LeftoverCondition,
   type LeftoverDestination,
+  type LeftoverKeepReason,
+  type LeftoverReturnMethod,
   type LeftoverStatus,
 } from "@/lib/domain/leftover";
 import { isOneOf } from "@/lib/form/one-of";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { updateLeftover } from "./actions";
 import type { Leftover } from "./leftover-data";
+import { TransportFields } from "./transport-fields";
 
-/** Purchasing moves an item along: pickup, return to the supplier, the credit note. */
-export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
+const NONE = "none";
+
+/**
+ * Purchasing moves an item along: how it goes back and the transport, the supplier or why GQ
+ * keeps it, the status, the credit note.
+ */
+export function UpdateLeftoverDialog({
+  leftover,
+  people,
+  suppliers,
+}: {
+  leftover: Leftover;
+  people: TeamMember[];
+  /** Supplier names already in use, offered while typing. */
+  suppliers: string[];
+}) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +75,15 @@ export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
   );
   const [destination, setDestination] = useState<LeftoverDestination>(
     leftover.destination,
+  );
+  const [returnMethod, setReturnMethod] = useState<LeftoverReturnMethod | "">(
+    leftover.returnMethod ?? "",
+  );
+  const [keepReason, setKeepReason] = useState<LeftoverKeepReason>(
+    leftover.keepReason ?? guessLeftoverKeepReason(leftover.item),
+  );
+  const [orderedWrongBy, setOrderedWrongBy] = useState(
+    leftover.orderedWrongBy ?? "",
   );
 
   function save(formData: FormData) {
@@ -84,6 +116,17 @@ export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
           <input type="hidden" name="status" value={status} />
           <input type="hidden" name="condition" value={condition} />
           <input type="hidden" name="destination" value={destination} />
+          <input type="hidden" name="returnMethod" value={returnMethod} />
+          {destination === "gq" && (
+            <>
+              <input type="hidden" name="keepReason" value={keepReason} />
+              <input
+                type="hidden"
+                name="orderedWrongBy"
+                value={keepReason === "ordered_wrong" ? orderedWrongBy : ""}
+              />
+            </>
+          )}
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor={`status-${leftover.id}`}>Status</FieldLabel>
@@ -105,6 +148,61 @@ export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
                 </SelectContent>
               </Select>
             </Field>
+            <Field>
+              <FieldLabel htmlFor={`method-${leftover.id}`}>
+                How it goes back
+              </FieldLabel>
+              <Select
+                value={returnMethod === "" ? NONE : returnMethod}
+                onValueChange={(value) => {
+                  if (value === NONE) setReturnMethod("");
+                  else if (isOneOf(LEFTOVER_RETURN_METHODS, value))
+                    setReturnMethod(value);
+                }}
+              >
+                <SelectTrigger id={`method-${leftover.id}`}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NONE}>Not said yet</SelectItem>
+                  {LEFTOVER_RETURN_METHODS.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {LEFTOVER_RETURN_METHOD_LABEL[value]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            {returnMethod === "transport" && (
+              <TransportFields
+                idPrefix={`transport-${leftover.id}`}
+                defaults={{
+                  by: leftover.transportBy ?? "",
+                  on: leftover.transportOn ?? "",
+                  to:
+                    leftover.transportTo ??
+                    (destination === "gq"
+                      ? "Best Link"
+                      : (leftover.supplier ?? "")),
+                  cost: leftover.transportCost,
+                }}
+                mustName={false}
+              />
+            )}
+            {status === "collected_by_supervisor" && (
+              <Field>
+                <FieldLabel htmlFor={`collected-to-${leftover.id}`}>
+                  Where the supervisor took it
+                </FieldLabel>
+                <Input
+                  id={`collected-to-${leftover.id}`}
+                  name="collectedTo"
+                  defaultValue={leftover.collectedTo ?? ""}
+                  maxLength={100}
+                  placeholder="e.g. Best Link, Floor Place"
+                />
+              </Field>
+            )}
             <Field>
               <FieldLabel htmlFor={`destination-${leftover.id}`}>
                 Goes to
@@ -128,6 +226,78 @@ export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
                 </SelectContent>
               </Select>
             </Field>
+            {destination === "supplier" && (
+              <Field>
+                <FieldLabel htmlFor={`supplier-${leftover.id}`}>
+                  Supplier
+                </FieldLabel>
+                <Input
+                  id={`supplier-${leftover.id}`}
+                  name="supplier"
+                  list={`suppliers-${leftover.id}`}
+                  defaultValue={leftover.supplier ?? ""}
+                  maxLength={100}
+                  placeholder="e.g. Floor Place"
+                />
+                <datalist id={`suppliers-${leftover.id}`}>
+                  {suppliers.map((name) => (
+                    <option key={name} value={name} />
+                  ))}
+                </datalist>
+              </Field>
+            )}
+            {destination === "gq" && (
+              <>
+                <Field>
+                  <FieldLabel htmlFor={`keep-${leftover.id}`}>
+                    Why GQ keeps it
+                  </FieldLabel>
+                  <Select
+                    value={keepReason}
+                    onValueChange={(value) => {
+                      if (isOneOf(LEFTOVER_KEEP_REASONS, value))
+                        setKeepReason(value);
+                    }}
+                  >
+                    <SelectTrigger id={`keep-${leftover.id}`}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LEFTOVER_KEEP_REASONS.map((value) => (
+                        <SelectItem key={value} value={value}>
+                          {LEFTOVER_KEEP_REASON_LABEL[value]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                {keepReason === "ordered_wrong" && (
+                  <Field>
+                    <FieldLabel htmlFor={`wrong-by-${leftover.id}`}>
+                      Ordered by (salesperson)
+                    </FieldLabel>
+                    <Select
+                      value={orderedWrongBy === "" ? NONE : orderedWrongBy}
+                      onValueChange={(value) =>
+                        setOrderedWrongBy(value === NONE ? "" : value)
+                      }
+                    >
+                      <SelectTrigger id={`wrong-by-${leftover.id}`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={NONE}>Not said</SelectItem>
+                        {people.map((member) => (
+                          <SelectItem key={member.id} value={member.id}>
+                            {member.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                )}
+              </>
+            )}
             {destination === "supplier" && (
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field>

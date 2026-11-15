@@ -1,13 +1,13 @@
 import { countSamples } from "../samples/samples-data";
 import { SegmentLinks } from "../site-work/segment-links";
-import { countLeftoverAtBestLink } from "./leftover/leftover-count";
+import { countLeftoverAvailable } from "./leftover/leftover-count";
 
 export type StockTab = "reservations" | "items" | "leftover" | "samples";
 
 /** The demo's segments across the Stock pages. Samples is its own page, /samples. */
 export async function StockTabs({ active }: { active: StockTab }) {
   const [leftover, samples] = await Promise.all([
-    countLeftoverAtBestLink(),
+    countLeftoverAvailable(),
     countSamples(),
   ]);
   return (

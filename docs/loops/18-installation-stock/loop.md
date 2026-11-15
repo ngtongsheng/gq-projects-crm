@@ -27,8 +27,8 @@ Merged to `main`. Starts after loop 17 merges.
 | 07 | Samples migration + rules | done | - | opus/medium |
 | 08 | Samples page + pickup form print | done | 07 | sonnet/high |
 | 09 | Leftover migration + rules | done | - | opus/medium |
-| 10 | Leftover page | in-progress | 09 | sonnet/high |
-| 11 | Chinese/BM strings + dev seed | todo | 02, 03, 05, 06, 08, 10 | sonnet/medium |
+| 10 | Leftover page | done | 09 | sonnet/high |
+| 11 | Chinese/BM strings + dev seed | in-progress | 02, 03, 05, 06, 08, 10 | sonnet/medium |
 | 12 | Parity pass, docs, merge | todo | 01-11 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
@@ -69,3 +69,6 @@ Merged to `main`. Starts after loop 17 merges.
 2026-11-15 · #09 · done · verified: check, typecheck, test (2793), guard:migrations pass; migration proven in PGlite only, test-copy check in #12
 2026-11-15 · #09 · decision · new status collected_by_supervisor (check re-added, rows kept); transport arranged state derived from transport_by; added received_at/by; allocations add-only (no edit/delete); "+ Add leftover stock" with no MOF not built (mof_id stays required) · subagent deviations, sensible; #12 flag if parity needs it
 2026-11-15 · #10 · started
+2026-11-16 · #10 · done · verified: check, typecheck, test (2824), guard:migrations pass (subagent saw one resignation-handover PGlite flake under load, reruns clean); parity deferred to #12 (verify leftovers `leftover_allocations(projects)` embed, count query, supervisor RLS update, allocation guard message, "Show sold out" auto-submit, dialogs at 390px)
+2026-11-16 · #10 · decision · two tables on /stock/leftover (Best Link list + Returns from site); free-text supplier with datalist; transport via LEFTOVER_TRANSPORTERS; supervisor Mark collected on Site Work MOF page; no transport banner · subagent deviations, sensible
+2026-11-16 · #11 · started

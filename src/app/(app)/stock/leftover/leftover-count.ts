@@ -1,13 +1,25 @@
+import { z } from "zod";
+import { leftoverAvailable } from "@/lib/domain/leftover";
 import { createClient } from "@/lib/supabase/server";
 
-/** Leftover items kept at Best Link for resale, for the Stock segment label. */
-export async function countLeftoverAtBestLink(): Promise<number> {
+const rows = z.array(
+  z.object({
+    qty: z.number(),
+    leftover_allocations: z.array(z.object({ qty: z.number() })),
+  }),
+);
+
+/** Leftover items at Best Link with some left after the uses for other projects, for the Stock segment label. */
+export async function countLeftoverAvailable(): Promise<number> {
   const supabase = await createClient();
-  const { count, error } = await supabase
+  const { data, error } = await supabase
     .from("leftovers")
-    .select("id", { count: "exact", head: true })
+    .select("qty, leftover_allocations(qty)")
     .eq("status", "at_best_link");
   if (error)
     throw new Error(`Could not count leftover stock: ${error.message}`);
-  return count ?? 0;
+  return rows
+    .parse(data)
+    .filter((row) => leftoverAvailable(row.qty, row.leftover_allocations) > 0)
+    .length;
 }

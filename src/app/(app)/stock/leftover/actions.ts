@@ -9,11 +9,20 @@ import {
   LEFTOVER_CONDITIONS,
   LEFTOVER_DESTINATIONS,
   LEFTOVER_STATUSES,
+  leftoverDestinationDetails,
   leftoverProblem,
+  leftoverTransportDetails,
+  leftoverTransportProblem,
 } from "@/lib/domain/leftover";
 import { optionalText, textField } from "@/lib/form/form-fields";
-import { parseRm } from "@/lib/format/money";
 import { createClient } from "@/lib/supabase/server";
+import {
+  keepReasonField,
+  optionalRmAmount,
+  orderedWrongByField,
+  returnMethodField,
+  transportFields,
+} from "./leftover-fields";
 import { leftoverRecordSchema } from "./leftover-record-schema";
 
 export type LeftoverResult = { error: string | null };
@@ -26,22 +35,6 @@ const NOT_FOUND_MOF = "Could not find that MOF. Reload the page.";
 const NOT_FOUND_LEFTOVER = "Could not find that item. Reload the page.";
 const TRY_AGAIN = "Could not save. Try again.";
 
-const creditNoteAmount = z
-  .string()
-  .trim()
-  .transform((value, ctx) => {
-    if (value === "") return null;
-    const amount = parseRm(value);
-    if (amount === null || amount < 0 || amount > 999_999_999_999) {
-      ctx.addIssue({
-        code: "custom",
-        message: "Enter the credit note amount as a number, e.g. 1234.50.",
-      });
-      return z.NEVER;
-    }
-    return amount;
-  });
-
 const updateForm = z.object({
   leftoverId: z.uuid({ error: NOT_FOUND_LEFTOVER }),
   condition: z.enum(LEFTOVER_CONDITIONS, "Choose the condition."),
@@ -51,8 +44,16 @@ const updateForm = z.object({
     60,
     "Keep the credit note number under 60 characters.",
   ),
-  creditNoteAmount,
+  creditNoteAmount: optionalRmAmount(
+    "Enter the credit note amount as a number, e.g. 1234.50.",
+  ),
   note: optionalText(300, "Keep the note under 300 characters."),
+  returnMethod: returnMethodField,
+  supplier: optionalText(100, "Keep the supplier under 100 characters."),
+  keepReason: keepReasonField,
+  orderedWrongBy: orderedWrongByField,
+  collectedTo: optionalText(100, "Keep where it went under 100 characters."),
+  ...transportFields,
 });
 
 /** Records an item left over at a site, waiting for pickup. The database checks the job role again. */
@@ -99,7 +100,7 @@ export async function recordLeftover(
   return { error: null };
 }
 
-/** Moves an item along: status, where it goes, the supplier's credit note. */
+/** Moves an item along: status, where it goes and how, transport, the supplier's credit note. */
 export async function updateLeftover(
   formData: FormData,
 ): Promise<LeftoverResult> {
@@ -114,6 +115,15 @@ export async function updateLeftover(
     creditNoteNo: textField(formData, "creditNoteNo"),
     creditNoteAmount: textField(formData, "creditNoteAmount"),
     note: textField(formData, "note"),
+    returnMethod: textField(formData, "returnMethod"),
+    supplier: textField(formData, "supplier"),
+    keepReason: textField(formData, "keepReason"),
+    orderedWrongBy: textField(formData, "orderedWrongBy"),
+    collectedTo: textField(formData, "collectedTo"),
+    transportBy: textField(formData, "transportBy"),
+    transportOn: textField(formData, "transportOn"),
+    transportTo: textField(formData, "transportTo"),
+    transportCost: textField(formData, "transportCost"),
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Check the details." };
@@ -122,6 +132,19 @@ export async function updateLeftover(
 
   const problem = leftoverProblem(leftover);
   if (problem) return { error: problem };
+  // The database refuses the other side's values when the destination flips.
+  const destination = leftoverDestinationDetails(
+    leftover.destination,
+    leftover,
+  );
+  const transport = leftoverTransportDetails(leftover.returnMethod, {
+    by: leftover.transportBy,
+    on: leftover.transportOn,
+    to: leftover.transportTo,
+    cost: leftover.transportCost,
+  });
+  const transportProblem = leftoverTransportProblem(transport);
+  if (transportProblem) return { error: transportProblem };
 
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -133,6 +156,15 @@ export async function updateLeftover(
       note: leftover.note,
       credit_note_no: leftover.creditNoteNo,
       credit_note_amount: leftover.creditNoteAmount,
+      return_method: leftover.returnMethod,
+      supplier: destination.supplier,
+      keep_reason: destination.keepReason,
+      ordered_wrong_by: destination.orderedWrongBy,
+      collected_to: leftover.collectedTo,
+      transport_by: transport.by,
+      transport_on: transport.on,
+      transport_to: transport.to,
+      transport_cost: transport.cost,
     })
     .eq("id", leftover.leftoverId)
     .select("id, mof_id");

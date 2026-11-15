@@ -19,7 +19,7 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | HR migration | todo | - | opus/medium |
+| 01 | HR migration | done | - | opus/medium |
 | 02 | HR: Policies & schemes | todo | 01 | sonnet/high |
 | 03 | HR: Staff packages + outstation | todo | 01 | sonnet/high |
 | 04 | HR: Sales grades & bonus | todo | 01 | sonnet/high |
@@ -37,3 +37,9 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-15 · plan · loop written from drift-new-modules.md (HR, Tools, People) · next: wait for loop 15 merge, then #01
+2026-11-15 · #01 · in-progress · worktree ../gq-projects-crm-loops/16-hr-tools-people on loop/16-hr-tools-people (needs pnpm install)
+2026-11-15 · #01 · done · check, typecheck, test, guard:migrations pass; migration 20261116100000_hr.sql · next: #02
+2026-11-15 · #01 · decision · grade stored per person in staff_hr_records (not per package); #03 reads grade there · demo keeps grade per person, directors have no package
+2026-11-15 · #01 · decision · packages are add-only (typo = new row on a new date) · D4 strict
+2026-11-15 · #01 · decision · Older is derived from replaces_id; bonus bands are a fixed on-screen reference, no table · D7, D2
+2026-11-15 · #01 · decision · demo sample policy and extra rules not seeded here; dev seed (#10) adds them · need a real author

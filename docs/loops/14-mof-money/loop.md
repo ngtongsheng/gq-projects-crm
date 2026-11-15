@@ -67,3 +67,4 @@ parallel with loop 15 People & HR.
 2026-11-15 · #11 · done · docs updated, origin/main merged · next: final checks, push to main
 2026-11-15 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-15-loop-14-mof-money.md
 2026-11-15 · merge · PR #46 migrate-dev failed: test copy already has loop 15's migrations (143000, 144000) and loop 15 uses the same 150000/160000 versions; renamed ours to 210000-250000 · next: wait for loop 15 (PR #45) to reach main, merge main, rerun
+2026-11-15 · merge · loop 15 reached main; merged origin/main (roadmap + decisions conflicts resolved, kept both); 195 files / 2264 tests pass · next: PR #46 CI, merge

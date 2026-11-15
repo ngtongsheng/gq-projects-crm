@@ -24,8 +24,8 @@ Log work wizard (site role landing page) and the seven Site Work tabs match Vick
 | 05 | Follow-ups: owner, still waiting, snooze | done | 01 | sonnet/high |
 | 06 | Site Work: Jobs + Site log tabs | done | 02 | sonnet/high |
 | 07 | Site Work: Measurements + Photos & videos | done | 01 | sonnet/high |
-| 08 | Site Work: Actions, Stock returns, Daily log | in-progress | 05 | sonnet/high |
-| 09 | Site nav, BM strings, dev seed | todo | 03, 04, 06, 07, 08 | sonnet/medium |
+| 08 | Site Work: Actions, Stock returns, Daily log | done | 05 | sonnet/high |
+| 09 | Site nav, BM strings, dev seed | in-progress | 03, 04, 06, 07, 08 | sonnet/medium |
 | 10 | Parity pass, docs, merge | todo | 01-09 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
@@ -58,3 +58,7 @@ Log work wizard (site role landing page) and the seven Site Work tabs match Vick
 2026-11-15 · #07 · decision · saveSiteVisit closes the MOF's open shoot requests when a shooting is logged (failure is logged, visit still saves); no Submit button for unsent measurements/unposted shootings (logs never edited); Drive link stored on the log only (no MOF column); Drive-save permission follows SQL; tables not scoped per salesperson · scope
 2026-11-15 · #07 · note · BM strings to add in #09: tab components, dialogs, row-action-buttons.tsx, labels in site-photos.ts
 2026-11-15 · #08 · in-progress · delegated (sonnet/high)
+2026-11-15 · #08 · done · verified: check, typecheck, test (2584) pass; parity deferred to #10 (also verify `loadSiteActions`, `loadStockReturnLogs`, `app_settings` read on the test copy)
+2026-11-15 · #08 · decision · site_reminders stored as JSON row in app_settings (no migration; only MD/admin can edit, director sees form disabled); Stock returns tab has no count and only Sent back / To return until loop 18; no Leave/MC button on missing cells; support team sees "before joined"/leave days as Missing (leave_people() manager-only) · scope
+2026-11-15 · #08 · note · office WhatsApp number setting not yet read by the wizard's stock-return link; BM strings for the three new tabs go in #09
+2026-11-15 · #09 · in-progress · delegated (sonnet/medium)

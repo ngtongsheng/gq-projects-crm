@@ -2,8 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import type { SiteView } from "./site-view";
 
 /**
- * What waits on three tabs, shown in brackets on the tab. The stock-return tab adds its own
- * count when it is built.
+ * What waits on three tabs, shown in brackets on the tab. Stock returns has no count: with no
+ * status to clear, a number there would never go down.
  */
 export async function loadSiteTabCounts(): Promise<
   Partial<Record<SiteView, number>>

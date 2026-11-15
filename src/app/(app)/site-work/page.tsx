@@ -1,7 +1,6 @@
-import { Construction, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
 import { canEditSite } from "@/lib/auth/job-role";
@@ -13,6 +12,8 @@ import { SITE_STAGE_LABEL } from "@/lib/domain/site-stage";
 import { todayMyt } from "@/lib/format/date";
 import { getT } from "@/lib/i18n/server-t";
 import { recordHref } from "../today/record-link";
+import { ActionsTab } from "./actions-tab";
+import { DailyLogTab } from "./daily-log-tab";
 import { JobsTab } from "./jobs-tab";
 import { MeasurementsTab } from "./measurements-tab";
 import { MofFinder } from "./mof-finder";
@@ -23,8 +24,10 @@ import { loadSiteJobs } from "./site-jobs-data";
 import { SiteLogTab } from "./site-log-tab";
 import { loadSiteTabCounts } from "./site-tab-counts";
 import { SiteTabs } from "./site-tabs";
+
 import { parseSiteView, siteViewsFor } from "./site-view";
 import { loadPendingClaims } from "./site-work-data";
+import { StockReturnsTab } from "./stock-returns-tab";
 
 export const metadata: Metadata = { title: "Site Work" };
 
@@ -109,14 +112,12 @@ export default async function SiteWorkPage({
         <MeasurementsTab me={me} nameOf={nameOf} t={t} />
       ) : view === "shots" ? (
         <PhotosTab me={me} jobs={jobs} nameOf={nameOf} t={t} />
+      ) : view === "actions" ? (
+        <ActionsTab me={me} params={params} nameOf={nameOf} t={t} />
+      ) : view === "returns" ? (
+        <StockReturnsTab me={me} nameOf={nameOf} t={t} />
       ) : (
-        <div className="rounded-xl border bg-card">
-          <EmptyState
-            icon={Construction}
-            title={t("Coming soon")}
-            description={t("This tab is not built yet.")}
-          />
-        </div>
+        <DailyLogTab me={me} nameOf={nameOf} t={t} />
       )}
     </div>
   );

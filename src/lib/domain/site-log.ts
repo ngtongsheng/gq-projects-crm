@@ -71,7 +71,7 @@ export const SITE_OFF_KIND_LABEL: Record<SiteOffKind, string> = {
 /** Days away from site: office or other days, and approved leave or MC (loop 17 D2). */
 export type AwayRange = { startsOn: CalendarDate; endsOn: CalendarDate };
 
-type SiteDayInput = {
+export type SiteDayInput = {
   today: CalendarDate;
   holidays: ReadonlySet<CalendarDate>;
   away: readonly AwayRange[];

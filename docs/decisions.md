@@ -305,6 +305,41 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
 ### Loop 15 parity pass (Chrome, test copy)
 Checked Vicky (md), Cavan (sales), Jany (accounts), Affifa (designer), Akmal (site) on Tasks and Leave; 390 px via iframe. Accepted differences from the demo: task sheet is a side sheet, not a modal; no Customer field, Edit button or WhatsApp reminder; salespeople see the four task tiles; Workload lists everyone with tasks; approvers named by job title; example data differs; "Attach" strings from the shared file upload stay English; the Apply leave dialog closes with its X only.
 
+## Loop 16 (HR, Tools & People), decided 2026-11-15
+- D1: HR data (policies, packages, grades, outstation rules) is readable and writable only by the job roles MD and HR &
+  Accounts, enforced in row-level security. The `admin` role alone grants nothing, and View as cannot reveal it.
+- D2: bonus bands are a fixed on-screen reference in HR, not a table; the app does not work bonuses out.
+- D3: new `yearly_targets` table (person, year, sales target, visit target). Effective target is the person's row,
+  else their grade's annual target. The current year was backfilled from `profiles.yearly_target`, and a trigger keeps
+  `yearly_target` equal to the current year's effective target, so Performance keeps working. The edit grant on
+  `profiles.yearly_target` is revoked; targets are edited through `yearly_targets`. Only MD, Sales Directors and HR &
+  Accounts can edit them (the database refuses others). The 1 January rollover is a lazy refresh:
+  `refresh_yearly_targets()` runs when Performance, the dashboard or People load, instead of a scheduled job. The year
+  select offers this year or next; the visit target is visits per month.
+- D4: staff packages start empty and are add-only. A typo is fixed with a new row on a new date, so history is never
+  overwritten.
+- D5: resignation handover (`hand_over_work`) moves the leaver's customers and open projects to a chosen person and
+  writes a handover list. Commission on their MOFs stays with the leaver. Open means every stage except Awarded and
+  Lost (On Hold moves); support-role projects and archived customers also move, since leaving them with a leaver is
+  worse. The project guard is bypassed through a transaction-local `gqp.handover` flag set only inside the function, so
+  any admin can run it (a PIC change is otherwise refused for non-MD admins).
+- Grade is stored per person in `staff_hr_records`, not per package: the demo keeps grade per person and directors have
+  no package. The per-person grade table drops the demo's 2026 target, sales so far, bonus and basic override columns.
+  Signing the appendix stamps the current scheme version.
+- Hotel level "Auto" uses job role and grade only; BD uses the salesperson standard package (avoids a circle).
+- HR people list comes from `leave_people()` and `team_directory()`, so HR & Accounts need not be admin.
+- Policy "Older" is derived from `replaces_id`. A policy has either a PDF or a link. The shared attachments bucket caps
+  uploads at 1.5 MB, so larger policy PDFs are refused until that bucket is changed. The demo's sample policy and extra
+  rules are only in the dev seed.
+- Tools & Forms is built for all roles. Vinyl layouts A and B are recommended by order length and welding rod as in the
+  demo (no offcut figure exists). Forms list every MOF except cancelled and closed, newest 80 (no completion date).
+- Drive links are managed by the `admin` role only; the demo says MD or HR & Accounts. Widening is one RLS change plus
+  one action change.
+- The Best Link pickup row points to `/stock` until loop 17 builds Samples; loop 17 repoints `PICKUP_FORM_HREF`.
+- Chinese: HR and Tools are translated (about 330 strings); printed forms stay English. The People targets, Sales teams
+  and handover parts do not call `t()`, so they stay English like the rest of People.
+- Browser parity was not run in this loop (needs the seeded test copy and a signed-in Chrome). Run it after go-live.
+
 ## Loop 20 (browser control in opencode), decided 2026-11-15
 - opencode cannot load Claude in Chrome: those tools exist only inside a Claude session. Control instead comes from
   `chrome-devtools-mcp@1.13.0` with `--autoConnect`, which drives her real Chrome, so her profile and sign-ins are

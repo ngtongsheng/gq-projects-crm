@@ -29,7 +29,7 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 | 08 | Tools: calculators | done | - | sonnet/high |
 | 09 | Tools: A4 forms + links | done | - | sonnet/high |
 | 10 | Chinese strings + dev seed | done | 02, 03, 04, 06, 07, 08, 09 | sonnet/medium |
-| 11 | Parity pass, docs, merge | in-progress | 01-10 | sonnet/medium |
+| 11 | Parity pass, docs, merge | done | 01-10 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Start only after loop 15 is merged: `/execute-loop docs/loops/16-hr-tools-people`.
@@ -85,3 +85,5 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 2026-11-15 · #10 · decision · handover_items seeded by direct insert (service role is not is_admin()) · hand_over_work needs a signed-in admin
 2026-11-15 · #11 · decision · browser parity (needs seeded gq-crm-dev and Chrome sign-in) deferred to owner after merge, as for loops 12 and 14; docs, checks, PR and merge proceed · live parity needs migrations applied by CI and the owner's seed key
 2026-11-15 · #11 · in-progress
+2026-11-15 · #11 · docs done (features, decisions Loop 16, drift-new-modules, roadmap 3B-ii); browser parity deferred to owner after go-live · next: merge main, PR, CI, merge
+2026-11-15 · decision · merge via PR per D8 (not direct push to main) so CI applies migrations to the test copy and checks run · D8 is more specific than the skill default

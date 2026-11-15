@@ -33,6 +33,10 @@ import { formatMobile } from "@/lib/domain/mobile";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { Language, LanguageLabel } from "@/lib/i18n/dictionary";
 import { updatePersonSettings } from "./actions";
+import {
+  type PersonTargets,
+  PersonTargetsFields,
+} from "./person-targets-fields";
 
 export type PersonSettings = {
   userId: string;
@@ -42,7 +46,8 @@ export type PersonSettings = {
   sells: boolean;
   seesMargin: boolean;
   commissionMode: CommissionMode;
-  yearlyTarget: number | null;
+  /** Null when the viewer may not set targets (only the MD, directors and HR & Accounts can). */
+  targets: PersonTargets | null;
   whatsapp: string | null;
   title: string | null;
   joinedOn: string | null;
@@ -169,16 +174,7 @@ export function PersonSettingsDialog({
                 </SelectContent>
               </Select>
             </Field>
-            <Field>
-              <FieldLabel htmlFor="yearlyTarget">Yearly target (RM)</FieldLabel>
-              <Input
-                id="yearlyTarget"
-                name="yearlyTarget"
-                inputMode="decimal"
-                placeholder="No target"
-                defaultValue={person.yearlyTarget ?? ""}
-              />
-            </Field>
+            {person.targets && <PersonTargetsFields targets={person.targets} />}
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
                 <FieldLabel htmlFor="whatsapp">WhatsApp number</FieldLabel>

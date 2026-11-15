@@ -24,8 +24,8 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 | 03 | HR: Staff packages + outstation | done | 01 | sonnet/high |
 | 04 | HR: Sales grades & bonus | done | 01 | sonnet/high |
 | 05 | Per-year targets migration | done | 01 | opus/medium |
-| 06 | People: targets + Sales teams | in-progress | 05 | sonnet/high |
-| 07 | Resignation handover | todo | - | opus/medium |
+| 06 | People: targets + Sales teams | done | 05 | sonnet/high |
+| 07 | Resignation handover | in-progress | - | opus/medium |
 | 08 | Tools: calculators | todo | - | sonnet/high |
 | 09 | Tools: A4 forms + links | todo | - | sonnet/high |
 | 10 | Chinese strings + dev seed | todo | 02, 03, 04, 06, 07, 08, 09 | sonnet/medium |
@@ -62,3 +62,8 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 2026-11-15 · #05 · decision · table yearly_targets (person, year, sales_target nullable, visit_target); team-lead read via in_my_team · D3 leaves name and team-lead source open
 2026-11-15 · #05 · decision · #06 must (a) move People's target edit to yearly_targets and drop the edit grant on profiles.yearly_target, (b) fix the 1 January rollover (yearly_target stale until next change) · gaps reported by #05
 2026-11-15 · #06 · in-progress
+2026-11-15 · #06 · done · check, typecheck, test (2380), guard:migrations pass; migration 20261116120000_yearly_targets_writes_rollover.sql; browser parity deferred to #11 · next: #07
+2026-11-15 · #06 · decision · rollover fixed lazily: refresh_yearly_targets() called by Performance, dashboard and People; edit grant on profiles.yearly_target revoked · smallest durable fix
+2026-11-15 · #06 · decision · target fields on person sheet only for MD, Sales Directors, HR & Accounts (DB refuses others); year select = this or next year; visit target = visits per month · D3 policies
+2026-11-15 · #06 · note · scripts/example-data/test-users.ts still writes profiles.yearly_target; #10 must write yearly_targets rows · two debt entries added to docs/debt.md
+2026-11-15 · #07 · in-progress

@@ -321,3 +321,80 @@ describe("who reads and writes", () => {
     ).rejects.toThrow(/permission denied/);
   });
 });
+
+describe("the copy on profiles", () => {
+  let t: TestDatabase;
+  let year: number;
+
+  beforeAll(async () => {
+    t = await createTestDatabase();
+    year = await currentYear(t);
+  });
+
+  afterAll(async () => {
+    await t.close();
+  });
+
+  beforeEach(async () => {
+    await t.actAs(null);
+    await t.db.exec(`
+      delete from public.yearly_targets;
+      delete from public.staff_hr_records;
+      update public.sales_grades set annual_target = 1440000 where grade = 'S1';
+      update public.profiles set yearly_target = null, active = true, left_on = null;
+    `);
+  });
+
+  it.each([
+    "md",
+    "director",
+  ] as const)("is not edited directly by %s", async (jobRole) => {
+    await t.actAs(jobRole);
+    await expect(
+      t.db.query("update public.profiles set yearly_target = 1 where id = $1", [
+        t.profileIds.sales,
+      ]),
+    ).rejects.toThrow(/permission denied/);
+  });
+
+  it("is brought up to date after the year turns, from own rows and grades", async () => {
+    const { sales, bd, site } = t.profileIds;
+    await t.db.query(
+      "insert into public.yearly_targets (profile_id, year, sales_target) values ($1, $3, 900000), ($1, $4, 1500000), ($2, $3, 700000)",
+      [sales, bd, year - 1, year],
+    );
+    await t.db.query(
+      "insert into public.staff_hr_records (profile_id, grade) values ($1, 'S1')",
+      [site],
+    );
+    // What the triggers left on 31 December: last year's numbers.
+    await t.db.query(
+      "update public.profiles set yearly_target = 900000 where id = $1",
+      [sales],
+    );
+    await t.db.query(
+      "update public.profiles set yearly_target = 700000 where id = $1",
+      [bd],
+    );
+    await t.db.query(
+      "update public.profiles set yearly_target = 123 where id = $1",
+      [site],
+    );
+
+    await t.actAs("sales");
+    await t.db.query("select public.refresh_yearly_targets()");
+    await t.actAs(null);
+
+    expect(await yearlyTarget(t, sales)).toBe("1500000.00");
+    expect(await yearlyTarget(t, bd)).toBeNull();
+    expect(await yearlyTarget(t, site)).toBe("1440000.00");
+  });
+
+  it("cannot be refreshed by someone who is not signed in", async () => {
+    await t.db.exec("set role anon");
+    await expect(
+      t.db.query("select public.refresh_yearly_targets()"),
+    ).rejects.toThrow(/permission denied/);
+    await t.actAs(null);
+  });
+});

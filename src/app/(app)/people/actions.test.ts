@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getCurrentProfile, type Profile } from "@/lib/auth/current-profile";
+import { todayMyt } from "@/lib/format/date";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { addPerson, changeRole, updatePersonSettings } from "./actions";
@@ -363,13 +364,17 @@ describe("changeRole", () => {
 
 const LEAD_ID = "33333333-3333-4333-8333-333333333333";
 
+const THIS_YEAR = Number(todayMyt().slice(0, 4));
+
 const validSettings = {
   userId: OTHER_ID,
   jobRole: "site",
   arrangesStock: "on",
   sells: "on",
   commissionMode: "flat_pass_down",
-  yearlyTarget: " 250,000.50 ",
+  targetYear: String(THIS_YEAR),
+  salesTarget: " 250,000.50 ",
+  visitTarget: "40",
   whatsapp: "+60 12-345 6789",
   title: "Site Supervisor · Klang Valley",
   joinedOn: "2025-03-01",
@@ -380,6 +385,7 @@ const validSettings = {
 function fakeSettingsClient(
   updatedRows = 1,
   error: { code: string; message: string } | null = null,
+  targetError: { code: string; message: string } | null = null,
 ) {
   const update = vi.fn(() => ({
     eq: vi.fn(() => ({
@@ -391,10 +397,15 @@ function fakeSettingsClient(
       })),
     })),
   }));
+  const upsert = vi.fn(async () => ({ error: targetError }));
+  const deleteEq = vi.fn(async () => ({ error: targetError }));
+  const remove = vi.fn(() => ({ eq: vi.fn(() => ({ eq: deleteEq })) }));
   vi.mocked(createClient).mockResolvedValue({
-    from: vi.fn(() => ({ update })),
+    from: vi.fn((table: string) =>
+      table === "yearly_targets" ? { upsert, delete: remove } : { update },
+    ),
   } as unknown as Awaited<ReturnType<typeof createClient>>);
-  return { update };
+  return { update, upsert, remove };
 }
 
 describe("updatePersonSettings", () => {
@@ -424,7 +435,6 @@ describe("updatePersonSettings", () => {
       sells: true,
       sees_margin: false,
       commission_mode: "flat_pass_down",
-      yearly_target: 250000.5,
       whatsapp: "60123456789",
       title: "Site Supervisor · Klang Valley",
       joined_on: "2025-03-01",
@@ -512,15 +522,86 @@ describe("updatePersonSettings", () => {
     );
   });
 
-  it("treats an unchecked box as false and a blank target as none", async () => {
+  it("never writes profiles.yearly_target; targets go to the per-year table", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    const { update, upsert } = fakeSettingsClient();
+
+    await updatePersonSettings(personForm(validSettings));
+
+    expect(update).toHaveBeenCalledWith(
+      expect.not.objectContaining({ yearly_target: expect.anything() }),
+    );
+    expect(upsert).toHaveBeenCalledWith(
+      {
+        profile_id: OTHER_ID,
+        year: THIS_YEAR,
+        sales_target: 250000.5,
+        visit_target: 40,
+      },
+      { onConflict: "profile_id,year" },
+    );
+  });
+
+  it("can set next year's targets", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    const { upsert } = fakeSettingsClient();
+
+    await updatePersonSettings(
+      personForm({ ...validSettings, targetYear: String(THIS_YEAR + 1) }),
+    );
+
+    expect(upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ year: THIS_YEAR + 1 }),
+      expect.anything(),
+    );
+  });
+
+  it("removes the year's row when both targets are blank, so the grade default applies", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    const { upsert, remove } = fakeSettingsClient();
+
+    const result = await updatePersonSettings(
+      personForm({ ...validSettings, salesTarget: "", visitTarget: "" }),
+    );
+
+    expect(result).toEqual({ error: null });
+    expect(remove).toHaveBeenCalled();
+    expect(upsert).not.toHaveBeenCalled();
+  });
+
+  it("leaves targets alone when the form carries none", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    const { upsert, remove } = fakeSettingsClient();
+    const { targetYear: _year, ...rest } = validSettings;
+
+    const result = await updatePersonSettings(personForm(rest));
+
+    expect(result).toEqual({ error: null });
+    expect(upsert).not.toHaveBeenCalled();
+    expect(remove).not.toHaveBeenCalled();
+  });
+
+  it("says so when the database refuses the targets, after saving the rest", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    fakeSettingsClient(1, null, {
+      code: "42501",
+      message: "new row violates row-level security policy",
+    });
+    const result = await updatePersonSettings(personForm(validSettings));
+    expect(result.error).toBe(
+      "Their other settings were saved. Only the Managing Director, Sales Directors and HR & Accounts can set targets.",
+    );
+  });
+
+  it("treats an unchecked box as false", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
     const { update } = fakeSettingsClient();
     const { arrangesStock: _unchecked, ...rest } = validSettings;
 
-    await updatePersonSettings(personForm({ ...rest, yearlyTarget: "" }));
+    await updatePersonSettings(personForm(rest));
 
     expect(update).toHaveBeenCalledWith(
-      expect.objectContaining({ arranges_stock: false, yearly_target: null }),
+      expect.objectContaining({ arranges_stock: false }),
     );
   });
 
@@ -528,9 +609,12 @@ describe("updatePersonSettings", () => {
     ["an unknown job role", { jobRole: "ceo" }],
     ["an unknown commission setting", { commissionMode: "double" }],
     ["a malformed person id", { userId: "nope" }],
-    ["a negative target", { yearlyTarget: "-5" }],
-    ["a target with three decimals", { yearlyTarget: "10.555" }],
-    ["a target in words", { yearlyTarget: "lots" }],
+    ["a negative target", { salesTarget: "-5" }],
+    ["a target with three decimals", { salesTarget: "10.555" }],
+    ["a target in words", { salesTarget: "lots" }],
+    ["a part visit", { visitTarget: "2.5" }],
+    ["a targets year two years ahead", { targetYear: String(THIS_YEAR + 2) }],
+    ["a targets year that is not a year", { targetYear: "soon" }],
     ["an unknown language", { language: "fr" }],
     ["a WhatsApp number that is not Malaysian", { whatsapp: "12345" }],
     ["a malformed reports-to id", { reportsTo: "nope" }],

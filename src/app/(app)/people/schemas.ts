@@ -63,8 +63,8 @@ export const changeRoleSchema = z.object({
   role: roleSchema,
 });
 
-// Typed in RM; commas are allowed so "250,000" works. Blank means no target.
-const yearlyTargetSchema = z
+// Typed in RM; commas are allowed so "250,000" works. Blank means no target of their own.
+const salesTargetSchema = z
   .string()
   .trim()
   .transform((value) => value.replaceAll(",", ""))
@@ -73,9 +73,22 @@ const yearlyTargetSchema = z
       .string()
       .regex(
         /^(\d{1,12}(\.\d{1,2})?)?$/,
-        "Enter the yearly target in RM, like 250000 or 250000.50.",
+        "Enter the sales target in RM, like 250000 or 250000.50.",
       ),
   )
+  .transform((value) => (value === "" ? null : Number(value)));
+
+// Customer visits per month, a whole number. Blank means the company default.
+const visitTargetSchema = z
+  .string()
+  .trim()
+  .regex(/^(\d{1,5})?$/, "Enter customer visits per month as a whole number.")
+  .transform((value) => (value === "" ? null : Number(value)));
+
+// Missing when the person saving may not set targets; the form then carries no target fields.
+const targetYearSchema = z
+  .string()
+  .regex(/^(\d{4})?$/, "Choose the year for the targets.")
   .transform((value) => (value === "" ? null : Number(value)));
 
 export const personSettingsSchema = z
@@ -86,7 +99,9 @@ export const personSettingsSchema = z
     sells: checkbox,
     seesMargin: checkbox,
     commissionMode: CommissionMode,
-    yearlyTarget: yearlyTargetSchema,
+    targetYear: targetYearSchema,
+    salesTarget: salesTargetSchema,
+    visitTarget: visitTargetSchema,
     whatsapp: whatsappSchema,
     ...personFields,
     hasLeft: checkbox,

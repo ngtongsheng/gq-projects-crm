@@ -9,6 +9,7 @@ import type {
 } from "@/lib/domain/sales-performance";
 import { sumRm } from "@/lib/format/money";
 import { createClient } from "@/lib/supabase/server";
+import { refreshYearlyTargets } from "@/lib/yearly-targets";
 
 const mofRows = z.array(
   z.object({
@@ -50,6 +51,8 @@ export async function loadPerformance(seesCost: boolean): Promise<{
   orders: PerformanceOrder[];
   people: PerformancePerson[];
 }> {
+  // Targets are copied onto profiles; on 1 January the copy is last year's until refreshed.
+  await refreshYearlyTargets();
   const supabase = await createClient();
   const [mofsResult, costsResult, profilesResult, team] = await Promise.all([
     supabase

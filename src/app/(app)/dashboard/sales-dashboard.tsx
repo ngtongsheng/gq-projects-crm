@@ -5,6 +5,7 @@ import { pace as monthPace, weekKindFor } from "@/lib/domain/workdays";
 import { formatDate, todayMyt } from "@/lib/format/date";
 import { formatRm, sumRm } from "@/lib/format/money";
 import { loadWorkCalendar } from "@/lib/work-calendar";
+import { loadOwnYearlyTarget } from "@/lib/yearly-targets";
 import { ProjectStageLabel } from "../projects/schemas";
 import { loadInactiveCustomerOwners } from "./customer-data";
 import { loadDashboardOrders } from "./dashboard-orders";
@@ -18,12 +19,14 @@ import { TodaysActivities } from "./todays-activities";
 /** A salesperson's or BD Director's own month: visits, sales and pace, and the deals to chase. */
 export async function SalesDashboard({ me }: { me: Profile }) {
   const today = todayMyt();
-  const [own, projects, orders, inactiveOwners] = await Promise.all([
-    loadOwnMonth(me, today),
-    loadOpenProjects(today),
-    loadDashboardOrders(),
-    loadInactiveCustomerOwners(today),
-  ]);
+  const [own, projects, orders, inactiveOwners, yearlyTarget] =
+    await Promise.all([
+      loadOwnMonth(me, today),
+      loadOpenProjects(today),
+      loadDashboardOrders(),
+      loadInactiveCustomerOwners(today),
+      loadOwnYearlyTarget(me.id),
+    ]);
   const stats = own?.stats.kind === "site" ? null : (own?.stats ?? null);
   const mine = projectsOf(projects, me.id);
   const myOrders = orders.filter((order) => order.salespersonId === me.id);
@@ -74,10 +77,10 @@ export async function SalesDashboard({ me }: { me: Profile }) {
           note={`${totals.month.count} ${totals.month.count === 1 ? "order" : "orders"}`}
         />
         <StatTile label="Sales this year" value={formatRm(totals.year.value)}>
-          {me.yearlyTarget ? (
+          {yearlyTarget ? (
             <PaceBar
               done={totals.year.value}
-              target={me.yearlyTarget}
+              target={yearlyTarget}
               pace={yearPace(today, calendar)}
               label="Sales this year against yearly target"
               format={formatRm}

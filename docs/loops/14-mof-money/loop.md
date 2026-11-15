@@ -26,8 +26,8 @@ parallel with loop 15 People & HR.
 | 03 | VO sheet + needs-work reopen | done | 01 | opus/medium |
 | 04 | MOF change history | done | - | opus/medium |
 | 05 | Commission 180-day cut + appeals rules | done | - | opus/medium |
-| 06 | Appeals UI | in-progress | 05 | sonnet/high |
-| 07 | Performance deltas | todo | 02 | sonnet/high |
+| 06 | Appeals UI | done | 05 | sonnet/high |
+| 07 | Performance deltas | in-progress | 02 | sonnet/high |
 | 08 | Reports two-step review | todo | - | opus/medium |
 | 09 | Report print + BD retitle | todo | 08 | sonnet/medium |
 | 10 | Site report restructure | todo | 08 | sonnet/high |
@@ -51,3 +51,5 @@ parallel with loop 15 People & HR.
 2026-11-15 · #05 · done · checks + 1823 tests pass twice · next: #06
 2026-11-15 · #05 · decision · appeals decided by md + accounts; approved waiver covers all late cuts on that person's line for that order; rejected appeal kept, new appeal = new row; saved 120 left alone if first cut starts at 180+ · why: demo parity, keep history, keep cut order valid
 2026-11-15 · #05 · decision · vitest testTimeout/hookTimeout 30s: DB tests build from all migrations and passed 5s in full parallel runs (public-holidays and commission-appeals flaked) · why: root cause is migration count growth, not the tests
+2026-11-15 · #06 · done · checks + 1829 tests pass; browser parity (sales/md/accounts, 390px) NOT run, moved to #11 · next: #07
+2026-11-15 · #06 · decision · Appeals tab md+accounts only; Appeal button only on own line with a cut above 0 and no standing appeal; Decide hidden on own appeal; pill text "Special approval by X", no emoji · why: demo parity + DB rules

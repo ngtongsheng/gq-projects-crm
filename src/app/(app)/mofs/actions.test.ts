@@ -127,8 +127,36 @@ function form(
 }
 
 const saved: Result = { data: MOF, error: null };
-const existing = (contractSum = 12500, voAmount = 0): Result => ({
-  data: { contract_sum: contractSum, vo_amount: voAmount },
+/** The saved MOF as the form posts it by default, so a plain save changes nothing. */
+const existing = (
+  contractSum = 12500,
+  voAmount = 0,
+  overrides: Record<string, unknown> = {},
+): Result => ({
+  data: {
+    contract_sum: contractSum,
+    vo_amount: voAmount,
+    installer_name: null,
+    scope: "s_and_l",
+    salesperson_id: SALES,
+    second_salesperson_id: null,
+    commission_type: "own",
+    loa_date: "2026-11-02",
+    site_stage: "start",
+    mof_lines: [
+      {
+        product: "Carpet Tile",
+        qty: 1000,
+        unit: "sqft",
+        created_at: "2026-11-02T01:00:00Z",
+      },
+    ],
+    ...overrides,
+  },
+  error: null,
+});
+const savedCost = (cost: number | null): Result => ({
+  data: cost === null ? null : { cost },
   error: null,
 });
 const refused = (message = ""): Result => ({
@@ -142,6 +170,11 @@ type SavePayload = {
   lines: Record<string, unknown>[];
   reason: string;
   cost: number | null;
+  changes: {
+    field: string;
+    old_value: string | null;
+    new_value: string | null;
+  }[];
 };
 
 /** The one save_mof call; there must be exactly one. */
@@ -272,6 +305,7 @@ describe("saveMof: cost is for managers only", () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
     fakeSupabase([
       existing(),
+      savedCost(8000),
       refused(
         'new row violates row-level security policy for table "mof_costs"',
       ),
@@ -303,20 +337,20 @@ describe("saveMof: order total", () => {
     const calls = fakeSupabase([existing()]);
 
     const result = await saveMof(
-      form({ mofId: MOF, voAmount: "-400", reason: "  " }),
+      form({ mofId: MOF, contractSum: "12,100", reason: "  " }),
     );
 
     expect(result.error).toMatch(/reason/);
     expect(calls).toHaveLength(1);
   });
 
-  it("sends the new total with the reason", async () => {
-    const calls = fakeSupabase([existing(), saved]);
+  it("sends the new contract sum with the reason", async () => {
+    const calls = fakeSupabase([existing(12500, 600), saved]);
 
     const result = await saveMof(
       form({
         mofId: MOF,
-        voAmount: "-400",
+        contractSum: "12,100",
         reason: " CN-0412: 40 m² returned ",
       }),
     );
@@ -324,9 +358,46 @@ describe("saveMof: order total", () => {
     expect(result.error).toBeNull();
     expect(savePayload(calls)).toMatchObject({
       mof_id: MOF,
-      mof: { contract_sum: 12500, vo_amount: -400 },
+      mof: { contract_sum: 12100, vo_amount: 600 },
       reason: "CN-0412: 40 m² returned",
     });
+  });
+
+  it("keeps the saved VO amount whatever is posted: VOs have their own list", async () => {
+    const calls = fakeSupabase([existing(12500, 600), saved]);
+
+    const result = await saveMof(form({ mofId: MOF, voAmount: "-400" }));
+
+    expect(result.error).toBeNull();
+    expect(savePayload(calls)).toMatchObject({
+      mof: { vo_amount: 600 },
+      reason: "",
+    });
+  });
+
+  it("starts a new MOF with no VO amount", async () => {
+    const calls = fakeSupabase([saved]);
+
+    await saveMof(form({ voAmount: "500" }));
+
+    expect(savePayload(calls).mof).toMatchObject({ vo_amount: 0 });
+  });
+
+  it("explains a VO change refused by the database", async () => {
+    fakeSupabase([
+      existing(),
+      {
+        data: null,
+        error: {
+          code: "22023",
+          message: "Add or change variation orders on the MOF's VO list.",
+        },
+      },
+    ]);
+
+    const result = await saveMof(form({ mofId: MOF }));
+
+    expect(result.error).toMatch(/Reload the page; VOs are added/);
   });
 
   it("needs no reason when the total is unchanged", async () => {
@@ -430,5 +501,93 @@ describe("saveMof: existing MOF", () => {
     const result = await saveMof(form({ mofId: MOF }));
 
     expect(result.error).toMatch(/Only the MD, Purchasing or HR & Accounts/);
+  });
+});
+
+describe("saveMof: change history", () => {
+  beforeEach(() => {
+    vi.mocked(getCurrentProfile).mockReset();
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
+  });
+
+  it("sends no changes when nothing changed", async () => {
+    const calls = fakeSupabase([existing(), saved]);
+
+    await saveMof(form({ mofId: MOF }));
+
+    expect(savePayload(calls).changes).toEqual([]);
+  });
+
+  it("sends each changed field with the optional reason", async () => {
+    const calls = fakeSupabase([existing(), saved]);
+
+    const result = await saveMof(
+      form({
+        mofId: MOF,
+        installerName: "Ah Seng",
+        reason: " Leong on leave ",
+      }),
+    );
+
+    expect(result.error).toBeNull();
+    expect(savePayload(calls)).toMatchObject({
+      reason: "Leong on leave",
+      changes: [
+        { field: "installer_name", old_value: null, new_value: "Ah Seng" },
+      ],
+    });
+  });
+
+  it("compares a posted cost with the saved one", async () => {
+    const calls = fakeSupabase([existing(), savedCost(7000), saved]);
+
+    await saveMof(form({ mofId: MOF, cost: "8,000" }));
+
+    expect(savePayload(calls).changes).toEqual([
+      { field: "cost", old_value: "7000", new_value: "8000" },
+    ]);
+  });
+
+  it("refuses a change to a completed job without a reason", async () => {
+    const calls = fakeSupabase([
+      existing(12500, 0, { site_stage: "completed" }),
+    ]);
+
+    const result = await saveMof(
+      form({ mofId: MOF, installerName: "Ah Seng", reason: " " }),
+    );
+
+    expect(result.error).toMatch(/already completed/);
+    expect(calls.some((call) => call.table === "rpc:save_mof")).toBe(false);
+  });
+
+  it("saves a completed job unchanged without a reason", async () => {
+    const calls = fakeSupabase([
+      existing(12500, 0, { site_stage: "completed" }),
+      saved,
+    ]);
+
+    const result = await saveMof(form({ mofId: MOF }));
+
+    expect(result.error).toBeNull();
+    expect(savePayload(calls).changes).toEqual([]);
+  });
+
+  it("explains the database refusing a completed job's change", async () => {
+    fakeSupabase([
+      existing(),
+      {
+        data: null,
+        error: {
+          code: "22023",
+          message:
+            "This job is already completed. Write the reason for the change.",
+        },
+      },
+    ]);
+
+    const result = await saveMof(form({ mofId: MOF }));
+
+    expect(result.error).toMatch(/already completed/);
   });
 });

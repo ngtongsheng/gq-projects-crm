@@ -21,6 +21,8 @@ import {
   loadPendingBookingDays,
 } from "../installation/booking-data";
 import { loadCalendarJobs } from "../installation/calendar-jobs";
+import { AdditionalWorkAlerts } from "../site-work/additional-work";
+import { loadOpenAdditionalWork } from "../site-work/additional-work-data";
 import {
   loadActiveSites,
   loadPendingClaims,
@@ -42,7 +44,7 @@ const LOOKAHEAD_DAYS = 14;
 export async function SiteDashboard({ me }: { me: Profile }) {
   const today = todayMyt();
   const until = addDays(today, LOOKAHEAD_DAYS);
-  const [own, bookings, pendingDays, jobs, sites, claims, team] =
+  const [own, bookings, pendingDays, jobs, sites, claims, team, extraWork] =
     await Promise.all([
       loadOwnMonth(me, today),
       loadCalendarBookings(today, until, me.id),
@@ -51,6 +53,7 @@ export async function SiteDashboard({ me }: { me: Profile }) {
       loadActiveSites(today),
       loadPendingClaims(me),
       getTeamDirectory(),
+      loadOpenAdditionalWork(me.id),
     ]);
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
   const stats = own?.stats.kind === "site" ? own.stats : null;
@@ -71,6 +74,14 @@ export async function SiteDashboard({ me }: { me: Profile }) {
 
   return (
     <div className="flex flex-col gap-4">
+      <AdditionalWorkAlerts
+        alerts={extraWork.map((alert) => ({
+          ...alert,
+          by: alert.createdBy
+            ? (nameOf.get(alert.createdBy) ?? "Unnamed")
+            : "–",
+        }))}
+      />
       <AttentionPanel items={attention} />
       {stats ? (
         <TileGrid className="grid-cols-2">

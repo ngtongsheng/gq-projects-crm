@@ -29,9 +29,13 @@ const MIN_HIGHLIGHTS = 3;
 const NOT_A_FILER =
   "Only salespeople, the BD Director and Site Supervisors file monthly reports.";
 const LOCKED = "This report is already submitted and can no longer be changed.";
-const NOT_REVIEWER = "Only the MD or Sales Director can review reports.";
+const NOT_REVIEWER =
+  "Only the MD or the person's team lead can review reports.";
 const NOT_FOUND_REPORT =
-  "This report is not waiting for your review, or you cannot review it (only the MD reviews the BD Director's). Reload the page.";
+  "This report is not waiting for your review, or you cannot review it (only the MD reviews the BD Director's, and a team lead only their own team's). Reload the page.";
+const NOT_APPROVER = "Only the MD gives the final approval.";
+const NOT_FOUND_APPROVAL =
+  "This report is not waiting for your final approval. Reload the page.";
 const TRY_AGAIN = "Could not save. Try again.";
 
 const reportForm = z.object({
@@ -179,17 +183,19 @@ const reviewForm = z.object({
 });
 
 /**
- * Marks a submitted report reviewed. The database checks again that the reviewer may review
- * this kind of report (only the MD for the BD Director's) and that it is not their own.
+ * Marks a submitted report reviewed. The MD's review is also the final approval. The database
+ * checks again that the reviewer may review this report (only the MD for the BD Director's, a
+ * team lead only their own team's) and that it is not their own.
  */
 export async function reviewReport(
   reportId: string,
   note: string,
 ): Promise<ReportResult> {
   const me = await requirePage("rep");
-  if (me.jobRole !== "md" && me.jobRole !== "director") {
-    return { error: NOT_REVIEWER };
-  }
+  const kinds = REPORT_KINDS.filter((kind) =>
+    canReviewReport(me.jobRole, kind),
+  );
+  if (kinds.length === 0) return { error: NOT_REVIEWER };
 
   const parsed = reviewForm.safeParse({ reportId, note });
   if (!parsed.success) {
@@ -202,10 +208,7 @@ export async function reviewReport(
     .update({ status: "reviewed", review_note: parsed.data.note })
     .eq("id", parsed.data.reportId)
     .eq("status", "submitted")
-    .in(
-      "kind",
-      REPORT_KINDS.filter((kind) => canReviewReport(me.jobRole, kind)),
-    )
+    .in("kind", kinds)
     .select("id");
   if (error) {
     if (error.code === "42501") return { error: NOT_REVIEWER };
@@ -215,5 +218,34 @@ export async function reviewReport(
   if (data.length === 0) return { error: NOT_FOUND_REPORT };
 
   revalidatePath("/reports", "layout");
-  return { error: null, message: "Marked as reviewed." };
+  return {
+    error: null,
+    message: me.jobRole === "md" ? "Approved." : "Marked as reviewed.",
+  };
+}
+
+/** The MD's final approval of a report her team lead reviewed. The database checks it again. */
+export async function approveReport(reportId: string): Promise<ReportResult> {
+  const me = await requirePage("rep");
+  if (me.jobRole !== "md") return { error: NOT_APPROVER };
+
+  const parsed = z.uuid().safeParse(reportId);
+  if (!parsed.success) return { error: NOT_FOUND_APPROVAL };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("monthly_reports")
+    .update({ status: "approved" })
+    .eq("id", parsed.data)
+    .eq("status", "reviewed")
+    .select("id");
+  if (error) {
+    if (error.code === "42501") return { error: NOT_APPROVER };
+    console.error("Could not approve the monthly report", error);
+    return { error: TRY_AGAIN };
+  }
+  if (data.length === 0) return { error: NOT_FOUND_APPROVAL };
+
+  revalidatePath("/reports", "layout");
+  return { error: null, message: "Approved." };
 }

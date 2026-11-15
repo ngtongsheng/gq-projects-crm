@@ -30,6 +30,7 @@ function input(overrides: Partial<CommissionInput> = {}): CommissionInput {
     people: [SALES, SECOND, EXCLUDED, FLAT] as CommissionInput["people"],
     settings: DEFAULT_COMMISSION_SETTINGS,
     today: "2027-02-01",
+    lateCutWaivedFor: [],
     ...overrides,
   };
 }
@@ -77,8 +78,10 @@ describe("calculateCommission: late collection", () => {
   it.each([
     [90, 0],
     [91, 25],
-    [120, 25],
-    [121, 50],
+    [121, 25],
+    [179, 25],
+    [180, 25],
+    [181, 50],
   ])("money received %d days after the invoice is cut %d%%", (days, cut) => {
     const person = only({
       payments: [{ amount: 100_000, receivedOn: addDays(INVOICED, days) }],
@@ -105,6 +108,25 @@ describe("calculateCommission: late collection", () => {
       payments: [{ amount: 100_000, receivedOn: "2027-03-02" }],
     }).people[0];
     expect(person?.lateCut).toBe(750); // 91 days after 2026-12-01
+  });
+
+  it("waives every late cut for a person whose appeal was approved", () => {
+    const result = calculateCommission(
+      input({
+        mof: { ...input().mof, secondSalespersonId: SECOND.id },
+        payments: [
+          { amount: 50_000, receivedOn: addDays(INVOICED, 100) },
+          { amount: 50_000, receivedOn: addDays(INVOICED, 200) },
+        ],
+        lateCutWaivedFor: [SALES.id],
+      }),
+    );
+    const [sarah, ken] = result.people;
+    expect(sarah).toMatchObject({ earned: 1_500, lateCut: 0 });
+    expect(sarah?.lines).toContain(
+      "Late cut waived: appeal approved as a special favour.",
+    );
+    expect(ken).toMatchObject({ earned: 937.5, lateCut: 562.5 });
   });
 
   it("pays nothing on money beyond the order total", () => {

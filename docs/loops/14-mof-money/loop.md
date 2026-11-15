@@ -21,17 +21,17 @@ parallel with loop 15 People & HR.
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | VO migration | todo | - | opus/medium |
-| 02 | VO sales month | todo | 01 | sonnet/high |
-| 03 | VO sheet + needs-work reopen | todo | 01 | opus/medium |
-| 04 | MOF change history | todo | - | opus/medium |
-| 05 | Commission 180-day cut + appeals rules | todo | - | opus/medium |
-| 06 | Appeals UI | todo | 05 | sonnet/high |
-| 07 | Performance deltas | todo | 02 | sonnet/high |
-| 08 | Reports two-step review | todo | - | opus/medium |
-| 09 | Report print + BD retitle | todo | 08 | sonnet/medium |
-| 10 | Site report restructure | todo | 08 | sonnet/high |
-| 11 | Parity pass, docs, merge | todo | 01-10 | sonnet/medium |
+| 01 | VO migration | done | - | opus/medium |
+| 02 | VO sales month | done | 01 | sonnet/high |
+| 03 | VO sheet + needs-work reopen | done | 01 | opus/medium |
+| 04 | MOF change history | done | - | opus/medium |
+| 05 | Commission 180-day cut + appeals rules | done | - | opus/medium |
+| 06 | Appeals UI | done | 05 | sonnet/high |
+| 07 | Performance deltas | done | 02 | sonnet/high |
+| 08 | Reports two-step review | done | - | opus/medium |
+| 09 | Report print + BD retitle | done | 08 | sonnet/medium |
+| 10 | Site report restructure | done | 08 | sonnet/high |
+| 11 | Parity pass, docs, merge | done | 01-10 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Start only after loop 12 is merged: `/execute-loop docs/loops/14-mof-money`.
@@ -39,3 +39,32 @@ parallel with loop 15 People & HR.
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-15 · plan · loop written from drift-money-reports.md · next: wait for loop 12 merge, then #01
+2026-11-15 · worktree · ../gq-projects-crm-loops/14-mof-money on loop/14-mof-money · next: #01
+2026-11-15 · #01 · done · checks + 1716 tests pass · next: #02, #04, #05, #08 independent; #03 needs 01
+2026-11-15 · #01 · decision · VO cost in own table mof_variation_order_costs (RLS can_see_mof_cost) so salespeople never see cost; VO cost added via SQL view mof_cost_totals, mof-totals.ts unchanged; save_mof refuses a differing vo_amount; commission_basis/commission_payable_now and import_mofs redefined in the VO migration (task 05 starts from that version) · why: keep sum and cost rules consistent
+2026-11-15 · #02 · done · checks + 1726 tests pass · next: #03
+2026-11-15 · #02 · decision · new order-sales.ts rule shared by performance and report-stats; mof-summary.ts unchanged (no monthly view there); report counts and performance margin/count stay by LOA month/year · why: D2 limited to sales value
+2026-11-15 · #03 · done · checks + 1750 tests pass (screens not browser-checked; parity pass #11 covers) · next: #04
+2026-11-15 · #03 · decision · reopen rule in SQL reopen_for_additional_work; site stage -> installation (80%, no 95%); only a new VO reopens; no VO delete; alert on Site Supervisor dashboard only; saveMof ignores posted VO amount · why: app progress derives from site stage; demo parity
+2026-11-15 · #04 · done · checks + 1790 tests pass · next: #05
+2026-11-15 · #04 · decision · mof_changes stores raw values, trigger copies every mof_total_changes row in; save_mof gets changes jsonb arg; "job complete" = site_stage completed; diff computed in app (register editors could post a wrong list directly; DB blocks everyone else) · why: demo mofDiff parity, minimal schema
+2026-11-15 · #05 · done · checks + 1823 tests pass twice · next: #06
+2026-11-15 · #05 · decision · appeals decided by md + accounts; approved waiver covers all late cuts on that person's line for that order; rejected appeal kept, new appeal = new row; saved 120 left alone if first cut starts at 180+ · why: demo parity, keep history, keep cut order valid
+2026-11-15 · #05 · decision · vitest testTimeout/hookTimeout 30s: DB tests build from all migrations and passed 5s in full parallel runs (public-holidays and commission-appeals flaked) · why: root cause is migration count growth, not the tests
+2026-11-15 · #06 · done · checks + 1829 tests pass; browser parity (sales/md/accounts, 390px) NOT run, moved to #11 · next: #07
+2026-11-15 · #06 · decision · Appeals tab md+accounts only; Appeal button only on own line with a cut above 0 and no standing appeal; Decide hidden on own appeal; pill text "Special approval by X", no emoji · why: demo parity + DB rules
+2026-11-15 · #07 · done · checks + 1849 tests pass; browser parity + rendered chart NOT checked, moved to #11 · next: #08
+2026-11-15 · #07 · decision · proration over actual year days (leap-aware); hidden-director rule covers Sales + Marketing Director; best month ties go to earliest; team panel omits visits/new customers/pipeline; dark-mode chart tokens fail lightness/chroma validator, tokens left alone (debt) · why: scope, existing tokens
+2026-11-15 · #08 · done · checks + 1864 tests pass (resumed after usage limit) · next: #09
+2026-11-15 · #08 · decision · new status approved; MD review = approval; site reports stay with Sales Director (demo contradicts itself, D9); salesperson with no lead: MD only; BD director reports go to md only · why: loop 11 team rule, DB enforces each step
+2026-11-15 · #08 · decision · Marketing Director (bd) may review team sales reports in DB but has no Team Reports page; logged in debt.md, not widened · why: page access is a scope/role decision outside this loop
+2026-11-15 · #09 · done · checks + 1864 tests pass; Chrome print preview NOT checked, moved to #11 · next: #10
+2026-11-15 · #09 · decision · print sheet hidden-on-screen (print:hidden on screen content) not a separate overlay; PrintSignatureRow got optional 3-column prop; no "Printed" date stamp · why: simplest reuse of print-layout
+2026-11-15 · #10 · done · checks + 1872 tests pass; browser/print not checked, moved to #11 · next: #11
+2026-11-15 · #10 · decision · OT table + activity summary removed from report screen/print only, frozen otHours kept (site dashboard uses it); itinerary live from logs + confirmed bookings; remarks reuse existing issues/support text · why: smallest change, no data change
+2026-11-15 · #11 · merged origin/main (loop 20 docs; decisions.md conflict kept both entries) · next: final checks, push
+2026-11-15 · #11 · decision · browser parity (step 1) NOT run: the test copy lacks this loop's migrations until CI applies them, so the app cannot load these screens against it; docs written, merge done · why: no safe way to run before merge; owner action: parity check on the live app after deploy
+2026-11-15 · #11 · done · docs updated, origin/main merged · next: final checks, push to main
+2026-11-15 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-15-loop-14-mof-money.md
+2026-11-15 · merge · PR #46 migrate-dev failed: test copy already has loop 15's migrations (143000, 144000) and loop 15 uses the same 150000/160000 versions; renamed ours to 210000-250000 · next: wait for loop 15 (PR #45) to reach main, merge main, rerun
+2026-11-15 · merge · loop 15 reached main; merged origin/main (roadmap + decisions conflicts resolved, kept both); 195 files / 2264 tests pass · next: PR #46 CI, merge

@@ -10,6 +10,17 @@ import {
   salesStats,
   siteStats,
 } from "@/lib/domain/report-stats";
+import {
+  BOOKING_PURPOSE_LABEL,
+  BOOKING_PURPOSES,
+} from "@/lib/domain/site-booking";
+import { SITE_ACTIVITIES } from "@/lib/domain/site-log";
+import {
+  buildItinerary,
+  type SiteReport,
+  shootingHandoverRows,
+  stockReturnCounts,
+} from "@/lib/domain/site-report";
 import { isClockTime } from "@/lib/format/clock-time";
 import { type CalendarDate, todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
@@ -38,10 +49,12 @@ export type MonthlyReport = {
   submittedAt: Date | null;
   reviewedBy: string | null;
   reviewNote: string | null;
+  approvedBy: string | null;
+  approvedAt: Date | null;
 };
 
 const REPORT_COLUMNS =
-  "id, profile_id, month, kind, status, stats, highlights, next_month_plan, support_needed, pass_downs_confirmed, submitted_at, reviewed_by, review_note";
+  "id, profile_id, month, kind, status, stats, highlights, next_month_plan, support_needed, pass_downs_confirmed, submitted_at, reviewed_by, review_note, approved_by, approved_at";
 
 const reportRow = z
   .object({
@@ -58,6 +71,8 @@ const reportRow = z
     submitted_at: z.string().nullable(),
     reviewed_by: z.string().nullable(),
     review_note: z.string().nullable(),
+    approved_by: z.string().nullable(),
+    approved_at: z.string().nullable(),
   })
   .transform(
     (row): MonthlyReport => ({
@@ -74,6 +89,8 @@ const reportRow = z
       submittedAt: row.submitted_at ? new Date(row.submitted_at) : null,
       reviewedBy: row.reviewed_by,
       reviewNote: row.review_note,
+      approvedBy: row.approved_by,
+      approvedAt: row.approved_at ? new Date(row.approved_at) : null,
     }),
   );
 
@@ -114,6 +131,32 @@ export async function loadMonthlyReport(
   return data ? reportRow.parse(data) : null;
 }
 
+const reviewerRows = z.array(
+  z.object({
+    full_name: z.string().nullable(),
+    step: z.enum(["review", "approve"]),
+  }),
+);
+
+/** Who the signed-in person's report goes to: their team lead(s) for review, then the MD. */
+export async function loadMyReportReviewers(): Promise<{
+  leads: string[];
+  approvers: string[];
+}> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("my_monthly_report_reviewers");
+  if (error) {
+    throw new Error(`Could not load who reviews the report: ${error.message}`);
+  }
+  const rows = reviewerRows.parse(data);
+  const names = (step: "review" | "approve") =>
+    rows
+      .filter((row) => row.step === step)
+      .map((row) => row.full_name ?? "Unnamed")
+      .sort((a, b) => a.localeCompare(b));
+  return { leads: names("review"), approvers: names("approve") };
+}
+
 /** Every report for a month the caller may read (RLS limits it). */
 export async function loadMonthReports(
   month: CalendarDate,
@@ -152,7 +195,9 @@ const orderRows = z.array(
     salesperson_id: z.string(),
     loa_date: z.string(),
     contract_sum: z.coerce.number(),
-    vo_amount: z.coerce.number(),
+    mof_variation_orders: z.array(
+      z.object({ confirmed_on: z.string(), amount: z.coerce.number() }),
+    ),
     projects: z.object({ passed_by: z.string().nullable() }).nullable(),
   }),
 );
@@ -185,6 +230,25 @@ async function loadSalesStats(
     ),
   ];
 
+  // An order counts in the month of its LOA and in the month of each of its VOs.
+  const monthVos = await supabase
+    .from("mof_variation_orders")
+    .select("mof_id")
+    .gte("confirmed_on", month)
+    .lt("confirmed_on", shiftMonth(month, 1));
+  if (monthVos.error) {
+    throw new Error(`Could not load report figures: ${monthVos.error.message}`);
+  }
+  const vosMofIds = [
+    ...new Set(
+      z
+        .array(z.object({ mof_id: z.string() }))
+        .parse(monthVos.data)
+        .map((row) => row.mof_id),
+    ),
+  ];
+  const inMonth = `and(loa_date.gte.${month},loa_date.lt.${shiftMonth(month, 1)})`;
+
   // Earlier visits to the same contacts decide who met them first.
   const [visits, projects, orders] = await Promise.all([
     contactIds.length === 0
@@ -205,10 +269,13 @@ async function loadSalesStats(
     supabase
       .from("mofs")
       .select(
-        "salesperson_id, loa_date, contract_sum, vo_amount, projects(passed_by)",
+        "salesperson_id, loa_date, contract_sum, mof_variation_orders(confirmed_on, amount), projects(passed_by)",
       )
-      .gte("loa_date", month)
-      .lt("loa_date", shiftMonth(month, 1)),
+      .or(
+        vosMofIds.length === 0
+          ? inMonth
+          : `${inMonth},id.in.(${vosMofIds.join(",")})`,
+      ),
   ]);
   for (const result of [visits, projects, orders]) {
     if (result.error) {
@@ -235,7 +302,10 @@ async function loadSalesStats(
       passedBy: row.projects?.passed_by ?? null,
       loaDate: row.loa_date,
       contractSum: row.contract_sum,
-      voAmount: row.vo_amount,
+      variationOrders: row.mof_variation_orders.map((vo) => ({
+        confirmedOn: vo.confirmed_on,
+        amount: vo.amount,
+      })),
     })),
   };
   return kind === "bd" ? bdStats(input) : salesStats(input);
@@ -317,4 +387,109 @@ export function loadLiveStats(
   return kind === "site"
     ? loadSiteStats(personId, month, targets)
     : loadSalesStats(kind, personId, month, targets);
+}
+
+const siteReportLogRows = z.array(
+  z.object({
+    mof_id: z.string(),
+    visited_on: z.string(),
+    activity: z.enum(SITE_ACTIVITIES),
+    handover_signed: z.boolean(),
+    drive_link: z.string().nullable(),
+    mofs: z.object({
+      company_name: z.string(),
+      project_name: z.string(),
+      project_id: z.string().nullable(),
+    }),
+  }),
+);
+
+const siteReportBookingRows = z.array(
+  z.object({
+    project_id: z.string().nullable(),
+    site: z.string().nullable(),
+    purpose: z.enum(BOOKING_PURPOSES),
+    visit_on: z.string(),
+    projects: z.object({ name: z.string() }).nullable(),
+  }),
+);
+
+const siteReportLeftoverRows = z.array(
+  z.object({
+    destination: z.enum(["supplier", "gq"]),
+    status: z.string(),
+  }),
+);
+
+/**
+ * A Site Supervisor's month beyond the headline figures: itinerary (booked vs added on the
+ * day), shooting and handover rows, and the leftover stock they recorded. Always live: logs
+ * are never edited, so a filed report's itinerary does not drift; a booking confirmed or
+ * declined afterwards can.
+ */
+export async function loadSiteReport(
+  personId: string,
+  month: CalendarDate,
+  today: CalendarDate,
+): Promise<SiteReport> {
+  const supabase = await createClient();
+  const next = shiftMonth(month, 1);
+  const { from, to } = monthBounds(month);
+  const [logs, bookings, leftovers] = await Promise.all([
+    supabase
+      .from("site_logs")
+      .select(
+        "mof_id, visited_on, activity, handover_signed, drive_link, mofs(company_name, project_name, project_id)",
+      )
+      .eq("supervisor_id", personId)
+      .gte("visited_on", month)
+      .lt("visited_on", next),
+    supabase
+      .from("site_bookings")
+      .select("project_id, site, purpose, visit_on, projects(name)")
+      .eq("supervisor_id", personId)
+      .eq("status", "confirmed")
+      .gte("visit_on", month)
+      .lt("visit_on", next),
+    supabase
+      .from("leftovers")
+      .select("destination, status")
+      .eq("created_by", personId)
+      .gte("created_at", from)
+      .lt("created_at", to),
+  ]);
+  for (const result of [logs, bookings, leftovers]) {
+    if (result.error) {
+      throw new Error(
+        `Could not load the site report: ${result.error.message}`,
+      );
+    }
+  }
+
+  const siteLogs = siteReportLogRows.parse(logs.data).map((row) => ({
+    mofId: row.mof_id,
+    projectId: row.mofs.project_id,
+    siteLabel: `${row.mofs.company_name} · ${row.mofs.project_name}`,
+    visitedOn: row.visited_on,
+    activity: row.activity,
+    handoverSigned: row.handover_signed,
+    driveLink: row.drive_link,
+  }));
+  return {
+    itinerary: buildItinerary({
+      month,
+      today,
+      logs: siteLogs,
+      bookings: siteReportBookingRows.parse(bookings.data).map((row) => ({
+        projectId: row.project_id,
+        siteLabel: row.projects?.name ?? row.site ?? "",
+        visitOn: row.visit_on,
+        purposeLabel: BOOKING_PURPOSE_LABEL[row.purpose],
+      })),
+    }),
+    shootingHandover: shootingHandoverRows(siteLogs, month),
+    stockReturns: stockReturnCounts(
+      siteReportLeftoverRows.parse(leftovers.data),
+    ),
+  };
 }

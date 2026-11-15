@@ -14,7 +14,9 @@ vi.mock("./commission-settings-data", () => ({
 const SARAH = "55555555-5555-4555-8555-555555555555";
 const KEN = "66666666-6666-4666-8666-666666666666";
 
-const mof = (id: string, salespersonId: string) => ({
+type Appeal = { profile_id: string; status: string };
+
+const mof = (id: string, salespersonId: string, appeals: Appeal[] = []) => ({
   id,
   mof_no: `MOF-${id}`,
   company_name: "Acme",
@@ -28,10 +30,14 @@ const mof = (id: string, salespersonId: string) => ({
   second_salesperson_id: null,
   payments: [{ amount: 100_000, received_on: "2026-10-10" }],
   commission_payouts: [],
+  commission_appeals: appeals,
 });
 
 /** The database hands a salesperson only their own order in commission_basis, and no costs. */
-function fakeSupabase() {
+function fakeSupabase(
+  mofs = [mof("a", SARAH), mof("b", KEN)],
+  invoiceDate = "2026-10-05",
+) {
   const tables: string[] = [];
   const client = {
     from: vi.fn((table: string) => {
@@ -46,7 +52,10 @@ function fakeSupabase() {
         return orders < 2
           ? query
           : Promise.resolve({
-              data: [mof("a", SARAH), mof("b", KEN)],
+              data: mofs.map((order) => ({
+                ...order,
+                invoice_date: invoiceDate,
+              })),
               error: null,
             });
       };
@@ -106,5 +115,21 @@ describe("loadCommissionLines", () => {
       commission: { earned: 4_000, claimable: true },
       balance: { remaining: 4_000, payableNow: 4_000 },
     });
+  });
+
+  // Paid 2026-10-10; an invoice dated 2026-04-01 makes that 192 days late: a 50% cut.
+  it.each([
+    ["pending", 2_000],
+    ["rejected", 2_000],
+    ["approved", 4_000],
+  ])("with a %s appeal the commission earned is %d", async (status, earned) => {
+    fakeSupabase(
+      [mof("a", SARAH, [{ profile_id: SARAH, status }])],
+      "2026-04-01",
+    );
+
+    const [line] = await loadCommissionLines();
+
+    expect(line?.commission.earned).toBe(earned);
   });
 });

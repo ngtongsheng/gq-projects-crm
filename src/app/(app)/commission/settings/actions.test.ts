@@ -65,7 +65,7 @@ const fields = (change: Record<string, string> = {}) => {
     highMarginBonus: "1",
     firstCutDays: "90",
     firstCutPct: "25",
-    secondCutDays: "120",
+    secondCutDays: "180",
     secondCutPct: "50",
     claimThreshold: "90",
     splitShare: "50",

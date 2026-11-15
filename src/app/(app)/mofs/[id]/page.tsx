@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
-import { DataTable } from "@/components/app/data-table";
-import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   canEditRegister,
   canEditSite,
@@ -22,32 +19,29 @@ import {
   SUPPLIER_PO_STATUSES,
   supplierPoReason,
 } from "@/lib/domain/supplier-po";
-import { formatDateTime, todayMyt } from "@/lib/format/date";
+import { todayMyt } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
 import { createClient } from "@/lib/supabase/server";
+import { loadSiteSupervisors } from "../../installation/booking-data";
 import { type MofDraft, MofForm } from "../mof-form";
 import { loadAwardedProjects } from "./awarded-projects";
+import {
+  ChangeHistory,
+  MOF_CHANGE_COLUMNS,
+  mofChangeRows,
+} from "./change-history";
 import { DeliveryJobs } from "./delivery-jobs";
 import { InstallerClaims } from "./installer-claims";
 import { loadInstallerPos } from "./installer-data";
 import { loadJobs } from "./job-data";
 import { blankDraft, blankIfNull, draftFromMof, mofRow } from "./mof-draft";
 import { SupplierPos } from "./supplier-pos";
+import { loadVariationOrders } from "./vo-data";
+import { VoSheet } from "./vo-sheet";
 
 export const metadata: Metadata = { title: "MOF" };
 
 const NEW = "new";
-
-const totalChangeRows = z.array(
-  z.object({
-    id: z.string(),
-    old_total: z.number(),
-    new_total: z.number(),
-    reason: z.string(),
-    changed_by: z.string().nullable(),
-    created_at: z.string(),
-  }),
-);
 
 const supplierPoRows = z.array(
   z.object({
@@ -62,15 +56,6 @@ const supplierPoRows = z.array(
 );
 
 const costRow = z.object({ cost: z.number() }).nullable();
-
-type TotalChange = {
-  id: string;
-  at: string;
-  from: number;
-  to: number;
-  reason: string;
-  by: string;
-};
 
 function NewMof({
   draft,
@@ -151,43 +136,49 @@ export default async function MofPage({
 
   if (!z.uuid().safeParse(id).success) notFound();
 
-  const [mofResult, changesResult, costResult, posResult, team, jobs] =
-    await Promise.all([
-      supabase
-        .from("mofs")
-        .select(
-          "id, mof_no, loa_date, salesperson_id, second_salesperson_id, project_id, company_name, project_name, loa_no, quote_no, site_address, site_contact_name, site_contact_mobile, office_pic_id, customer_contact, accounts_contact, customer_name, customer_mobile, accounts_name, accounts_mobile, accounts_email, scope, installer_name, contract_sum, vo_amount, retention_pct, invoice_no, invoice_date, commission_type, delivery_date, stage, latest_update, payment_checked, approvals_in_writing, artwork_signed_off, dos_pre_approved, updated_at, mof_lines(id, product, stock_type, supplier, qty, unit, area_m2, created_at)",
-        )
-        .eq("id", id)
-        .maybeSingle(),
-      supabase
-        .from("mof_total_changes")
-        .select("id, old_total, new_total, reason, changed_by, created_at")
-        .eq("mof_id", id)
-        .order("created_at", { ascending: false }),
-      // Only managers ask; the database hides cost from everyone else anyway.
-      showCost
-        ? supabase
-            .from("mof_costs")
-            .select("cost")
-            .eq("mof_id", id)
-            .maybeSingle()
-        : Promise.resolve({ data: null, error: null }),
-      supabase
-        .from("supplier_pos")
-        .select("id, zoho_no, supplier, po_date, lead_time_days, status, notes")
-        .eq("mof_id", id)
-        .order("po_date"),
-      getTeamDirectory(),
-      loadJobs(supabase, id),
-    ]);
+  const [
+    mofResult,
+    changesResult,
+    costResult,
+    posResult,
+    team,
+    jobs,
+    variationOrders,
+    supervisors,
+  ] = await Promise.all([
+    supabase
+      .from("mofs")
+      .select(
+        "id, mof_no, loa_date, salesperson_id, second_salesperson_id, project_id, company_name, project_name, loa_no, quote_no, site_address, site_contact_name, site_contact_mobile, office_pic_id, customer_contact, accounts_contact, customer_name, customer_mobile, accounts_name, accounts_mobile, accounts_email, scope, installer_name, contract_sum, vo_amount, retention_pct, invoice_no, invoice_date, commission_type, delivery_date, stage, latest_update, payment_checked, approvals_in_writing, artwork_signed_off, dos_pre_approved, updated_at, mof_lines(id, product, stock_type, supplier, qty, unit, area_m2, created_at)",
+      )
+      .eq("id", id)
+      .maybeSingle(),
+    supabase
+      .from("mof_changes")
+      .select(MOF_CHANGE_COLUMNS)
+      .eq("mof_id", id)
+      .order("created_at", { ascending: false }),
+    // Only managers ask; the database hides cost from everyone else anyway.
+    showCost
+      ? supabase.from("mof_costs").select("cost").eq("mof_id", id).maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
+    supabase
+      .from("supplier_pos")
+      .select("id, zoho_no, supplier, po_date, lead_time_days, status, notes")
+      .eq("mof_id", id)
+      .order("po_date"),
+    getTeamDirectory(),
+    loadJobs(supabase, id),
+    loadVariationOrders(supabase, id, showCost),
+    loadSiteSupervisors(),
+  ]);
   if (mofResult.error) {
     throw new Error(`Could not load MOF: ${mofResult.error.message}`);
   }
   if (!mofResult.data) notFound();
   if (changesResult.error) {
     throw new Error(
-      `Could not load order total history: ${changesResult.error.message}`,
+      `Could not load MOF change history: ${changesResult.error.message}`,
     );
   }
   if (costResult.error) {
@@ -223,16 +214,7 @@ export default async function MofPage({
   const installerPos = showInstallers
     ? await loadInstallerPos(supabase, mof.id, nameOf)
     : [];
-  const changes: TotalChange[] = totalChangeRows
-    .parse(changesResult.data)
-    .map((row) => ({
-      id: row.id,
-      at: row.created_at,
-      from: row.old_total,
-      to: row.new_total,
-      reason: row.reason,
-      by: row.changed_by ? (nameOf.get(row.changed_by) ?? "Unnamed") : "–",
-    }));
+  const changes = mofChangeRows.parse(changesResult.data);
 
   return (
     <div className="flex flex-col gap-4">
@@ -247,6 +229,25 @@ export default async function MofPage({
         awardedProjects={[]}
         canEdit={canEdit}
         cost={showCost ? (cost?.cost ?? null) : undefined}
+        jobCompleted={variationOrders.jobCompleted}
+      />
+      <VoSheet
+        mofId={mof.id}
+        mofNo={mof.mof_no}
+        contractSum={mof.contract_sum}
+        vos={variationOrders.vos}
+        canEdit={canEdit}
+        showCost={showCost}
+        jobCompleted={variationOrders.jobCompleted}
+        supervisors={supervisors}
+        jobSupervisorIds={[
+          ...new Set(
+            jobs.flatMap((job) =>
+              job.siteSupervisorId ? [job.siteSupervisorId] : [],
+            ),
+          ),
+        ]}
+        today={todayMyt()}
       />
       <SupplierPos
         mofId={mof.id}
@@ -280,45 +281,7 @@ export default async function MofPage({
           today={todayMyt()}
         />
       )}
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-heading">Order total changes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={[
-              {
-                key: "at",
-                header: "When",
-                cell: (row) => formatDateTime(row.at),
-                numeric: true,
-              },
-              {
-                key: "from",
-                header: "From",
-                cell: (row) => formatRm(row.from),
-                numeric: true,
-              },
-              {
-                key: "to",
-                header: "To",
-                cell: (row) => formatRm(row.to),
-                numeric: true,
-              },
-              { key: "reason", header: "Reason", cell: (row) => row.reason },
-              { key: "by", header: "By", cell: (row) => row.by },
-            ]}
-            rows={changes}
-            getRowKey={(row) => row.id}
-            empty={
-              <EmptyState
-                title="No changes yet"
-                description="Each change to the order total is listed here with its reason."
-              />
-            }
-          />
-        </CardContent>
-      </Card>
+      <ChangeHistory rows={changes} nameOf={nameOf} />
     </div>
   );
 }

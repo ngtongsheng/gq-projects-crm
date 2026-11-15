@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import {
   canChangeSettings,
+  canDecideCommissionAppeal,
   canPayOutCommission,
   isManager,
 } from "@/lib/auth/job-role";
@@ -24,6 +25,12 @@ import { requirePage } from "@/lib/auth/require-page";
 import { inMyTeam } from "@/lib/auth/team";
 import { todayMyt } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
+import { cn } from "@/lib/utils";
+import { AppealDialog } from "./appeal-dialog";
+import { AppealPill } from "./appeal-pill";
+import { appealKey, canSendAppeal } from "./appeal-rules";
+import { latestAppealByLine, loadCommissionAppeals } from "./appeals-data";
+import { AppealsTab } from "./appeals-tab";
 import { loadCommissionLines } from "./commission-data";
 import { CommissionDialog } from "./commission-dialog";
 import { groupByPerson, lineStatus } from "./commission-groups";
@@ -33,6 +40,12 @@ export const metadata: Metadata = { title: "Commission" };
 const ALL = "all";
 
 const personParam = z.uuid().optional().catch(undefined);
+const tabParam = z.enum(["commission", "appeals"]).catch("commission");
+
+const TABS = [
+  { id: "commission", label: "Commission", href: "/commission" },
+  { id: "appeals", label: "Appeals", href: "/commission?tab=appeals" },
+] as const;
 
 export default async function CommissionPage({
   searchParams,
@@ -42,10 +55,19 @@ export default async function CommissionPage({
   const me = await requirePage("comm");
   const canPay = canPayOutCommission(me.jobRole);
   const canSetRules = canChangeSettings(me);
-  const person = personParam.parse((await searchParams).person);
+  const canDecide = canDecideCommissionAppeal(me.jobRole);
+  const search = await searchParams;
+  const person = personParam.parse(search.person);
+  // Only the people who decide appeals get the tab; everyone else sees their appeal on the row.
+  const tab = canDecide ? tabParam.parse(search.tab) : "commission";
   const today = todayMyt();
 
-  const [all, team] = await Promise.all([loadCommissionLines(), loadMyTeam()]);
+  const [all, team, appeals] = await Promise.all([
+    loadCommissionLines(),
+    loadMyTeam(),
+    loadCommissionAppeals(),
+  ]);
+  const appealByLine = latestAppealByLine(appeals);
   // A Marketing Director with salespeople sees the team's, as a manager does (demo: isMgr).
   const seesEveryone =
     isManager(me.jobRole) || (team !== null && team.length > 1);
@@ -84,7 +106,43 @@ export default async function CommissionPage({
           ) : undefined
         }
       />
-      {seesEveryone && (
+      {canDecide && (
+        <div
+          role="tablist"
+          aria-label="Commission views"
+          className="flex gap-2"
+        >
+          {TABS.map((item) => (
+            <Link
+              key={item.id}
+              role="tab"
+              aria-selected={item.id === tab}
+              href={item.href}
+              className={cn(
+                "rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted/50",
+                item.id === tab && "border-primary bg-muted",
+              )}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      )}
+      {tab === "appeals" && (
+        <AppealsTab
+          appeals={appeals}
+          lateCutByLine={
+            new Map(
+              all.map((line) => [
+                appealKey(line.mofId, line.personId),
+                line.commission.lateCut,
+              ]),
+            )
+          }
+          myId={me.id}
+        />
+      )}
+      {tab === "commission" && seesEveryone && (
         <form
           action="/commission"
           className="flex flex-wrap items-center gap-2"
@@ -108,7 +166,7 @@ export default async function CommissionPage({
           </Button>
         </form>
       )}
-      {groups.length === 0 && (
+      {tab === "commission" && groups.length === 0 && (
         <div className="rounded-xl border bg-card">
           <EmptyState
             icon={Percent}
@@ -117,7 +175,7 @@ export default async function CommissionPage({
           />
         </div>
       )}
-      {groups.map((group) => (
+      {(tab === "commission" ? groups : []).map((group) => (
         <section key={group.personId} className="flex flex-col gap-2">
           <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
             <h2 className="font-heading text-lg font-semibold">
@@ -147,14 +205,20 @@ export default async function CommissionPage({
               {
                 key: "project",
                 header: "Company / project",
-                cell: (line) => (
-                  <div className="flex flex-col">
-                    <span className="font-medium">{line.companyName}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {line.projectName}
-                    </span>
-                  </div>
-                ),
+                cell: (line) => {
+                  const appeal = appealByLine.get(
+                    appealKey(line.mofId, line.personId),
+                  );
+                  return (
+                    <div className="flex flex-col items-start gap-1">
+                      <span className="font-medium">{line.companyName}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {line.projectName}
+                      </span>
+                      {appeal && <AppealPill appeal={appeal} />}
+                    </div>
+                  );
+                },
               },
               {
                 key: "rate",
@@ -194,19 +258,48 @@ export default async function CommissionPage({
               {
                 key: "details",
                 header: "",
-                cell: (line) => (
-                  <CommissionDialog
-                    mofId={line.mofId}
-                    personId={line.personId}
-                    title={`${line.mofNo} · ${line.personName}`}
-                    lines={[...line.orderNotes, ...line.commission.lines]}
-                    payouts={line.payouts}
-                    remaining={line.balance.remaining}
-                    payableNow={line.balance.payableNow}
-                    canPay={canPay}
-                    today={today}
-                  />
-                ),
+                cell: (line) => {
+                  const appeal = appealByLine.get(
+                    appealKey(line.mofId, line.personId),
+                  );
+                  return (
+                    <div className="flex items-center justify-end gap-2">
+                      {canSendAppeal({
+                        linePersonId: line.personId,
+                        myId: me.id,
+                        lateCut: line.commission.lateCut,
+                        appealStatus: appeal?.status,
+                      }) && (
+                        <AppealDialog
+                          mofId={line.mofId}
+                          title={`${line.mofNo} · ${line.projectName}`}
+                          lateCut={line.commission.lateCut}
+                          rejection={
+                            appeal?.status === "rejected" &&
+                            appeal.reply &&
+                            appeal.decidedByName
+                              ? {
+                                  reply: appeal.reply,
+                                  decidedByName: appeal.decidedByName,
+                                }
+                              : null
+                          }
+                        />
+                      )}
+                      <CommissionDialog
+                        mofId={line.mofId}
+                        personId={line.personId}
+                        title={`${line.mofNo} · ${line.personName}`}
+                        lines={[...line.orderNotes, ...line.commission.lines]}
+                        payouts={line.payouts}
+                        remaining={line.balance.remaining}
+                        payableNow={line.balance.payableNow}
+                        canPay={canPay}
+                        today={today}
+                      />
+                    </div>
+                  );
+                },
               },
             ]}
           />

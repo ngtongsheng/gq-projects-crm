@@ -2,7 +2,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getCurrentProfile, type Profile } from "@/lib/auth/current-profile";
 import { type ReportStats, ReportTargets } from "@/lib/domain/report-stats";
 import { createClient } from "@/lib/supabase/server";
-import { reviewReport, saveReportDraft, submitReport } from "./actions";
+import {
+  approveReport,
+  reviewReport,
+  saveReportDraft,
+  submitReport,
+} from "./actions";
 import { loadLiveStats, loadReportSettings } from "./report-data";
 
 vi.mock("@/lib/auth/current-profile", () => ({ getCurrentProfile: vi.fn() }));
@@ -254,21 +259,21 @@ describe("when the figures cannot be read", () => {
 });
 
 describe("reviewReport", () => {
-  it("refuses anyone but the MD and Sales Director", async () => {
+  it("refuses anyone but the MD and team leads", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("accounts"));
     const calls = fakeSupabase();
     expect((await reviewReport(REPORT, "")).error).toMatch(
-      /Only the MD or Sales Director/,
+      /Only the MD or the person's team lead/,
     );
     expect(calls).toHaveLength(0);
   });
 
-  it("marks a submitted report reviewed with the comment", async () => {
+  it("marks a submitted report reviewed with the comment, approved when the MD reviews", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
     const calls = fakeSupabase({ data: [{ id: REPORT }], error: null });
     expect(await reviewReport(REPORT, " Good month ")).toEqual({
       error: null,
-      message: "Marked as reviewed.",
+      message: "Approved.",
     });
     expect(calls[0]).toMatchObject({
       payload: { status: "reviewed", review_note: "Good month" },
@@ -287,11 +292,54 @@ describe("reviewReport", () => {
     expect(calls[0].filters).toContainEqual(["kind", ["sales", "site"]]);
   });
 
+  it("leaves a team lead's review waiting for the MD", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("director"));
+    fakeSupabase({ data: [{ id: REPORT }], error: null });
+    expect((await reviewReport(REPORT, "")).message).toBe(
+      "Marked as reviewed.",
+    );
+  });
+
   it("explains when the database finds nothing to review", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("director"));
     fakeSupabase({ data: [], error: null });
     expect((await reviewReport(REPORT, "")).error).toMatch(
       /not waiting for your review/,
+    );
+  });
+});
+
+describe("approveReport", () => {
+  it("refuses anyone but the MD", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("director"));
+    const calls = fakeSupabase();
+    expect((await approveReport(REPORT)).error).toBe(
+      "Only the MD gives the final approval.",
+    );
+    expect(calls).toHaveLength(0);
+  });
+
+  it("approves only a reviewed report", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
+    const calls = fakeSupabase({ data: [{ id: REPORT }], error: null });
+    expect(await approveReport(REPORT)).toEqual({
+      error: null,
+      message: "Approved.",
+    });
+    expect(calls[0]).toMatchObject({
+      payload: { status: "approved" },
+      filters: [
+        ["id", REPORT],
+        ["status", "reviewed"],
+      ],
+    });
+  });
+
+  it("explains when the report is not waiting for approval", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
+    fakeSupabase({ data: [], error: null });
+    expect((await approveReport(REPORT)).error).toMatch(
+      /not waiting for your final approval/,
     );
   });
 });

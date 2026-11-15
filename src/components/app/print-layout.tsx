@@ -108,9 +108,17 @@ type Signer = {
 };
 
 /** A row of signature boxes with fill-in lines, as on the demo's delivery order and handover form. */
-export function PrintSignatureRow({ signers }: { signers: Signer[] }) {
+export function PrintSignatureRow({
+  signers,
+  columns = 2,
+}: {
+  signers: Signer[];
+  columns?: 2 | 3;
+}) {
   return (
-    <div className="mt-3 grid grid-cols-2 gap-4 break-inside-avoid">
+    <div
+      className={`mt-3 grid gap-4 break-inside-avoid ${columns === 3 ? "grid-cols-3" : "grid-cols-2"}`}
+    >
       {signers.map((signer) => (
         <div key={signer.label}>
           <div className="text-[9px] font-bold text-[#7a8691] uppercase">

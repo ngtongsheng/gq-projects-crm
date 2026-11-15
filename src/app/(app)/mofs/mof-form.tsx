@@ -90,6 +90,8 @@ type MofFormProps = {
   canEdit: boolean;
   /** Present only for managers; the page never loads cost for anyone else. */
   cost?: number | null;
+  /** The site marked the job completed: any change then needs a reason. */
+  jobCompleted?: boolean;
 };
 
 /** Saved values of fields the form no longer shows, sent back unchanged with every save. */
@@ -112,24 +114,21 @@ export function MofForm({
   awardedProjects,
   canEdit,
   cost,
+  jobCompleted = false,
 }: MofFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [contractSum, setContractSum] = useState(amountText(draft.contractSum));
-  const [voAmount, setVoAmount] = useState(amountText(draft.voAmount));
   const editing = draft.id !== "";
 
   const typedContract = parseRm(contractSum || "0");
-  const typedVo = parseRm(voAmount || "0");
   const total =
-    typedContract === null || typedVo === null
+    typedContract === null
       ? null
-      : orderTotal({ contractSum: typedContract, voAmount: typedVo });
-  // The database needs a reason for any change to the contract sum or VO.
-  const totalChanged =
-    editing &&
-    (typedContract !== draft.contractSum || typedVo !== draft.voAmount);
+      : orderTotal({ contractSum: typedContract, voAmount: draft.voAmount });
+  // The database needs a reason for any change to the contract sum.
+  const totalChanged = editing && typedContract !== draft.contractSum;
 
   function save(formData: FormData) {
     startTransition(async () => {
@@ -372,17 +371,15 @@ export function MofForm({
                 </FieldLabel>
                 <Input
                   id="voAmount"
-                  name="voAmount"
-                  inputMode="decimal"
                   className="font-mono tabular-nums"
-                  placeholder="Negative for an omission or credit note"
-                  value={voAmount}
-                  onChange={(event) => setVoAmount(event.target.value)}
+                  value={amountText(draft.voAmount) || "0"}
+                  readOnly
                 />
+                <FieldDescription>From the VO list below.</FieldDescription>
               </Field>
             ) : (
-              // A new MOF starts with none; a later price change is recorded when editing it.
-              <input type="hidden" name="voAmount" value="0" />
+              // A new MOF starts with none; VOs are added on its page once it is saved.
+              <span />
             )}
           </Row>
           <p className="text-sm">
@@ -411,7 +408,7 @@ export function MofForm({
                     voAmount: draft.voAmount,
                   }),
                 )}
-                . The change and reason are kept in the history below.
+                . The change and reason are kept in the change history below.
               </FieldDescription>
             </Field>
           )}
@@ -536,6 +533,25 @@ export function MofForm({
           )}
         </Section>
 
+        {editing && !totalChanged && (
+          <Field>
+            <FieldLabel htmlFor="reason">
+              Reason for this change{jobCompleted ? "" : " (optional)"}
+            </FieldLabel>
+            <Input
+              id="reason"
+              name="reason"
+              placeholder="e.g. 40 m² omitted at lobby · supplier price revised"
+              maxLength={300}
+            />
+            <FieldDescription>
+              {jobCompleted
+                ? "This job is completed: write why it changes. "
+                : ""}
+              Changes are kept in the change history below.
+            </FieldDescription>
+          </Field>
+        )}
         {error && <FieldError>{error}</FieldError>}
         {canEdit && (
           <div>

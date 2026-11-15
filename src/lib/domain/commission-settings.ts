@@ -70,7 +70,7 @@ export const DEFAULT_COMMISSION_SETTINGS: CommissionSettings = {
   highMarginAbovePct: 45,
   highMarginBonusPct: 1,
   firstLateCut: { afterDays: 90, cutPct: 25 },
-  secondLateCut: { afterDays: 120, cutPct: 50 },
+  secondLateCut: { afterDays: 180, cutPct: 50 },
   splitSharePct: 50,
   flatPassDownRatePct: 1,
   claimThresholdPct: DEFAULT_PAYMENT_THRESHOLD_PCT,

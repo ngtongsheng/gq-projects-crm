@@ -146,7 +146,7 @@ describe("save_mof: an existing MOF", () => {
 
     await saveMof("support", {
       mofId: id,
-      mof: { ...mof, vo_amount: -100 },
+      mof: { ...mof, contract_sum: 900 },
       lines: [line({ id: lineId, qty: 20 }), line({ product: "Carpet Roll" })],
       reason: "CN-1",
     });

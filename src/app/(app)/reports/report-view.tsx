@@ -19,17 +19,20 @@ import {
 import { loadWorkCalendar } from "@/lib/work-calendar";
 import {
   loadLiveStats,
+  loadMyReportReviewers,
+  loadSiteReport,
   type MonthlyReport,
   type ReportSettings,
 } from "./report-data";
-import { ReportFigures } from "./report-figures";
+import { ReportFigures, SiteReportSections } from "./report-figures";
 import { ReportForm } from "./report-form";
 import type { ReportsView } from "./report-params";
-import { ReviewForm } from "./review-form";
+import { PrintReportButton, ReportPrintSheet } from "./report-print";
+import { ApproveForm, ReviewForm } from "./review-form";
 
 export const KIND_LABEL: Record<ReportKind, string> = {
   sales: "Sales monthly report",
-  bd: "BD monthly report",
+  bd: "Marketing director monthly report",
   site: "Site supervisor monthly report",
 };
 
@@ -97,6 +100,52 @@ export function flagFor(view: ReportsView, report: MonthlyReport | null) {
     submittedAt: report?.submittedAt ?? null,
     now: new Date(),
   });
+}
+
+/** "Goes to <lead> & <MD>." on the person's own report; the MD only for the BD Director's. */
+async function GoesTo() {
+  const { leads, approvers } = await loadMyReportReviewers();
+  const names = [leads.join(" or "), approvers.join(" or ")].filter(Boolean);
+  if (names.length === 0) return null;
+  return (
+    <p className="text-sm text-muted-foreground">
+      Goes to {names.join(" & ")}.
+    </p>
+  );
+}
+
+/** Who reviewed the report and, once given, the MD's final approval. */
+function ReviewNote({
+  report,
+  nameOf,
+}: {
+  report: MonthlyReport;
+  nameOf: Map<string, string>;
+}) {
+  const who = (id: string | null) => (id ? (nameOf.get(id) ?? "Unnamed") : "-");
+  const approvedInOne =
+    report.approvedBy !== null && report.approvedBy === report.reviewedBy;
+  return (
+    <div
+      className={`rounded-xl px-4 py-3 text-sm ${report.status === "approved" ? "bg-good-bg text-good" : "bg-info-bg text-info"}`}
+    >
+      <p>
+        <span className="font-semibold">
+          {approvedInOne ? "Approved" : "Reviewed"} by {who(report.reviewedBy)}
+        </span>
+        {report.reviewNote ? `: ${report.reviewNote}` : null}
+      </p>
+      {report.status === "approved" && !approvedInOne && report.approvedAt ? (
+        <p className="font-semibold">
+          Final approval by {who(report.approvedBy)} on{" "}
+          {formatDateTime(report.approvedAt)}
+        </p>
+      ) : null}
+      {report.status === "reviewed" ? (
+        <p>Waiting for the MD's final approval.</p>
+      ) : null}
+    </div>
+  );
 }
 
 /** A filed report, read-only: highlights, plan and the review. */
@@ -168,93 +217,123 @@ export async function ReportView({
   const stats =
     report?.stats ??
     (await loadLiveStats(kind, personId, view.month, view.settings.targets));
+  const siteReport =
+    kind === "site"
+      ? await loadSiteReport(personId, view.month, view.today)
+      : null;
   const canReview =
     report !== null &&
     !own &&
     report.status === "submitted" &&
     canReviewReport(view.me.jobRole, kind);
+  const canApprove =
+    report !== null &&
+    !own &&
+    report.status === "reviewed" &&
+    view.me.jobRole === "md";
   const name = view.nameOf.get(personId) ?? "Unnamed";
+  const pace = monthPace(
+    view.month,
+    view.today,
+    await loadWorkCalendar(kind === "site" ? "mon-sat" : "mon-fri"),
+  );
+  const nameOfId = (id: string | null) =>
+    id ? (view.nameOf.get(id) ?? "Unnamed") : null;
 
   return (
-    <div className="flex flex-col gap-4">
-      {!own && (
-        <Button asChild variant="ghost" size="sm" className="self-start">
-          <Link href={reportHref(view.basePath, view.month, query)}>
-            <ChevronLeft data-icon="inline-start" />
-            {backLabel}
-          </Link>
-        </Button>
-      )}
-      <PageHeader
-        title={`${KIND_LABEL[kind]} · ${name}`}
-        description={dueText(view)}
-        actions={
-          <MonthSwitcher
-            view={view}
-            query={own ? query : { ...query, person: personId }}
+    <>
+      <div className="flex flex-col gap-4 print:hidden">
+        {!own && (
+          <Button asChild variant="ghost" size="sm" className="self-start">
+            <Link href={reportHref(view.basePath, view.month, query)}>
+              <ChevronLeft data-icon="inline-start" />
+              {backLabel}
+            </Link>
+          </Button>
+        )}
+        <PageHeader
+          title={`${KIND_LABEL[kind]} · ${name}`}
+          description={dueText(view)}
+          actions={
+            <>
+              <MonthSwitcher
+                view={view}
+                query={own ? query : { ...query, person: personId }}
+              />
+              <PrintReportButton />
+            </>
+          }
+        />
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <StatusBadge tone={flag.tone}>{flag.label}</StatusBadge>
+          {report?.submittedAt ? (
+            <span className="font-mono text-muted-foreground tabular-nums">
+              Submitted {formatDateTime(report.submittedAt)}
+            </span>
+          ) : null}
+        </div>
+        {own && editable && flag.label === "Overdue" && (
+          <p className="rounded-xl bg-bad-bg px-4 py-3 text-sm text-bad">
+            This report is overdue. Fill it in and submit.
+          </p>
+        )}
+
+        <section className="flex flex-col gap-2">
+          <h2 className="font-heading text-lg font-semibold">
+            {kind === "site" ? "Site work this month" : "Sales this month"}
+          </h2>
+          <ReportFigures stats={stats} pace={pace} />
+          <p className="text-sm text-muted-foreground">
+            {report?.stats
+              ? "Figures were frozen when the report was submitted."
+              : kind === "site"
+                ? "Counted from the site log. Frozen when you submit."
+                : "Counted from the calendar, projects and MOFs. Frozen when you submit."}
+          </p>
+        </section>
+
+        {siteReport && stats.kind === "site" && (
+          <SiteReportSections
+            report={siteReport}
+            visitTarget={stats.siteVisitTarget}
           />
-        }
-      />
-      <div className="flex flex-wrap items-center gap-2 text-sm">
-        <StatusBadge tone={flag.tone}>{flag.label}</StatusBadge>
-        {report?.submittedAt ? (
-          <span className="font-mono text-muted-foreground tabular-nums">
-            Submitted {formatDateTime(report.submittedAt)}
-          </span>
+        )}
+
+        {editable ? (
+          <ReportForm
+            month={view.month}
+            kind={kind}
+            highlights={report?.highlights ?? []}
+            nextMonthPlan={report?.nextMonthPlan ?? null}
+            supportNeeded={report?.supportNeeded ?? null}
+            passDownsConfirmed={report?.passDownsConfirmed ?? false}
+          />
+        ) : report ? (
+          <ReportText report={report} />
         ) : null}
-      </div>
-      {own && editable && flag.label === "Overdue" && (
-        <p className="rounded-xl bg-bad-bg px-4 py-3 text-sm text-bad">
-          This report is overdue. Fill it in and submit.
-        </p>
-      )}
 
-      <section className="flex flex-col gap-2">
-        <h2 className="font-heading text-lg font-semibold">
-          {kind === "site" ? "Site work this month" : "Sales this month"}
-        </h2>
-        <ReportFigures
-          stats={stats}
-          pace={monthPace(
-            view.month,
-            view.today,
-            await loadWorkCalendar(kind === "site" ? "mon-sat" : "mon-fri"),
+        {own && editable && <GoesTo />}
+        {report &&
+          (report.status === "reviewed" || report.status === "approved") && (
+            <ReviewNote report={report} nameOf={view.nameOf} />
           )}
-        />
-        <p className="text-sm text-muted-foreground">
-          {report?.stats
-            ? "Figures were frozen when the report was submitted."
-            : kind === "site"
-              ? "Counted from the site log and overtime. Frozen when you submit."
-              : "Counted from the calendar, projects and MOFs. Frozen when you submit."}
-        </p>
-      </section>
-
-      {editable ? (
-        <ReportForm
-          month={view.month}
-          kind={kind}
-          highlights={report?.highlights ?? []}
-          nextMonthPlan={report?.nextMonthPlan ?? null}
-          supportNeeded={report?.supportNeeded ?? null}
-          passDownsConfirmed={report?.passDownsConfirmed ?? false}
-        />
-      ) : report ? (
-        <ReportText report={report} />
-      ) : null}
-
-      {report?.status === "reviewed" && (
-        <p className="rounded-xl bg-good-bg px-4 py-3 text-sm text-good">
-          <span className="font-semibold">
-            Reviewed by{" "}
-            {report.reviewedBy
-              ? (view.nameOf.get(report.reviewedBy) ?? "Unnamed")
-              : "-"}
-          </span>
-          {report.reviewNote ? `: ${report.reviewNote}` : null}
-        </p>
-      )}
-      {canReview && report && <ReviewForm reportId={report.id} />}
-    </div>
+        {canReview && report && (
+          <ReviewForm reportId={report.id} isMd={view.me.jobRole === "md"} />
+        )}
+        {canApprove && report && <ApproveForm reportId={report.id} />}
+      </div>
+      <ReportPrintSheet
+        title={KIND_LABEL[kind]}
+        kind={kind}
+        month={view.month}
+        personName={name}
+        report={report}
+        stats={stats}
+        siteReport={siteReport}
+        pace={pace}
+        reviewerName={nameOfId(report?.reviewedBy ?? null)}
+        approverName={nameOfId(report?.approvedBy ?? null)}
+      />
+    </>
   );
 }

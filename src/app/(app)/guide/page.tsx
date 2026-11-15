@@ -15,6 +15,8 @@ const SCREEN_GUIDE: Partial<Record<PageKey, string>> = {
   proj: "Projects moving through the pipeline, from first contact to job.",
   mof: "The MOF register: client purchase orders as they come in, then supplier orders and deliveries.",
   site: "Site visits, actions needed, handover forms and balance stock, logged by site supervisors.",
+  tools:
+    "Quick calculators for wallpaper and vinyl sheet ordering quantities, and A4 forms to print, blank or filled from an MOF.",
   claims:
     "Overtime claims. Site supervisors and staff submit them; managers approve.",
   stock: "Stock items, what is reserved and what is left over.",

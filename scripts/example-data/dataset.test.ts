@@ -20,6 +20,20 @@ const table = (name: string): ExampleTable => {
   return found;
 };
 
+const GRADES = [
+  "J1",
+  "J2",
+  "J3",
+  "S1",
+  "S2",
+  "S3",
+  "SN1",
+  "SN2",
+  "SN3",
+  "M1",
+  "M2",
+];
+
 const PROFILE_COLUMNS = [
   "passed_by",
   "requested_by",
@@ -41,6 +55,10 @@ const PROFILE_COLUMNS = [
   "by_id",
   "person_id",
   "approver_id",
+  "added_by",
+  "from_id",
+  "to_id",
+  "handed_over_by",
 ];
 
 describe("example data", () => {
@@ -74,10 +92,19 @@ describe("example data", () => {
       for (const [column, parent] of Object.entries(
         EXAMPLE_REFERENCES[spec.table] ?? {},
       )) {
-        const ids = seen.get(parent);
+        // A table pointing at itself (a policy replacing an older one) lists the older row first.
+        const ids =
+          parent === spec.table
+            ? new Set(spec.rows.map((r) => r.id))
+            : seen.get(parent);
         for (const row of spec.rows) {
           const value = row[column];
           if (value === null || value === undefined) continue;
+          // The grades are filled by the migration, not by the example data.
+          if (parent === "sales_grades") {
+            expect(GRADES).toContain(value);
+            continue;
+          }
           expect(ids?.has(value), `${spec.table}.${column}`).toBe(true);
         }
       }
@@ -240,6 +267,46 @@ describe("test sign-ins", () => {
       }
       const lead = TEST_USERS.find((l) => l.key === u.reportsTo);
       expect(["director", "bd"], u.key).toContain(lead?.jobRole);
+    }
+  });
+});
+
+describe("HR sample data", () => {
+  const years = (profile: string) =>
+    table("yearly_targets")
+      .rows.filter((r) => r.profile_id === profile)
+      .map((r) => r.year);
+
+  it("gives each target person a row for this year and the next", () => {
+    const year = Number(context.today.slice(0, 4));
+    expect(years(people.vernice)).toEqual([year, year + 1]);
+  });
+
+  it("keeps package history to one row per person per date, written by an HR person", () => {
+    const rows = table("staff_packages").rows;
+    const keys = rows.map((r) => `${r.profile_id}:${r.effective_on}`);
+    expect(new Set(keys).size).toBe(keys.length);
+    expect(rows.some((r) => String(r.effective_on) > context.today)).toBe(true);
+    for (const r of [...rows, ...table("hr_policy_documents").rows]) {
+      expect([people.jany, people.vicky]).toContain(r.added_by);
+    }
+  });
+
+  it("flags one scheme document and one policy that replaces another", () => {
+    const docs = table("hr_policy_documents").rows;
+    expect(docs.filter((d) => d.is_commission_scheme)).toHaveLength(1);
+    expect(docs.filter((d) => d.replaces_id)).toHaveLength(1);
+  });
+
+  it("hands over from a person who has left", () => {
+    const leavers = new Set(
+      TEST_USERS.filter((u) => u.left).map((u) => people[u.key]),
+    );
+    for (const item of table("handover_items").rows) {
+      expect(leavers.has(String(item.from_id))).toBe(true);
+      expect((item.contact_id === null) !== (item.project_id === null)).toBe(
+        true,
+      );
     }
   });
 });

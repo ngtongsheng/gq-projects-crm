@@ -1,4 +1,5 @@
 import type { Dictionary } from "./dictionary";
+import { zhHrTools } from "./zh-hr-tools";
 import { zhTasksLeave } from "./zh-tasks-leave";
 
 // Seeded from the demo's ZHEN dictionary, which maps 中文 to English for the Costing screens; turned
@@ -605,4 +606,5 @@ export const zh: Dictionary = {
   "Submitted for approval": "已送去批准",
   "Returned for changes": "已退回修改",
   ...zhTasksLeave,
+  ...zhHrTools,
 };

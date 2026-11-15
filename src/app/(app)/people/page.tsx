@@ -7,11 +7,14 @@ import { loadAccessOverrides } from "@/lib/auth/access-overrides";
 import {
   CommissionMode,
   canLeadTeam,
+  canSeeHr,
+  isManager,
   JobRole,
   JobRoleLabel,
 } from "@/lib/auth/job-role";
 import { type RoleKey, roleKeyOf } from "@/lib/auth/pages";
 import { requireRole } from "@/lib/auth/require-role";
+import { salesTeams } from "@/lib/domain/sales-teams";
 import { formatDate, todayMyt } from "@/lib/format/date";
 import { Language } from "@/lib/i18n/dictionary";
 import {
@@ -19,10 +22,14 @@ import {
   createAdminClient,
 } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { refreshYearlyTargets } from "@/lib/yearly-targets";
 import { AddPersonDialog } from "./add-person-dialog";
+import { handoversOf, loadHandoverItems } from "./handover-data";
+import { loadGradeTargets, loadYearlyTargets } from "./people-targets-data";
 import { PersonSettingsDialog } from "./person-settings-dialog";
 import { RoleAccess } from "./role-access";
 import { RoleSelect } from "./role-select";
+import { SalesTeamsPanel } from "./sales-teams-panel";
 import { roleSchema } from "./schemas";
 import { ViewAsButton } from "./view-as-button";
 
@@ -40,8 +47,19 @@ async function emailsById(): Promise<Map<string, string> | null> {
 export default async function PeoplePage() {
   const me = await requireRole("admin");
   const supabase = await createClient();
+  const year = Number(todayMyt().slice(0, 4));
+  // Only the MD, directors and HR & Accounts set targets (row-level security); only the MD and
+  // HR & Accounts read grades, so only they see a grade default.
+  const setsTargets = isManager(me.jobRole);
 
-  const [{ data: profiles, error }, emails] = await Promise.all([
+  await refreshYearlyTargets();
+  const [
+    { data: profiles, error },
+    emails,
+    ownTargets,
+    gradeTargets,
+    handoverItems,
+  ] = await Promise.all([
     supabase
       .from("profiles")
       .select(
@@ -49,6 +67,9 @@ export default async function PeoplePage() {
       )
       .order("created_at"),
     emailsById(),
+    setsTargets ? loadYearlyTargets([year, year + 1]) : null,
+    setsTargets && canSeeHr(me.jobRole) ? loadGradeTargets() : null,
+    loadHandoverItems(),
   ]);
   if (error) throw new Error(`Could not load people: ${error.message}`);
 
@@ -65,8 +86,17 @@ export default async function PeoplePage() {
       sells: row.sells === true,
       seesMargin: row.sees_margin === true,
       commissionMode: CommissionMode.parse(row.commission_mode),
-      yearlyTarget:
-        row.yearly_target === null ? null : Number(row.yearly_target),
+      targets: ownTargets
+        ? {
+            years: [year, year + 1].map((target) => ({
+              salesTarget: null,
+              visitTarget: null,
+              ...ownTargets.get(row.id)?.find((own) => own.year === target),
+              year: target,
+            })),
+            gradeTarget: gradeTargets?.get(row.id) ?? null,
+          }
+        : null,
       whatsapp: row.whatsapp,
       title: row.title,
       joinedOn: row.joined_on,
@@ -76,6 +106,8 @@ export default async function PeoplePage() {
       leftOn: row.left_on,
       leftReason: row.left_reason,
     },
+    // This year's effective target (own row, else grade), kept on profiles by the database.
+    salesTarget: row.yearly_target === null ? null : Number(row.yearly_target),
     joined: formatDate(row.joined_on ?? todayMyt(new Date(row.created_at))),
   }));
 
@@ -94,6 +126,23 @@ export default async function PeoplePage() {
     .filter((row) => row.settings.active && canLeadTeam(row.settings.jobRole))
     .map((row) => ({ id: row.id, name: row.name ?? "Unnamed" }));
 
+  const recipients = rows
+    .filter((row) => row.settings.active)
+    .map((row) => ({ id: row.id, name: row.name ?? "Unnamed" }));
+  const names = new Map(rows.map((row) => [row.id, row.name ?? "Unnamed"]));
+
+  const teams = salesTeams(
+    rows.map((row) => ({
+      id: row.id,
+      name: row.name ?? "Unnamed",
+      title: row.settings.title,
+      jobRole: row.settings.jobRole,
+      active: row.settings.active,
+      reportsTo: row.settings.reportsTo,
+      salesTarget: row.salesTarget,
+    })),
+  );
+
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
@@ -110,6 +159,7 @@ export default async function PeoplePage() {
           />
         }
       />
+      <SalesTeamsPanel teams={teams} year={year} />
       <DataTable
         rows={rows}
         getRowKey={(row) => row.id}
@@ -155,7 +205,12 @@ export default async function PeoplePage() {
             header: "Settings",
             cell: (row) => (
               <div className="flex flex-wrap gap-2">
-                <PersonSettingsDialog person={row.settings} leads={leads} />
+                <PersonSettingsDialog
+                  person={row.settings}
+                  leads={leads}
+                  recipients={recipients}
+                  handovers={handoversOf(row.id, handoverItems, names)}
+                />
                 {me.jobRole === "md" && row.id !== me.id && (
                   <ViewAsButton userId={row.id} name={row.name} />
                 )}

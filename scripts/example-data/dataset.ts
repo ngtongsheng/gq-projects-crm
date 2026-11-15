@@ -4,6 +4,7 @@ import {
   buildOwnershipRequests,
   buildProjects,
 } from "./customers.ts";
+import { buildHr } from "./hr.ts";
 import { buildLeave } from "./leave.ts";
 import {
   buildInstallerClaims,
@@ -53,6 +54,7 @@ export function buildExampleData(context: BuildContext): ExampleData {
       ...buildQuotes(context),
       ...buildTasks(context),
       ...buildLeave(context),
+      ...buildHr(context),
     ],
     deliveriesToFinish: jobs.deliveriesToFinish,
   };

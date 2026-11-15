@@ -40,9 +40,11 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "comm",
       "claims",
       "tasks",
+      "tools",
       "leave",
       "rep",
       "drep",
+      "hr",
     ],
   },
   director: {
@@ -60,6 +62,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "comm",
       "claims",
       "tasks",
+      "tools",
       "leave",
       "rep",
       "drep",
@@ -81,6 +84,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "comm",
       "claims",
       "tasks",
+      "tools",
       "leave",
       "drep",
     ],
@@ -100,6 +104,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "comm",
       "claims",
       "tasks",
+      "tools",
       "leave",
       "rep",
     ],
@@ -119,6 +124,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "comm",
       "claims",
       "tasks",
+      "tools",
       "leave",
       "rep",
     ],
@@ -139,14 +145,16 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "comm",
       "claims",
       "tasks",
+      "tools",
       "leave",
       "rep",
       "drep",
+      "hr",
     ],
   },
   site: {
     person: viewer("site"),
-    keys: ["inst", "site", "srep", "claims", "tasks", "leave"],
+    keys: ["inst", "site", "srep", "claims", "tasks", "tools", "leave"],
   },
   sellingSite: {
     person: viewer("site", { sells: true }),
@@ -160,21 +168,35 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "comm",
       "claims",
       "tasks",
+      "tools",
       "leave",
     ],
   },
   ssup: {
     person: viewer("ssup"),
-    keys: ["dash", "inst", "site", "stock", "tasks", "leave"],
+    keys: ["dash", "inst", "site", "stock", "tasks", "tools", "leave"],
   },
-  designer: { person: viewer("designer"), keys: ["dash", "tasks", "leave"] },
+  designer: {
+    person: viewer("designer"),
+    keys: ["dash", "tasks", "tools", "leave"],
+  },
   marketing: {
     person: viewer("marketing"),
-    keys: ["dash", "tasks", "site", "stock", "leave"],
+    keys: ["dash", "tasks", "site", "stock", "tools", "leave"],
   },
   support: {
     person: viewer("support"),
-    keys: ["dash", "cost", "mof", "inst", "site", "stock", "tasks", "leave"],
+    keys: [
+      "dash",
+      "cost",
+      "mof",
+      "inst",
+      "site",
+      "stock",
+      "tasks",
+      "tools",
+      "leave",
+    ],
   },
 };
 
@@ -194,6 +216,7 @@ describe("navPagesFor: defaults", () => {
       "My Report",
       "My claims",
       "Tasks",
+      "Tools & Forms",
       "Leave",
     ]);
     expect(labels(viewer("support"))).toEqual([
@@ -204,6 +227,7 @@ describe("navPagesFor: defaults", () => {
       "Site Work",
       "Stock",
       "Tasks",
+      "Tools & Forms",
       "Leave",
     ]);
     expect(labels(viewer("marketing"))).toContain("Site photos");
@@ -223,7 +247,7 @@ describe("navPagesFor: defaults", () => {
   });
 
   it("hides pages that are not built, even from the MD", () => {
-    expect(canOpenPage(viewer("md"), "tools", {})).toBe(false);
+    expect(canOpenPage(viewer("md"), "today", {})).toBe(false);
   });
 });
 

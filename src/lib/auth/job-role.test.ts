@@ -12,6 +12,7 @@ import {
   canPayOutCommission,
   canRequestStock,
   canScheduleJobs,
+  canSeeHr,
   canUpdateJobStatus,
   isManager,
   isReadOnly,
@@ -129,6 +130,10 @@ describe("job role capabilities", () => {
     expect(canPayOutCommission(jobRole)).toBe(
       jobRole === "md" || jobRole === "accounts",
     );
+  });
+
+  it.each(JobRole.options)("%s sees HR only as MD or accounts", (jobRole) => {
+    expect(canSeeHr(jobRole)).toBe(jobRole === "md" || jobRole === "accounts");
   });
 
   it.each(

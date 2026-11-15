@@ -30,6 +30,8 @@ Job roles: MD, Sales Director, Marketing Director, Salesperson, HR & Accounts, S
 - [Team Reports](#team-reports)
 - [Director Report](#director-report)
 - [Tasks](#tasks)
+- [HR](#hr)
+- [Tools & Forms](#tools--forms)
 - [Leave](#leave)
 - [Guide](#guide)
 - [Sales Performance](#sales-performance)
@@ -271,6 +273,46 @@ app only (tiles and overdue marks); WhatsApp reminders come later. A task cannot
 
 Used by: everyone with the Tasks page.
 
+## HR
+Pay and policy papers for the whole company. Only the MD and HR & Accounts can open it. The **admin** role alone does
+not give access, and **View as** cannot show it to anyone else. Three tabs.
+
+**Policies & schemes.** The company's policy documents, each with a category, version, effective date and either a PDF
+or a link. When a new version **Replaces** an older one, the older one is marked **Older** by itself. Tick "scheme
+appendix" for the document staff sign for their pay scheme. The scheme summary (bonus bands, commission, terms) and
+the extra rules log sit alongside. A PDF can be up to 1.5 MB for now; use a link for bigger files.
+
+**Staff packages.** One line per person: basic pay, allowances and claim cap, with a dated history. Packages are
+add-only: to fix a typo, add a new line on a new date. Standard packages for salespeople and site staff, and the
+outstation rules (meal and hotel by level), are here too. Confirmation date, offer letter and notes are kept per
+person. Packages start empty: HR & Accounts types them in.
+
+**Sales grades & bonus.** Grades J1 to M2 with basic pay and annual target, editable. Each person's grade is set here. The
+bonus bands are a reference only (below 100% of target none, 100-124% one month's basic, 125% and above three months',
+on full-year sales); the app does not work bonuses out. Marking "appendix signed" records the current scheme version.
+English with a 中文 toggle.
+
+Used by: MD, HR & Accounts.
+
+## Tools & Forms
+Small helpers for everyone, in the sidebar just before Leave. Tabs: **Wallpaper calculator**, **Vinyl sheet calculator** and **Forms to print** (the forms tab also holds Best Link and the Drive links).
+
+**Wallpaper calculator.** Pick European (0.53 m by 10.06 m roll), Korean (1.06 m by 15.5 m) or Fabric Back (1.37 m
+wide, by the running metre), enter the wall width and height, and it shows the panels and the rolls to order.
+
+**Vinyl calculator.** Enter the room length and width plus skirting, the roll width and length. It suggests layout A or
+B and the welding rod needed, using the same numbers as Vicky's demo.
+
+**A4 forms.** Site measurement summary, work commencement acknowledgement and project handover (HO-01). Print them
+blank or filled in from a MOF (any MOF except cancelled or closed; the newest 80 are listed). Printed forms are in
+English. The **Best Link** row (sample pickup form) opens Stock for now and moves to Samples when that page is built.
+
+**Drive links.** Shortcuts to company folders. Only admins add or remove them.
+
+English with a 中文 toggle.
+
+Used by: everyone.
+
 ## Leave
 Apply for leave and see balances. Tabs: **My leave** (balance tiles and requests), **Waiting for approval**, **Team
 leave** (MD, Sales Director, HR & Accounts), **Who is away** (a month grid) and **Public holidays** (the MD edits).
@@ -300,8 +342,19 @@ panel with a monthly bar chart compares the two directors' teams. A director wit
 Used by: admins.
 
 ## People
-Admins add people, set their job role, commission mode and yearly target. Admin-only features that need the
+Admins add people, set their job role and commission mode. Admin-only features that need the
 service key show a "can't be tried on your laptop" message on a local copy.
+
+**Targets per year.** On a person's sheet the MD, Sales Directors and HR & Accounts set a sales target and a visit
+target (visits per month) for this year or next. With no yearly line, the person's grade target from HR applies. Sales
+Performance keeps working: the yearly target it reads follows this year's line, and refreshes itself on the first
+visit of a new year.
+
+**Sales teams.** A panel listing each team lead's team.
+
+**Resignation handover.** For someone who is leaving, an admin picks a person to take over. Their customers (including
+archived ones) and open projects (every stage except Awarded and Lost) move across, and a handover list is saved.
+Commission on the leaver's MOFs stays with the leaver; nothing is recalculated. These parts are in English only.
 
 Used by: admins.
 

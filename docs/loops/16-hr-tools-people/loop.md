@@ -19,17 +19,17 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | HR migration | todo | - | opus/medium |
-| 02 | HR: Policies & schemes | todo | 01 | sonnet/high |
-| 03 | HR: Staff packages + outstation | todo | 01 | sonnet/high |
-| 04 | HR: Sales grades & bonus | todo | 01 | sonnet/high |
-| 05 | Per-year targets migration | todo | 01 | opus/medium |
-| 06 | People: targets + Sales teams | todo | 05 | sonnet/high |
-| 07 | Resignation handover | todo | - | opus/medium |
-| 08 | Tools: calculators | todo | - | sonnet/high |
-| 09 | Tools: A4 forms + links | todo | - | sonnet/high |
-| 10 | Chinese strings + dev seed | todo | 02, 03, 04, 06, 07, 08, 09 | sonnet/medium |
-| 11 | Parity pass, docs, merge | todo | 01-10 | sonnet/medium |
+| 01 | HR migration | done | - | opus/medium |
+| 02 | HR: Policies & schemes | done | 01 | sonnet/high |
+| 03 | HR: Staff packages + outstation | done | 01 | sonnet/high |
+| 04 | HR: Sales grades & bonus | done | 01 | sonnet/high |
+| 05 | Per-year targets migration | done | 01 | opus/medium |
+| 06 | People: targets + Sales teams | done | 05 | sonnet/high |
+| 07 | Resignation handover | done | - | opus/medium |
+| 08 | Tools: calculators | done | - | sonnet/high |
+| 09 | Tools: A4 forms + links | done | - | sonnet/high |
+| 10 | Chinese strings + dev seed | done | 02, 03, 04, 06, 07, 08, 09 | sonnet/medium |
+| 11 | Parity pass, docs, merge | done | 01-10 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Start only after loop 15 is merged: `/execute-loop docs/loops/16-hr-tools-people`.
@@ -37,3 +37,54 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-15 · plan · loop written from drift-new-modules.md (HR, Tools, People) · next: wait for loop 15 merge, then #01
+2026-11-15 · #01 · in-progress · worktree ../gq-projects-crm-loops/16-hr-tools-people on loop/16-hr-tools-people (needs pnpm install)
+2026-11-15 · #01 · done · check, typecheck, test, guard:migrations pass; migration 20261116100000_hr.sql · next: #02
+2026-11-15 · #01 · decision · grade stored per person in staff_hr_records (not per package); #03 reads grade there · demo keeps grade per person, directors have no package
+2026-11-15 · #01 · decision · packages are add-only (typo = new row on a new date) · D4 strict
+2026-11-15 · #01 · decision · Older is derived from replaces_id; bonus bands are a fixed on-screen reference, no table · D7, D2
+2026-11-15 · #01 · decision · demo sample policy and extra rules not seeded here; dev seed (#10) adds them · need a real author
+2026-11-15 · #02 · in-progress
+2026-11-15 · #02 · done · check, typecheck, test pass (2313); browser parity deferred to #11 · next: #03
+2026-11-15 · #02 · decision · policy dialog has a "scheme appendix" checkbox; PDF only, one of file or link · nothing else could flag the first scheme doc
+2026-11-15 · #02 · decision · /hr shows 3 tabs; Staff packages and Grades tabs are "Not built yet" placeholders in hr/page.tsx for #03/#04 · tab control belongs to #02
+2026-11-15 · #02 · note · shared attachments bucket caps uploads at 1.5 MB; large policy PDFs refused (bucket migration not done); signed upload and Open PDF untested against live storage · check in #11
+2026-11-15 · #03 · in-progress
+2026-11-15 · #03 · done · check, typecheck, test pass (2332); browser parity and live-DB run deferred to #11 · next: #04
+2026-11-15 · #03 · decision · people list from leave_people() + team_directory() (profiles is admin-only) · HR & Accounts need not be admin
+2026-11-15 · #03 · decision · confirmation date, offer letter, notes saved to staff_hr_records without touching grade or appendix · #04 owns those
+2026-11-15 · #03 · decision · hotel level Auto uses job role and grade only; bd uses the salesperson standard package · demo parity, avoid circularity
+2026-11-15 · #04 · in-progress
+2026-11-15 · #04 · done · check, typecheck, test pass (2339); browser parity deferred to #11 · next: #05
+2026-11-15 · #04 · decision · per-person grade table drops demo's 2026 target/sales so far/bonus columns and per-person basic override · D2; per-year targets come in #05/#06
+2026-11-15 · #04 · decision · appendix signed date stamps the current scheme version · demo parity
+2026-11-15 · #05 · in-progress
+2026-11-15 · #05 · done · check, typecheck, test (2359), guard:migrations pass; migration 20261116110000_yearly_targets.sql · next: #06
+2026-11-15 · #05 · decision · table yearly_targets (person, year, sales_target nullable, visit_target); team-lead read via in_my_team · D3 leaves name and team-lead source open
+2026-11-15 · #05 · decision · #06 must (a) move People's target edit to yearly_targets and drop the edit grant on profiles.yearly_target, (b) fix the 1 January rollover (yearly_target stale until next change) · gaps reported by #05
+2026-11-15 · #06 · in-progress
+2026-11-15 · #06 · done · check, typecheck, test (2380), guard:migrations pass; migration 20261116120000_yearly_targets_writes_rollover.sql; browser parity deferred to #11 · next: #07
+2026-11-15 · #06 · decision · rollover fixed lazily: refresh_yearly_targets() called by Performance, dashboard and People; edit grant on profiles.yearly_target revoked · smallest durable fix
+2026-11-15 · #06 · decision · target fields on person sheet only for MD, Sales Directors, HR & Accounts (DB refuses others); year select = this or next year; visit target = visits per month · D3 policies
+2026-11-15 · #06 · note · scripts/example-data/test-users.ts still writes profiles.yearly_target; #10 must write yearly_targets rows · two debt entries added to docs/debt.md
+2026-11-15 · #07 · in-progress
+2026-11-15 · #07 · done · check, typecheck, test (2389), guard:migrations pass; migration 20261116130000_resignation_handover.sql; browser parity deferred to #11 · next: #08
+2026-11-15 · #07 · decision · open projects for handover = every stage except Awarded and Lost (On Hold moves); support-role projects and archived customers also move · stranding them with a leaver is worse
+2026-11-15 · #07 · decision · guard_project_write() bypassed via transaction-local gqp.handover set only by hand_over_work, so any admin can run it · PIC change otherwise refused for non-MD admins
+2026-11-15 · #08 · in-progress
+2026-11-15 · #08 · done · check, typecheck, test pass (2400); browser parity deferred to #11 · next: #09
+2026-11-15 · #08 · decision · vinyl layouts A/B recommended by order length and welding rod as in demo (no offcut figure exists) · match demo numbers
+2026-11-15 · #08 · decision · tools is built for all roles (sidebar "Tools & Forms" before Leave); /tools?view= tabs, #09 appends to TOOLS_VIEWS in tools-view.ts and updates the Guide sentence "Forms to print come next" · demo parity
+2026-11-15 · #09 · in-progress
+2026-11-15 · #09 · done · check, typecheck, test (2411), guard:migrations pass; migration 20261116140000_form_links.sql; browser parity and print preview deferred to #11 · next: #10
+2026-11-15 · #09 · decision · Best Link pickup row links to /stock until loop 17 Samples exists (PICKUP_FORM_HREF in forms-view.tsx); loop 17 repoints it · module not built
+2026-11-15 · #09 · decision · Drive links managed by admin role only (demo: MD or HR & Accounts); widening is one RLS + action change · brief
+2026-11-15 · #09 · decision · MOF choices for forms = every MOF except cancelled and closed, newest 80 · no completion date exists
+2026-11-15 · #10 · in-progress
+2026-11-15 · #10 · done · check, typecheck, test (2416) pass; seed not run (no .env.seed.dev; new migrations not on gq-crm-dev until CI applies them) · next: #11
+2026-11-15 · #10 · decision · People targets/teams/handover files do not call t(), so no zh strings for them; HR + Tools translated (~330 strings), printed forms stay English · People parts untranslated like the rest of that page
+2026-11-15 · #10 · decision · handover_items seeded by direct insert (service role is not is_admin()) · hand_over_work needs a signed-in admin
+2026-11-15 · #11 · decision · browser parity (needs seeded gq-crm-dev and Chrome sign-in) deferred to owner after merge, as for loops 12 and 14; docs, checks, PR and merge proceed · live parity needs migrations applied by CI and the owner's seed key
+2026-11-15 · #11 · in-progress
+2026-11-15 · #11 · docs done (features, decisions Loop 16, drift-new-modules, roadmap 3B-ii); browser parity deferred to owner after go-live · next: merge main, PR, CI, merge
+2026-11-15 · decision · merge via PR per D8 (not direct push to main) so CI applies migrations to the test copy and checks run · D8 is more specific than the skill default
+2026-11-15 · PR 47 · checks, migrate-dev, migration-guard pass · merged to main

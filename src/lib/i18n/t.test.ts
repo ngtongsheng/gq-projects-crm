@@ -18,6 +18,11 @@ describe("t", () => {
     expect(t("zh", "Create costing")).toBe("建立 costing");
   });
 
+  it("translates HR and Tools wording into Chinese", () => {
+    expect(t("zh", "Staff packages")).toBe("员工待遇");
+    expect(t("zh", "Wallpaper calculator")).toBe("壁纸计算器");
+  });
+
   it("falls back to the English text when a translation is missing", () => {
     expect(t("bm", "Sales Calendar")).toBe("Sales Calendar");
     expect(t("zh", "Sales Calendar")).toBe("Sales Calendar");

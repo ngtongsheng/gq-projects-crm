@@ -44,3 +44,13 @@
 - What: the database lets the Marketing Director (bd) review their team's sales reports, but `bd` has no `rep` page in `src/lib/auth/pages.ts`, so the app cannot reach them and `reviewReport` refuses.
 - Why: giving a role a new page is a access decision outside the reports review task.
 - When to fix: when Vicky says the Marketing Director should review reports; add `rep` for `bd` and a test.
+
+## Visit targets are saved but not read (loop 16 #06)
+- What: People saves a visits-per-month target per person per year in `yearly_targets.visit_target`, but the reports, dashboards and Performance still use the company default of 50 (`report-stats.ts`).
+- Why: reading it needs a per-person lookup in every report snapshot; the task only asked for entering it.
+- When to fix: when someone's visit target differs from 50 and a report should show it; read it where `targets.salesVisits` is built.
+
+## Yearly target copy on profiles (loop 16 #06)
+- What: `profiles.yearly_target` stays as a copy of this year's effective target. The database keeps it in step on every change, and Performance, the sales dashboard and People call `refresh_yearly_targets()` first so it is right on 1 January. Other readers of the copy (the signed-in profile) can be stale until one of those pages loads.
+- Why: dropping the column (D3 rejected) would touch every reader.
+- When to fix: if a new page reads `profiles.yearly_target` directly, call `refreshYearlyTargets()` first, or move readers to the per-year table and drop the column.

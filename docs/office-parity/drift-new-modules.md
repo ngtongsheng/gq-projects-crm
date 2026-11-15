@@ -1,14 +1,14 @@
 # Drift: Costing, Tasks, Leave, HR, Tools & Forms, People
 
-Spec: `docs/mockup/gqp-office-demo.html`. Analysed 2026-11-14. None of these exist except People (in part).
+Spec: `docs/mockup/gqp-office-demo.html`. Analysed 2026-11-14. Costing, Tasks, Leave, HR, Tools & Forms and People are now built (see each heading); browser parity for loop 16 is still to be run after go-live.
 The demo keys records by name and stores JSON blobs; the app models them as tables keyed by profile id with RLS.
 
-## People (`vPeople` ~4995; ours `/people`): S-M after loop 11
+## People (`vPeople` ~4995; ours `/people`): S-M after loop 11. DONE (loop 16; browser parity after go-live)
 - Exists: add person, job role, role, commission mode, yearly target, arranges stock, invite share, Sign in as.
 - Loop 11 adds: join date, left / active, last day + reason, reports-to, sells, margin, WhatsApp, language, access
   matrix editor, read-only View as.
-- Left for later: per-year targets and visit targets, resignation handover (customers and projects to another person,
-  handover list), "Sales teams" panel.
+- Built in loop 16: per-year targets and visit targets, resignation handover (customers and projects to another person,
+  handover list), "Sales teams" panel. Deviations: `docs/decisions.md` "Loop 16".
 
 ## Costing (GQC app ~436-1450, mounted by `vCost` ~1920): L, independent. DONE (loop 13)
 Built: Register, New quote, Quote record, Approvals, FOB Enquiry, client quote, project card lines, EN/中文. Left to
@@ -54,7 +54,7 @@ Calendar strip and Site Work. Deviations: `docs/decisions.md` "Loop 15".
   MC and hospitalisation need a slip upload + "original given to HR".
 - Feeds the Sales Calendar on-leave strip and Site Work availability (integration loop).
 
-## HR (`vHR` ~4437): M, md + accounts only
+## HR (`vHR` ~4437): M, md + accounts only. DONE (loop 16; browser parity after go-live)
 - Policies & schemes: documents (category, version, effective date, Current / Older, PDF or link, "Replaces"), scheme
   summary (bonus bands, commission rates, terms), extra rules log, settings from other modules.
 - Staff packages: dated history per person (basic, allowances, claim cap), standard packages for sales and site,
@@ -63,7 +63,7 @@ Calendar strip and Site Work. Deviations: `docs/decisions.md` "Loop 15".
   on full-year sales; "appendix signed".
 - Feeds Claims (caps), OT rate (basic), targets (People).
 
-## Tools & Forms (`vTools` ~4105): S
+## Tools & Forms (`vTools` ~4105): S. DONE (loop 16; browser parity after go-live)
 - Wallpaper calculator (European 0.53 × 10.06 m, Korean 1.06 × 15.5 m, Fabric Back 1.37 m by running metre; panels =
   ceil(width / roll width) × (height + allowance), then rolls). Vinyl sheet calculator (L × W + skirting, roll width and
   length, layouts A/B by offcut).

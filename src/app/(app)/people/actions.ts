@@ -3,13 +3,16 @@
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/require-role";
 import { textField } from "@/lib/form/form-fields";
+import { todayMyt } from "@/lib/format/date";
 import { requestOrigin } from "@/lib/request-origin";
 import {
   ADMIN_UNAVAILABLE_MESSAGE,
   createAdminClient,
 } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { handOverWork } from "./hand-over-work";
 import { buildInvite, type Invite } from "./invite-message";
+import { saveYearlyTarget } from "./save-yearly-target";
 import {
   addPersonSchema,
   changeRoleSchema,
@@ -155,12 +158,15 @@ export type PersonSettingsResult = { error: string | null };
 
 // Fields whose own message says what to fix; the rest are picked from a list.
 const SPECIFIC_MESSAGE_FIELDS = new Set([
-  "yearlyTarget",
+  "targetYear",
+  "salesTarget",
+  "visitTarget",
   "whatsapp",
   "title",
   "joinedOn",
   "leftOn",
   "leftReason",
+  "handOverTo",
 ]);
 
 export async function updatePersonSettings(
@@ -175,7 +181,9 @@ export async function updatePersonSettings(
     sells: formData.get("sells"),
     seesMargin: formData.get("seesMargin"),
     commissionMode: formData.get("commissionMode"),
-    yearlyTarget: textField(formData, "yearlyTarget"),
+    targetYear: textField(formData, "targetYear"),
+    salesTarget: textField(formData, "salesTarget"),
+    visitTarget: textField(formData, "visitTarget"),
     whatsapp: textField(formData, "whatsapp"),
     title: textField(formData, "title"),
     joinedOn: textField(formData, "joinedOn"),
@@ -184,6 +192,7 @@ export async function updatePersonSettings(
     hasLeft: formData.get("hasLeft"),
     leftOn: textField(formData, "leftOn"),
     leftReason: textField(formData, "leftReason"),
+    handOverTo: textField(formData, "handOverTo"),
   });
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
@@ -194,7 +203,18 @@ export async function updatePersonSettings(
           : "Choose a job role, language and commission setting.",
     };
   }
-  const { userId, ...person } = parsed.data;
+  const {
+    userId,
+    targetYear,
+    salesTarget,
+    visitTarget,
+    handOverTo,
+    ...person
+  } = parsed.data;
+  const thisYear = Number(todayMyt().slice(0, 4));
+  if (targetYear !== null && ![thisYear, thisYear + 1].includes(targetYear)) {
+    return { error: "Choose this year or next year for the targets." };
+  }
   if (userId === me.id && !person.active) {
     return { error: "You can't mark yourself as left." };
   }
@@ -208,7 +228,6 @@ export async function updatePersonSettings(
       sells: person.sells,
       sees_margin: person.seesMargin,
       commission_mode: person.commissionMode,
-      yearly_target: person.yearlyTarget,
       whatsapp: person.whatsapp,
       title: person.title,
       joined_on: person.joinedOn,
@@ -231,6 +250,29 @@ export async function updatePersonSettings(
   }
   if (updated.length === 0) {
     return { error: "Could not save their settings. Try again." };
+  }
+
+  // Targets go to the per-year table; profiles.yearly_target follows by itself.
+  if (targetYear !== null) {
+    const targetError = await saveYearlyTarget(supabase, {
+      profileId: userId,
+      year: targetYear,
+      salesTarget,
+      visitTarget,
+    });
+    if (targetError) {
+      revalidatePath("/people");
+      return { error: `Their other settings were saved. ${targetError}` };
+    }
+  }
+
+  // After the profile update: the database hands over only someone already marked as left.
+  if (handOverTo !== null) {
+    const handoverError = await handOverWork(supabase, userId, handOverTo);
+    if (handoverError) {
+      revalidatePath("/people");
+      return { error: `Their other settings were saved. ${handoverError}` };
+    }
   }
 
   revalidatePath("/people");

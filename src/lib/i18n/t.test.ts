@@ -13,6 +13,14 @@ describe("t", () => {
     expect(t("bm", "My Report")).toBe("Laporan saya");
   });
 
+  it("translates the Site Work tabs and the labels behind them into Bahasa Malaysia", () => {
+    expect(t("bm", "Actions needed")).toBe("Tindakan diperlukan");
+    expect(t("bm", "Installation in progress")).toBe(
+      "Pemasangan sedang berjalan",
+    );
+    expect(t("bm", "Mon")).toBe("Isn");
+  });
+
   it("translates the demo's Costing wording into Chinese", () => {
     expect(t("zh", "Save")).toBe("保存");
     expect(t("zh", "Create costing")).toBe("建立 costing");

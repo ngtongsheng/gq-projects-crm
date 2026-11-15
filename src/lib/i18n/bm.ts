@@ -1,3 +1,4 @@
+import { bmSiteWork } from "./bm-site-work";
 import type { Dictionary } from "./dictionary";
 
 // Seeded from the demo's TT dictionary (docs/mockup/gqp-office-demo.html), keyed by the English text.
@@ -122,4 +123,5 @@ export const bm: Dictionary = {
   Work: "Kerja",
   "Problem for": "Masalah untuk",
   "No MOF": "Tiada MOF",
+  ...bmSiteWork,
 };

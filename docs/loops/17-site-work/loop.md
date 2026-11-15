@@ -25,8 +25,8 @@ Log work wizard (site role landing page) and the seven Site Work tabs match Vick
 | 06 | Site Work: Jobs + Site log tabs | done | 02 | sonnet/high |
 | 07 | Site Work: Measurements + Photos & videos | done | 01 | sonnet/high |
 | 08 | Site Work: Actions, Stock returns, Daily log | done | 05 | sonnet/high |
-| 09 | Site nav, BM strings, dev seed | in-progress | 03, 04, 06, 07, 08 | sonnet/medium |
-| 10 | Parity pass, docs, merge | todo | 01-09 | sonnet/medium |
+| 09 | Site nav, BM strings, dev seed | done | 03, 04, 06, 07, 08 | sonnet/medium |
+| 10 | Parity pass, docs, merge | in-progress | 01-09 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Start only after loop 16 is merged: `/execute-loop docs/loops/17-site-work`.
@@ -62,3 +62,6 @@ Log work wizard (site role landing page) and the seven Site Work tabs match Vick
 2026-11-15 · #08 · decision · site_reminders stored as JSON row in app_settings (no migration; only MD/admin can edit, director sees form disabled); Stock returns tab has no count and only Sent back / To return until loop 18; no Leave/MC button on missing cells; support team sees "before joined"/leave days as Missing (leave_people() manager-only) · scope
 2026-11-15 · #08 · note · office WhatsApp number setting not yet read by the wizard's stock-return link; BM strings for the three new tabs go in #09
 2026-11-15 · #09 · in-progress · delegated (sonnet/medium)
+2026-11-15 · #09 · done · verified: check, typecheck, test (2590) pass; `pnpm seed:example` not runnable here (no supabase CLI/docker), covered by dataset tests
+2026-11-15 · #09 · decision · BM in new src/lib/i18n/bm-site-work.ts; server-action error strings and WhatsApp texts stay untranslated (not passed through t()); one closed follow-up seeded via direct done_at insert · scope
+2026-11-15 · #10 · in-progress · parity cannot run (task 01 migration not on test copy, no browser env); parity checklist for Log work + Site Work recorded as awaiting live parity like loops 12/14/16; delegating docs (sonnet/medium)

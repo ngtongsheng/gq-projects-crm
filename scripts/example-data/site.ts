@@ -4,6 +4,7 @@ import { projectId } from "./customers.ts";
 import { at } from "./dates.ts";
 import { exampleId } from "./ids.ts";
 import { mofId } from "./orders.ts";
+import type { PersonKey } from "./people.ts";
 import type { BuildContext, ExampleTable, Row } from "./types.ts";
 
 const jobId = (key: string) => exampleId("jobs", key);
@@ -269,16 +270,31 @@ export function buildSiteBookings({
   return { table: "site_bookings", key: "id", rows };
 }
 
+export const followUpId = (key: string) => exampleId("site_follow_ups", key);
+
+type SiteLogSeed = Row & {
+  key: string;
+  /** Null for a new site logged before it has an MOF. */
+  mof: string | null;
+  ago: number;
+  /** The supervisor; Awal unless said. */
+  by?: PersonKey;
+};
+
 export function buildSiteWork({ people, today }: BuildContext): ExampleTable[] {
-  const logSeeds: Array<Row & { key: string; mof: string; ago: number }> = [
+  const day = (ago: number) => addDays(today, -ago);
+  const drive = (folder: string) =>
+    `https://drive.example.com/folders/${folder}`;
+  const logSeeds: SiteLogSeed[] = [
     {
       key: "l1",
       mof: "m1",
       ago: 3,
       activity: "installation",
+      inst_pct: 60,
       notes: "Ballroom 60% done, no issues.",
       measurement_received: true,
-      drive_link: "https://drive.example.com/folders/ballroom-progress",
+      drive_link: drive("ballroom-progress"),
       handover_signed: false,
     },
     {
@@ -297,8 +313,11 @@ export function buildSiteWork({ people, today }: BuildContext): ExampleTable[] {
       ago: 1,
       activity: "measurement",
       notes: "Cafe area measured twice, matches the plan.",
+      measurement_to: people.eddie,
+      measurement_sent_on: day(1),
       measurement_received: true,
-      drive_link: "https://drive.example.com/folders/kiara-cafe",
+      measurement_received_at: at(today, -1, "17:00"),
+      drive_link: drive("kiara-cafe"),
       handover_signed: false,
     },
     {
@@ -308,7 +327,12 @@ export function buildSiteWork({ people, today }: BuildContext): ExampleTable[] {
       activity: "handover",
       notes: "Client walked the reception and signed.",
       measurement_received: true,
-      drive_link: null,
+      photos_to: people.jess,
+      photos_posted_on: day(66),
+      photos_saved_at: at(today, -64, "10:00"),
+      photos_saved_by: people.jess,
+      return_answer: "No balance stock",
+      drive_link: drive("reception-handover"),
       handover_signed: true,
     },
     {
@@ -317,42 +341,179 @@ export function buildSiteWork({ people, today }: BuildContext): ExampleTable[] {
       ago: 20,
       activity: "measurement",
       notes: null,
+      measurement_to: people.vernice,
+      measurement_sent_on: day(20),
       measurement_received: false,
       drive_link: null,
       handover_signed: false,
     },
+    // Loop 17: the activities the Log work wizard saves, with and without an MOF.
+    {
+      key: "l6",
+      mof: "m1",
+      ago: 12,
+      activity: "delivery",
+      delivery_ok: false,
+      notes: "Two underlay rolls arrived wet.",
+    },
+    {
+      key: "l7",
+      mof: "m1",
+      ago: 6,
+      activity: "installation",
+      inst_pct: 35,
+      notes: "Ballroom stage left laid, foyer next.",
+    },
+    {
+      key: "l8",
+      mof: "m1",
+      ago: 8,
+      activity: "shooting",
+      notes: "Feature wall and corridor, many photos.",
+      photos_to: people.jess,
+      photos_posted_on: day(8),
+      photos_saved_at: at(today, -7, "11:30"),
+      photos_saved_by: people.jess,
+      drive_link: drive("ballroom-shoot"),
+    },
+    {
+      key: "l9",
+      mof: "m3",
+      ago: 2,
+      by: "akmal",
+      activity: "shooting",
+      notes: "Cafe finished, photos posted in the group.",
+      photos_to: people.jess,
+      photos_posted_on: day(2),
+    },
+    {
+      key: "l10",
+      mof: "m4",
+      ago: 2,
+      by: "akmal",
+      activity: "stock_return",
+      return_answer:
+        "Stock return: 4 box Carpet tile Grey 50×50 (I bring it back myself)",
+    },
+    {
+      key: "l11",
+      mof: null,
+      ago: 1,
+      site_name: "Menara Hijau, Level 12",
+      salesperson_id: people.vernice,
+      activity: "inspection",
+      notes: "Screed is uneven near the lift lobby.",
+    },
+    {
+      key: "l12",
+      mof: null,
+      ago: 1,
+      site_name: "Menara Hijau, Level 12",
+      salesperson_id: people.vernice,
+      activity: "measurement",
+      notes: "Whole floor measured.",
+      measurement_to: people.vernice,
+      measurement_sent_on: day(1),
+    },
+    {
+      key: "l13",
+      mof: null,
+      ago: 4,
+      by: "akmal",
+      site_name: "Kiara Hotel lobby",
+      salesperson_id: people.vernice,
+      project_id: projectId("kiara-hotel"),
+      activity: "measurement",
+      notes: "Lobby measured before the final quote.",
+      measurement_to: people.vernice,
+      measurement_sent_on: day(4),
+    },
+    {
+      key: "l14",
+      mof: "m2",
+      ago: 0,
+      by: "akmal",
+      activity: "inspection",
+      notes: "Loading bay checked before the delivery.",
+      return_answer: "No balance stock",
+    },
   ];
-  const logs: Row[] = logSeeds.map(({ key, mof, ago, ...row }) => ({
+  const logs: Row[] = logSeeds.map(({ key, mof, ago, by, ...row }) => ({
     id: siteLogId(key),
-    mof_id: mofId(mof),
-    visited_on: addDays(today, -ago),
-    supervisor_id: people.awal,
+    mof_id: mof === null ? null : mofId(mof),
+    visited_on: day(ago),
+    supervisor_id: people[by ?? "awal"],
     ...row,
   }));
-  // Closing a follow-up is stamped with the signed-in user, so the examples stay open.
-  const followUpSeeds: Array<[string, string, string, string, number | null]> =
-    [
-      // key, log, action, owner group, due in days
-      ["f1", "l1", "Order extra skirting for the foyer", "purchasing", 4],
-      ["f2", "l1", "Confirm access to the ballroom on Saturday", "client", -1],
-      ["f3", "l3", "Send measurements to the mill", "salesperson", 2],
-      [
-        "f4",
-        "l5",
-        "Chase the missing measurement drawing",
-        "site_supervisor",
-        null,
-      ],
-    ];
-  const followUps: Row[] = followUpSeeds.map(
-    ([key, log, action, ownerGroup, due]) => ({
-      id: exampleId("site_follow_ups", key),
-      site_log_id: siteLogId(log),
-      action,
-      owner_group: ownerGroup,
-      due_on: due === null ? null : addDays(today, due),
-    }),
-  );
+  // Rows closed here carry the person and time directly; the app stamps them when a person closes one.
+  const followUpSeeds: Array<
+    Row & { key: string; log: string; due: number | null }
+  > = [
+    {
+      key: "f1",
+      log: "l1",
+      action: "Order extra skirting for the foyer",
+      owner_group: "purchasing",
+      assignee_id: people.waimun,
+      due: 4,
+    },
+    {
+      key: "f2",
+      log: "l1",
+      action: "Confirm access to the ballroom on Saturday",
+      owner_group: "client",
+      assignee_id: people.awal,
+      due: -1,
+    },
+    {
+      key: "f3",
+      log: "l3",
+      action: "Send measurements to the mill",
+      owner_group: "salesperson",
+      assignee_id: people.eddie,
+      due: 2,
+    },
+    {
+      key: "f4",
+      log: "l5",
+      action: "Chase the missing measurement drawing",
+      owner_group: "site_supervisor",
+      assignee_id: null,
+      due: null,
+    },
+    {
+      key: "f5",
+      log: "l6",
+      action: "Reorder two underlay rolls that arrived wet",
+      owner_group: "purchasing",
+      assignee_id: people.waimun,
+      due: 3,
+    },
+    {
+      key: "f6",
+      log: "l11",
+      action: "Quote the screed levelling before laying",
+      owner_group: "salesperson",
+      assignee_id: people.vernice,
+      due: 5,
+    },
+    {
+      key: "f7",
+      log: "l2",
+      action: "Fix the lift key for the installers",
+      owner_group: "installation_team",
+      assignee_id: people.awal,
+      due: -8,
+      done_at: at(today, -9, "15:00"),
+      done_by: people.awal,
+    },
+  ];
+  const followUps: Row[] = followUpSeeds.map(({ key, log, due, ...row }) => ({
+    id: followUpId(key),
+    site_log_id: siteLogId(log),
+    due_on: due === null ? null : addDays(today, due),
+    ...row,
+  }));
   return [
     { table: "site_logs", key: "id", rows: logs },
     { table: "site_follow_ups", key: "id", rows: followUps },

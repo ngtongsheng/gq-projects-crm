@@ -32,3 +32,8 @@
 - What: the Add activity invitee picker lists everyone in `team_directory()`, including people marked left.
 - Why: the function returns no active flag; filtering needs a new migration.
 - When to fix: with the next change to `team_directory` (People & HR loop).
+
+## Dark-mode chart tokens (loop 14 #07)
+- What: the team comparison chart uses theme tokens chart-1..5; in dark mode they pass contrast and colour-blind checks but fail the dataviz lightness band and chroma floor.
+- Why: changing shared theme tokens is outside the performance task.
+- When to fix: next time the theme tokens are revised, or if Vicky finds the dark chart hard to read.

@@ -1,6 +1,8 @@
 import { z } from "zod";
+import { JobRole } from "@/lib/auth/job-role";
 import { loadMyTeam } from "@/lib/auth/my-team";
 import { inMyTeam } from "@/lib/auth/team";
+import { MOF_STAGES } from "@/lib/domain/mof-stages";
 import type {
   PerformanceOrder,
   PerformancePerson,
@@ -11,6 +13,10 @@ import { createClient } from "@/lib/supabase/server";
 const mofRows = z.array(
   z.object({
     id: z.string(),
+    mof_no: z.string(),
+    project_name: z.string(),
+    company_name: z.string(),
+    stage: z.enum(MOF_STAGES),
     salesperson_id: z.string(),
     loa_date: z.string(),
     contract_sum: z.number(),
@@ -28,12 +34,16 @@ const profileRows = z.array(
     id: z.string(),
     full_name: z.string().nullable(),
     yearly_target: z.coerce.number().nullable(),
+    job_role: JobRole,
+    reports_to: z.string().nullable(),
+    joined_on: z.string().nullable(),
+    left_on: z.string().nullable(),
   }),
 );
 
 /**
  * Every order that is not cancelled with its contract sum, variation orders and what was
- * received, and everyone's yearly target. Admins only: the database lets nobody else read other people's targets. Cost is
+ * received, and everyone's yearly target, join and leave dates and team lead. Admins only: the database lets nobody else read other people's targets. Cost is
  * asked for only when the viewer may see it.
  */
 export async function loadPerformance(seesCost: boolean): Promise<{
@@ -45,13 +55,17 @@ export async function loadPerformance(seesCost: boolean): Promise<{
     supabase
       .from("mofs")
       .select(
-        "id, salesperson_id, loa_date, contract_sum, mof_variation_orders(confirmed_on, amount), payments(amount)",
+        "id, mof_no, project_name, company_name, stage, salesperson_id, loa_date, contract_sum, mof_variation_orders(confirmed_on, amount), payments(amount)",
       )
       .neq("stage", "cancelled"),
     seesCost
       ? supabase.from("mof_cost_totals").select("mof_id, cost")
       : Promise.resolve({ data: [], error: null }),
-    supabase.from("profiles").select("id, full_name, yearly_target"),
+    supabase
+      .from("profiles")
+      .select(
+        "id, full_name, yearly_target, job_role, reports_to, joined_on, left_on",
+      ),
     loadMyTeam(),
   ]);
   if (mofsResult.error) {
@@ -69,6 +83,11 @@ export async function loadPerformance(seesCost: boolean): Promise<{
   );
   return {
     orders: mofRows.parse(mofsResult.data).map((row) => ({
+      mofId: row.id,
+      mofNo: row.mof_no,
+      projectName: row.project_name,
+      companyName: row.company_name,
+      stage: row.stage,
       salespersonId: row.salesperson_id,
       loaDate: row.loa_date,
       contractSum: row.contract_sum,
@@ -88,6 +107,10 @@ export async function loadPerformance(seesCost: boolean): Promise<{
         id: row.id,
         name: row.full_name ?? "Unnamed",
         yearlyTarget: row.yearly_target,
+        joinedOn: row.joined_on,
+        leftOn: row.left_on,
+        jobRole: row.job_role,
+        reportsTo: row.reports_to,
       })),
   };
 }

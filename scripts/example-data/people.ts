@@ -97,7 +97,6 @@ const PEOPLE: Person[] = [
     jobRole: "sales",
     fullName: "Crystal",
     title: "Salesperson",
-    yearlyTarget: 1500000,
     reportsTo: "vanessa",
   },
   {

@@ -16,6 +16,8 @@ const LEGACY_EMAILS = [
   "support",
 ].map((role) => `test-${role}@example.invalid`);
 
+// profiles.yearly_target is not written here: a database trigger keeps it equal to the current
+// year's row in yearly_targets (see hr.ts), so a direct write would be overwritten.
 /**
  * Creates (or resets the password of) one sign-in per demo person and sets their profile.
  * Passwords are fresh on every run and only returned here, never stored.
@@ -62,7 +64,6 @@ export async function ensureTestUsers(
         sells: user.sells,
         sees_margin: user.seesMargin,
         language: user.language,
-        yearly_target: user.yearlyTarget,
         active: user.left === null,
         left_on: user.left?.on ?? null,
         left_reason: user.left?.reason ?? null,

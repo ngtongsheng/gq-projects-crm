@@ -28,8 +28,8 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 | 07 | Resignation handover | done | - | opus/medium |
 | 08 | Tools: calculators | done | - | sonnet/high |
 | 09 | Tools: A4 forms + links | done | - | sonnet/high |
-| 10 | Chinese strings + dev seed | in-progress | 02, 03, 04, 06, 07, 08, 09 | sonnet/medium |
-| 11 | Parity pass, docs, merge | todo | 01-10 | sonnet/medium |
+| 10 | Chinese strings + dev seed | done | 02, 03, 04, 06, 07, 08, 09 | sonnet/medium |
+| 11 | Parity pass, docs, merge | in-progress | 01-10 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Start only after loop 15 is merged: `/execute-loop docs/loops/16-hr-tools-people`.
@@ -80,3 +80,8 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 2026-11-15 · #09 · decision · Drive links managed by admin role only (demo: MD or HR & Accounts); widening is one RLS + action change · brief
 2026-11-15 · #09 · decision · MOF choices for forms = every MOF except cancelled and closed, newest 80 · no completion date exists
 2026-11-15 · #10 · in-progress
+2026-11-15 · #10 · done · check, typecheck, test (2416) pass; seed not run (no .env.seed.dev; new migrations not on gq-crm-dev until CI applies them) · next: #11
+2026-11-15 · #10 · decision · People targets/teams/handover files do not call t(), so no zh strings for them; HR + Tools translated (~330 strings), printed forms stay English · People parts untranslated like the rest of that page
+2026-11-15 · #10 · decision · handover_items seeded by direct insert (service role is not is_admin()) · hand_over_work needs a signed-in admin
+2026-11-15 · #11 · decision · browser parity (needs seeded gq-crm-dev and Chrome sign-in) deferred to owner after merge, as for loops 12 and 14; docs, checks, PR and merge proceed · live parity needs migrations applied by CI and the owner's seed key
+2026-11-15 · #11 · in-progress

@@ -24,8 +24,8 @@ Merged to `main`. Starts after loop 17 merges.
 | 04 | DO numbering + lines migration | done | - | opus/medium |
 | 05 | DO on the job + print + delivery log | done | 04 | sonnet/high |
 | 06 | Stock page deltas | done | - | sonnet/medium |
-| 07 | Samples migration + rules | in-progress | - | opus/medium |
-| 08 | Samples page + pickup form print | todo | 07 | sonnet/high |
+| 07 | Samples migration + rules | done | - | opus/medium |
+| 08 | Samples page + pickup form print | in-progress | 07 | sonnet/high |
 | 09 | Leftover migration + rules | todo | - | opus/medium |
 | 10 | Leftover page | todo | 09 | sonnet/high |
 | 11 | Chinese/BM strings + dev seed | todo | 02, 03, 05, 06, 08, 10 | sonnet/medium |
@@ -59,3 +59,6 @@ Merged to `main`. Starts after loop 17 merges.
 2026-11-15 · #06 · decision · "Paste from sheet" already existed; kept "Stock items" as 4th segment; migration 20261118140000 (supplier_notice trigger); mailto To empty (supplier emails not stored); Samples segment links /samples, no count yet · subagent deviations, sensible
 2026-11-15 · #06 · follow-up · #08 adds (N) to Samples label in stock-tabs.tsx; #10 changes Leftover count to "available after sold allocations" (leftAvail)
 2026-11-15 · #07 · started
+2026-11-15 · #07 · done · verified: check, typecheck, test (2742), guard:migrations pass; migration only proven in PGlite, test-copy check in #12
+2026-11-15 · #07 · decision · pickup row over stock is refused (demo clamped to 0); pickup row must use the sample's unit; pickup forms deletable by sample editors (cancels number, returns samples out); pickup methods stored as keys; added pdf_saved_at; canEditSamples in job-role.ts; qty changes only via sample_moves · subagent deviations, sensible
+2026-11-15 · #08 · started

@@ -33,6 +33,8 @@ export const EXAMPLE_REFERENCES: Record<string, Record<string, string>> = {
   ot_claims: { mof_id: "mofs" },
   leftovers: { mof_id: "mofs" },
   stock_reservations: { item_id: "stock_items", project_id: "projects" },
+  sample_pickup_lines: { pickup_id: "sample_pickups", sample_id: "samples" },
+  sample_moves: { sample_id: "samples", pickup_id: "sample_pickups" },
   payments: { mof_id: "mofs" },
   commission_payouts: { mof_id: "mofs" },
   commission_appeals: { mof_id: "mofs" },

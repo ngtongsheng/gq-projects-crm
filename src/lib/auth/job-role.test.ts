@@ -6,6 +6,7 @@ import {
   canDecideOvertime,
   canEditInstallers,
   canEditRegister,
+  canEditSamples,
   canEditSite,
   canEditStock,
   canEnterPayments,
@@ -142,6 +143,19 @@ describe("job role capabilities", () => {
     JobRole.options,
   )("%s can edit stock when they arrange stock", (jobRole) => {
     expect(canEditStock({ jobRole, arrangesStock: true })).toBe(true);
+  });
+});
+
+describe("samples", () => {
+  it("are edited by stock arrangers, HR & Accounts and Marketing", () => {
+    expect(
+      JobRole.options.filter((jobRole) =>
+        canEditSamples({ jobRole, arrangesStock: false }),
+      ),
+    ).toEqual(["md", "director", "accounts", "support", "marketing"]);
+    expect(canEditSamples({ jobRole: "sales", arrangesStock: true })).toBe(
+      true,
+    );
   });
 });
 

@@ -142,6 +142,12 @@ export const canRequestStock = (person: {
   arrangesStock: boolean;
 }) => canEditStock(person) || has(person.jobRole, ["bd", "sales"]);
 
+/** Adds, takes out and returns samples and saves pickup forms (SQL: public.can_edit_samples()). */
+export const canEditSamples = (person: {
+  jobRole: JobRole;
+  arrangesStock: boolean;
+}) => canEditStock(person) || has(person.jobRole, ["accounts", "marketing"]);
+
 /** Changes the commission rules and stock hold settings (SQL: the write policies on app_settings). */
 export const canChangeSettings = (person: { role: Role; jobRole: JobRole }) =>
   person.role === "admin" || person.jobRole === "md";

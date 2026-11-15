@@ -103,7 +103,7 @@ const PAGES: Record<PageKey, Page> = {
     label: fixed("Tools & Forms"),
     href: fixed("/tools"),
     group: "after",
-    built: false,
+    built: true,
   },
   claims: {
     key: "claims",

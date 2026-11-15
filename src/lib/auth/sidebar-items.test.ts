@@ -30,8 +30,7 @@ const outline = (
 
 // Read from the demo's sidebar (docs/mockup/gqp-office-demo.html, Chrome, 2026-11-14) signed in
 // as Vicky, Eddie, Vernice, Awal, Wai Mun and Affifa, keeping the pages built so far. The demo
-// also lists Log work, Sales Performance and Tools & Forms, which are
-// hidden until their pages exist.
+// also lists Log work and Sales Performance, which are hidden until their pages exist.
 describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide", () => {
   it("md", () => {
     expect(outline("md", true)).toEqual({
@@ -52,7 +51,14 @@ describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide",
         "Director Report",
         "HR",
       ],
-      after: ["Guide", "Sales Performance", "People", "Tasks", "Leave"],
+      after: [
+        "Guide",
+        "Sales Performance",
+        "People",
+        "Tasks",
+        "Tools & Forms",
+        "Leave",
+      ],
     });
   });
 
@@ -73,7 +79,7 @@ describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide",
         "Team Reports",
         "Director Report",
       ],
-      after: ["Guide", "Tasks", "Leave"],
+      after: ["Guide", "Tasks", "Tools & Forms", "Leave"],
     });
   });
 
@@ -93,14 +99,14 @@ describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide",
         "My claims",
         "My Report",
       ],
-      after: ["Guide", "Tasks", "Leave"],
+      after: ["Guide", "Tasks", "Tools & Forms", "Leave"],
     });
   });
 
   it("site", () => {
     expect(outline("site")).toEqual({
       main: ["My schedule", "Site Work", "My Report", "My claims"],
-      after: ["Guide", "Tasks", "Leave"],
+      after: ["Guide", "Tasks", "Tools & Forms", "Leave"],
     });
   });
 
@@ -109,7 +115,7 @@ describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide",
   it("site in Bahasa Malaysia", () => {
     expect(outline("site", false, "bm")).toEqual({
       main: ["Jadual saya", "Kerja tapak", "Laporan saya", "My claims"],
-      after: ["Guide", "Tasks", "Leave"],
+      after: ["Guide", "Tasks", "Tools & Forms", "Leave"],
     });
   });
 
@@ -127,14 +133,14 @@ describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide",
         "Site Work",
         "Stock",
       ],
-      after: ["Guide", "Tasks", "Leave"],
+      after: ["Guide", "Tasks", "Tools & Forms", "Leave"],
     });
   });
 
   it("designer", () => {
     expect(outline("designer")).toEqual({
       main: ["Dashboard"],
-      after: ["Guide", "Tasks", "Leave"],
+      after: ["Guide", "Tasks", "Tools & Forms", "Leave"],
     });
   });
 });

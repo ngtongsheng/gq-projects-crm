@@ -26,8 +26,8 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 | 05 | Per-year targets migration | done | 01 | opus/medium |
 | 06 | People: targets + Sales teams | done | 05 | sonnet/high |
 | 07 | Resignation handover | done | - | opus/medium |
-| 08 | Tools: calculators | in-progress | - | sonnet/high |
-| 09 | Tools: A4 forms + links | todo | - | sonnet/high |
+| 08 | Tools: calculators | done | - | sonnet/high |
+| 09 | Tools: A4 forms + links | in-progress | - | sonnet/high |
 | 10 | Chinese strings + dev seed | todo | 02, 03, 04, 06, 07, 08, 09 | sonnet/medium |
 | 11 | Parity pass, docs, merge | todo | 01-10 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
@@ -71,3 +71,7 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 2026-11-15 · #07 · decision · open projects for handover = every stage except Awarded and Lost (On Hold moves); support-role projects and archived customers also move · stranding them with a leaver is worse
 2026-11-15 · #07 · decision · guard_project_write() bypassed via transaction-local gqp.handover set only by hand_over_work, so any admin can run it · PIC change otherwise refused for non-MD admins
 2026-11-15 · #08 · in-progress
+2026-11-15 · #08 · done · check, typecheck, test pass (2400); browser parity deferred to #11 · next: #09
+2026-11-15 · #08 · decision · vinyl layouts A/B recommended by order length and welding rod as in demo (no offcut figure exists) · match demo numbers
+2026-11-15 · #08 · decision · tools is built for all roles (sidebar "Tools & Forms" before Leave); /tools?view= tabs, #09 appends to TOOLS_VIEWS in tools-view.ts and updates the Guide sentence "Forms to print come next" · demo parity
+2026-11-15 · #09 · in-progress

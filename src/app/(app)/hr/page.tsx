@@ -13,6 +13,8 @@ import { parseHrView } from "./hr-view";
 import { PoliciesView } from "./policies-view";
 import { loadPoliciesData } from "./policy-data";
 import { PolicyDialog } from "./policy-dialog";
+import { loadStaffData } from "./staff-data";
+import { StaffView } from "./staff-view";
 
 export const metadata: Metadata = { title: "HR" };
 
@@ -28,8 +30,11 @@ export default async function HrPage({
   const view = parseHrView((await searchParams).view);
   const today = todayMyt();
 
-  const policies = view === "policies" ? await loadPoliciesData() : null;
-  const team = policies ? await getTeamDirectory() : [];
+  const [policies, staff] = await Promise.all([
+    view === "policies" ? loadPoliciesData() : null,
+    view === "staff" ? loadStaffData() : null,
+  ]);
+  const team = policies || staff ? await getTeamDirectory() : [];
   const names = new Map(team.map((member) => [member.id, member.name]));
 
   return (
@@ -53,6 +58,13 @@ export default async function HrPage({
         <PoliciesView
           {...policies}
           showCommissionSettings={canChangeSettings(me)}
+          nameOf={(personId) => names.get(personId) ?? t("Unnamed")}
+          today={today}
+          t={t}
+        />
+      ) : staff ? (
+        <StaffView
+          data={staff}
           nameOf={(personId) => names.get(personId) ?? t("Unnamed")}
           today={today}
           t={t}

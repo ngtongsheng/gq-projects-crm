@@ -4,17 +4,26 @@ import { isWorkday, type WorkCalendar } from "./workdays";
 /** Balances start 1 Jan 2027; there are no leave records for 2026 (loop 15 D2). */
 export const FIRST_LEAVE_YEAR = 2027;
 
-export type LeaveType =
-  | "annual"
-  | "mc"
-  | "emergency"
-  | "hospitalisation"
-  | "replacement"
-  | "compassionate"
-  | "maternity_paternity"
-  | "unpaid";
+// Values mirror the check constraints in the leave migration.
+export const LEAVE_TYPES = [
+  "annual",
+  "mc",
+  "emergency",
+  "hospitalisation",
+  "replacement",
+  "compassionate",
+  "maternity_paternity",
+  "unpaid",
+] as const;
+export type LeaveType = (typeof LEAVE_TYPES)[number];
 
-export type LeaveStatus = "pending" | "approved" | "rejected" | "cancelled";
+export const LEAVE_STATUSES = [
+  "pending",
+  "approved",
+  "rejected",
+  "cancelled",
+] as const;
+export type LeaveStatus = (typeof LEAVE_STATUSES)[number];
 
 /** The company default in app_settings (leave_annual_days, leave_mc_days, leave_prorate). */
 export type LeavePolicy = {

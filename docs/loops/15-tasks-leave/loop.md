@@ -25,8 +25,8 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 | 04 | Task sheet | done | 02 | sonnet/high |
 | 05 | Leave migration | done | - | opus/medium |
 | 06 | Leave maths | done | 05 | opus/medium |
-| 07 | Leave approval + slip rules | in-progress | 05 | opus/medium |
-| 08 | Leave page | todo | 06, 07 | sonnet/high |
+| 07 | Leave approval + slip rules | done | 05 | opus/medium |
+| 08 | Leave page | in-progress | 06, 07 | sonnet/high |
 | 09 | Who is away, holidays, entitlements | todo | 08 | sonnet/high |
 | 10 | Chinese strings + dev seed | todo | 03, 04, 08, 09 | sonnet/medium |
 | 11 | Parity pass, docs, merge | todo | 01-10 | sonnet/medium |
@@ -53,3 +53,6 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 2026-11-15 · #05 · decision · decisions via decide_leave RPC (#07 must call it); days counted in SQL at insert, not recounted; md decides any step, accounts any MC/hospitalisation step; no record-for-someone · #06 maths must match SQL
 2026-11-15 · #06 · done · leave-balance.ts (leaveDays, defaultEntitlement, leaveBalance) + tests; checks pass (1879) · next: #07
 2026-11-15 · #06 · decision · hospitalisation does not reduce MC balance (demo lvBal); override replaces whole default; types defined in leave-balance.ts · demo parity
+2026-11-15 · #07 · done · leave-approval.ts, leave actions + slip actions + tests; checks pass (1923) · next: #08
+2026-11-15 · #07 · decision · 2026-dated leave not blocked; rejection remark optional; original-slip tick needs uploaded slip (stricter than SQL) · avoid blocking real Dec 2026 leave
+2026-11-15 · #08 · in-progress · must flip `leave` to built:true in pages.ts and update nav tests

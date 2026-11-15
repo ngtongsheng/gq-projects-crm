@@ -29,6 +29,8 @@ type JobListProps = {
   /** The signed-in person; a Site Supervisor moves only the jobs assigned to them. */
   meId: string;
   canSchedule: boolean;
+  /** Only the MD may correct a DO no. the app issued. */
+  canCorrectDoNo: boolean;
   canUpdateStatus: boolean;
   /** Whether the person may open the MOF register page the job belongs to. */
   canOpenMof: boolean;
@@ -44,6 +46,7 @@ export function JobList({
   people,
   meId,
   canSchedule,
+  canCorrectDoNo,
   canUpdateStatus,
   canOpenMof,
   canAnswerBookings,
@@ -72,6 +75,7 @@ export function JobList({
             team={team}
             people={people}
             canSchedule={canSchedule}
+            canCorrectDoNo={canCorrectDoNo}
             canMove={
               canUpdateStatus &&
               (canSchedule || event.job.siteSupervisorId === meId)
@@ -90,6 +94,7 @@ type JobCardProps = {
   team: Team;
   people: JobPeople | undefined;
   canSchedule: boolean;
+  canCorrectDoNo: boolean;
   canMove: boolean;
   canOpenMof: boolean;
 };
@@ -100,6 +105,7 @@ function JobCard({
   team,
   people,
   canSchedule,
+  canCorrectDoNo,
   canMove,
   canOpenMof,
 }: JobCardProps) {
@@ -155,6 +161,17 @@ function JobCard({
             <span className="font-mono tabular-nums">
               {number ?? "not issued"}
             </span>
+            {number && (
+              <>
+                {" · "}
+                <Link
+                  href={`/installation/do/${job.id}`}
+                  className="underline-offset-2 hover:underline"
+                >
+                  Print DO
+                </Link>
+              </>
+            )}
           </p>
         )}
         {job.notes && <p className="text-muted-foreground">{job.notes}</p>}
@@ -176,6 +193,7 @@ function JobCard({
               team={team}
               people={people}
               defaultInstaller={job.mofInstaller}
+              canCorrectDoNo={canCorrectDoNo}
               missingChecks={missingDeliveryChecks({
                 paymentChecked: job.paymentChecked,
                 dosPreApproved: job.dosPreApproved,

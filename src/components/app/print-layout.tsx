@@ -14,6 +14,8 @@ type PrintLayoutProps = {
   toolbarTitle?: string;
   /** Extra screen-only controls beside the Print button, e.g. a copy button. */
   toolbarActions?: ReactNode;
+  /** A screen-only note under the toolbar, e.g. what to check before printing. */
+  notice?: ReactNode;
   children: ReactNode;
 };
 
@@ -38,6 +40,7 @@ export function PrintLayout({
   meta,
   toolbarTitle,
   toolbarActions,
+  notice,
   children,
 }: PrintLayoutProps) {
   return (
@@ -52,6 +55,11 @@ export function PrintLayout({
           Print / Save as PDF
         </Button>
       </div>
+      {notice && (
+        <div className="mx-auto mb-3 w-[210mm] max-w-full print:hidden">
+          {notice}
+        </div>
+      )}
       <article className="print-sheet mx-auto box-border min-h-[297mm] w-[210mm] max-w-full bg-white p-[12mm] font-[Arial,Helvetica,sans-serif] text-xs leading-[1.4] text-[#242e38] shadow-md print:m-0 print:min-h-0 print:w-auto print:max-w-none print:p-0 print:shadow-none">
         <header className="flex items-start gap-3.5">
           <Image

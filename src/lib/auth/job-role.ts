@@ -145,3 +145,7 @@ export const canRequestStock = (person: {
 /** Changes the commission rules and stock hold settings (SQL: the write policies on app_settings). */
 export const canChangeSettings = (person: { role: Role; jobRole: JobRole }) =>
   person.role === "admin" || person.jobRole === "md";
+
+/** Sets the next DO running no. (SQL: set_next_do_number). */
+export const canSetNextDoNumber = (jobRole: JobRole) =>
+  has(jobRole, ["md", "support", "accounts"]);

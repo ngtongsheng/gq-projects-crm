@@ -22,8 +22,8 @@ Merged to `main`. Starts after loop 17 merges.
 | 02 | Installer directory + calendar views | done | 01 | sonnet/high |
 | 03 | Supervisor bookings + job form extras | done | 01 | sonnet/high |
 | 04 | DO numbering + lines migration | done | - | opus/medium |
-| 05 | DO on the job + print + delivery log | in-progress | 04 | sonnet/high |
-| 06 | Stock page deltas | todo | - | sonnet/medium |
+| 05 | DO on the job + print + delivery log | done | 04 | sonnet/high |
+| 06 | Stock page deltas | in-progress | - | sonnet/medium |
 | 07 | Samples migration + rules | todo | - | opus/medium |
 | 08 | Samples page + pickup form print | todo | 07 | sonnet/high |
 | 09 | Leftover migration + rules | todo | - | opus/medium |
@@ -52,3 +52,6 @@ Merged to `main`. Starts after loop 17 merges.
 2026-11-15 · #04 · decision · no cancel function: number is voided automatically when running_no is changed/cleared/DO deleted (task 05 cancels by postponing job + clearing number); next-number in own one-row table not app_settings (so "must exceed last used" can't be bypassed); issue_do_number limited to md/director/support; void-list FKs cascade (example-data reset) · subagent deviations, sensible
 2026-11-15 · #01 · decision · added missing "left people: no access" restrictive policy to installers migration (subagent #04 spotted it; branch unmerged so edited in place) · security fix
 2026-11-15 · #05 · started
+2026-11-15 · #05 · done · verified: check, typecheck, test (2696), guard:migrations pass; parity + print preview deferred to #12 (verify on test copy: `delivery_orders` `jobs!inner` embed, nested `mofs(projects(contacts(companies(address))))` embed, `delivery_order_lines` `delivery_orders!inner` filter, rpcs next_do_number/delivered_to_date/replace_delivery_order_lines/issue_do_number/set_next_do_number)
+2026-11-15 · #05 · decision · added migration 20261118130000 replace_delivery_order_lines (atomic save); DO items in a dialog on the MOF page not the job form; free-text items input removed (old DOs keep text); only MD can correct an issued number; cancel = postpone job + clear running_no; print never blocks (D3); delivery log not paged (>1000 DOs would be cut by PostgREST limit) · subagent deviations, sensible; log limit as debt in #12
+2026-11-15 · #06 · started

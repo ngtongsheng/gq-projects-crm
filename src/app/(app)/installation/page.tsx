@@ -10,6 +10,7 @@ import {
   canBookSiteSupervisor,
   canEditInstallers,
   canScheduleJobs,
+  canSetNextDoNumber,
   canUpdateJobStatus,
 } from "@/lib/auth/job-role";
 import { canOpen } from "@/lib/auth/page-access";
@@ -23,6 +24,7 @@ import {
   weekDays,
 } from "@/lib/domain/calendar-grid";
 import { formatDate, todayMyt } from "@/lib/format/date";
+import { createClient } from "@/lib/supabase/server";
 import { parseCalendarParams, stepDate } from "../calendar/calendar-params";
 import { AddJobDialog } from "./add-job-dialog";
 import {
@@ -34,6 +36,8 @@ import {
 import { BookingDialog } from "./booking-form";
 import { calendarItems } from "./calendar-items";
 import { loadCalendarJobs } from "./calendar-jobs";
+import { loadNextDoNumber } from "./do-data";
+import { DoNumberingDialog } from "./do-numbering-dialog";
 import { InstallationFilters } from "./installation-filters";
 import {
   installationHref,
@@ -96,6 +100,7 @@ export default async function InstallationPage({
     installers,
     unsignedDos,
     salespeople,
+    nextDoNo,
   ] = await Promise.all([
     loadCalendarJobs(from, to, supervisorFilter, installerId),
     // A booking has no installer, so filtering by installer leaves none.
@@ -110,6 +115,9 @@ export default async function InstallationPage({
     loadInstallerChoices(installerId),
     loadUnsignedDos(supervisorFilter, installerId),
     canSchedule ? loadSalespeople() : Promise.resolve([]),
+    canSetNextDoNumber(me.jobRole)
+      ? createClient().then(loadNextDoNumber)
+      : Promise.resolve(null),
   ]);
   const people = { installers, supervisors, salespeople };
 
@@ -154,6 +162,7 @@ export default async function InstallationPage({
       people={canSchedule ? people : undefined}
       meId={me.id}
       canSchedule={canSchedule}
+      canCorrectDoNo={me.jobRole === "md"}
       canUpdateStatus={canUpdateJobStatus(me.jobRole)}
       canOpenMof={await canOpen(me, "mof")}
       canAnswerBookings={answersBookings}
@@ -193,6 +202,7 @@ export default async function InstallationPage({
                 defaultDate={today}
               />
             )}
+            {nextDoNo && <DoNumberingDialog nextNo={nextDoNo} />}
             {addHref && (
               <Button asChild size="sm">
                 <Link href={addHref(today)}>

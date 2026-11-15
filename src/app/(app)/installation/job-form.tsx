@@ -71,7 +71,10 @@ export type JobRow = {
     transporter: string;
     deliveredOn: string;
     items: string;
+    /** The date printed on the DO; empty means the job's start date. */
+    doDate: string;
     isFinal: boolean;
+    passedToSupplier: boolean;
     signedReturned: boolean;
   } | null;
 };
@@ -88,6 +91,8 @@ type JobDialogProps = {
   missingChecks: string[];
   /** The day to start on when scheduling a new job, e.g. the calendar day clicked. */
   defaultDate?: string;
+  /** Only the MD may correct a DO no. the app already issued. */
+  canCorrectDoNo?: boolean;
 };
 
 const NONE = "none";
@@ -120,8 +125,8 @@ export function JobDialog(props: JobDialogProps) {
               : "Schedule job"}
           </DialogTitle>
           <DialogDescription>
-            Key in the dates and who is going. Deliveries also take the DO from
-            Zoho.
+            Key in the dates and who is going. A delivery also gets its DO no.
+            from here.
           </DialogDescription>
         </DialogHeader>
         <JobForm {...props} onSaved={() => setOpen(false)} />
@@ -139,6 +144,7 @@ export function JobForm({
   defaultInstaller,
   missingChecks,
   defaultDate,
+  canCorrectDoNo = false,
   onSaved,
 }: JobDialogProps & { onSaved: () => void }) {
   const [pending, startTransition] = useTransition();
@@ -324,24 +330,54 @@ export function JobForm({
           <>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
-                <FieldLabel htmlFor="runningNo">DO no.</FieldLabel>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono font-medium whitespace-nowrap">
-                    {mofNo}
-                  </span>
-                  <Input
-                    id="runningNo"
-                    name="runningNo"
-                    className="min-w-0 font-mono"
-                    inputMode="numeric"
-                    maxLength={4}
-                    placeholder="5563"
-                    defaultValue={order?.runningNo}
-                  />
-                </div>
-                <FieldDescription>
-                  The 4-digit running no. from Zoho, once the DO is issued.
-                </FieldDescription>
+                <FieldLabel
+                  htmlFor={order?.runningNo ? "runningNo" : "issueNo"}
+                >
+                  DO no.
+                </FieldLabel>
+                {order?.runningNo ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-medium whitespace-nowrap">
+                        {mofNo}
+                        {order.runningNo}
+                      </span>
+                      {canCorrectDoNo && (
+                        <Input
+                          id="runningNo"
+                          name="runningNo"
+                          className="w-20 font-mono"
+                          inputMode="numeric"
+                          maxLength={4}
+                          defaultValue={order.runningNo}
+                          aria-label="Correct the running no."
+                        />
+                      )}
+                    </div>
+                    <FieldDescription>
+                      {canCorrectDoNo
+                        ? "Only you can correct the running no."
+                        : "Locked. Ask the MD to correct it."}
+                    </FieldDescription>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="issueNo"
+                        name="issueNo"
+                        defaultChecked={!job}
+                      />
+                      <FieldLabel htmlFor="issueNo" className="font-normal">
+                        Issue DO no. now
+                      </FieldLabel>
+                    </div>
+                    <FieldDescription>
+                      The next running no. is added after {mofNo} when you save,
+                      so two people never get the same number.
+                    </FieldDescription>
+                  </>
+                )}
               </Field>
               <Field>
                 <FieldLabel htmlFor="transporter">Transporter</FieldLabel>
@@ -361,14 +397,16 @@ export function JobForm({
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
-                <FieldLabel htmlFor="items">Items / qty delivered</FieldLabel>
+                <FieldLabel htmlFor="doDate">DO date</FieldLabel>
                 <Input
-                  id="items"
-                  name="items"
-                  placeholder="e.g. Carpet tile 1,200 m², skirting 300 m"
-                  defaultValue={order?.items}
-                  maxLength={200}
+                  id="doDate"
+                  name="doDate"
+                  type="date"
+                  defaultValue={order?.doDate}
                 />
+                <FieldDescription>
+                  Left empty, the job's start date is printed.
+                </FieldDescription>
               </Field>
               <Field>
                 <FieldLabel htmlFor="deliveredOn">Delivered on</FieldLabel>
@@ -392,6 +430,16 @@ export function JobForm({
             </Field>
             <Field orientation="horizontal">
               <Checkbox
+                id="passedToSupplier"
+                name="passedToSupplier"
+                defaultChecked={order?.passedToSupplier}
+              />
+              <FieldLabel htmlFor="passedToSupplier" className="font-normal">
+                DO passed to supplier (supplier delivers straight to site)
+              </FieldLabel>
+            </Field>
+            <Field orientation="horizontal">
+              <Checkbox
                 id="signedReturned"
                 name="signedReturned"
                 defaultChecked={order?.signedReturned}
@@ -400,6 +448,10 @@ export function JobForm({
                 DO signed and returned
               </FieldLabel>
             </Field>
+            <p className="text-sm text-muted-foreground">
+              Items on the DO are added with DO items on the MOF, once the
+              delivery is saved.
+            </p>
           </>
         )}
         <Field>

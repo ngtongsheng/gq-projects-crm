@@ -14,6 +14,7 @@ import {
   canRequestStock,
   canScheduleJobs,
   canSeeHr,
+  canSetNextDoNumber,
   canUpdateJobStatus,
   isManager,
   isReadOnly,
@@ -232,5 +233,15 @@ describe("stock holds and settings", () => {
     expect(canChangeSettings({ role: "staff", jobRole: "director" })).toBe(
       false,
     );
+  });
+});
+
+describe("the next DO number", () => {
+  it("is set by the MD, Purchasing and HR & Accounts only", () => {
+    expect(JobRole.options.filter(canSetNextDoNumber)).toEqual([
+      "md",
+      "accounts",
+      "support",
+    ]);
   });
 });

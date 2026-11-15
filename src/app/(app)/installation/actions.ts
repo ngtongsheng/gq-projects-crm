@@ -20,7 +20,8 @@ export type JobResult = { error: string | null };
 const NOT_SCHEDULER =
   "Only the MD, Sales Director or Purchasing can schedule jobs.";
 const NOT_FOUND_JOB = "Could not find that job. Reload the page.";
-const DO_NO_NEEDED = "Key in the Zoho DO no. before marking the delivery Done.";
+const DO_NO_NEEDED =
+  "Issue the DO no. before marking the delivery Done. Tick Issue DO no. now.";
 const TRY_AGAIN = "Could not save the job. Try again.";
 
 const jobForm = z
@@ -56,21 +57,27 @@ const tick = z
   .optional()
   .transform((value) => value === "on");
 
+const optionalDate = (message: string) =>
+  z
+    .union([z.literal(""), z.iso.date(message)])
+    .transform((value) => (value === "" ? null : value));
+
 const deliveryForm = z.object({
+  // Only the MD's correction box posts this, on a DO that already has its number.
   runningNo: z
     .string()
     .trim()
     .refine(
       (value) => value === "" || isDoRunningNo(value),
-      "Key in only the 4-digit Zoho running no., e.g. 5563. The MOF number is added in front.",
+      "Key in only the 4-digit running no., e.g. 5563. The MOF number is added in front.",
     )
     .transform((value) => (value === "" ? null : value)),
+  issueNo: tick,
   transporter: optionalText(100, "Keep the transporter under 100 characters."),
-  deliveredOn: z
-    .union([z.literal(""), z.iso.date("Choose the delivered date.")])
-    .transform((value) => (value === "" ? null : value)),
-  items: optionalText(200, "Keep the items under 200 characters."),
+  deliveredOn: optionalDate("Choose the delivered date."),
+  doDate: optionalDate("Choose the DO date."),
   isFinal: tick,
+  passedToSupplier: tick,
   signedReturned: tick,
 });
 
@@ -89,7 +96,7 @@ function refusal(error: { code?: string; message?: string }): string | null {
 }
 
 const usedMessage = (runningNo: string) =>
-  `Running no. ${runningNo} is already used by another DO. Check Zoho.`;
+  `Running no. ${runningNo} is already used by another DO or was cancelled. It cannot be used again.`;
 
 /** The message to show when the running no. cannot be used, or null when it is free. */
 async function runningNoProblem(
@@ -157,10 +164,12 @@ export async function saveJob(formData: FormData): Promise<JobResult> {
   if (job.jobType === "delivery") {
     const parsedDelivery = deliveryForm.safeParse({
       runningNo: textField(formData, "runningNo"),
+      issueNo: formData.get("issueNo") ?? undefined,
       transporter: textField(formData, "transporter"),
       deliveredOn: textField(formData, "deliveredOn"),
-      items: textField(formData, "items"),
+      doDate: textField(formData, "doDate"),
       isFinal: formData.get("isFinal") ?? undefined,
+      passedToSupplier: formData.get("passedToSupplier") ?? undefined,
       signedReturned: formData.get("signedReturned") ?? undefined,
     });
     if (!parsedDelivery.success) {
@@ -169,26 +178,28 @@ export async function saveJob(formData: FormData): Promise<JobResult> {
       };
     }
     delivery = parsedDelivery.data;
-    if (status === "done" && !delivery.runningNo)
-      return { error: DO_NO_NEEDED };
   }
 
+  // Only the MD corrects a number the app already issued; others never post the box.
+  const correctedNo =
+    me.jobRole === "md" ? (delivery?.runningNo ?? null) : null;
   const supabase = await createClient();
-  if (delivery?.runningNo) {
+  if (correctedNo) {
     const problem = await runningNoProblem(
       supabase,
-      delivery.runningNo,
+      correctedNo,
       editing ? jobId : null,
     );
     if (problem) return { error: problem };
   }
 
   const doColumns = delivery && {
-    running_no: delivery.runningNo,
+    ...(correctedNo && { running_no: correctedNo }),
     transporter: delivery.transporter,
     delivered_on: delivery.deliveredOn,
-    items: delivery.items,
+    do_date: delivery.doDate,
     is_final: delivery.isFinal,
+    passed_to_supplier: delivery.passedToSupplier,
     signed_returned: delivery.signedReturned,
   };
   const jobColumns = {
@@ -204,7 +215,11 @@ export async function saveJob(formData: FormData): Promise<JobResult> {
   };
 
   if (editing) {
-    // The DO goes first: marking a delivery Done needs its running no. to be in place.
+    // The number and the DO go first: marking a delivery Done needs its running no. in place.
+    if (delivery?.issueNo) {
+      const issued = await issueNumber(supabase, jobId);
+      if (issued) return issued;
+    }
     if (doColumns) {
       const { data, error } = await supabase
         .from("delivery_orders")
@@ -212,12 +227,7 @@ export async function saveJob(formData: FormData): Promise<JobResult> {
         .eq("job_id", jobId)
         .eq("mof_id", job.mofId)
         .select("id");
-      if (error)
-        return failure(
-          error,
-          delivery?.runningNo ?? null,
-          "Could not save the DO",
-        );
+      if (error) return failure(error, correctedNo, "Could not save the DO");
       if (data.length === 0) return { error: NOT_FOUND_JOB };
     }
     const { data, error } = await supabase
@@ -243,20 +253,35 @@ export async function saveJob(formData: FormData): Promise<JobResult> {
         .select("id");
       if (doError) {
         revalidateJob(job.mofId);
-        const result = failure(
-          doError,
-          delivery?.runningNo ?? null,
-          "Could not save the DO",
-        );
+        const result = failure(doError, null, "Could not save the DO");
         return {
           error: `The delivery was scheduled, but its DO details were not saved. ${result.error} Open the delivery to add them.`,
         };
+      }
+      if (delivery?.issueNo) {
+        const issued = await issueNumber(supabase, created);
+        if (issued) {
+          revalidateJob(job.mofId);
+          return {
+            error: `The delivery was scheduled, but its DO no. was not issued. ${issued.error} Open the delivery and tick Issue DO no. now.`,
+          };
+        }
       }
     }
   }
 
   revalidateJob(job.mofId);
   return { error: null };
+}
+
+/** Gives the delivery's DO the next running no.; null when it worked, else the message to show. */
+async function issueNumber(
+  supabase: Supabase,
+  jobId: string,
+): Promise<JobResult | null> {
+  const { error } = await supabase.rpc("issue_do_number", { p_job_id: jobId });
+  if (!error) return null;
+  return failure(error, null, "Could not issue the DO no.");
 }
 
 function failure(

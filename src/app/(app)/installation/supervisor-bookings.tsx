@@ -179,6 +179,7 @@ export async function SupervisorBookings({
         }
         meId={me.id}
         canSchedule={canSchedule}
+        canCorrectDoNo={me.jobRole === "md"}
         canUpdateStatus={canUpdateJobStatus(me.jobRole)}
         canOpenMof={canOpenMof}
         canAnswerBookings={false}

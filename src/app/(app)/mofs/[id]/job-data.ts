@@ -26,7 +26,9 @@ export const orderRows = z.array(
     transporter: z.string().nullable(),
     delivered_on: z.string().nullable(),
     items: z.string().nullable(),
+    do_date: z.string().nullable(),
     is_final: z.boolean(),
+    passed_to_supplier: z.boolean(),
     signed_returned: z.boolean(),
   }),
 );
@@ -34,7 +36,7 @@ export const orderRows = z.array(
 export const JOB_COLUMNS =
   "id, job_type, status, scheduled_on, ends_on, start_time, installer, installer_id, supervisor_only, site_supervisor_id, notes";
 export const ORDER_COLUMNS =
-  "job_id, running_no, transporter, delivered_on, items, is_final, signed_returned";
+  "job_id, running_no, transporter, delivered_on, items, do_date, is_final, passed_to_supplier, signed_returned";
 
 type JobRecord = z.infer<typeof jobRows>[number];
 type OrderRecord = z.infer<typeof orderRows>[number];
@@ -62,7 +64,9 @@ export function toJobRow(
           transporter: order.transporter ?? "",
           deliveredOn: order.delivered_on ?? "",
           items: order.items ?? "",
+          doDate: order.do_date ?? "",
           isFinal: order.is_final,
+          passedToSupplier: order.passed_to_supplier,
           signedReturned: order.signed_returned,
         }
       : null,

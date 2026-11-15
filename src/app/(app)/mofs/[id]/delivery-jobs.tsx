@@ -1,7 +1,10 @@
+import Link from "next/link";
 import { DataTable } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
 import { StatusBadge } from "@/components/app/status-badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { DeliveredEarlier, DoLine } from "@/lib/domain/delivery-order";
 import {
   DELIVERY_STATUS_TONE,
   deliveryOrderNumber,
@@ -12,6 +15,11 @@ import {
 } from "@/lib/domain/delivery-status";
 import type { JobPeople } from "@/lib/domain/job-team";
 import { formatDate } from "@/lib/format/date";
+import { CancelDoButton } from "../../installation/cancel-do-button";
+import {
+  DoLinesDialog,
+  type OrderedProduct,
+} from "../../installation/do-lines-dialog";
 import { JobDialog, type JobRow } from "../../installation/job-form";
 
 type DeliveryJobsProps = {
@@ -24,6 +32,13 @@ type DeliveryJobsProps = {
   defaultInstaller: string;
   missingChecks: string[];
   canSchedule: boolean;
+  /** Only the MD may correct a DO no. the app issued. */
+  canCorrectDoNo: boolean;
+  /** The items on each delivery's DO, by job id. */
+  doLines: Map<string, DoLine[]>;
+  /** What the MOF's other DOs delivered, by job id; loaded for people who edit DOs. */
+  earlierByJob: Map<string, DeliveredEarlier[]>;
+  ordered: OrderedProduct[];
 };
 
 /** The MOF's delivery, installation and measurement jobs, with where delivery stands. */
@@ -36,6 +51,10 @@ export function DeliveryJobs({
   defaultInstaller,
   missingChecks,
   canSchedule,
+  canCorrectDoNo,
+  doLines,
+  earlierByJob,
+  ordered,
 }: DeliveryJobsProps) {
   const delivery = deliveryStatus(
     jobs
@@ -48,7 +67,15 @@ export function DeliveryJobs({
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
   const dialog =
     canSchedule && people
-      ? { mofId, mofNo, team, people, defaultInstaller, missingChecks }
+      ? {
+          mofId,
+          mofNo,
+          team,
+          people,
+          defaultInstaller,
+          missingChecks,
+          canCorrectDoNo,
+        }
       : null;
 
   return (
@@ -140,6 +167,32 @@ export function DeliveryJobs({
                         {row.order.items}
                       </span>
                     )}
+                    <div className="mt-1 flex flex-wrap items-center gap-2">
+                      {number && (
+                        <Button asChild size="sm" variant="outline">
+                          <Link href={`/installation/do/${row.id}`}>
+                            Print DO
+                          </Link>
+                        </Button>
+                      )}
+                      {dialog && (
+                        <DoLinesDialog
+                          mofId={mofId}
+                          mofNo={mofNo}
+                          jobId={row.id}
+                          lines={doLines.get(row.id) ?? []}
+                          ordered={ordered}
+                          earlier={earlierByJob.get(row.id) ?? []}
+                        />
+                      )}
+                      {dialog && number && row.status !== "postponed" && (
+                        <CancelDoButton
+                          mofId={mofId}
+                          jobId={row.id}
+                          doNo={number}
+                        />
+                      )}
+                    </div>
                   </div>
                 );
               },

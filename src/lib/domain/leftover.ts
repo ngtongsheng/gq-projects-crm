@@ -41,6 +41,7 @@ export const LEFTOVER_DESTINATION_LABEL: Record<LeftoverDestination, string> = {
 
 export const LEFTOVER_STATUSES = [
   "pending_pickup",
+  "collected_by_supervisor",
   "returned_to_supplier",
   "at_best_link",
   "left_with_client",
@@ -50,6 +51,7 @@ export type LeftoverStatus = (typeof LEFTOVER_STATUSES)[number];
 
 export const LEFTOVER_STATUS_LABEL: Record<LeftoverStatus, string> = {
   pending_pickup: "Pending pickup",
+  collected_by_supervisor: "Collected by supervisor",
   returned_to_supplier: "Returned to supplier",
   at_best_link: "At Best Link (for resale)",
   left_with_client: "Left with client",
@@ -58,6 +60,7 @@ export const LEFTOVER_STATUS_LABEL: Record<LeftoverStatus, string> = {
 
 export const LEFTOVER_STATUS_TONE: Record<LeftoverStatus, StatusTone> = {
   pending_pickup: "warn",
+  collected_by_supervisor: "info",
   returned_to_supplier: "good",
   at_best_link: "good",
   left_with_client: "neutral",
@@ -73,7 +76,10 @@ export const canRecordLeftover = (person: {
   arrangesStock: boolean;
 }) => person.jobRole === "site" || canEditStock(person);
 
-/** Custom, rolled, cut or indent items are stock GQ cannot send back; the rest goes to the supplier. */
+/**
+ * Custom, rolled, cut or indent items are stock GQ cannot send back; the rest goes to the
+ * supplier (the demo's `suggestDest`).
+ */
 export function suggestLeftoverDestination(
   item: string,
   unit: LeftoverUnit,
@@ -81,6 +87,91 @@ export function suggestLeftoverDestination(
   return /roll|custom|cut|offcut|china|indent/i.test(`${item} ${unit}`)
     ? "gq"
     : "supplier";
+}
+
+export const LEFTOVER_KEEP_REASONS = [
+  "custom_made",
+  "indent_from_china",
+  "gq_own_stock",
+  "ordered_wrong",
+  "others",
+] as const;
+export type LeftoverKeepReason = (typeof LEFTOVER_KEEP_REASONS)[number];
+
+export const LEFTOVER_KEEP_REASON_LABEL: Record<LeftoverKeepReason, string> = {
+  custom_made: "Custom made",
+  indent_from_china: "Indent from China",
+  gq_own_stock: "GQ own stock",
+  ordered_wrong: "Salesperson ordered wrong stock",
+  others: "Others",
+};
+
+/** Why GQ keeps an item it cannot send back, guessed from its name (the demo's `keepWhyGuess`). */
+export function guessLeftoverKeepReason(item: string): LeftoverKeepReason {
+  if (/china|indent/i.test(item)) return "indent_from_china";
+  if (/custom|roll|cut|offcut/i.test(item)) return "custom_made";
+  return "gq_own_stock";
+}
+
+export const LEFTOVER_RETURN_METHODS = [
+  "installer",
+  "transport",
+  "supervisor",
+] as const;
+export type LeftoverReturnMethod = (typeof LEFTOVER_RETURN_METHODS)[number];
+
+export const LEFTOVER_RETURN_METHOD_LABEL: Record<
+  LeftoverReturnMethod,
+  string
+> = {
+  installer: "Installer brings back",
+  transport: "Need transport – office to arrange (Lalamove / lorry)",
+  supervisor: "Supervisor brings it back",
+};
+
+/**
+ * Transport for an item going back by Lalamove or lorry: to arrange until purchasing keys in
+ * who takes it; null when it goes back another way or has already arrived.
+ */
+export function leftoverTransportState(leftover: {
+  status: LeftoverStatus;
+  returnMethod: LeftoverReturnMethod | null;
+  transportBy: string | null;
+}): "to_arrange" | "arranged" | null {
+  if (leftover.returnMethod !== "transport") return null;
+  if (leftover.transportBy !== null) return "arranged";
+  return leftover.status === "pending_pickup" ||
+    leftover.status === "collected_by_supervisor"
+    ? "to_arrange"
+    : null;
+}
+
+/**
+ * What is still at Best Link after the uses for other projects (the demo's `leftAvail`); the
+ * Stock tab counts items with some left. Never below zero.
+ */
+export function leftoverAvailable(
+  qty: number,
+  allocations: readonly { qty: number }[],
+): number {
+  const used = allocations.reduce((total, use) => total + use.qty, 0);
+  return Math.max(0, Math.round((qty - used) * 100) / 100);
+}
+
+/**
+ * Why this quantity cannot be used for a project, or null when it can (SQL: the
+ * guard_leftover_allocation trigger, which also refuses it).
+ */
+export function leftoverAllocationProblem(
+  qty: number,
+  available: number,
+  unit: LeftoverUnit,
+): string | null {
+  if (!(qty > 0)) return "Enter the quantity.";
+  if (qty > available) {
+    return `Only ${available} ${LEFTOVER_UNIT_LABEL[unit]} left at Best Link.`;
+  }
+  return null;
 }
 
 export type LeftoverFacts = {

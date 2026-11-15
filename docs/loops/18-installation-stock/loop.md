@@ -26,8 +26,8 @@ Merged to `main`. Starts after loop 17 merges.
 | 06 | Stock page deltas | done | - | sonnet/medium |
 | 07 | Samples migration + rules | done | - | opus/medium |
 | 08 | Samples page + pickup form print | done | 07 | sonnet/high |
-| 09 | Leftover migration + rules | in-progress | - | opus/medium |
-| 10 | Leftover page | todo | 09 | sonnet/high |
+| 09 | Leftover migration + rules | done | - | opus/medium |
+| 10 | Leftover page | in-progress | 09 | sonnet/high |
 | 11 | Chinese/BM strings + dev seed | todo | 02, 03, 05, 06, 08, 10 | sonnet/medium |
 | 12 | Parity pass, docs, merge | todo | 01-11 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
@@ -66,3 +66,6 @@ Merged to `main`. Starts after loop 17 merges.
 2026-11-15 · #08 · decision · added migration 20261118160000 import_samples; paste keeps existing unit, default skip existing; explicit Edit button per row; Settings button holds Best Link no/Drive link/next form no; "I saved the PDF" button; pickup-form delete UI not built (DB allows it); app-shell keeps Stock highlighted on /samples · subagent deviations, sensible
 2026-11-15 · #08 · follow-up · #12: log debt for unpaged samples list (1000 rows) and `moved_on` default current_date UTC (MYT 00:00-08:00 off by a day) in docs/debt.md, or fix with Asia/Kuala_Lumpur
 2026-11-15 · #09 · started
+2026-11-15 · #09 · done · verified: check, typecheck, test (2793), guard:migrations pass; migration proven in PGlite only, test-copy check in #12
+2026-11-15 · #09 · decision · new status collected_by_supervisor (check re-added, rows kept); transport arranged state derived from transport_by; added received_at/by; allocations add-only (no edit/delete); "+ Add leftover stock" with no MOF not built (mof_id stays required) · subagent deviations, sensible; #12 flag if parity needs it
+2026-11-15 · #10 · started

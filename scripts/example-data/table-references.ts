@@ -32,6 +32,7 @@ export const EXAMPLE_REFERENCES: Record<string, Record<string, string>> = {
   shoot_requests: { mof_id: "mofs" },
   ot_claims: { mof_id: "mofs" },
   leftovers: { mof_id: "mofs" },
+  leftover_allocations: { leftover_id: "leftovers", project_id: "projects" },
   stock_reservations: { item_id: "stock_items", project_id: "projects" },
   sample_pickup_lines: { pickup_id: "sample_pickups", sample_id: "samples" },
   sample_moves: { sample_id: "samples", pickup_id: "sample_pickups" },

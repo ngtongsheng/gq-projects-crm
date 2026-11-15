@@ -303,20 +303,20 @@ describe("saveMof: order total", () => {
     const calls = fakeSupabase([existing()]);
 
     const result = await saveMof(
-      form({ mofId: MOF, voAmount: "-400", reason: "  " }),
+      form({ mofId: MOF, contractSum: "12,100", reason: "  " }),
     );
 
     expect(result.error).toMatch(/reason/);
     expect(calls).toHaveLength(1);
   });
 
-  it("sends the new total with the reason", async () => {
-    const calls = fakeSupabase([existing(), saved]);
+  it("sends the new contract sum with the reason", async () => {
+    const calls = fakeSupabase([existing(12500, 600), saved]);
 
     const result = await saveMof(
       form({
         mofId: MOF,
-        voAmount: "-400",
+        contractSum: "12,100",
         reason: " CN-0412: 40 m² returned ",
       }),
     );
@@ -324,9 +324,46 @@ describe("saveMof: order total", () => {
     expect(result.error).toBeNull();
     expect(savePayload(calls)).toMatchObject({
       mof_id: MOF,
-      mof: { contract_sum: 12500, vo_amount: -400 },
+      mof: { contract_sum: 12100, vo_amount: 600 },
       reason: "CN-0412: 40 m² returned",
     });
+  });
+
+  it("keeps the saved VO amount whatever is posted: VOs have their own list", async () => {
+    const calls = fakeSupabase([existing(12500, 600), saved]);
+
+    const result = await saveMof(form({ mofId: MOF, voAmount: "-400" }));
+
+    expect(result.error).toBeNull();
+    expect(savePayload(calls)).toMatchObject({
+      mof: { vo_amount: 600 },
+      reason: "",
+    });
+  });
+
+  it("starts a new MOF with no VO amount", async () => {
+    const calls = fakeSupabase([saved]);
+
+    await saveMof(form({ voAmount: "500" }));
+
+    expect(savePayload(calls).mof).toMatchObject({ vo_amount: 0 });
+  });
+
+  it("explains a VO change refused by the database", async () => {
+    fakeSupabase([
+      existing(),
+      {
+        data: null,
+        error: {
+          code: "22023",
+          message: "Add or change variation orders on the MOF's VO list.",
+        },
+      },
+    ]);
+
+    const result = await saveMof(form({ mofId: MOF }));
+
+    expect(result.error).toMatch(/Reload the page; VOs are added/);
   });
 
   it("needs no reason when the total is unchanged", async () => {

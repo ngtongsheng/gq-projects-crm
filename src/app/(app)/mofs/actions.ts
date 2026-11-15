@@ -28,6 +28,8 @@ const NOT_EDITOR =
 const NOT_MANAGER =
   "Only the MD, Purchasing and HR & Accounts can see or set the cost.";
 const TRY_AGAIN = "Could not save the MOF. Try again.";
+const VO_LIST =
+  "The variation orders changed while you were editing. Reload the page; VOs are added on the MOF's VO list.";
 
 // The lines editor posts its rows as JSON; an id marks a line that is already saved.
 const postedLines = z.array(
@@ -112,6 +114,10 @@ function dbMessage(error: DbError): string {
       : "That MOF number is already registered. Check the MOF number.";
   }
   if (error.code === "P0002") return RELOAD;
+  // save_mof refuses a VO amount that differs from the saved one: VOs have their own list.
+  if (error.code === "22023" && error.message?.includes("VO list")) {
+    return VO_LIST;
+  }
   console.error("Could not save MOF", error);
   return TRY_AGAIN;
 }
@@ -140,6 +146,22 @@ export async function saveMof(formData: FormData): Promise<MofResult> {
 
   const lines = readLines(textField(formData, "lines"));
   if (!lines) return fail("Check the product lines and try again.");
+  const supabase = await createClient();
+
+  // The VO amount is the sum of the VO list, never typed here: a new MOF starts at 0 and a
+  // saved one keeps what it has. The contract sum changes only with a reason.
+  let existing: z.infer<typeof existingMofRow> | null = null;
+  if (mofId) {
+    const { data: existingData, error: loadError } = await supabase
+      .from("mofs")
+      .select("contract_sum, vo_amount")
+      .eq("id", mofId)
+      .maybeSingle();
+    if (loadError) return fail(dbMessage(loadError));
+    if (!existingData) return fail(RELOAD);
+    existing = existingMofRow.parse(existingData);
+  }
+  const voAmount = String(existing?.vo_amount ?? 0);
 
   const parsed = mofFormSchema.safeParse({
     mofNo: textField(formData, "mofNo"),
@@ -165,7 +187,7 @@ export async function saveMof(formData: FormData): Promise<MofResult> {
     scope: textField(formData, "scope"),
     installerName: textField(formData, "installerName"),
     contractSum: textField(formData, "contractSum"),
-    voAmount: textField(formData, "voAmount"),
+    voAmount,
     retentionPct: textField(formData, "retentionPct"),
     invoiceNo: textField(formData, "invoiceNo"),
     invoiceDate: textField(formData, "invoiceDate"),
@@ -185,34 +207,18 @@ export async function saveMof(formData: FormData): Promise<MofResult> {
   const form = parsed.data;
   const lineIds = lines.map((line) => line.id ?? "");
   if (!mofId && lineIds.some((id) => id !== "")) return fail(RELOAD);
-  const supabase = await createClient();
-
-  // Contract sum and VO of a saved MOF change only through update_mof_total, which needs a reason.
   let reason = "";
-  if (mofId) {
-    const { data: existingData, error: loadError } = await supabase
-      .from("mofs")
-      .select("contract_sum, vo_amount")
-      .eq("id", mofId)
-      .maybeSingle();
-    if (loadError) return fail(dbMessage(loadError));
-    if (!existingData) return fail(RELOAD);
-    const existing = existingMofRow.parse(existingData);
-    if (
-      existing.contract_sum !== form.contractSum ||
-      existing.vo_amount !== form.voAmount
-    ) {
-      const change = mofTotalChangeSchema.safeParse({
-        mofId,
-        contractSum: textField(formData, "contractSum"),
-        voAmount: textField(formData, "voAmount"),
-        reason: textField(formData, "reason"),
-      });
-      if (!change.success) {
-        return fail(change.error.issues[0]?.message ?? "Give the reason.");
-      }
-      reason = change.data.reason;
+  if (mofId && existing && existing.contract_sum !== form.contractSum) {
+    const change = mofTotalChangeSchema.safeParse({
+      mofId,
+      contractSum: textField(formData, "contractSum"),
+      voAmount,
+      reason: textField(formData, "reason"),
+    });
+    if (!change.success) {
+      return fail(change.error.issues[0]?.message ?? "Give the reason.");
     }
+    reason = change.data.reason;
   }
 
   // One call, one transaction: a failure part-way saves nothing.

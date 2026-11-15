@@ -117,19 +117,15 @@ export function MofForm({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [contractSum, setContractSum] = useState(amountText(draft.contractSum));
-  const [voAmount, setVoAmount] = useState(amountText(draft.voAmount));
   const editing = draft.id !== "";
 
   const typedContract = parseRm(contractSum || "0");
-  const typedVo = parseRm(voAmount || "0");
   const total =
-    typedContract === null || typedVo === null
+    typedContract === null
       ? null
-      : orderTotal({ contractSum: typedContract, voAmount: typedVo });
-  // The database needs a reason for any change to the contract sum or VO.
-  const totalChanged =
-    editing &&
-    (typedContract !== draft.contractSum || typedVo !== draft.voAmount);
+      : orderTotal({ contractSum: typedContract, voAmount: draft.voAmount });
+  // The database needs a reason for any change to the contract sum.
+  const totalChanged = editing && typedContract !== draft.contractSum;
 
   function save(formData: FormData) {
     startTransition(async () => {
@@ -372,17 +368,15 @@ export function MofForm({
                 </FieldLabel>
                 <Input
                   id="voAmount"
-                  name="voAmount"
-                  inputMode="decimal"
                   className="font-mono tabular-nums"
-                  placeholder="Negative for an omission or credit note"
-                  value={voAmount}
-                  onChange={(event) => setVoAmount(event.target.value)}
+                  value={amountText(draft.voAmount) || "0"}
+                  readOnly
                 />
+                <FieldDescription>From the VO list below.</FieldDescription>
               </Field>
             ) : (
-              // A new MOF starts with none; a later price change is recorded when editing it.
-              <input type="hidden" name="voAmount" value="0" />
+              // A new MOF starts with none; VOs are added on its page once it is saved.
+              <span />
             )}
           </Row>
           <p className="text-sm">

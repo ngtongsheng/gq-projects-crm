@@ -29,7 +29,7 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 | 08 | Leave page | done | 06, 07 | sonnet/high |
 | 09 | Who is away, holidays, entitlements | done | 08 | sonnet/high |
 | 10 | Chinese strings + dev seed | done | 03, 04, 08, 09 | sonnet/medium |
-| 11 | Parity pass, docs, merge | in-progress | 01-10 | sonnet/medium |
+| 11 | Parity pass, docs, merge | done | 01-10 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Start only after loop 13 is merged: `/execute-loop docs/loops/15-tasks-leave`.
@@ -69,3 +69,5 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 2026-11-15 · #11 · in-progress · owner supplied credentials; test copy migrated and seeded; subagent runs Chrome parity + fixes, orchestrator merges PR #45
 2026-11-15 · #11 · parity pass 1 · Vicky(md), Cavan(sales), Jany(accounts), Affifa(designer), Akmal(site) at 1280 + 390px iframe; no 5xx/console errors; fixed Approve hidden off-card in Leave waiting/team tables, mounted language toggle on Tasks and Leave · checks pass (2078)
 2026-11-15 · #11 · decision · accepted deviations: sheet not modal, no Customer/Edit/WhatsApp, 4 tiles for sales, Workload lists all, job-title approver names, seed differs from demo, shared file-upload strings English, Apply dialog has only X · logged in decisions.md
+2026-11-15 · #11 · parity pass 2 · Eddie(director), Vanessa(bd), Wai Mun(support), Jess(ssup) desktop: no errors, tabs/tiles/assign/approve visible per role; no marketing or team-lead person in seed (not checked); test copy holds a pending 1-day leave for Vanessa (16 Nov 2026) · done
+2026-11-15 · #11 · done · all tasks done · next: merge PR #45

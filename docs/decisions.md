@@ -232,3 +232,46 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
     example data); a Site supervisor who does not sell has no Customers, Calendar or Projects, as in the demo.
   - Calendar cards and the Monthly list badge open the customer page, where Log outcome lives; the demo logs from the
     row. The invitee list also shows people who have left (`team_directory` has no active flag; needs a migration).
+
+## Loop 14 (MOF & money), decided 2026-11-15
+- D1, variation orders: new table `mof_variation_orders`; each non-zero `mofs.vo_amount` was backfilled as one VO dated at
+  the MOF's confirmation date. A trigger keeps `mofs.vo_amount` equal to the sum (the column stays: commission and RLS
+  SQL read it) and `save_mof` refuses a differing `vo_amount`. VO cost lives in its own table
+  `mof_variation_order_costs` (RLS `can_see_mof_cost`) so salespeople never see it; it is added to MOF cost by the SQL
+  view `mof_cost_totals`, so `mof-totals.ts` is unchanged. `commission_basis`, `commission_payable_now` and `import_mofs`
+  were redefined in the VO migration. A VO counts as sales in the month it is confirmed (`order-sales.ts`, shared by
+  performance and report stats); commission stays collection-based; report counts and performance margin/count stay by
+  LOA month/year.
+- Additional-work alert: SQL `reopen_for_additional_work`. A new VO that needs work on a finished job moves the site
+  stage to installation (80%, not the demo's 95%, because app progress derives from the stage). Only a new VO reopens;
+  VOs cannot be deleted. The alert is in-app on the Site Supervisor dashboard only; WhatsApp and the VO notice go to the
+  Integration loop.
+- D3, 180-day late cut: code default and the saved `app_settings` value (only where it still equalled 120) move to 180
+  for all unpaid commission; paid payouts are never recalculated. A saved 120 is left alone if the first cut starts at
+  180 or later, to keep the cut order valid.
+- D4, appeals: decided by md and accounts (demo: Vicky and Jany), never on their own appeal. An approved appeal waives
+  all late cuts on that person's line for that order. A rejected appeal is kept and a new appeal is a new row. The
+  Appeals tab shows for md and accounts only; the Claims loop moves it.
+- D5, MOF history: new table `mof_changes` stores raw values per field; a trigger copies every existing
+  `mof_total_changes` row in and the old table is kept. `save_mof` takes a `changes jsonb` argument. The diff is computed
+  in the app (a register editor could post a wrong list directly; the database blocks everyone else). "Job complete" for
+  the reason rule means `site_stage` completed.
+- D6, reports: team lead (`reports_to`) or md reviews, then md gives final approval (new status `approved`; an MD review
+  is itself the approval). Director reports go to md only; a salesperson with no lead goes to md. Reports reviewed
+  before go-live count as approved. "Vicky" in the demo means the `md` role, no name-based rules. The Marketing Director
+  can review team sales reports in the database but has no Team Reports page (`debt.md`).
+- D9, where the app differs from the demo:
+  - Site reports stay with the Sales Director for review (the demo contradicts itself); BD director reports go to md only.
+  - Site report: the OT table and activity summary are removed from the screen and print only; the frozen `otHours` stays
+    (the site dashboard uses it). The itinerary is live from logs and confirmed bookings; remarks reuse the existing
+    issues/support text.
+  - Print: the sheet is the screen content with `print:hidden` on screen parts, not a separate overlay;
+    `PrintSignatureRow` has an optional 3-column prop; no "Printed" date stamp.
+  - Performance: targets prorate over actual year days (leap-aware) using `profiles.yearly_target` with `joined_on` /
+    `left_on`; per-year targets come with People & HR. Hidden-director rule covers Sales and Marketing Director. Best
+    month ties go to the earliest. The team panel omits visits, new customers and pipeline. The chart is plain SVG, no
+    library; its dark-mode tokens fail the dataviz lightness check (`debt.md`).
+  - Appeals pill reads "Special approval by X" without an emoji; the Appeal button shows only on one's own line with a cut
+    above 0 and no standing appeal.
+- Tests: vitest `testTimeout` and `hookTimeout` are 30 s, because DB tests build from all migrations and slow down as
+  migrations grow.

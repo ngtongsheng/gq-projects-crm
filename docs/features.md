@@ -30,6 +30,7 @@ Job roles: MD, Sales Director, Marketing Director, Salesperson, HR & Accounts, S
 - [Team Reports](#team-reports)
 - [Director Report](#director-report)
 - [Guide](#guide)
+- [Sales Performance](#sales-performance)
 - [People](#people)
 
 ## Header and sidebar
@@ -148,6 +149,16 @@ Used by: MD, BD Director, Sales, HR & Accounts, Purchasing.
 One MOF with its products, contract sum and variation orders, supplier purchase orders, delivery jobs and
 installer claims. A new MOF is registered here once the PO or LOA is received.
 
+Variation orders (extra work signed after the order) are added on the MOF with their own number, date, amount and
+description. The contract sum is the order plus its variation orders, and a variation order counts as sales in the
+month it is confirmed. If a variation order needs more site work on a job that was finished, the job goes back to
+installation and the Site Supervisor's dashboard shows an "additional work" alert until they tick **OK, noted**.
+Salespeople do not see variation order costs.
+
+Every change to a MOF is kept in its history, field by field: contract sum, cost, installer, scope, who is in
+charge, support, account type, LOA date and items, with the old and new value, who changed it and why. A reason is
+required when the job is complete or the order total changes. Cost rows are hidden from people who cannot see cost.
+
 Used by: MD, BD Director, Sales, HR & Accounts, Purchasing.
 
 ![MOF detail form with order, site and contact sections](screenshots/mofs-detail.jpg)
@@ -205,6 +216,13 @@ Used by: MD, Sales Director, BD Director, Sales, HR & Accounts.
 What each person has earned on money received, what was paid out and what is left. One block per person, one
 row per MOF, with the rate and status.
 
+Money still unpaid after 90 days loses 25% of the commission and after 180 days loses 50% (this was 120 days).
+The new 180 days applies to all commission not yet paid out; commission already paid is never changed. A salesperson
+can appeal a late cut on their own line with a written reason (at least 10 characters). The MD
+or HR & Accounts approves or rejects it on the **Appeals** tab, and cannot decide their own. An approved appeal
+sets that late cut to zero and the row shows "Special approval by" the decider. A rejected appeal is kept, and a
+new appeal can be made.
+
 Used by: MD, Sales Director, BD Director, Sales, HR & Accounts.
 
 ![Commission grouped by person with earned, paid out and remaining amounts](screenshots/commission.jpg)
@@ -218,8 +236,16 @@ Used by: MD and admins.
 
 ## Team Reports
 Monthly reports for the whole team, for salespeople and for site supervisors, with figures taken from the
-calendar, projects and MOFs. They freeze when a report is submitted. Managers open a report to review it.
-People who are not managers see My Report instead, their own monthly report.
+calendar, projects and MOFs. They freeze when a report is submitted. People who are not managers see My Report
+instead, their own monthly report.
+
+Review has two steps. A submitted report goes to the person's team lead (or the MD), who reviews it; then the MD
+gives the final approval. A director's report goes to the MD only. Reports reviewed before this change count as
+approved. **Print report** gives an A4 page with Prepared, Reviewed and Acknowledged signature lines. The Marketing
+Director's report is titled "Marketing director monthly report".
+
+The site supervisor report is now in three parts: the itinerary (one line per site per day, against the target
+of 50, with a schedule check), the shooting and handover table with stock returns, and remarks. The overtime table and activity summary are no longer on it.
 
 Used by: MD, Sales Director, HR & Accounts (team view); Sales and Site Supervisor (own report).
 
@@ -239,6 +265,14 @@ A short in-app list of the screens the signed-in role can open and what each is 
 Used by: everyone.
 
 ![Guide listing each screen and its purpose](screenshots/guide.jpg)
+
+## Sales Performance
+Sales, margin and collection per salesperson for a year, against each person's yearly target. A target is
+prorated for the months someone joined or left, with a "Joined" or "Left" note. Tiles show the totals and the Best
+month. Click a person to see their MOFs with sales, margin %, margin RM, collected, outstanding and status. A team
+panel with a monthly bar chart compares the two directors' teams. A director with no awarded sales is hidden.
+
+Used by: admins.
 
 ## People
 Admins add people, set their job role, commission mode and yearly target. Admin-only features that need the

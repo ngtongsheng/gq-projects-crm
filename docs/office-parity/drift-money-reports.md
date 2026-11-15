@@ -1,5 +1,17 @@
 # Drift: projects, MOF, collection, commission, claims, performance, reports
 
+## Status after loop 14 (roadmap step 3A, built 2026-11-15)
+Done: variation orders with the additional-work alert (in-app), field-level MOF change history, 180-day late cut and
+commission appeals, performance (VO month, prorated targets, Best month, drilldown, team chart), two-step report review
+with final approval, report print and BD retitle, restructured site report (itinerary, schedule check, shooting and handover, stock returns). Deviations are in `docs/decisions.md`
+(Loop 14).
+Not done:
+- WhatsApp reminders, the weekly digest additions and the VO notice to site supervisors: Integration loop.
+- Claims (`vClaims`) and the Appeals tab move: Claims loop (4A).
+- Frozen `otHours` kept (the site dashboard reads it); only the report screen and print dropped the OT table.
+- Marketing Director cannot open Team Reports, so cannot review team reports yet (`docs/debt.md`).
+- Per-year targets: People & HR loop. Dark-mode chart tokens: `docs/debt.md`.
+
 Spec: `docs/mockup/gqp-office-demo.html`. Analysed 2026-11-14 against the app at `a8ddcaa`. The app matches the old
 demo on most of this scope; the work is the deltas below. All lists are team-filtered once loop 11 lands.
 

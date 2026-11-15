@@ -8,6 +8,7 @@ import { requireRole } from "@/lib/auth/require-role";
 import { sidebarItemsFor } from "@/lib/auth/sidebar-items";
 import { signOut } from "@/lib/auth/sign-out";
 import { resolveLanguage } from "@/lib/i18n/current-language";
+import { LanguageProvider } from "@/lib/i18n/language-context";
 import { canDecideOwnership } from "./customers/ownership/ownership-access";
 import { countPendingOwnershipRequests } from "./customers/ownership/pending-count";
 
@@ -20,11 +21,12 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
     ? await countPendingOwnershipRequests()
     : 0;
 
+  const language = await resolveLanguage(profile.language);
   const nav = sidebarItemsFor({
     viewer: profile,
     isAdmin: profile.role === "admin",
     overrides: await loadAccessOverrides(),
-    language: await resolveLanguage(profile.language),
+    language,
     badges: { dash: pendingRequests },
   });
 
@@ -32,33 +34,37 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
   const impersonation = viewing ? await readImpersonation() : null;
 
   return (
-    <AppShell
-      nav={nav}
-      user={{
-        name: profile.fullName ?? "Signed in",
-        title: JobRoleLabel[profile.jobRole],
-      }}
-      headerActions={
-        <form action={signOut}>
-          <Button
-            type="submit"
-            variant="ghost"
-            size="sm"
-            className="text-head-muted hover:bg-head-foreground/10 hover:text-head-foreground"
-          >
-            Sign out
-          </Button>
-        </form>
-      }
-    >
-      {viewing && (
-        <ViewAsBanner
-          name={profile.fullName ?? "this person"}
-          title={JobRoleLabel[profile.jobRole]}
-          backTo={impersonation?.adminName || null}
-        />
-      )}
-      {children}
-    </AppShell>
+    <div lang={language}>
+      <LanguageProvider language={language}>
+        <AppShell
+          nav={nav}
+          user={{
+            name: profile.fullName ?? "Signed in",
+            title: JobRoleLabel[profile.jobRole],
+          }}
+          headerActions={
+            <form action={signOut}>
+              <Button
+                type="submit"
+                variant="ghost"
+                size="sm"
+                className="text-head-muted hover:bg-head-foreground/10 hover:text-head-foreground"
+              >
+                Sign out
+              </Button>
+            </form>
+          }
+        >
+          {viewing && (
+            <ViewAsBanner
+              name={profile.fullName ?? "this person"}
+              title={JobRoleLabel[profile.jobRole]}
+              backTo={impersonation?.adminName || null}
+            />
+          )}
+          {children}
+        </AppShell>
+      </LanguageProvider>
+    </div>
   );
 }

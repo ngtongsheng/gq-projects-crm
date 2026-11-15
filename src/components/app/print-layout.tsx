@@ -12,6 +12,8 @@ type PrintLayoutProps = {
   meta?: { label: string; value: string }[];
   /** Toolbar heading above the page (screen only). */
   toolbarTitle?: string;
+  /** Extra screen-only controls beside the Print button, e.g. a copy button. */
+  toolbarActions?: ReactNode;
   children: ReactNode;
 };
 
@@ -35,14 +37,16 @@ export function PrintLayout({
   title,
   meta,
   toolbarTitle,
+  toolbarActions,
   children,
 }: PrintLayoutProps) {
   return (
     <div className="print-desk -mx-4 -my-5 bg-muted px-4 py-5 print:m-0 print:bg-white print:p-0">
-      <div className="mx-auto mb-3 flex w-[210mm] max-w-full items-center gap-3 print:hidden">
+      <div className="mx-auto mb-3 flex w-[210mm] max-w-full flex-wrap items-center gap-3 print:hidden">
         <strong className="min-w-0 flex-1 truncate">
           {toolbarTitle ?? title}
         </strong>
+        {toolbarActions}
         <Button type="button" onClick={() => window.print()}>
           <Printer aria-hidden />
           Print / Save as PDF

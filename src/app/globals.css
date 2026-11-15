@@ -228,3 +228,9 @@
     background: #fff;
   }
 }
+
+/* Figtree has no Chinese glyphs; Noto Sans SC fills in when the app speaks 中文. */
+[lang="zh"] {
+  font-family:
+    var(--font-figtree), var(--font-noto-sans-sc), system-ui, sans-serif;
+}

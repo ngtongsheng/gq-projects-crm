@@ -151,6 +151,39 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
     (tile set, "Sales activity" / "MOF & projects" tabs, columns); Costing, Tasks, Tools & Forms, Leave, HR and Log work
     are not built so they are hidden; Sales Performance shows for admins only.
 
+## Loop 13 (costing), decided 2026-11-15
+- D1: five tables plus `quote_revision_history`: `quotes`, `quote_revisions`, `quote_options`, `quote_items`,
+  `fob_enquiries`. Items are rows with typed nullable cost columns, not the demo's JSON blobs.
+- D3: cost and margin are stripped server-side for people without the margin flag; they see "Low / High margin".
+  Without the flag, lines are edited sell-side only and keyed lines have cost 0. The owner may want a sales exception.
+- D9, where the app differs from the demo:
+  - Directors read all quotes (demo and drift doc; the task text said own team).
+  - Approvers may decide their own costing (demo). A sent-low costing cannot be resent.
+  - The editor is line cards with a category select, not per-category tables. No unsaved-edit warning, Versions panel
+    or automatic "Installation for X" text. Save, add and remove option are multi-write (`debt.md`).
+  - Register shows the lowest-option margin and highest sell per quote; revision copies are `-R<n>`.
+  - FOB Enquiry: only MD, Director, Support, Accounts reply; landed cost is display only; no "Copy to WhatsApp" or
+    "Mine" toggle; sales delete only pending enquiries; the size parser splits on ", " (fixes the demo's
+    thousands-separator bug).
+  - Client quote: product name only in compare view (no rug size); the sheet and TSV stay English; the compare view
+    prints portrait A4.
+  - Project card: lines on the Projects board card only; matched by `project_id`; only the newest revision counts.
+  - Chinese: ~295 strings in `zh.ts`, Noto Sans SC; value-bearing server messages and page titles stay English.
+  - Choosing the customer option cannot be undone. Nav badge and low-margin banner wait for Integration.
+- Parity pass (2026-11-15, Chrome, md / director / sales / support / accounts, desktop and 390 px), deviations left:
+  - Costing sub-navigation is header buttons (Below min margin, FOB Enquiry, New costing), not the demo's tab strip. Sales
+    and BD get no FOB Enquiry button; support and accounts get no New costing (role rules in `job-role.ts`).
+  - Register and Approvals use sentence case ("New costing"), the app's design system, not the demo's "New Costing".
+    The Approvals subtitle states the rule without a hard-coded 30% and has no margin colour legend.
+  - Register table is wider than the page at 1280 px; the last columns scroll inside the card (shared `DataTable`).
+  - FOB Enquiry table merges the demo's Unit, Cur. and Sales columns into Qty, FOB and Quotation.
+  - Seed data differs from the demo's example quotes (different customers, salespeople, amounts).
+  - Compare view prints portrait A4 like the demo's `@page`; no landscape needed. Quote sheet is wider than 390 px, in
+    the demo too.
+  - D3: a salesperson who raised a FOB enquiry sees the supplier's reply (FOB, rate, shipping, landed cost) on their
+    own costing, as the demo intends ("Sales sees it here"). Owner to confirm or strip it for people without the
+    margin flag.
+
 ## Loop 12 (sales parity), decided 2026-11-15
 - Company salespeople (D1): derived from the owners of the company's people (`contact_owners`); the demo's 2-owner limit
   is shown (first two), not enforced. "Only owners add people" checks that list. Salesperson assignment fields and

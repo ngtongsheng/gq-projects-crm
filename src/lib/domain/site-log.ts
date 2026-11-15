@@ -59,6 +59,15 @@ export const countSiteVisits = (
       .map((log) => `${log.visitedOn}|${siteKey(log)}`),
   ).size;
 
+/** Values mirror the check constraint on site_off; leave and MC live in the Leave module (D2). */
+export const SITE_OFF_KINDS = ["office", "other"] as const;
+export type SiteOffKind = (typeof SITE_OFF_KINDS)[number];
+
+export const SITE_OFF_KIND_LABEL: Record<SiteOffKind, string> = {
+  office: "Office",
+  other: "Other",
+};
+
 /** Days away from site: office or other days, and approved leave or MC (loop 17 D2). */
 export type AwayRange = { startsOn: CalendarDate; endsOn: CalendarDate };
 
@@ -108,7 +117,7 @@ export type PlannedSiteJob = {
 /** A log as matched against the plan. */
 export type LoggedSiteJob = LoggedSite & { projectId: string | null };
 
-const sameSite = (job: PlannedSiteJob, log: LoggedSiteJob): boolean => {
+export const sameSite = (job: PlannedSiteJob, log: LoggedSiteJob): boolean => {
   if (job.mofId && log.mofId) return job.mofId === log.mofId;
   if (job.projectId && log.projectId) return job.projectId === log.projectId;
   return (

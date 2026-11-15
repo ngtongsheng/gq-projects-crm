@@ -19,8 +19,8 @@ Log work wizard (site role landing page) and the seven Site Work tabs match Vick
 |---|---|---|---|---|
 | 01 | Site log migration | done | - | opus/medium |
 | 02 | Site log rules | done | 01 | opus/medium |
-| 03 | Log work home | in-progress | 02 | sonnet/high |
-| 04 | Log work wizard | todo | 02 | sonnet/high |
+| 03 | Log work home | done | 02 | sonnet/high |
+| 04 | Log work wizard | in-progress | 02 | sonnet/high |
 | 05 | Follow-ups: owner, still waiting, snooze | todo | 01 | sonnet/high |
 | 06 | Site Work: Jobs + Site log tabs | todo | 02 | sonnet/high |
 | 07 | Site Work: Measurements + Photos & videos | todo | 01 | sonnet/high |
@@ -42,3 +42,6 @@ Log work wizard (site role landing page) and the seven Site Work tabs match Vick
 2026-11-15 · #02 · done · verified: check, typecheck, test (2460) pass
 2026-11-15 · #02 · decision · photos_to left null (no sales-support setting yet); saveSiteVisit stores only return_answer, leftovers/stock-return records go to #04 or loop 18; any approved leave counts as away; no "Didn't go" option (no table); addSiteLog kept beside saveSiteVisit until #04/#06 retire the old dialog · scope
 2026-11-15 · #03 · in-progress · delegated (sonnet/high)
+2026-11-15 · #03 · done · verified: check, typecheck, test (2476) pass; parity screenshots not possible (task 01 migration not on test copy), deferred to #10
+2026-11-15 · #03 · decision · site role lands on /today (old SiteDashboard deleted); `today` page built early (overlaps #09 nav); follow-up banner shows counts only until #05; month target from report_targets.siteVisits; /today/log is built in #04 (params date, mof, project, site, activity via record-link.ts) · scope
+2026-11-15 · #04 · in-progress · delegated (sonnet/high)

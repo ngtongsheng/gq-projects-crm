@@ -5,6 +5,7 @@ import { JobRoleLabel } from "@/lib/auth/job-role";
 import { defaultEntitlement } from "@/lib/domain/leave-balance";
 import { LEAVE_TYPE_SHORT } from "@/lib/domain/leave-labels";
 import { formatDate } from "@/lib/format/date";
+import type { Translate } from "@/lib/i18n/translate";
 import { EntitlementSheet } from "./entitlement-sheet";
 import {
   entitlementFor,
@@ -19,7 +20,9 @@ const NONE = "—";
 export function TeamLeaveTable({
   rows,
   editor,
+  t,
 }: {
+  t: Translate;
   rows: TeamLeaveRow[];
   /** Adds the Entitlement button for the year; absent for people who may only read. */
   editor?: { year: number; setup: LeaveSetup };
@@ -27,32 +30,34 @@ export function TeamLeaveTable({
   const columns: DataTableColumn<TeamLeaveRow>[] = [
     {
       key: "person",
-      header: "Person",
+      header: t("Person"),
       cell: ({ person }) => (
         <div className="min-w-36">
           <p className="font-semibold">{person.name}</p>
           <p className="text-xs text-muted-foreground">
-            {JobRoleLabel[person.jobRole]}
-            {person.joinedOn ? ` · joined ${formatDate(person.joinedOn)}` : ""}
+            {t(JobRoleLabel[person.jobRole])}
+            {person.joinedOn
+              ? ` · ${t("joined")} ${formatDate(person.joinedOn)}`
+              : ""}
           </p>
         </div>
       ),
     },
     {
       key: "entitled",
-      header: "AL entitled",
+      header: t("AL entitled"),
       numeric: true,
       cell: ({ balance }) => balance?.entitlement.annualDays ?? NONE,
     },
     {
       key: "carried",
-      header: "Carried fwd",
+      header: t("Carried fwd"),
       numeric: true,
       cell: ({ balance }) => balance?.entitlement.carriedDays || NONE,
     },
     {
       key: "taken",
-      header: "AL taken",
+      header: t("AL taken"),
       numeric: true,
       cell: ({ balance }) =>
         balance ? (
@@ -60,7 +65,7 @@ export function TeamLeaveTable({
             <p>{balance.annualTaken}</p>
             {balance.annualPending > 0 && (
               <p className="font-sans text-xs text-muted-foreground">
-                +{balance.annualPending} waiting
+                +{balance.annualPending} {t("waiting")}
               </p>
             )}
           </div>
@@ -70,7 +75,7 @@ export function TeamLeaveTable({
     },
     {
       key: "balance",
-      header: "AL balance",
+      header: t("AL balance"),
       numeric: true,
       cell: ({ balance }) =>
         balance ? (
@@ -85,14 +90,14 @@ export function TeamLeaveTable({
     },
     {
       key: "mcTaken",
-      header: "MC taken",
+      header: t("MC taken"),
       numeric: true,
       cell: ({ balance, slipsMissing }) => (
         <div>
           <p>{balance?.mcTaken ?? NONE}</p>
           {slipsMissing > 0 && (
             <p className="font-sans text-xs text-bad">
-              {slipsMissing} MC not uploaded
+              {slipsMissing} {t("MC not uploaded")}
             </p>
           )}
         </div>
@@ -100,18 +105,18 @@ export function TeamLeaveTable({
     },
     {
       key: "mcBalance",
-      header: "MC balance",
+      header: t("MC balance"),
       numeric: true,
       cell: ({ balance }) => balance?.mcBalance ?? NONE,
     },
     {
       key: "next",
-      header: "Next leave",
+      header: t("Next leave"),
       cell: ({ next }) =>
         next ? (
           <span className="whitespace-nowrap">
             {LEAVE_TYPE_SHORT[next.leaveType]} {leaveDates(next)}
-            {next.status === "pending" ? " (waiting)" : ""}
+            {next.status === "pending" ? ` (${t("waiting")})` : ""}
           </span>
         ) : (
           NONE
@@ -151,7 +156,7 @@ export function TeamLeaveTable({
       columns={columns}
       rows={rows}
       getRowKey={({ person }) => person.id}
-      empty={<EmptyState icon={CalendarOff} title="Nobody to show." />}
+      empty={<EmptyState icon={CalendarOff} title={t("Nobody to show.")} />}
     />
   );
 }

@@ -92,7 +92,11 @@ export async function insertExampleRows(
   const counts: Record<string, number> = {};
   for (const spec of data.tables) {
     for (const rows of chunks(spec.rows)) {
-      const { error } = await supabase.from(spec.table).insert(rows);
+      const { error } = spec.onConflict
+        ? await supabase
+            .from(spec.table)
+            .upsert(rows, { onConflict: spec.onConflict })
+        : await supabase.from(spec.table).insert(rows);
       if (error) {
         throw new Error(`Could not add ${spec.table}: ${error.message}`);
       }

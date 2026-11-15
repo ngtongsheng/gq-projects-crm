@@ -19,6 +19,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
+import { useT } from "@/lib/i18n/language-context";
 import { resetEntitlement, saveEntitlement } from "./entitlement-actions";
 
 type Days = { annualDays: number; carriedDays: number; mcDays: number };
@@ -43,6 +44,7 @@ export function EntitlementSheet({
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const t = useT();
 
   function finish(message: string) {
     toast.success(message);
@@ -54,7 +56,7 @@ export function EntitlementSheet({
     startTransition(async () => {
       const result = await saveEntitlement(formData);
       if (result.error !== null) return setError(result.error);
-      finish("Entitlement saved.");
+      finish(t("Entitlement saved."));
     });
   }
 
@@ -65,7 +67,7 @@ export function EntitlementSheet({
     startTransition(async () => {
       const result = await resetEntitlement(formData);
       if (result.error !== null) return setError(result.error);
-      finish("Back to the company default.");
+      finish(t("Back to the company default."));
     });
   }
 
@@ -79,18 +81,18 @@ export function EntitlementSheet({
     >
       <SheetTrigger asChild>
         <Button size="sm" variant="ghost">
-          Entitlement
+          {t("Entitlement")}
         </Button>
       </SheetTrigger>
       <SheetContent className="overflow-y-auto">
         <SheetHeader>
           <SheetTitle>
-            Leave entitlement · {personName} · {year}
+            {t("Leave entitlement")} · {personName} · {year}
           </SheetTitle>
           <SheetDescription>
-            Company default: {companyDefault.annualDays} annual leave,{" "}
-            {companyDefault.mcDays} MC a year. Change it here for {personName}{" "}
-            only.
+            {t("Company default:")} {companyDefault.annualDays}{" "}
+            {t("annual leave,")} {companyDefault.mcDays} {t("MC a year.")}{" "}
+            {t("Change it here for")} {personName} {t("only.")}
           </SheetDescription>
         </SheetHeader>
         <form
@@ -102,7 +104,7 @@ export function EntitlementSheet({
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor={`al-${personId}`}>
-                Annual leave (days)
+                {t("Annual leave (days)")}
               </FieldLabel>
               <Input
                 id={`al-${personId}`}
@@ -115,7 +117,7 @@ export function EntitlementSheet({
             </Field>
             <Field>
               <FieldLabel htmlFor={`carry-${personId}`}>
-                Carried forward from last year
+                {t("Carried forward from last year")}
               </FieldLabel>
               <Input
                 id={`carry-${personId}`}
@@ -128,7 +130,7 @@ export function EntitlementSheet({
             </Field>
             <Field>
               <FieldLabel htmlFor={`mc-${personId}`}>
-                Medical leave (days)
+                {t("Medical leave (days)")}
               </FieldLabel>
               <Input
                 id={`mc-${personId}`}
@@ -142,7 +144,7 @@ export function EntitlementSheet({
             {error && <FieldError>{error}</FieldError>}
             <div className="flex flex-wrap items-center gap-2">
               <Button type="submit" disabled={pending}>
-                {pending ? "Saving..." : "Save"}
+                {pending ? t("Saving...") : t("Save")}
               </Button>
               {isOverride && (
                 <Button
@@ -151,7 +153,7 @@ export function EntitlementSheet({
                   disabled={pending}
                   onClick={backToDefault}
                 >
-                  Back to company default
+                  {t("Back to company default")}
                 </Button>
               )}
             </div>

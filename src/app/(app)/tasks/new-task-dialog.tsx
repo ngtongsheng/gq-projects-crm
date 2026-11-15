@@ -41,6 +41,7 @@ import {
 } from "@/lib/domain/task-flow";
 import { TASK_CATEGORY_LABEL } from "@/lib/domain/task-labels";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
+import { useT } from "@/lib/i18n/language-context";
 import { createTask } from "./actions";
 import type { TaskPerson } from "./task-view";
 
@@ -65,6 +66,7 @@ export function NewTaskDialog({
   holidays: string[];
   today: string;
 }) {
+  const t = useT();
   const calendar = { week: "mon-fri", holidays: new Set(holidays) } as const;
   const dueFor = (from: string, workingDays: number) =>
     addWorkdays(from, workingDays, calendar);
@@ -126,7 +128,7 @@ export function NewTaskDialog({
         .map((id) => people.find((person) => person.id === id)?.name)
         .filter(Boolean)
         .join(" + ");
-      toast.success(`Task assigned to ${names}.`);
+      toast.success(`${t("Task assigned to")} ${names}.`);
       form.reset();
       reset();
       setOpen(false);
@@ -138,15 +140,16 @@ export function NewTaskDialog({
       <DialogTrigger asChild>
         <Button>
           <Plus data-icon="inline-start" />
-          New task
+          {t("New task")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>New task</DialogTitle>
+          <DialogTitle>{t("New task")}</DialogTitle>
           <DialogDescription>
-            Name the person who does it. The task is completed only after you
-            approve it.
+            {t(
+              "Name the person who does it. The task is completed only after you approve it.",
+            )}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submitKeepingValues(save)}>
@@ -163,44 +166,48 @@ export function NewTaskDialog({
           ))}
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="taskTitle">Task title</FieldLabel>
+              <FieldLabel htmlFor="taskTitle">{t("Task title")}</FieldLabel>
               <Input
                 id="taskTitle"
                 name="title"
                 maxLength={200}
-                placeholder="e.g. E-catalogue for new SPC range"
+                placeholder={t("e.g. E-catalogue for new SPC range")}
                 required
               />
             </Field>
             <Field>
-              <FieldLabel htmlFor="taskDescription">Description</FieldLabel>
+              <FieldLabel htmlFor="taskDescription">
+                {t("Description")}
+              </FieldLabel>
               <Textarea
                 id="taskDescription"
                 name="description"
                 rows={3}
                 maxLength={4000}
-                placeholder="What exactly is needed, sizes, where it will be used..."
+                placeholder={t(
+                  "What exactly is needed, sizes, where it will be used...",
+                )}
               />
             </Field>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
-                <FieldLabel htmlFor="taskAssignee">Assign to</FieldLabel>
+                <FieldLabel htmlFor="taskAssignee">{t("Assign to")}</FieldLabel>
                 <Select value={assigneeId} onValueChange={setAssigneeId}>
                   <SelectTrigger id="taskAssignee">
-                    <SelectValue placeholder="Choose who does it" />
+                    <SelectValue placeholder={t("Choose who does it")} />
                   </SelectTrigger>
                   <SelectContent>
                     {people.map((person) => (
                       <SelectItem key={person.id} value={person.id}>
-                        {person.name} · {JobRoleLabel[person.jobRole]}
+                        {person.name} · {t(JobRoleLabel[person.jobRole])}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <FieldDescription>The main person.</FieldDescription>
+                <FieldDescription>{t("The main person.")}</FieldDescription>
               </Field>
               <Field>
-                <FieldLabel htmlFor="taskCategory">Type</FieldLabel>
+                <FieldLabel htmlFor="taskCategory">{t("Type")}</FieldLabel>
                 <Select
                   value={category}
                   onValueChange={(value) =>
@@ -213,7 +220,7 @@ export function NewTaskDialog({
                   <SelectContent>
                     {TASK_CATEGORIES.map((option) => (
                       <SelectItem key={option} value={option}>
-                        {TASK_CATEGORY_LABEL[option]}
+                        {t(TASK_CATEGORY_LABEL[option])}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -222,10 +229,12 @@ export function NewTaskDialog({
             </div>
             <fieldset className="flex flex-col gap-2">
               <legend className="text-sm font-medium">
-                Working together with
+                {t("Working together with")}
               </legend>
               <p className="text-xs text-muted-foreground">
-                Optional. e.g. Marketing writes the text, the designer designs.
+                {t(
+                  "Optional. e.g. Marketing writes the text, the designer designs.",
+                )}
               </p>
               <div className="flex flex-wrap gap-x-4 gap-y-2 rounded-lg border p-3">
                 {helpers
@@ -258,13 +267,13 @@ export function NewTaskDialog({
             </fieldset>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
-                <FieldLabel htmlFor="taskProject">Project</FieldLabel>
+                <FieldLabel htmlFor="taskProject">{t("Project")}</FieldLabel>
                 <Select value={projectId} onValueChange={setProjectId}>
                   <SelectTrigger id="taskProject">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={NO_PROJECT}>None</SelectItem>
+                    <SelectItem value={NO_PROJECT}>{t("None")}</SelectItem>
                     {projects.map((project) => (
                       <SelectItem key={project.id} value={project.id}>
                         {project.label}
@@ -272,23 +281,23 @@ export function NewTaskDialog({
                     ))}
                   </SelectContent>
                 </Select>
-                <FieldDescription>Optional.</FieldDescription>
+                <FieldDescription>{t("Optional.")}</FieldDescription>
               </Field>
               <Field>
                 <FieldLabel htmlFor="taskProjectName">
-                  Or customer / project name
+                  {t("Or customer / project name")}
                 </FieldLabel>
                 <Input
                   id="taskProjectName"
                   name="projectName"
                   maxLength={200}
-                  placeholder="e.g. Unijoy launch"
+                  placeholder={t("e.g. Unijoy launch")}
                 />
               </Field>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
-                <FieldLabel htmlFor="taskPriority">Priority</FieldLabel>
+                <FieldLabel htmlFor="taskPriority">{t("Priority")}</FieldLabel>
                 <Select
                   value={priority}
                   onValueChange={(value) => setPriority(value as TaskPriority)}
@@ -299,7 +308,7 @@ export function NewTaskDialog({
                   <SelectContent>
                     {TASK_PRIORITIES.map((option) => (
                       <SelectItem key={option} value={option}>
-                        {TASK_PRIORITY_LABEL[option]}
+                        {t(TASK_PRIORITY_LABEL[option])}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -307,7 +316,7 @@ export function NewTaskDialog({
               </Field>
               <Field>
                 <FieldLabel htmlFor="taskDays">
-                  Expected working days
+                  {t("Expected working days")}
                 </FieldLabel>
                 <Input
                   id="taskDays"
@@ -324,7 +333,9 @@ export function NewTaskDialog({
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
-                <FieldLabel htmlFor="taskAssignedOn">Date assigned</FieldLabel>
+                <FieldLabel htmlFor="taskAssignedOn">
+                  {t("Date assigned")}
+                </FieldLabel>
                 <Input
                   id="taskAssignedOn"
                   name="assignedOn"
@@ -335,7 +346,7 @@ export function NewTaskDialog({
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="taskDueOn">Due date</FieldLabel>
+                <FieldLabel htmlFor="taskDueOn">{t("Due date")}</FieldLabel>
                 <Input
                   id="taskDueOn"
                   name="dueOn"
@@ -345,13 +356,13 @@ export function NewTaskDialog({
                   required
                 />
                 <FieldDescription>
-                  Worked out from the days; you can change it.
+                  {t("Worked out from the days; you can change it.")}
                 </FieldDescription>
               </Field>
             </div>
             {error && <FieldError>{error}</FieldError>}
             <Button type="submit" disabled={pending}>
-              {pending ? "Saving..." : "Assign task"}
+              {pending ? t("Saving...") : t("Assign task")}
             </Button>
           </FieldGroup>
         </form>

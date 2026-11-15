@@ -10,6 +10,7 @@ import {
   canMoveTask,
 } from "@/lib/domain/task-flow";
 import { todayMyt } from "@/lib/format/date";
+import { getT } from "@/lib/i18n/server-t";
 import { loadWorkCalendar } from "@/lib/work-calendar";
 import { NewTaskDialog } from "./new-task-dialog";
 import { TaskBannerLine } from "./task-banner-line";
@@ -42,6 +43,7 @@ export default async function TasksPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const me = await requirePage("tasks");
+  const t = await getT(me.language);
   const viewer = { id: me.id, jobRole: me.jobRole };
   const [tasks, team] = await Promise.all([loadTasks(), getTeamDirectory()]);
   const query = await searchParams;
@@ -56,8 +58,8 @@ export default async function TasksPage({
 
   const today = todayMyt();
   const names = new Map(team.map((member) => [member.id, member.name]));
-  const nameOf = (personId: string) => names.get(personId) ?? "Unnamed";
-  const banner = taskBanner(tasks, viewer, today, nameOf);
+  const nameOf = (personId: string) => names.get(personId) ?? t("Unnamed");
+  const banner = taskBanner(tasks, viewer, today, nameOf, t);
   const rows = selectTasks(tasks, params, viewer);
 
   const asked = Array.isArray(query.task) ? query.task[0] : query.task;
@@ -67,8 +69,10 @@ export default async function TasksPage({
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Tasks"
-        description="Assign work, follow deadlines and approve finished work. A task is completed only after the person who assigned it approves."
+        title={t("Tasks")}
+        description={t(
+          "Assign work, follow deadlines and approve finished work. A task is completed only after the person who assigned it approves.",
+        )}
         actions={
           assigns && calendar ? (
             <NewTaskDialog
@@ -80,8 +84,9 @@ export default async function TasksPage({
           ) : null
         }
       />
-      {banner && <TaskBannerLine banner={banner} />}
+      {banner && <TaskBannerLine banner={banner} t={t} />}
       <TasksTabs
+        t={t}
         views={viewsFor(viewer)}
         active={params.view}
         counts={{
@@ -92,19 +97,22 @@ export default async function TasksPage({
       {params.view === "load" ? (
         <section className="flex flex-col gap-2">
           <div className="flex flex-wrap items-baseline gap-x-3">
-            <h2 className="font-heading text-lg font-semibold">Workload</h2>
+            <h2 className="font-heading text-lg font-semibold">
+              {t("Workload")}
+            </h2>
             <p className="text-sm text-muted-foreground">
-              Open tasks per person
+              {t("Open tasks per person")}
             </p>
           </div>
-          <WorkloadTable rows={workloadRows(tasks, people, today)} />
+          <WorkloadTable t={t} rows={workloadRows(tasks, people, today)} />
         </section>
       ) : (
         <>
           {params.view === "mine" && (
-            <TaskTiles tiles={taskTiles(tasks, me.id, today)} />
+            <TaskTiles t={t} tiles={taskTiles(tasks, me.id, today)} />
           )}
           <TaskFilters
+            t={t}
             params={params}
             people={peopleOnTasks(tasks)
               .map((id) => ({ id, name: nameOf(id) }))
@@ -112,6 +120,7 @@ export default async function TasksPage({
             count={rows.length}
           />
           <TasksTable
+            t={t}
             rows={rows}
             nameOf={nameOf}
             today={today}

@@ -3,12 +3,13 @@ import { DataTable, type DataTableColumn } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
 import { StatusBadge } from "@/components/app/status-badge";
 import { JobRoleLabel } from "@/lib/auth/job-role";
+import type { Translate } from "@/lib/i18n/translate";
 import type { WorkloadRow } from "./task-view";
 
-const columns: DataTableColumn<WorkloadRow>[] = [
+const columnsFor = (t: Translate): DataTableColumn<WorkloadRow>[] => [
   {
     key: "person",
-    header: "Person",
+    header: t("Person"),
     cell: ({ person }) => (
       <div>
         <Link
@@ -18,52 +19,58 @@ const columns: DataTableColumn<WorkloadRow>[] = [
           {person.name}
         </Link>
         <p className="text-xs text-muted-foreground">
-          {JobRoleLabel[person.jobRole]}
+          {t(JobRoleLabel[person.jobRole])}
         </p>
       </div>
     ),
   },
-  { key: "open", header: "Open", numeric: true, cell: (row) => row.open },
+  { key: "open", header: t("Open"), numeric: true, cell: (row) => row.open },
   {
     key: "overdue",
-    header: "Overdue",
+    header: t("Overdue"),
     numeric: true,
     cell: (row) =>
       row.overdue > 0 ? <StatusBadge tone="bad">{row.overdue}</StatusBadge> : 0,
   },
   {
     key: "dueThisWeek",
-    header: "Due this week",
+    header: t("Due this week"),
     numeric: true,
     cell: (row) => row.dueThisWeek,
   },
   {
     key: "waitingReview",
-    header: "Waiting review",
+    header: t("Waiting review"),
     numeric: true,
     cell: (row) => row.waitingReview,
   },
   {
     key: "doneThisMonth",
-    header: "Done this month",
+    header: t("Done this month"),
     numeric: true,
     cell: (row) => row.doneThisMonth,
   },
   {
     key: "oldestOverdue",
-    header: "Oldest overdue",
+    header: t("Oldest overdue"),
     cell: ({ oldestOverdue }) =>
       oldestOverdue ? `${oldestOverdue.title} · ${oldestOverdue.days}d` : "–",
   },
 ];
 
-export function WorkloadTable({ rows }: { rows: WorkloadRow[] }) {
+export function WorkloadTable({
+  rows,
+  t,
+}: {
+  rows: WorkloadRow[];
+  t: Translate;
+}) {
   return (
     <DataTable
-      columns={columns}
+      columns={columnsFor(t)}
       rows={rows}
       getRowKey={(row) => row.person.id}
-      empty={<EmptyState title="No tasks yet." />}
+      empty={<EmptyState title={t("No tasks yet.")} />}
     />
   );
 }

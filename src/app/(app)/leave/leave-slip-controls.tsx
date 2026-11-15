@@ -7,11 +7,13 @@ import { FileUpload } from "@/components/app/file-upload";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { useT } from "@/lib/i18n/language-context";
 import { uploadLeaveSlip } from "./leave-upload";
 import { confirmOriginalSlip, openLeaveSlip } from "./slip-actions";
 
 /** Opens the slip in a new tab; the tab is opened first so a phone browser does not block it. */
 export function ViewSlipButton({ leaveId }: { leaveId: string }) {
+  const t = useT();
   async function open() {
     const tab = window.open("about:blank", "_blank");
     if (tab) tab.opener = null;
@@ -28,19 +30,20 @@ export function ViewSlipButton({ leaveId }: { leaveId: string }) {
   return (
     <Button type="button" variant="ghost" size="sm" onClick={() => void open()}>
       <Paperclip data-icon="inline-start" />
-      View MC
+      {t("View MC")}
     </Button>
   );
 }
 
 /** Adds the MC or hospitalisation slip later, from the leave list. */
 export function UploadSlipButton({ leaveId }: { leaveId: string }) {
+  const t = useT();
   return (
     <FileUpload
-      label="MC"
+      label={t("MC")}
       upload={async (picked) => {
         const sent = await uploadLeaveSlip(leaveId, picked);
-        if (sent.ok) toast.success("MC uploaded.");
+        if (sent.ok) toast.success(t("MC uploaded."));
         return sent;
       }}
     />
@@ -56,6 +59,7 @@ export function OriginalSlipCheck({
   given: boolean;
 }) {
   const [pending, startTransition] = useTransition();
+  const t = useT();
 
   return (
     <div className="flex items-center gap-2 text-xs">
@@ -71,7 +75,7 @@ export function OriginalSlipCheck({
         }
       />
       <Label htmlFor={`original-${leaveId}`} className="font-normal">
-        Original given to HR
+        {t("Original given to HR")}
       </Label>
     </div>
   );

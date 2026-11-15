@@ -4,6 +4,7 @@ import { needsSlip } from "@/lib/domain/leave-approval";
 import type { LeaveBalance } from "@/lib/domain/leave-balance";
 import { LEAVE_TYPE_LABEL } from "@/lib/domain/leave-labels";
 import { formatDate } from "@/lib/format/date";
+import type { Translate } from "@/lib/i18n/translate";
 import { DecisionButtons } from "./leave-row-actions";
 import { LeaveSlipCell } from "./leave-slip-cell";
 import {
@@ -20,7 +21,9 @@ export function WaitingLeaveTable({
   viewer,
   nameOf,
   balanceOf,
+  t,
 }: {
+  t: Translate;
   rows: LeaveRow[];
   /** Every leave the viewer can read, for "Also away". */
   allRows: LeaveRow[];
@@ -32,57 +35,58 @@ export function WaitingLeaveTable({
   const columns: DataTableColumn<LeaveRow>[] = [
     {
       key: "person",
-      header: "Person",
+      header: t("Person"),
       cell: (row) => (
         <div>
           <p className="font-semibold">{nameOf(row.personId)}</p>
           <p className="text-xs text-muted-foreground">
-            applied {formatDate(row.appliedOn)}
+            {t("applied")} {formatDate(row.appliedOn)}
           </p>
         </div>
       ),
     },
     {
       key: "type",
-      header: "Type",
-      cell: (row) => LEAVE_TYPE_LABEL[row.leaveType],
+      header: t("Type"),
+      cell: (row) => t(LEAVE_TYPE_LABEL[row.leaveType]),
     },
     {
       key: "dates",
-      header: "Dates",
+      header: t("Dates"),
       cell: (row) => (
         <span className="font-mono whitespace-nowrap tabular-nums">
           {leaveDates(row)}
         </span>
       ),
     },
-    { key: "days", header: "Days", numeric: true, cell: (row) => row.days },
+    { key: "days", header: t("Days"), numeric: true, cell: (row) => row.days },
     {
       key: "reason",
-      header: "Reason",
+      header: t("Reason"),
       cell: (row) => (
         <div className="min-w-40">
           <p>{row.reason || "—"}</p>
-          <LeaveSlipCell row={row} viewer={viewer} />
+          <LeaveSlipCell row={row} viewer={viewer} t={t} />
         </div>
       ),
     },
     {
       key: "after",
-      header: "Balance after",
+      header: t("Balance after"),
       cell: (row) => {
         const after = balanceAfter(row.leaveType, row.days, balanceOf(row));
         if (after === null) return "—";
         return (
           <span className={after < 0 ? "font-medium text-bad" : undefined}>
-            {after} days{after < 0 ? " (over)" : ""}
+            {after} {t("days")}
+            {after < 0 ? ` (${t("over")})` : ""}
           </span>
         );
       },
     },
     {
       key: "away",
-      header: "Also away",
+      header: t("Also away"),
       cell: (row) => {
         const names = alsoAway(row, allRows).map(nameOf);
         return names.length > 0 ? names.join(", ") : "—";

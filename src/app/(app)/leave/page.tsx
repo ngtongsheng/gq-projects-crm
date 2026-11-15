@@ -8,6 +8,7 @@ import { awayByDay } from "@/lib/domain/leave-away";
 import { FIRST_LEAVE_YEAR } from "@/lib/domain/leave-balance";
 import { weekKindFor } from "@/lib/domain/workdays";
 import { todayMyt } from "@/lib/format/date";
+import { getT } from "@/lib/i18n/server-t";
 import { loadWorkCalendar } from "@/lib/work-calendar";
 import { ApplyLeaveDialog } from "./apply-leave-dialog";
 import { AwaySection } from "./away-section";
@@ -40,6 +41,7 @@ export default async function LeavePage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const me = await requirePage("leave");
+  const t = await getT(me.language);
   const viewer = { id: me.id, jobRole: me.jobRole };
   const today = todayMyt();
   const year = Number(today.slice(0, 4));
@@ -48,7 +50,7 @@ export default async function LeavePage({
 
   const team = await getTeamDirectory();
   const names = new Map(team.map((member) => [member.id, member.name]));
-  const nameOf = (personId: string) => names.get(personId) ?? "Unnamed";
+  const nameOf = (personId: string) => names.get(personId) ?? t("Unnamed");
 
   const [rows, setup, people, calendar, holidays] = await Promise.all([
     loadLeaveRows(),
@@ -66,6 +68,7 @@ export default async function LeavePage({
   const approvers = approverLine(
     { jobRole: me.jobRole, teamLeadId: mine.reportsTo },
     nameOf,
+    t,
   );
   const balance = balanceFor(rows, mine, year, setup);
   const waiting = waitingForMe(rows, viewer);
@@ -93,8 +96,8 @@ export default async function LeavePage({
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Leave"
-        description={`Apply for leave here. ${approvers} approves; HR & Accounts sees every record. Sick? Choose Medical leave (MC) and upload a photo of the MC.`}
+        title={t("Leave")}
+        description={`${t("Apply for leave here.")} ${approvers} ${t("approves; HR & Accounts sees every record. Sick? Choose Medical leave (MC) and upload a photo of the MC.")}`}
         actions={
           <ApplyLeaveDialog
             today={today}
@@ -113,8 +116,12 @@ export default async function LeavePage({
         }
       />
       {waiting.length > 0 && (
-        <LeaveSection title="Waiting for your approval" note={waiting.length}>
+        <LeaveSection
+          title={t("Waiting for your approval")}
+          note={waiting.length}
+        >
           <WaitingLeaveTable
+            t={t}
             rows={waiting}
             allRows={rows}
             viewer={viewer}
@@ -133,12 +140,13 @@ export default async function LeavePage({
           />
         </LeaveSection>
       )}
-      <LeaveTiles balance={balance} approvers={approvers} />
+      <LeaveTiles balance={balance} approvers={approvers} t={t} />
       <LeaveSection
-        title={`My leave ${year}`}
-        note={`${mineThisYear.length} application${mineThisYear.length === 1 ? "" : "s"}`}
+        title={`${t("My leave")} ${year}`}
+        note={`${mineThisYear.length} ${t(mineThisYear.length === 1 ? "application" : "applications")}`}
       >
         <MyLeaveTable
+          t={t}
           rows={mineThisYear}
           viewer={viewer}
           today={today}
@@ -148,10 +156,11 @@ export default async function LeavePage({
       {manager && (
         <>
           <LeaveSection
-            title={`Team leave ${year}`}
-            note={`Company default ${setup.policy.annualDays} AL · ${setup.policy.mcDays} MC a year. Days are working days: Mon-Fri, Mon-Sat for site supervisors; public holidays not counted.`}
+            title={`${t("Team leave")} ${year}`}
+            note={`${t("Company default")} ${setup.policy.annualDays} AL · ${setup.policy.mcDays} MC ${t("a year.")} ${t("Days are working days: Mon-Fri, Mon-Sat for site supervisors; public holidays not counted.")}`}
           >
             <TeamLeaveTable
+              t={t}
               rows={teamLeaveRows(people, rows, year, setup, today)}
               editor={
                 // Accounts enters next year's carry-forward in December, so the sheet never opens before 2027.
@@ -161,8 +170,14 @@ export default async function LeavePage({
               }
             />
           </LeaveSection>
-          <AwaySection month={month} today={today} eventsByDay={monthEvents} />
+          <AwaySection
+            t={t}
+            month={month}
+            today={today}
+            eventsByDay={monthEvents}
+          />
           <HolidaysSection
+            t={t}
             holidays={holidays}
             year={Number(month.slice(0, 4))}
             today={today}

@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useT } from "@/lib/i18n/language-context";
 import { approveTask, reviseTask } from "./actions";
 
 /** For the assigner or the MD when the work is waiting: approve it, or send it back with what to change. */
@@ -18,6 +19,7 @@ export function TaskReviewPanel({
   closeHref: string;
 }) {
   const router = useRouter();
+  const t = useT();
   const [comment, setComment] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -30,7 +32,9 @@ export function TaskReviewPanel({
       setError(result.error);
       if (result.error) return;
       toast.success(
-        approve ? "Task completed." : `Sent back to ${assigneeName}.`,
+        approve
+          ? t("Task completed.")
+          : `${t("Sent back to")} ${assigneeName}.`,
       );
       router.replace(closeHref, { scroll: false });
     });
@@ -38,13 +42,13 @@ export function TaskReviewPanel({
 
   return (
     <section
-      aria-label="Review"
+      aria-label={t("Review")}
       className="flex flex-col gap-2 rounded-xl border p-3"
     >
-      <h3 className="text-sm font-semibold">Review</h3>
+      <h3 className="text-sm font-semibold">{t("Review")}</h3>
       <Input
-        aria-label="Review comment"
-        placeholder="Comment (required if asking for changes)"
+        aria-label={t("Review comment")}
+        placeholder={t("Comment (required if asking for changes)")}
         value={comment}
         maxLength={1500}
         onChange={(event) => setComment(event.target.value)}
@@ -61,10 +65,10 @@ export function TaskReviewPanel({
           disabled={pending}
           onClick={() => decide(false)}
         >
-          Request revision
+          {t("Request revision")}
         </Button>
         <Button type="button" disabled={pending} onClick={() => decide(true)}>
-          Approve · completed
+          {t("Approve · completed")}
         </Button>
       </div>
     </section>

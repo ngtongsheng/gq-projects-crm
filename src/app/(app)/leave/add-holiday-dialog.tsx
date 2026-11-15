@@ -19,19 +19,21 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
+import { useT } from "@/lib/i18n/language-context";
 import { addHoliday } from "./holiday-actions";
 
 export function AddHolidayDialog({ today }: { today: string }) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const t = useT();
 
   function save(formData: FormData, form: HTMLFormElement) {
     startTransition(async () => {
       const result = await addHoliday(formData);
       setError(result.error);
       if (result.error !== null) return;
-      toast.success("Holiday added.");
+      toast.success(t("Holiday added."));
       form.reset();
       setOpen(false);
     });
@@ -42,18 +44,18 @@ export function AddHolidayDialog({ today }: { today: string }) {
       <DialogTrigger asChild>
         <Button size="sm" variant="outline">
           <Plus data-icon="inline-start" />
-          Add holiday
+          {t("Add holiday")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add public holiday</DialogTitle>
+          <DialogTitle>{t("Add public holiday")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={submitKeepingValues(save)}>
           <FieldGroup>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
-                <FieldLabel htmlFor="holidayDay">Date</FieldLabel>
+                <FieldLabel htmlFor="holidayDay">{t("Date")}</FieldLabel>
                 <Input
                   id="holidayDay"
                   name="day"
@@ -63,19 +65,19 @@ export function AddHolidayDialog({ today }: { today: string }) {
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="holidayName">Name</FieldLabel>
+                <FieldLabel htmlFor="holidayName">{t("Name")}</FieldLabel>
                 <Input
                   id="holidayName"
                   name="name"
                   maxLength={100}
-                  placeholder="e.g. Christmas Day"
+                  placeholder={t("e.g. Christmas Day")}
                   required
                 />
               </Field>
             </div>
             {error && <FieldError>{error}</FieldError>}
             <Button type="submit" disabled={pending}>
-              {pending ? "Saving..." : "Save"}
+              {pending ? t("Saving...") : t("Save")}
             </Button>
           </FieldGroup>
         </form>

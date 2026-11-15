@@ -15,6 +15,7 @@ import {
   leaveBalance,
 } from "@/lib/domain/leave-balance";
 import { type CalendarDate, formatDate } from "@/lib/format/date";
+import type { Translate } from "@/lib/i18n/translate";
 
 /** One leave request as the page shows it. */
 export type LeaveRow = LeaveRequestParties & {
@@ -202,14 +203,15 @@ export function teamLeaveRows(
 export function approverLine(
   applicant: LeaveApplicant,
   nameOf: (personId: string) => string,
+  t: Translate = (text) => text,
 ): string {
   return leaveApprovers(applicant)
     .map((approver) =>
       "approverId" in approver
         ? nameOf(approver.approverId)
         : approver.approverRole === "md"
-          ? JobRoleLabel.md
-          : JobRoleLabel.director,
+          ? t(JobRoleLabel.md)
+          : t(JobRoleLabel.director),
     )
-    .join(" or ");
+    .join(` ${t("or")} `);
 }

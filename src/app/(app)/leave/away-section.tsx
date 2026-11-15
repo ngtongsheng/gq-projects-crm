@@ -9,6 +9,7 @@ import {
   shiftMonth,
 } from "@/lib/domain/calendar-grid";
 import { type CalendarDate, dayOfWeek, formatDate } from "@/lib/format/date";
+import type { Translate } from "@/lib/i18n/translate";
 import { LeaveSection } from "./leave-section";
 
 const monthHref = (month: CalendarDate) => `/leave?month=${month.slice(0, 7)}`;
@@ -19,7 +20,9 @@ export function AwaySection({
   month,
   today,
   eventsByDay,
+  t,
 }: {
+  t: Translate;
   /** The first day of the month shown. */
   month: CalendarDate;
   today: CalendarDate;
@@ -30,13 +33,13 @@ export function AwaySection({
     .sort(([a], [b]) => a.localeCompare(b));
   return (
     <LeaveSection
-      title={`Who is away · ${formatMonthTitle(month)}`}
+      title={`${t("Who is away")} · ${formatMonthTitle(month)}`}
       action={
         <div className="flex items-center gap-1">
           <Button asChild size="icon-sm" variant="outline">
             <Link
               href={monthHref(shiftMonth(month, -1))}
-              aria-label="Previous month"
+              aria-label={t("Previous month")}
             >
               <ChevronLeft />
             </Link>
@@ -50,7 +53,7 @@ export function AwaySection({
             </Link>
           </Button>
           <Button asChild size="sm" variant="ghost">
-            <Link href={monthHref(today)}>Today</Link>
+            <Link href={monthHref(today)}>{t("Today")}</Link>
           </Button>
         </div>
       }
@@ -67,7 +70,7 @@ export function AwaySection({
       <ul id={LIST_ID} className="flex flex-col gap-1 sm:hidden">
         {listed.length === 0 && (
           <li className="text-sm text-muted-foreground">
-            Nobody on leave this month.
+            {t("Nobody on leave this month.")}
           </li>
         )}
         {listed.map(([day, events]) => (
@@ -79,7 +82,7 @@ export function AwaySection({
               {events
                 .map((event) =>
                   event.time === "Public holiday"
-                    ? `Public holiday · ${event.title}`
+                    ? `${t("Public holiday")} · ${event.title}`
                     : event.title,
                 )
                 .join(", ")}

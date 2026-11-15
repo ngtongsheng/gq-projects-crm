@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Translate } from "@/lib/i18n/translate";
 import { cn } from "@/lib/utils";
 import { TASK_VIEW_LABEL, type TaskView } from "./task-view";
 
@@ -7,7 +8,9 @@ export function TasksTabs({
   views,
   active,
   counts,
+  t,
 }: {
+  t: Translate;
   views: TaskView[];
   active: TaskView;
   /** Open tasks shown beside a tab's name. */
@@ -16,7 +19,7 @@ export function TasksTabs({
   return (
     <div
       role="tablist"
-      aria-label="Tasks"
+      aria-label={t("Tasks")}
       className="flex w-fit max-w-full flex-wrap gap-1 rounded-lg bg-muted p-1"
     >
       {views.map((view) => (
@@ -32,7 +35,7 @@ export function TasksTabs({
               : "text-muted-foreground hover:text-foreground",
           )}
         >
-          {TASK_VIEW_LABEL[view]}
+          {t(TASK_VIEW_LABEL[view])}
           {counts[view] !== undefined && (
             <span className="font-mono tabular-nums"> ({counts[view]})</span>
           )}

@@ -8,6 +8,7 @@ import { FileUpload } from "@/components/app/file-upload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useT } from "@/lib/i18n/language-context";
 import { moveTaskDueDate, startTask, submitTask } from "./actions";
 import type { TaskFileInput } from "./task-file-input";
 import { uploadTaskFile } from "./task-upload";
@@ -34,6 +35,7 @@ export function TaskWorkPanel({
   closeHref: string;
 }) {
   const router = useRouter();
+  const t = useT();
   const [files, setFiles] = useState<TaskFileInput[]>([]);
   const [note, setNote] = useState("");
   const [newDue, setNewDue] = useState(dueOn);
@@ -56,7 +58,7 @@ export function TaskWorkPanel({
 
   return (
     <section
-      aria-label="Your work"
+      aria-label={t("Your work")}
       className="flex flex-col gap-3 rounded-xl border p-3"
     >
       {can.start && (
@@ -64,10 +66,10 @@ export function TaskWorkPanel({
           type="button"
           variant="outline"
           disabled={pending}
-          onClick={() => run(() => startTask(taskId), "Task started.")}
+          onClick={() => run(() => startTask(taskId), t("Task started."))}
         >
           <Play data-icon="inline-start" />
-          Start working
+          {t("Start working")}
         </Button>
       )}
       {can.submit && (
@@ -75,7 +77,7 @@ export function TaskWorkPanel({
           <div className="flex flex-col gap-2">
             <FileUpload
               key={files.length}
-              label={revising ? "revised work" : "finished work"}
+              label={revising ? t("revised work") : t("finished work")}
               disabled={pending}
               upload={async (picked) => {
                 const sent = await uploadTaskFile(taskId, "work", picked);
@@ -93,7 +95,7 @@ export function TaskWorkPanel({
                       type="button"
                       variant="ghost"
                       size="icon-xs"
-                      aria-label={`Remove ${file.fileName}`}
+                      aria-label={`${t("Remove")} ${file.fileName}`}
                       onClick={() =>
                         setFiles((current) =>
                           current.filter((other) => other.path !== file.path),
@@ -109,18 +111,22 @@ export function TaskWorkPanel({
           </div>
           {sharedWith.length > 0 && (
             <p className="text-xs text-muted-foreground">
-              Shared task: {sharedWith.join(", ")} can all upload and update it.
-              Agree between you who submits the final version.
+              {t("Shared task:")} {sharedWith.join(", ")}{" "}
+              {t(
+                "can all upload and update it. Agree between you who submits the final version.",
+              )}
             </p>
           )}
         </>
       )}
       {(can.submit || can.moveDate) && (
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="taskNote">Note for {assignerName}</Label>
+          <Label htmlFor="taskNote">
+            {t("Note for")} {assignerName}
+          </Label>
           <Input
             id="taskNote"
-            placeholder="e.g. Final version, also sent on WhatsApp"
+            placeholder={t("e.g. Final version, also sent on WhatsApp")}
             value={note}
             maxLength={1500}
             onChange={(event) => setNote(event.target.value)}
@@ -139,19 +145,19 @@ export function TaskWorkPanel({
           onClick={() =>
             run(
               () => submitTask(taskId, note, files),
-              `Sent to ${assignerName} for review.`,
+              `${t("Sent to")} ${assignerName} ${t("for review.")}`,
               true,
             )
           }
         >
-          Submit for review
+          {t("Submit for review")}
         </Button>
       )}
       {can.moveDate && (
         <div className="flex flex-wrap items-end gap-2">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="taskNewDue">
-              Can&apos;t make the due date? New date
+              {t("Can't make the due date? New date")}
             </Label>
             <Input
               id="taskNewDue"
@@ -169,11 +175,11 @@ export function TaskWorkPanel({
             onClick={() =>
               run(
                 () => moveTaskDueDate(taskId, newDue, note),
-                "Due date updated.",
+                t("Due date updated."),
               )
             }
           >
-            Save new date
+            {t("Save new date")}
           </Button>
         </div>
       )}

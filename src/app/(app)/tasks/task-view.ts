@@ -14,6 +14,7 @@ import {
   type TaskViewer,
 } from "@/lib/domain/task-flow";
 import { type CalendarDate, daysBetween, formatDate } from "@/lib/format/date";
+import type { Translate } from "@/lib/i18n/translate";
 
 /** One task as the list shows it. */
 export type TaskRow = TaskParties & {
@@ -167,25 +168,26 @@ export type DueNote = {
 export function dueNote(
   task: Pick<TaskRow, "status" | "dueOn" | "submittedOn" | "completedOn">,
   today: CalendarDate,
+  t: Translate = (text) => text,
 ): DueNote {
   if (task.status === "completed") {
     return {
       tone: "good",
-      text: `Done ${formatDate(task.completedOn ?? task.dueOn)}`,
+      text: `${t("Done")} ${formatDate(task.completedOn ?? task.dueOn)}`,
     };
   }
   if (task.status === "pending_review") {
     return {
       tone: "plain",
-      text: `submitted ${formatDate(task.submittedOn ?? today)}`,
+      text: `${t("submitted")} ${formatDate(task.submittedOn ?? today)}`,
     };
   }
   const late = daysOverdue(task, today);
-  if (late > 0) return { tone: "bad", text: `${late}d overdue` };
+  if (late > 0) return { tone: "bad", text: `${late}d ${t("overdue")}` };
   const days = daysBetween(today, task.dueOn);
-  if (days === 0) return { tone: "warn", text: "Due today" };
-  if (days === 1) return { tone: "warn", text: "Due tomorrow" };
-  return { tone: "plain", text: `in ${days} days` };
+  if (days === 0) return { tone: "warn", text: t("Due today") };
+  if (days === 1) return { tone: "warn", text: t("Due tomorrow") };
+  return { tone: "plain", text: `${t("in")} ${days} ${t("days")}` };
 }
 
 /** The address of the task list with the sheet open on a task, or closed when no id is given. */
@@ -255,6 +257,7 @@ export function taskBanner(
   viewer: TaskViewer,
   today: CalendarDate,
   nameOf: (personId: string) => string,
+  t: Translate = (text) => text,
 ): TaskBanner | null {
   const mine = tasks.filter(
     (task) => isOnTask(task, viewer.id) && isOpen(task),
@@ -277,14 +280,14 @@ export function taskBanner(
   );
   const parts = [
     fresh.length > 0 &&
-      `${fresh.length} new: ${fresh
+      `${fresh.length} ${t("new")}: ${fresh
         .slice(0, 2)
         .map((task) => `${task.title} (${nameOf(task.assignedBy)})`)
         .join(", ")}`,
-    late.length > 0 && `${late.length} overdue`,
-    soon.length > 0 && `${soon.length} due today / tomorrow`,
-    revision.length > 0 && `${revision.length} revision required`,
-    toReview.length > 0 && `${toReview.length} waiting for your review`,
+    late.length > 0 && `${late.length} ${t("overdue")}`,
+    soon.length > 0 && `${soon.length} ${t("due today / tomorrow")}`,
+    revision.length > 0 && `${revision.length} ${t("revision required")}`,
+    toReview.length > 0 && `${toReview.length} ${t("waiting for your review")}`,
   ].filter((part): part is string => part !== false);
   return parts.length > 0
     ? { tone: late.length > 0 ? "bad" : "warn", parts }

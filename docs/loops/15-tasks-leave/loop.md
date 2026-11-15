@@ -28,8 +28,8 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 | 07 | Leave approval + slip rules | done | 05 | opus/medium |
 | 08 | Leave page | done | 06, 07 | sonnet/high |
 | 09 | Who is away, holidays, entitlements | done | 08 | sonnet/high |
-| 10 | Chinese strings + dev seed | in-progress | 03, 04, 08, 09 | sonnet/medium |
-| 11 | Parity pass, docs, merge | todo | 01-10 | sonnet/medium |
+| 10 | Chinese strings + dev seed | done | 03, 04, 08, 09 | sonnet/medium |
+| 11 | Parity pass, docs, merge | in-progress | 01-10 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Start only after loop 13 is merged: `/execute-loop docs/loops/15-tasks-leave`.
@@ -60,3 +60,5 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 2026-11-15 · #08 · decision · added migration leave_people() (id, job_role, joined_on, reports_to) for team/balance data; tiles show dash before 2027; approvers named by job title · D2/D4
 2026-11-15 · #09 · done · who-is-away grid, holidays panel, entitlement editor + tests; checks pass (1973); parity deferred to #11 · next: #10
 2026-11-15 · #09 · decision · holiday edits do not recount existing leave days (SQL counts at insert); entitlement sheet edits max(current year, 2027); no leave policy editor (not in task) · #05/D2
+2026-11-15 · #10 · done · zh-tasks-leave.ts (~330 entries) wired via t()/useT in both pages; seed tasks.ts + leave.ts; checks pass (1975) · next: #11
+2026-11-15 · #10 · decision · server-action error messages, page metadata titles, calendar month/weekday names stay English; Chinese wording outside demo ZHEN is own wording (needs native read) · scope

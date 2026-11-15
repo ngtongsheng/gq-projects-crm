@@ -5,8 +5,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { FileUpload } from "@/components/app/file-upload";
 import { Button } from "@/components/ui/button";
-import { taskFileTag } from "@/lib/domain/task-files";
 import { formatDate, todayMyt } from "@/lib/format/date";
+import { useT } from "@/lib/i18n/language-context";
 import type { TaskFileRow } from "./task-detail-data";
 import { addReferenceFile, openTaskFile } from "./task-file-actions";
 import { uploadTaskFile } from "./task-upload";
@@ -41,12 +41,13 @@ export function TaskFilesList({
 }) {
   // A new key empties the picker after each file, so several can be added one after another.
   const [added, setAdded] = useState(0);
+  const t = useT();
 
   return (
-    <section className="flex flex-col gap-2" aria-label="Files">
-      <h3 className="text-sm font-semibold">Files</h3>
+    <section className="flex flex-col gap-2" aria-label={t("Files")}>
+      <h3 className="text-sm font-semibold">{t("Files")}</h3>
       {files.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No files yet.</p>
+        <p className="text-sm text-muted-foreground">{t("No files yet.")}</p>
       ) : (
         <ul className="flex flex-col gap-2">
           {files.map((file) => (
@@ -67,7 +68,10 @@ export function TaskFilesList({
               )}
               <span className="min-w-0 break-all">{file.fileName}</span>
               <span className="text-xs text-muted-foreground">
-                {taskFileTag(file)} · {nameOf(file.uploadedBy)} ·{" "}
+                {file.kind === "reference"
+                  ? t("reference")
+                  : `${t("work")} v${file.version ?? 1}`}{" "}
+                · {nameOf(file.uploadedBy)} ·{" "}
                 {formatDate(todayMyt(new Date(file.uploadedAt)))}
               </span>
               <Button
@@ -76,7 +80,7 @@ export function TaskFilesList({
                 size="sm"
                 onClick={() => void openFile(file.id)}
               >
-                Open
+                {t("Open")}
               </Button>
             </li>
           ))}
@@ -85,13 +89,13 @@ export function TaskFilesList({
       {canAddReference && (
         <FileUpload
           key={added}
-          label="reference file"
+          label={t("reference file")}
           upload={async (picked) => {
             const sent = await uploadTaskFile(taskId, "reference", picked);
             if (!sent.ok) return sent;
             const saved = await addReferenceFile(taskId, sent.file);
             if (saved.error !== null) return { ok: false, error: saved.error };
-            toast.success("Reference file added.");
+            toast.success(t("Reference file added."));
             setAdded((count) => count + 1);
             return { ok: true };
           }}

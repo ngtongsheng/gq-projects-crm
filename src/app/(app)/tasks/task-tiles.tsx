@@ -1,33 +1,34 @@
+import type { Translate } from "@/lib/i18n/translate";
 import { StatTile, TileGrid } from "../dashboard/dashboard-parts";
 import type { TaskTiles as Tiles } from "./task-view";
 
 /** The person's own tiles, as on the demo's My tasks tab. */
-export function TaskTiles({ tiles }: { tiles: Tiles }) {
+export function TaskTiles({ tiles, t }: { tiles: Tiles; t: Translate }) {
   return (
     <TileGrid className="lg:grid-cols-4">
       <StatTile
-        label="Overdue"
+        label={t("Overdue")}
         value={
           <span className={tiles.overdue > 0 ? "text-bad" : undefined}>
             {tiles.overdue}
           </span>
         }
-        note="Past the due date"
+        note={t("Past the due date")}
       />
       <StatTile
-        label="Due this week"
+        label={t("Due this week")}
         value={tiles.dueThisWeek}
-        note="Including today"
+        note={t("Including today")}
       />
       <StatTile
-        label="Revision required"
+        label={t("Revision required")}
         value={tiles.revision}
-        note="Sent back with comments"
+        note={t("Sent back with comments")}
       />
       <StatTile
-        label="Waiting review"
+        label={t("Waiting review")}
         value={tiles.waitingReview}
-        note="Submitted, not approved yet"
+        note={t("Submitted, not approved yet")}
       />
     </TileGrid>
   );

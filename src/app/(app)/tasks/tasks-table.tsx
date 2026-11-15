@@ -4,6 +4,7 @@ import { DataTable, type DataTableColumn } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
 import { TASK_CATEGORY_LABEL } from "@/lib/domain/task-labels";
 import { type CalendarDate, formatDate } from "@/lib/format/date";
+import type { Translate } from "@/lib/i18n/translate";
 import { DueNoteLine, PriorityBadge, TaskStatusBadge } from "./task-badges";
 import { dueNote, type TaskRow } from "./task-view";
 
@@ -15,7 +16,9 @@ export function TasksTable({
   showAssignee,
   showAssigner,
   hrefFor,
+  t,
 }: {
+  t: Translate;
   rows: TaskRow[];
   nameOf: (personId: string) => string;
   today: CalendarDate;
@@ -27,7 +30,7 @@ export function TasksTable({
   const columns: DataTableColumn<TaskRow>[] = [
     {
       key: "task",
-      header: "Task",
+      header: t("Task"),
       cell: (task) => (
         <div className="min-w-48">
           <Link
@@ -38,13 +41,13 @@ export function TasksTable({
             {task.title}
           </Link>
           <p className="flex flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground">
-            <span>{TASK_CATEGORY_LABEL[task.category]}</span>
+            <span>{t(TASK_CATEGORY_LABEL[task.category])}</span>
             {task.projectLabel && <span>· {task.projectLabel}</span>}
             {task.fileCount > 0 && (
               <span className="inline-flex items-center gap-0.5">
                 · <Paperclip className="size-3" aria-hidden />
                 <span className="font-mono tabular-nums">{task.fileCount}</span>
-                <span className="sr-only">files</span>
+                <span className="sr-only">{t("files")}</span>
               </span>
             )}
           </p>
@@ -55,13 +58,13 @@ export function TasksTable({
       ? [
           {
             key: "assignee",
-            header: "Assigned to",
+            header: t("Assigned to"),
             cell: (task: TaskRow) => (
               <div>
                 <p>{nameOf(task.assigneeId)}</p>
                 {task.coAssigneeIds.length > 0 && (
                   <p className="text-xs text-muted-foreground">
-                    with {task.coAssigneeIds.map(nameOf).join(", ")}
+                    {t("with")} {task.coAssigneeIds.map(nameOf).join(", ")}
                   </p>
                 )}
               </div>
@@ -73,32 +76,32 @@ export function TasksTable({
       ? [
           {
             key: "assigner",
-            header: "By",
+            header: t("By"),
             cell: (task: TaskRow) => nameOf(task.assignedBy),
           },
         ]
       : []),
     {
       key: "priority",
-      header: "Priority",
-      cell: (task) => <PriorityBadge priority={task.priority} />,
+      header: t("Priority"),
+      cell: (task) => <PriorityBadge priority={task.priority} t={t} />,
     },
     {
       key: "due",
-      header: "Due",
+      header: t("Due"),
       cell: (task) => (
         <div className="flex flex-col items-start gap-1">
           <span className="font-mono whitespace-nowrap tabular-nums">
             {formatDate(task.dueOn)}
           </span>
-          <DueNoteLine note={dueNote(task, today)} />
+          <DueNoteLine note={dueNote(task, today, t)} />
         </div>
       ),
     },
     {
       key: "status",
-      header: "Status",
-      cell: (task) => <TaskStatusBadge status={task.status} />,
+      header: t("Status"),
+      cell: (task) => <TaskStatusBadge status={task.status} t={t} />,
     },
   ];
 
@@ -107,7 +110,7 @@ export function TasksTable({
       columns={columns}
       rows={rows}
       getRowKey={(task) => task.id}
-      empty={<EmptyState icon={ListChecks} title="No tasks." />}
+      empty={<EmptyState icon={ListChecks} title={t("No tasks.")} />}
     />
   );
 }

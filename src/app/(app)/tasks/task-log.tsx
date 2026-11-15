@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatDateTime } from "@/lib/format/date";
+import { useT } from "@/lib/i18n/language-context";
 import { commentOnTask } from "./actions";
 import type { TaskLogRow } from "./task-detail-data";
 
@@ -20,6 +21,7 @@ export function TaskLog({
   const [comment, setComment] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const t = useT();
 
   function post() {
     startTransition(async () => {
@@ -30,8 +32,11 @@ export function TaskLog({
   }
 
   return (
-    <section className="flex flex-col gap-2" aria-label="Comments and history">
-      <h3 className="text-sm font-semibold">Comments &amp; history</h3>
+    <section
+      className="flex flex-col gap-2"
+      aria-label={t("Comments and history")}
+    >
+      <h3 className="text-sm font-semibold">{t("Comments & history")}</h3>
       <ul className="flex max-h-56 flex-col gap-1.5 overflow-y-auto">
         {log.map((entry) => (
           <li key={entry.id} className="text-xs text-muted-foreground">
@@ -50,14 +55,14 @@ export function TaskLog({
         }}
       >
         <Input
-          aria-label="Write a comment"
-          placeholder="Write a comment"
+          aria-label={t("Write a comment")}
+          placeholder={t("Write a comment")}
           value={comment}
           maxLength={1500}
           onChange={(event) => setComment(event.target.value)}
         />
         <Button type="submit" variant="outline" disabled={pending}>
-          Post
+          {t("Post")}
         </Button>
       </form>
       {error && (

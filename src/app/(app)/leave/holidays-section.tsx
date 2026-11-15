@@ -1,4 +1,5 @@
 import { formatDate } from "@/lib/format/date";
+import type { Translate } from "@/lib/i18n/translate";
 import { AddHolidayDialog } from "./add-holiday-dialog";
 import { HolidayPill } from "./holiday-pill";
 import { LeaveSection } from "./leave-section";
@@ -11,7 +12,9 @@ export function HolidaysSection({
   year,
   today,
   canEdit,
+  t,
 }: {
+  t: Translate;
   holidays: Holiday[];
   year: number;
   today: string;
@@ -22,13 +25,15 @@ export function HolidaysSection({
     .sort((a, b) => a.day.localeCompare(b.day));
   return (
     <LeaveSection
-      title={`Public holidays ${year}`}
-      note="Not counted as leave days. Leave already applied for keeps its day count."
+      title={`${t("Public holidays")} ${year}`}
+      note={t(
+        "Not counted as leave days. Leave already applied for keeps its day count.",
+      )}
       action={canEdit ? <AddHolidayDialog today={today} /> : null}
     >
       {thisYear.length === 0 ? (
         <p className="rounded-xl border bg-card px-4 py-6 text-sm text-muted-foreground">
-          No public holidays added yet.
+          {t("No public holidays added yet.")}
         </p>
       ) : (
         <ul className="flex flex-wrap gap-1.5">

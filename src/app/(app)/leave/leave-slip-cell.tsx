@@ -4,6 +4,7 @@ import {
   type LeaveViewer,
   needsSlip,
 } from "@/lib/domain/leave-approval";
+import type { Translate } from "@/lib/i18n/translate";
 import {
   OriginalSlipCheck,
   UploadSlipButton,
@@ -15,7 +16,9 @@ import type { LeaveRow } from "./leave-view";
 export function LeaveSlipCell({
   row,
   viewer,
+  t,
 }: {
+  t: Translate;
   row: LeaveRow;
   viewer: LeaveViewer;
 }) {
@@ -26,7 +29,9 @@ export function LeaveSlipCell({
         <ViewSlipButton leaveId={row.id} />
       ) : (
         <>
-          <span className="text-xs font-medium text-bad">MC not uploaded</span>
+          <span className="text-xs font-medium text-bad">
+            {t("MC not uploaded")}
+          </span>
           {canUploadSlip(row, viewer) && <UploadSlipButton leaveId={row.id} />}
         </>
       )}
@@ -35,7 +40,7 @@ export function LeaveSlipCell({
       ) : (
         row.originalGivenToHr && (
           <span className="text-xs text-muted-foreground">
-            Original given to HR
+            {t("Original given to HR")}
           </span>
         )
       )}

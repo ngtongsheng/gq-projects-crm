@@ -1,6 +1,7 @@
 import { StatusBadge, type StatusTone } from "@/components/app/status-badge";
 import type { LeaveStatus } from "@/lib/domain/leave-balance";
 import { LEAVE_STATUS_LABEL } from "@/lib/domain/leave-labels";
+import type { Translate } from "@/lib/i18n/translate";
 
 const STATUS_TONE: Record<LeaveStatus, StatusTone> = {
   pending: "warn",
@@ -9,10 +10,16 @@ const STATUS_TONE: Record<LeaveStatus, StatusTone> = {
   cancelled: "neutral",
 };
 
-export function LeaveStatusBadge({ status }: { status: LeaveStatus }) {
+export function LeaveStatusBadge({
+  status,
+  t,
+}: {
+  status: LeaveStatus;
+  t: Translate;
+}) {
   return (
     <StatusBadge tone={STATUS_TONE[status]}>
-      {LEAVE_STATUS_LABEL[status]}
+      {t(LEAVE_STATUS_LABEL[status])}
     </StatusBadge>
   );
 }

@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n/language-context";
 import { removeHoliday } from "./holiday-actions";
 
 /** One holiday with its remove button; the button only shows for people who may edit. */
@@ -17,6 +18,7 @@ export function HolidayPill({
   canRemove: boolean;
 }) {
   const [pending, startTransition] = useTransition();
+  const t = useT();
   return (
     <li className="inline-flex items-center gap-1 rounded-full border bg-card py-1 pr-1 pl-3 text-sm">
       {label}
@@ -26,7 +28,7 @@ export function HolidayPill({
           size="icon-xs"
           variant="ghost"
           disabled={pending}
-          aria-label={`Remove ${label}`}
+          aria-label={`${t("Remove")} ${label}`}
           onClick={() =>
             startTransition(async () => {
               const result = await removeHoliday(day);

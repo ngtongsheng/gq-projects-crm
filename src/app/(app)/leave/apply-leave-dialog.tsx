@@ -38,6 +38,7 @@ import { LEAVE_TYPE_LABEL } from "@/lib/domain/leave-labels";
 import type { WeekKind } from "@/lib/domain/workdays";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { addDays } from "@/lib/format/date";
+import { useT } from "@/lib/i18n/language-context";
 import { ATTACHMENT_TYPES } from "@/lib/storage/attachment-rules";
 import { prepareAttachment } from "@/lib/storage/downscale";
 import { applyForLeave } from "./actions";
@@ -73,6 +74,7 @@ export function ApplyLeaveDialog({
   /** The year `available` is for. */
   availableYear: number;
 }) {
+  const t = useT();
   const tomorrow = addDays(today, 1);
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -138,13 +140,13 @@ export function ApplyLeaveDialog({
         const sent = await uploadLeaveSlip(result.id, slip);
         if (!sent.ok) {
           toast.error(
-            `Leave sent, but the MC was not uploaded: ${sent.error} Add it from your leave list.`,
+            `${t("Leave sent, but the MC was not uploaded:")} ${sent.error} ${t("Add it from your leave list.")}`,
           );
         } else {
-          toast.success(`Sent to ${approvers} for approval.`);
+          toast.success(`${t("Sent to")} ${approvers} ${t("for approval.")}`);
         }
       } else {
-        toast.success(`Sent to ${approvers} for approval.`);
+        toast.success(`${t("Sent to")} ${approvers} ${t("for approval.")}`);
       }
       form.reset();
       reset();
@@ -157,16 +159,16 @@ export function ApplyLeaveDialog({
       <DialogTrigger asChild>
         <Button>
           <Plus data-icon="inline-start" />
-          Apply leave
+          {t("Apply leave")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Apply leave</DialogTitle>
+          <DialogTitle>{t("Apply leave")}</DialogTitle>
           <DialogDescription>
             {needsSlip(leaveType)
-              ? `A medical slip can be added when you apply or later. ${approvers} checks it.`
-              : `Goes to ${approvers} for approval.`}
+              ? `${t("A medical slip can be added when you apply or later.")} ${approvers} ${t("checks it.")}`
+              : `${t("Goes to")} ${approvers} ${t("for approval.")}`}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submitKeepingValues(save)}>
@@ -178,7 +180,7 @@ export function ApplyLeaveDialog({
           />
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="leaveType">Type</FieldLabel>
+              <FieldLabel htmlFor="leaveType">{t("Type")}</FieldLabel>
               <Select
                 value={leaveType}
                 onValueChange={(value) => changeType(value as LeaveType)}
@@ -189,7 +191,7 @@ export function ApplyLeaveDialog({
                 <SelectContent>
                   {LEAVE_TYPES.map((type) => (
                     <SelectItem key={type} value={type}>
-                      {LEAVE_TYPE_LABEL[type]}
+                      {t(LEAVE_TYPE_LABEL[type])}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -197,7 +199,7 @@ export function ApplyLeaveDialog({
             </Field>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
-                <FieldLabel htmlFor="leaveStartsOn">From</FieldLabel>
+                <FieldLabel htmlFor="leaveStartsOn">{t("From")}</FieldLabel>
                 <Input
                   id="leaveStartsOn"
                   name="startsOn"
@@ -213,7 +215,9 @@ export function ApplyLeaveDialog({
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="leaveEndsOn">To (last day)</FieldLabel>
+                <FieldLabel htmlFor="leaveEndsOn">
+                  {t("To (last day)")}
+                </FieldLabel>
                 <Input
                   id="leaveEndsOn"
                   name="endsOn"
@@ -226,7 +230,7 @@ export function ApplyLeaveDialog({
               </Field>
             </div>
             <Field>
-              <FieldLabel htmlFor="leaveHalfDay">Half day?</FieldLabel>
+              <FieldLabel htmlFor="leaveHalfDay">{t("Half day?")}</FieldLabel>
               <Select
                 value={half}
                 disabled={startsOn !== endsOn}
@@ -238,25 +242,27 @@ export function ApplyLeaveDialog({
                 <SelectContent>
                   {(Object.keys(HALF_DAY_LABEL) as HalfDay[]).map((option) => (
                     <SelectItem key={option} value={option}>
-                      {HALF_DAY_LABEL[option]}
+                      {t(HALF_DAY_LABEL[option])}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <FieldDescription>One day only.</FieldDescription>
+              <FieldDescription>{t("One day only.")}</FieldDescription>
             </Field>
             <Field>
-              <FieldLabel htmlFor="leaveReason">Reason</FieldLabel>
+              <FieldLabel htmlFor="leaveReason">{t("Reason")}</FieldLabel>
               <Input
                 id="leaveReason"
                 name="reason"
                 maxLength={500}
-                placeholder="e.g. Family trip"
+                placeholder={t("e.g. Family trip")}
               />
             </Field>
             {needsSlip(leaveType) && (
               <Field className="rounded-lg border border-dashed p-3">
-                <FieldLabel htmlFor="leaveSlip">Upload the MC</FieldLabel>
+                <FieldLabel htmlFor="leaveSlip">
+                  {t("Upload the MC")}
+                </FieldLabel>
                 <Input
                   key={slipKey}
                   id="leaveSlip"
@@ -265,19 +271,20 @@ export function ApplyLeaveDialog({
                   onChange={(event) => void pickSlip(event.target.files?.[0])}
                 />
                 <FieldDescription>
-                  Photo or PDF, up to 1.5 MB. On the phone you can take a photo
-                  straight away. You can apply first and upload it later from
-                  your leave list.
+                  {t(
+                    "Photo or PDF, up to 1.5 MB. On the phone you can take a photo straight away. You can apply first and upload it later from your leave list.",
+                  )}
                 </FieldDescription>
               </Field>
             )}
             <p className="text-sm" aria-live="polite">
-              <b className="font-mono tabular-nums">{days}</b> working day
-              {days === 1 ? "" : "s"}
+              <b className="font-mono tabular-nums">{days}</b>{" "}
+              {t(days === 1 ? "working day" : "working days")}
               {after !== null && (
                 <>
                   {" · "}
-                  {leaveType === "mc" ? "MC" : "annual leave"} balance after:{" "}
+                  {t(leaveType === "mc" ? "MC" : "annual leave")}{" "}
+                  {t("balance after:")}{" "}
                   <b
                     className={`font-mono tabular-nums ${after < 0 ? "text-bad" : ""}`}
                   >
@@ -288,7 +295,7 @@ export function ApplyLeaveDialog({
             </p>
             {error && <FieldError>{error}</FieldError>}
             <Button type="submit" disabled={pending}>
-              {pending ? "Sending..." : "Submit"}
+              {pending ? t("Sending...") : t("Submit")}
             </Button>
           </FieldGroup>
         </form>

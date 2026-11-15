@@ -39,6 +39,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "coll",
       "comm",
       "claims",
+      "tasks",
       "rep",
       "drep",
     ],
@@ -57,6 +58,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "coll",
       "comm",
       "claims",
+      "tasks",
       "rep",
       "drep",
     ],
@@ -76,6 +78,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "coll",
       "comm",
       "claims",
+      "tasks",
       "drep",
     ],
   },
@@ -93,6 +96,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "coll",
       "comm",
       "claims",
+      "tasks",
       "rep",
     ],
   },
@@ -110,6 +114,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "coll",
       "comm",
       "claims",
+      "tasks",
       "rep",
     ],
   },
@@ -128,21 +133,41 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "coll",
       "comm",
       "claims",
+      "tasks",
       "rep",
       "drep",
     ],
   },
-  site: { person: viewer("site"), keys: ["inst", "site", "srep", "claims"] },
+  site: {
+    person: viewer("site"),
+    keys: ["inst", "site", "srep", "claims", "tasks"],
+  },
   sellingSite: {
     person: viewer("site", { sells: true }),
-    keys: ["inst", "site", "srep", "cust", "proj", "coll", "comm", "claims"],
+    keys: [
+      "inst",
+      "site",
+      "srep",
+      "cust",
+      "proj",
+      "coll",
+      "comm",
+      "claims",
+      "tasks",
+    ],
   },
-  ssup: { person: viewer("ssup"), keys: ["dash", "inst", "site", "stock"] },
-  designer: { person: viewer("designer"), keys: ["dash"] },
-  marketing: { person: viewer("marketing"), keys: ["dash", "site", "stock"] },
+  ssup: {
+    person: viewer("ssup"),
+    keys: ["dash", "inst", "site", "stock", "tasks"],
+  },
+  designer: { person: viewer("designer"), keys: ["dash", "tasks"] },
+  marketing: {
+    person: viewer("marketing"),
+    keys: ["dash", "tasks", "site", "stock"],
+  },
   support: {
     person: viewer("support"),
-    keys: ["dash", "cost", "mof", "inst", "site", "stock"],
+    keys: ["dash", "cost", "mof", "inst", "site", "stock", "tasks"],
   },
 };
 
@@ -161,6 +186,7 @@ describe("navPagesFor: defaults", () => {
       "Site Work",
       "My Report",
       "My claims",
+      "Tasks",
     ]);
     expect(labels(viewer("support"))).toEqual([
       "Dashboard",
@@ -169,6 +195,7 @@ describe("navPagesFor: defaults", () => {
       "Delivery & Installation",
       "Site Work",
       "Stock",
+      "Tasks",
     ]);
     expect(labels(viewer("marketing"))).toContain("Site photos");
   });

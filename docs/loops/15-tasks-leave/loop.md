@@ -21,8 +21,8 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 |---|---|---|---|---|
 | 01 | Tasks migration | done | - | opus/medium |
 | 02 | Task flow rules | done | 01 | opus/medium |
-| 03 | Tasks page: tabs + tiles | in-progress | 02 | sonnet/high |
-| 04 | Task sheet | todo | 02 | sonnet/high |
+| 03 | Tasks page: tabs + tiles | done | 02 | sonnet/high |
+| 04 | Task sheet | in-progress | 02 | sonnet/high |
 | 05 | Leave migration | todo | - | opus/medium |
 | 06 | Leave maths | todo | 05 | opus/medium |
 | 07 | Leave approval + slip rules | todo | 05 | opus/medium |
@@ -45,3 +45,5 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 2026-11-15 · #02 · done · task-flow.ts, tasks/actions.ts + tests; checks pass (1770 tests) · next: #03
 2026-11-15 · #02 · decision · reminder/escalation days are calendar days with parameter defaults (no app_settings row); log write is separate from the change (debt row added); canAssignTasks lives in task-flow.ts · listed files only
 2026-11-15 · #03 · in-progress · must flip `tasks` to built:true in pages.ts (requirePage 404s until then)
+2026-11-15 · #03 · done · tasks page, tiles, workload, new-task dialog; checks pass (1802 tests); visual parity deferred to #11 (needs test copy with migrations) · next: #04
+2026-11-15 · #03 · decision · added migration task_people() for role-aware assignee list (team_directory lacks job role); 4 tiles incl. waiting review; dialog not sheet · follows demo/app patterns

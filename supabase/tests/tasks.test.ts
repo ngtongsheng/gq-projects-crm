@@ -275,3 +275,45 @@ describe("people who left", () => {
     ]);
   });
 });
+
+describe("task_people (the Assign to list and Workload)", () => {
+  const people = (who: JobRole) =>
+    query<{ id: string; job_role: string }>(
+      who,
+      "select * from public.task_people()",
+    );
+
+  it.each<JobRole>([
+    "md",
+    "director",
+    "bd",
+    "support",
+    "marketing",
+  ])("%s gets everyone still here with their job role", async (who) => {
+    await t.actAs(null);
+    await t.db.query(
+      "update public.profiles set active = false where id = $1",
+      [t.profileIds.site],
+    );
+    const rows = await people(who);
+    await t.actAs(null);
+    await t.db.query("update public.profiles set active = true where id = $1", [
+      t.profileIds.site,
+    ]);
+    expect(rows.map((row) => row.id)).toContain(t.profileIds.designer);
+    expect(rows.map((row) => row.id)).not.toContain(t.profileIds.site);
+    expect(rows.find((row) => row.id === t.profileIds.designer)?.job_role).toBe(
+      "designer",
+    );
+  });
+
+  it.each<JobRole>([
+    "sales",
+    "designer",
+    "accounts",
+    "site",
+    "ssup",
+  ])("%s gets nobody", async (who) => {
+    expect(await people(who)).toEqual([]);
+  });
+});

@@ -120,7 +120,7 @@ const PAGES: Record<PageKey, Page> = {
     label: fixed("Tasks"),
     href: fixed("/tasks"),
     group: "after",
-    built: false,
+    built: true,
   },
   leave: {
     key: "leave",

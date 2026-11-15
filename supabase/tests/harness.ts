@@ -14,17 +14,39 @@ export type TestDatabase = {
   close: () => Promise<void>;
 };
 
-/** A fresh in-memory database with every migration applied. Create one per test file: it takes about a second. */
-export async function createTestDatabase(): Promise<TestDatabase> {
-  const db = await PGlite.create();
-  await db.exec(await readFile(bootstrapFile, "utf8"));
+/** Migrations from `from` (inclusive) up to `before` (exclusive), in file name order. */
+type MigrationRange = { from?: string; before?: string };
 
+/** Applies the migrations in the range. A backfill test stops before its migration, adds rows, then applies the rest. */
+export async function applyMigrations(
+  db: PGlite,
+  { from = "", before }: MigrationRange = {},
+): Promise<void> {
   const migrations = (await readdir(migrationsDir))
-    .filter((name) => name.endsWith(".sql"))
+    .filter(
+      (name) =>
+        name.endsWith(".sql") &&
+        name >= from &&
+        (before === undefined || name < before),
+    )
     .sort();
   for (const name of migrations) {
     await db.exec(await readFile(new URL(name, migrationsDir), "utf8"));
   }
+}
+
+/**
+ * A fresh in-memory database with every migration applied, or those before `migrationsBefore`.
+ * Create one per test file: it takes about a second.
+ */
+export async function createTestDatabase({
+  migrationsBefore,
+}: {
+  migrationsBefore?: string;
+} = {}): Promise<TestDatabase> {
+  const db = await PGlite.create();
+  await db.exec(await readFile(bootstrapFile, "utf8"));
+  await applyMigrations(db, { before: migrationsBefore });
 
   const profileIds = await seedProfiles(db);
 

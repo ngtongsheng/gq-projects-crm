@@ -340,6 +340,15 @@ export function buildMofs({ people, today }: BuildContext): ExampleTable[] {
     mof_id: mofId(m.key),
     cost: m.cost,
   }));
+  // One VO per VO amount, dated at the LOA date, as the migration backfilled saved MOFs.
+  const variationOrders: Row[] = MOFS.filter((m) => m.vo !== 0).map((m) => ({
+    id: exampleId("mof_variation_orders", m.key),
+    mof_id: mofId(m.key),
+    vo_no: "VO1",
+    confirmed_on: addDays(today, -m.loaDaysAgo),
+    amount: m.vo,
+    description: m.vo > 0 ? "Extra flooring" : "Omission",
+  }));
   return [
     { table: "mofs", key: "id", rows: mofs },
     { table: "mof_lines", key: "id", rows: lines },
@@ -351,6 +360,8 @@ export function buildMofs({ people, today }: BuildContext): ExampleTable[] {
       rows: [],
       cleanupKeys: MOFS.map((m) => mofId(m.key)),
     },
+    // After mofs, which already carry the VO amount, so the totals do not change.
+    { table: "mof_variation_orders", key: "id", rows: variationOrders },
   ];
 }
 

@@ -103,7 +103,7 @@ export async function loadSummary(): Promise<SummaryRow[]> {
       )
       .order("loa_date", { ascending: false })
       .order("mof_no", { ascending: false }),
-    supabase.from("mof_costs").select("mof_id, cost"),
+    supabase.from("mof_cost_totals").select("mof_id, cost"),
     getTeamDirectory(),
   ]);
   if (mofsResult.error) {

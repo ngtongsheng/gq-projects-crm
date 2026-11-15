@@ -21,7 +21,7 @@ parallel with loop 15 People & HR.
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | VO migration | todo | - | opus/medium |
+| 01 | VO migration | done | - | opus/medium |
 | 02 | VO sales month | todo | 01 | sonnet/high |
 | 03 | VO sheet + needs-work reopen | todo | 01 | opus/medium |
 | 04 | MOF change history | todo | - | opus/medium |
@@ -39,3 +39,6 @@ parallel with loop 15 People & HR.
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-15 · plan · loop written from drift-money-reports.md · next: wait for loop 12 merge, then #01
+2026-11-15 · worktree · ../gq-projects-crm-loops/14-mof-money on loop/14-mof-money · next: #01
+2026-11-15 · #01 · done · checks + 1716 tests pass · next: #02, #04, #05, #08 independent; #03 needs 01
+2026-11-15 · #01 · decision · VO cost in own table mof_variation_order_costs (RLS can_see_mof_cost) so salespeople never see cost; VO cost added via SQL view mof_cost_totals, mof-totals.ts unchanged; save_mof refuses a differing vo_amount; commission_basis/commission_payable_now and import_mofs redefined in the VO migration (task 05 starts from that version) · why: keep sum and cost rules consistent

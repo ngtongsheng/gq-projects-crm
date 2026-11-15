@@ -48,7 +48,7 @@ export async function loadPerformance(seesCost: boolean): Promise<{
       )
       .neq("stage", "cancelled"),
     seesCost
-      ? supabase.from("mof_costs").select("mof_id, cost")
+      ? supabase.from("mof_cost_totals").select("mof_id, cost")
       : Promise.resolve({ data: [], error: null }),
     supabase.from("profiles").select("id, full_name, yearly_target"),
     loadMyTeam(),

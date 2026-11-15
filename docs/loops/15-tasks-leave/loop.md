@@ -29,7 +29,7 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 | 08 | Leave page | done | 06, 07 | sonnet/high |
 | 09 | Who is away, holidays, entitlements | done | 08 | sonnet/high |
 | 10 | Chinese strings + dev seed | done | 03, 04, 08, 09 | sonnet/medium |
-| 11 | Parity pass, docs, merge | in-progress | 01-10 | sonnet/medium |
+| 11 | Parity pass, docs, merge | blocked: owner, test-copy credentials for Chrome parity | 01-10 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Start only after loop 13 is merged: `/execute-loop docs/loops/15-tasks-leave`.
@@ -64,3 +64,5 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 2026-11-15 · #10 · decision · server-action error messages, page metadata titles, calendar month/weekday names stay English; Chinese wording outside demo ZHEN is own wording (needs native read) · scope
 2026-11-15 · #11 · in-progress · merged origin/main (loop 20, sales calendar, site scoping); renamed migrations tasks 20261115130000→143000, task_people 140000→144000 (main has 130000/140000) · D8; 184 files/2078 tests pass, guard clean
 2026-11-15 · #11 · decision · Chrome parity needs test-copy credentials (.env.local read denied, .env.seed.dev absent) and migrations on the test copy; parked as owner step, docs done first · stop rule: credentials
+2026-11-15 · #11 · partial · docs done; branch pushed; PR #45 open, not merged · blocked: owner · put `.env.local` (SUPABASE_DEV_DB_URL) and `.env.seed.dev` in the loop 15 worktree, then re-run /execute-loop docs/loops/15-tasks-leave: apply migrations, seed, Chrome parity (Tasks and Leave, each role, 1280 and 390 px), fix, merge
+2026-11-15 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-15-loop-15-tasks-leave.md

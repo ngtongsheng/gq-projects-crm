@@ -88,3 +88,6 @@ approval to build and ship without asking her.
 - `docs/decisions.md`: why things are the way they are. `docs/loops/`: the build plan history.
 - `docs/environments.md`: Supabase projects, Vercel, keys and where they live.
 - `docs/debt.md`: known shortcuts. Log any new one there with what, why and when to fix.
+- Browser control: her opencode settings drive her own Chrome (profile and sign-ins), so open `http://localhost:3000`
+  or the live app and look at the page yourself; screenshots and clicks are not prompted (limits in
+  `docs/decisions.md`, Loop 20).

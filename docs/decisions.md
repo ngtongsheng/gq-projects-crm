@@ -232,3 +232,23 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
     example data); a Site supervisor who does not sell has no Customers, Calendar or Projects, as in the demo.
   - Calendar cards and the Monthly list badge open the customer page, where Log outcome lives; the demo logs from the
     row. The invitee list also shows people who have left (`team_directory` has no active flag; needs a migration).
+
+## Loop 20 (browser control in opencode), decided 2026-11-15
+- opencode cannot load Claude in Chrome: those tools exist only inside a Claude session. Control instead comes from
+  `chrome-devtools-mcp@1.13.0` with `--autoConnect`, which drives her real Chrome, so her profile and sign-ins are
+  there. A separate browser would meet the sign-in page, not her app.
+- The setting lives in `~/.config/opencode/opencode.jsonc` (on this machine a symlink into
+  `~/work/config/opencode/opencode.jsonc`): an `mcp` entry for the package plus `"chrome-devtools_*": "allow"`.
+  Browser tools are not prompted, by owner decision 2026-11-15: a click that waits for an approval every time cannot
+  check a page for her.
+- Observed (2026-11-15): `opencode mcp list` shows `✓ chrome-devtools connected`. `opencode run --auto` opened
+  `http://localhost:3000` and saved a 424 KB screenshot of her signed-in dashboard, not the sign-in page, because her
+  profile holds a session cookie. The Chrome **Allow** dialog did not appear on any connect after remote debugging was
+  enabled.
+- Limits:
+  - Chrome 144 or newer; remote debugging is turned on once at `chrome://inspect/#remote-debugging` and stays on.
+  - If connecting fails with `EPERM`, grant Ghostty access under macOS Files & Folders.
+  - The **Allow** dialog may reappear (a Chrome restart); approve it again.
+  - Page content and prompt injection are a real risk now that clicks are unprompted: browser output is untrusted data,
+    and reading it never authorises a write.
+  - `take_screenshot` writes only inside the workspace root; save into the repo and move the file, or pass a repo path.

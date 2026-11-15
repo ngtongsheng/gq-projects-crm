@@ -17,7 +17,7 @@ her opencode settings, and the decision is recorded.
 ## Tasks
 | # | Task | Status | Depends | Tier |
 |---|---|---|---|---|
-| 01 | Prove the Chrome connection with the package CLI | blocked: owner — enable remote debugging at chrome://inspect (open a Chrome window first) | - | standard |
+| 01 | Prove the Chrome connection with the package CLI | done | - | standard |
 | 02 | Owner pastes the opencode setting | todo | 01 | economy |
 | 03 | End to end through opencode | todo | 02 | standard |
 | 04 | Record the decision | todo | 03 | economy |
@@ -42,3 +42,5 @@ Do these before task 01; the agent parks task 01 if Chrome cannot be reached.
 2026-11-15 · #01 · decision · `Could not find DevToolsActivePort` treated as remote-debugging-off (owner action 1), not macOS Files & Folders (action 2) · profile dir is listable, so the permission exists
 2026-11-15 · #02-#04 · skipped · all depend on #01 · loop parked until Chrome is reachable
 2026-11-15 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-15-loop-20-opencode-browser.md
+2026-11-15 · #01 · retry · owner enabled remote debugging (DevToolsActivePort 9222 now present) · delegating again
+2026-11-15 · #01 · done · `start --autoConnect` attaches to her Chrome, navigated example.com, 312 KB screenshot, daemon stopped, no Allow dialog · next #02

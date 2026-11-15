@@ -29,8 +29,8 @@ parallel with loop 15 People & HR.
 | 06 | Appeals UI | done | 05 | sonnet/high |
 | 07 | Performance deltas | done | 02 | sonnet/high |
 | 08 | Reports two-step review | done | - | opus/medium |
-| 09 | Report print + BD retitle | in-progress | 08 | sonnet/medium |
-| 10 | Site report restructure | todo | 08 | sonnet/high |
+| 09 | Report print + BD retitle | done | 08 | sonnet/medium |
+| 10 | Site report restructure | in-progress | 08 | sonnet/high |
 | 11 | Parity pass, docs, merge | todo | 01-10 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
@@ -58,3 +58,5 @@ parallel with loop 15 People & HR.
 2026-11-15 · #08 · done · checks + 1864 tests pass (resumed after usage limit) · next: #09
 2026-11-15 · #08 · decision · new status approved; MD review = approval; site reports stay with Sales Director (demo contradicts itself, D9); salesperson with no lead: MD only; BD director reports go to md only · why: loop 11 team rule, DB enforces each step
 2026-11-15 · #08 · decision · Marketing Director (bd) may review team sales reports in DB but has no Team Reports page; logged in debt.md, not widened · why: page access is a scope/role decision outside this loop
+2026-11-15 · #09 · done · checks + 1864 tests pass; Chrome print preview NOT checked, moved to #11 · next: #10
+2026-11-15 · #09 · decision · print sheet hidden-on-screen (print:hidden on screen content) not a separate overlay; PrintSignatureRow got optional 3-column prop; no "Printed" date stamp · why: simplest reuse of print-layout

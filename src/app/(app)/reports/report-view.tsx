@@ -26,11 +26,12 @@ import {
 import { ReportFigures } from "./report-figures";
 import { ReportForm } from "./report-form";
 import type { ReportsView } from "./report-params";
+import { PrintReportButton, ReportPrintSheet } from "./report-print";
 import { ApproveForm, ReviewForm } from "./review-form";
 
 export const KIND_LABEL: Record<ReportKind, string> = {
   sales: "Sales monthly report",
-  bd: "BD monthly report",
+  bd: "Marketing director monthly report",
   site: "Site supervisor monthly report",
 };
 
@@ -226,84 +227,100 @@ export async function ReportView({
     report.status === "reviewed" &&
     view.me.jobRole === "md";
   const name = view.nameOf.get(personId) ?? "Unnamed";
+  const pace = monthPace(
+    view.month,
+    view.today,
+    await loadWorkCalendar(kind === "site" ? "mon-sat" : "mon-fri"),
+  );
+  const nameOfId = (id: string | null) =>
+    id ? (view.nameOf.get(id) ?? "Unnamed") : null;
 
   return (
-    <div className="flex flex-col gap-4">
-      {!own && (
-        <Button asChild variant="ghost" size="sm" className="self-start">
-          <Link href={reportHref(view.basePath, view.month, query)}>
-            <ChevronLeft data-icon="inline-start" />
-            {backLabel}
-          </Link>
-        </Button>
-      )}
-      <PageHeader
-        title={`${KIND_LABEL[kind]} · ${name}`}
-        description={dueText(view)}
-        actions={
-          <MonthSwitcher
-            view={view}
-            query={own ? query : { ...query, person: personId }}
-          />
-        }
-      />
-      <div className="flex flex-wrap items-center gap-2 text-sm">
-        <StatusBadge tone={flag.tone}>{flag.label}</StatusBadge>
-        {report?.submittedAt ? (
-          <span className="font-mono text-muted-foreground tabular-nums">
-            Submitted {formatDateTime(report.submittedAt)}
-          </span>
-        ) : null}
-      </div>
-      {own && editable && flag.label === "Overdue" && (
-        <p className="rounded-xl bg-bad-bg px-4 py-3 text-sm text-bad">
-          This report is overdue. Fill it in and submit.
-        </p>
-      )}
-
-      <section className="flex flex-col gap-2">
-        <h2 className="font-heading text-lg font-semibold">
-          {kind === "site" ? "Site work this month" : "Sales this month"}
-        </h2>
-        <ReportFigures
-          stats={stats}
-          pace={monthPace(
-            view.month,
-            view.today,
-            await loadWorkCalendar(kind === "site" ? "mon-sat" : "mon-fri"),
-          )}
-        />
-        <p className="text-sm text-muted-foreground">
-          {report?.stats
-            ? "Figures were frozen when the report was submitted."
-            : kind === "site"
-              ? "Counted from the site log and overtime. Frozen when you submit."
-              : "Counted from the calendar, projects and MOFs. Frozen when you submit."}
-        </p>
-      </section>
-
-      {editable ? (
-        <ReportForm
-          month={view.month}
-          kind={kind}
-          highlights={report?.highlights ?? []}
-          nextMonthPlan={report?.nextMonthPlan ?? null}
-          supportNeeded={report?.supportNeeded ?? null}
-          passDownsConfirmed={report?.passDownsConfirmed ?? false}
-        />
-      ) : report ? (
-        <ReportText report={report} />
-      ) : null}
-
-      {own && editable && <GoesTo />}
-      {report &&
-        (report.status === "reviewed" || report.status === "approved") && (
-          <ReviewNote report={report} nameOf={view.nameOf} />
+    <>
+      <div className="flex flex-col gap-4 print:hidden">
+        {!own && (
+          <Button asChild variant="ghost" size="sm" className="self-start">
+            <Link href={reportHref(view.basePath, view.month, query)}>
+              <ChevronLeft data-icon="inline-start" />
+              {backLabel}
+            </Link>
+          </Button>
         )}
-      {canReview && report && (
-        <ReviewForm reportId={report.id} isMd={view.me.jobRole === "md"} />
-      )}
-      {canApprove && report && <ApproveForm reportId={report.id} />}
-    </div>
+        <PageHeader
+          title={`${KIND_LABEL[kind]} · ${name}`}
+          description={dueText(view)}
+          actions={
+            <>
+              <MonthSwitcher
+                view={view}
+                query={own ? query : { ...query, person: personId }}
+              />
+              <PrintReportButton />
+            </>
+          }
+        />
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <StatusBadge tone={flag.tone}>{flag.label}</StatusBadge>
+          {report?.submittedAt ? (
+            <span className="font-mono text-muted-foreground tabular-nums">
+              Submitted {formatDateTime(report.submittedAt)}
+            </span>
+          ) : null}
+        </div>
+        {own && editable && flag.label === "Overdue" && (
+          <p className="rounded-xl bg-bad-bg px-4 py-3 text-sm text-bad">
+            This report is overdue. Fill it in and submit.
+          </p>
+        )}
+
+        <section className="flex flex-col gap-2">
+          <h2 className="font-heading text-lg font-semibold">
+            {kind === "site" ? "Site work this month" : "Sales this month"}
+          </h2>
+          <ReportFigures stats={stats} pace={pace} />
+          <p className="text-sm text-muted-foreground">
+            {report?.stats
+              ? "Figures were frozen when the report was submitted."
+              : kind === "site"
+                ? "Counted from the site log and overtime. Frozen when you submit."
+                : "Counted from the calendar, projects and MOFs. Frozen when you submit."}
+          </p>
+        </section>
+
+        {editable ? (
+          <ReportForm
+            month={view.month}
+            kind={kind}
+            highlights={report?.highlights ?? []}
+            nextMonthPlan={report?.nextMonthPlan ?? null}
+            supportNeeded={report?.supportNeeded ?? null}
+            passDownsConfirmed={report?.passDownsConfirmed ?? false}
+          />
+        ) : report ? (
+          <ReportText report={report} />
+        ) : null}
+
+        {own && editable && <GoesTo />}
+        {report &&
+          (report.status === "reviewed" || report.status === "approved") && (
+            <ReviewNote report={report} nameOf={view.nameOf} />
+          )}
+        {canReview && report && (
+          <ReviewForm reportId={report.id} isMd={view.me.jobRole === "md"} />
+        )}
+        {canApprove && report && <ApproveForm reportId={report.id} />}
+      </div>
+      <ReportPrintSheet
+        title={KIND_LABEL[kind]}
+        kind={kind}
+        month={view.month}
+        personName={name}
+        report={report}
+        stats={stats}
+        pace={pace}
+        reviewerName={nameOfId(report?.reviewedBy ?? null)}
+        approverName={nameOfId(report?.approvedBy ?? null)}
+      />
+    </>
   );
 }

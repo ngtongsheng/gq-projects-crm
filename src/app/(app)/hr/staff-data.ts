@@ -28,7 +28,7 @@ const packageRows = z.array(
 );
 
 /** Every recorded package row, the whole history; row-level security lets only the MD and HR & Accounts read them. */
-async function loadPackages(): Promise<StaffPackage[]> {
+export async function loadPackages(): Promise<StaffPackage[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("staff_packages")
@@ -162,7 +162,7 @@ const personRows = z.array(
 );
 
 /** Everyone still here except the MD, who has no package (demo hrStaff). leave_people() is the list HR may read profiles through. */
-async function loadStaffPeople(): Promise<StaffPerson[]> {
+export async function loadStaffPeople(): Promise<StaffPerson[]> {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("leave_people");
   if (error) throw new Error(`Could not load the team: ${error.message}`);

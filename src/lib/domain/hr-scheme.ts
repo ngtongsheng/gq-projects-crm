@@ -34,3 +34,34 @@ export function targetOverBasic(
 ): number | null {
   return basic ? Math.round(annualTarget / 12 / basic) : null;
 }
+
+/** The sales grades in promotion order. Mirrors the check constraint on sales_grades.grade. */
+export const SALES_GRADES = [
+  "J1",
+  "J2",
+  "J3",
+  "S1",
+  "S2",
+  "S3",
+  "SN1",
+  "SN2",
+  "SN3",
+  "M1",
+  "M2",
+] as const;
+export type SalesGrade = (typeof SALES_GRADES)[number];
+
+export type AppendixStatus = "not_signed" | "signed" | "older_version";
+
+/** Whether a person signed the current scheme: signing an older version means they need the new one. */
+export function appendixStatus(
+  signedOn: string | null,
+  signedVersion: string | null,
+  currentVersion: string | null,
+): AppendixStatus {
+  if (!signedOn) return "not_signed";
+  if (signedVersion && currentVersion && signedVersion !== currentVersion) {
+    return "older_version";
+  }
+  return "signed";
+}

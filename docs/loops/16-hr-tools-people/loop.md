@@ -22,8 +22,8 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 | 01 | HR migration | done | - | opus/medium |
 | 02 | HR: Policies & schemes | done | 01 | sonnet/high |
 | 03 | HR: Staff packages + outstation | done | 01 | sonnet/high |
-| 04 | HR: Sales grades & bonus | in-progress | 01 | sonnet/high |
-| 05 | Per-year targets migration | todo | 01 | opus/medium |
+| 04 | HR: Sales grades & bonus | done | 01 | sonnet/high |
+| 05 | Per-year targets migration | in-progress | 01 | opus/medium |
 | 06 | People: targets + Sales teams | todo | 05 | sonnet/high |
 | 07 | Resignation handover | todo | - | opus/medium |
 | 08 | Tools: calculators | todo | - | sonnet/high |
@@ -54,3 +54,7 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 2026-11-15 · #03 · decision · confirmation date, offer letter, notes saved to staff_hr_records without touching grade or appendix · #04 owns those
 2026-11-15 · #03 · decision · hotel level Auto uses job role and grade only; bd uses the salesperson standard package · demo parity, avoid circularity
 2026-11-15 · #04 · in-progress
+2026-11-15 · #04 · done · check, typecheck, test pass (2339); browser parity deferred to #11 · next: #05
+2026-11-15 · #04 · decision · per-person grade table drops demo's 2026 target/sales so far/bonus columns and per-person basic override · D2; per-year targets come in #05/#06
+2026-11-15 · #04 · decision · appendix signed date stamps the current scheme version · demo parity
+2026-11-15 · #05 · in-progress

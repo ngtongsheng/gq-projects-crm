@@ -3,7 +3,6 @@ import { DataTable, type DataTableColumn } from "@/components/app/data-table";
 import { StatusBadge, type StatusTone } from "@/components/app/status-badge";
 import type { CommissionSettings } from "@/lib/domain/commission-settings";
 import {
-  BONUS_BANDS,
   ratesMatchScheme,
   SCHEME_CLAIM_THRESHOLD_PCT,
   SCHEME_RATES,
@@ -12,6 +11,7 @@ import {
 import { formatRm } from "@/lib/format/money";
 import type { Translate } from "@/lib/i18n/translate";
 import { LeaveSection } from "../leave/leave-section";
+import { BonusBands } from "./bonus-bands";
 import type { SchemeGrade } from "./policy-data";
 
 const Pct = ({ value }: { value: number }) => (
@@ -136,19 +136,7 @@ export function SchemeSummary({
           </p>
         </Part>
         <Part title={`2 · ${t("Performance bonus")}`}>
-          <Rows
-            rows={BONUS_BANDS.map((band) => ({
-              key: band.when,
-              text: t(band.when),
-              value: <span>{t(band.reward)}</span>,
-            }))}
-          />
-          <p className="text-sm text-muted-foreground">
-            <b>{t("Counted on the annual target and paid after year end.")}</b>{" "}
-            {t(
-              "Subject to project profitability, payment collection, individual performance, compliance, no unresolved customer or project issues, and management's final approval.",
-            )}
-          </p>
+          <BonusBands t={t} />
         </Part>
         <Part title={`3 · ${t("Commission rates")}`}>
           <Rows

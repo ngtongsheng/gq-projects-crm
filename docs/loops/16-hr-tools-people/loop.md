@@ -27,8 +27,8 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 | 06 | People: targets + Sales teams | done | 05 | sonnet/high |
 | 07 | Resignation handover | done | - | opus/medium |
 | 08 | Tools: calculators | done | - | sonnet/high |
-| 09 | Tools: A4 forms + links | in-progress | - | sonnet/high |
-| 10 | Chinese strings + dev seed | todo | 02, 03, 04, 06, 07, 08, 09 | sonnet/medium |
+| 09 | Tools: A4 forms + links | done | - | sonnet/high |
+| 10 | Chinese strings + dev seed | in-progress | 02, 03, 04, 06, 07, 08, 09 | sonnet/medium |
 | 11 | Parity pass, docs, merge | todo | 01-10 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
@@ -75,3 +75,8 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 2026-11-15 · #08 · decision · vinyl layouts A/B recommended by order length and welding rod as in demo (no offcut figure exists) · match demo numbers
 2026-11-15 · #08 · decision · tools is built for all roles (sidebar "Tools & Forms" before Leave); /tools?view= tabs, #09 appends to TOOLS_VIEWS in tools-view.ts and updates the Guide sentence "Forms to print come next" · demo parity
 2026-11-15 · #09 · in-progress
+2026-11-15 · #09 · done · check, typecheck, test (2411), guard:migrations pass; migration 20261116140000_form_links.sql; browser parity and print preview deferred to #11 · next: #10
+2026-11-15 · #09 · decision · Best Link pickup row links to /stock until loop 17 Samples exists (PICKUP_FORM_HREF in forms-view.tsx); loop 17 repoints it · module not built
+2026-11-15 · #09 · decision · Drive links managed by admin role only (demo: MD or HR & Accounts); widening is one RLS + action change · brief
+2026-11-15 · #09 · decision · MOF choices for forms = every MOF except cancelled and closed, newest 80 · no completion date exists
+2026-11-15 · #10 · in-progress

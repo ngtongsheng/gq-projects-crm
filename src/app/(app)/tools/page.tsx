@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/app/page-header";
+import { canOpen } from "@/lib/auth/page-access";
 import { requirePage } from "@/lib/auth/require-page";
 import { getT } from "@/lib/i18n/server-t";
+import { FormsView } from "./forms-view";
 import { ToolsTabs } from "./tools-tabs";
 import { parseToolsView } from "./tools-view";
 import { VinylCalculator } from "./vinyl-calculator";
@@ -27,7 +29,15 @@ export default async function ToolsPage({
         )}
       />
       <ToolsTabs active={view} t={t} />
-      {view === "wallpaper" ? <WallpaperCalculator /> : <VinylCalculator />}
+      {view === "wallpaper" && <WallpaperCalculator />}
+      {view === "vinyl" && <VinylCalculator />}
+      {view === "forms" && (
+        <FormsView
+          canAddLinks={me.role === "admin"}
+          canOpenStock={await canOpen(me, "stock")}
+          t={t}
+        />
+      )}
     </div>
   );
 }

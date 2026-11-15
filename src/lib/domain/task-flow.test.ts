@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  canAddReferenceFile,
   canAssignTasks,
   canEditTask,
   canMoveDueDate,
@@ -134,6 +135,14 @@ describe("editing", () => {
     expect(canEditTask(task("completed"), ASSIGNER)).toBe(false);
     for (const viewer of [MAIN, CO, MD, DIRECTOR, OTHER]) {
       expect(canEditTask(task("in_progress"), viewer)).toBe(false);
+    }
+  });
+
+  it("lets only the assigner add reference files, until completed", () => {
+    expect(canAddReferenceFile(task("not_started"), ASSIGNER)).toBe(true);
+    expect(canAddReferenceFile(task("completed"), ASSIGNER)).toBe(false);
+    for (const viewer of [MAIN, CO, MD, DIRECTOR, OTHER]) {
+      expect(canAddReferenceFile(task("not_started"), viewer)).toBe(false);
     }
   });
 

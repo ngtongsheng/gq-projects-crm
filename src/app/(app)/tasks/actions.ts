@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
+import { nextWorkVersion, submitLogBody } from "@/lib/domain/task-files";
 import {
   canAssignTasks,
   canEditTask,
@@ -13,13 +14,13 @@ import {
   TASK_CATEGORIES,
   TASK_PRIORITIES,
   TASK_PRIORITY_LABEL,
-  TASK_STATUSES,
   type TaskMove,
-  type TaskParties,
 } from "@/lib/domain/task-flow";
 import { optionalId, textField } from "@/lib/form/form-fields";
 import { formatDate, todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
+import { isInTaskFolder, TaskFileInput } from "./task-file-input";
+import { loadTask, type Supabase } from "./task-load";
 
 export type TaskResult = { error: string | null };
 
@@ -107,49 +108,6 @@ const taskColumns = (details: TaskDetails) => ({
   assigned_on: details.assignedOn,
   due_on: details.dueOn,
 });
-
-const taskRow = z.object({
-  id: z.uuid(),
-  status: z.enum(TASK_STATUSES),
-  assignee_id: z.uuid(),
-  assigned_by: z.uuid(),
-  priority: z.enum(TASK_PRIORITIES),
-  due_on: z.iso.date(),
-  task_co_assignees: z.array(z.object({ profile_id: z.uuid() })),
-});
-type LoadedTask = TaskParties & {
-  id: string;
-  priority: z.infer<typeof taskRow>["priority"];
-  dueOn: string;
-};
-
-type Supabase = Awaited<ReturnType<typeof createClient>>;
-
-/** The task as this person sees it, or null when row-level security hides it. */
-async function loadTask(
-  supabase: Supabase,
-  id: string,
-): Promise<LoadedTask | null> {
-  const { data, error } = await supabase
-    .from("tasks")
-    .select(
-      "id, status, assignee_id, assigned_by, priority, due_on, task_co_assignees(profile_id)",
-    )
-    .eq("id", id)
-    .maybeSingle();
-  if (error) throw new Error(`Could not load the task: ${error.message}`);
-  if (!data) return null;
-  const row = taskRow.parse(data);
-  return {
-    id: row.id,
-    status: row.status,
-    assigneeId: row.assignee_id,
-    coAssigneeIds: row.task_co_assignees.map((co) => co.profile_id),
-    assignedBy: row.assigned_by,
-    priority: row.priority,
-    dueOn: row.due_on,
-  };
-}
 
 // The change is already saved when the log is written; a lost log line is logged, not shown
 // (docs/debt.md, task log not atomic).
@@ -290,14 +248,60 @@ const moveForm = z.object({
   comment: note("comment"),
 });
 
-const MOVE_LOG: Record<TaskMove, (comment: string) => string> = {
+const MOVE_LOG: Record<
+  Exclude<TaskMove, "submit">,
+  (comment: string) => string
+> = {
   start: () => "Started",
-  submit: (comment) =>
-    comment ? `Submitted for review · ${comment}` : "Submitted for review",
   approve: (comment) =>
     comment ? `Approved · completed · ${comment}` : "Approved · completed",
   revise: (comment) => `Revision required: ${comment}`,
 };
+
+/**
+ * Records the finished work sent with a submission, all under the next version number. Done
+ * before the status moves, after the move was checked allowed; a lost race leaves the files
+ * on the task, still readable by everyone who sees it.
+ */
+async function recordWorkFiles(
+  supabase: Supabase,
+  taskId: string,
+  files: TaskFileInput[],
+): Promise<TaskResult | { error: null; version: number }> {
+  if (!files.every((file) => isInTaskFolder(file, taskId))) {
+    return { error: "A file does not belong to this task. Upload it again." };
+  }
+  const { data, error } = await supabase
+    .from("task_files")
+    .select("kind, version")
+    .eq("task_id", taskId);
+  if (error) {
+    console.error("Could not read the task files", error);
+    return { error: TRY_AGAIN };
+  }
+  const version = nextWorkVersion(
+    z
+      .array(
+        z.object({
+          kind: z.enum(["reference", "work"]),
+          version: z.number().nullable(),
+        }),
+      )
+      .parse(data),
+  );
+  const { error: insertError } = await supabase.from("task_files").insert(
+    files.map((file) => ({
+      task_id: taskId,
+      path: file.path,
+      file_name: file.fileName,
+      content_type: file.contentType,
+      kind: "work",
+      version,
+    })),
+  );
+  if (insertError) return saveError(insertError, "save the files");
+  return { error: null, version };
+}
 
 /**
  * Moves a task along its flow. The database checks the same rules and stamps the submit,
@@ -307,6 +311,7 @@ async function moveTask(
   move: TaskMove,
   id: string,
   comment: string,
+  files: TaskFileInput[] = [],
 ): Promise<TaskResult> {
   const me = await requirePage("tasks");
   const parsed = moveForm.safeParse({ id, comment });
@@ -322,6 +327,13 @@ async function moveTask(
   if (!task) return { error: NOT_FOUND };
   if (!canMoveTask(task, me, move)) return { error: NOT_ALLOWED };
 
+  let version = 1;
+  if (files.length > 0) {
+    const recorded = await recordWorkFiles(supabase, task.id, files);
+    if (!("version" in recorded)) return recorded;
+    version = recorded.version;
+  }
+
   const { data, error } = await supabase
     .from("tasks")
     .update({ status: statusAfter(move) })
@@ -331,7 +343,13 @@ async function moveTask(
   if (error) return saveError(error, `${move} the task`);
   if (data.length === 0) return { error: CHANGED };
 
-  await writeLog(supabase, task.id, MOVE_LOG[move](parsed.data.comment));
+  await writeLog(
+    supabase,
+    task.id,
+    move === "submit"
+      ? submitLogBody(parsed.data.comment, files.length, version)
+      : MOVE_LOG[move](parsed.data.comment),
+  );
   revalidatePath("/tasks");
   return { error: null };
 }
@@ -340,11 +358,17 @@ export async function startTask(id: string): Promise<TaskResult> {
   return moveTask("start", id, "");
 }
 
+/** Sends the work for review, with the files already uploaded for this submission. */
 export async function submitTask(
   id: string,
   comment: string,
+  files: unknown = [],
 ): Promise<TaskResult> {
-  return moveTask("submit", id, comment);
+  const parsedFiles = z.array(TaskFileInput).max(20).safeParse(files);
+  if (!parsedFiles.success) {
+    return { error: "A file could not be read. Upload it again." };
+  }
+  return moveTask("submit", id, comment, parsedFiles.data);
 }
 
 export async function approveTask(

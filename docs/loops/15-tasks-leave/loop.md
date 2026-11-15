@@ -22,8 +22,8 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 | 01 | Tasks migration | done | - | opus/medium |
 | 02 | Task flow rules | done | 01 | opus/medium |
 | 03 | Tasks page: tabs + tiles | done | 02 | sonnet/high |
-| 04 | Task sheet | in-progress | 02 | sonnet/high |
-| 05 | Leave migration | todo | - | opus/medium |
+| 04 | Task sheet | done | 02 | sonnet/high |
+| 05 | Leave migration | in-progress | - | opus/medium |
 | 06 | Leave maths | todo | 05 | opus/medium |
 | 07 | Leave approval + slip rules | todo | 05 | opus/medium |
 | 08 | Leave page | todo | 06, 07 | sonnet/high |
@@ -47,3 +47,5 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 2026-11-15 · #03 · in-progress · must flip `tasks` to built:true in pages.ts (requirePage 404s until then)
 2026-11-15 · #03 · done · tasks page, tiles, workload, new-task dialog; checks pass (1802 tests); visual parity deferred to #11 (needs test copy with migrations) · next: #04
 2026-11-15 · #03 · decision · added migration task_people() for role-aware assignee list (team_directory lacks job role); 4 tiles incl. waiting review; dialog not sheet · follows demo/app patterns
+2026-11-15 · #04 · done · task sheet, files with versions, review panel, log; checks pass (1821 tests); parity deferred to #11 · next: #05
+2026-11-15 · #04 · decision · no edit-task UI (editTask action exists; not in task spec); title-only click; separate Save new date button · DataTable is server component, spec silent

@@ -107,6 +107,10 @@ export const taskMoves = (task: TaskParties, viewer: TaskViewer): TaskMove[] =>
 export const canEditTask = (task: TaskParties, viewer: TaskViewer) =>
   task.status !== "completed" && task.assignedBy === viewer.id;
 
+/** The assigner attaches reference files until the task is completed. */
+export const canAddReferenceFile = (task: TaskParties, viewer: TaskViewer) =>
+  task.status !== "completed" && task.assignedBy === viewer.id;
+
 /** The people on the task may move the due date (demo "Can't make the due date?"). */
 export const canMoveDueDate = (task: TaskParties, viewer: TaskViewer) =>
   task.status !== "completed" && isOnTask(task, viewer.id);

@@ -7,6 +7,7 @@ import {
   selectTasks,
   type TaskRow,
   taskBanner,
+  taskListHref,
   taskTiles,
   viewsFor,
   workloadRows,
@@ -263,5 +264,21 @@ describe("taskBanner", () => {
     });
     expect(taskBanner([waiting], MD, TODAY, name)?.parts).toHaveLength(1);
     expect(taskBanner([waiting], ME, TODAY, name)).toBeNull();
+  });
+});
+
+describe("taskListHref", () => {
+  const params = { view: "given", status: "open", person: "all" } as const;
+
+  it("keeps the tab and filters and adds the task to open", () => {
+    expect(taskListHref(params, "abc")).toBe(
+      "/tasks?view=given&status=open&person=all&task=abc",
+    );
+  });
+
+  it("drops the task to close the sheet", () => {
+    expect(taskListHref(params)).toBe(
+      "/tasks?view=given&status=open&person=all",
+    );
   });
 });

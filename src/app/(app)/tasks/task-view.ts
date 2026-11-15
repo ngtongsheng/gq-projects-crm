@@ -164,7 +164,10 @@ export type DueNote = {
 };
 
 /** The line under the due date (demo tkDueTxt). */
-export function dueNote(task: TaskRow, today: CalendarDate): DueNote {
+export function dueNote(
+  task: Pick<TaskRow, "status" | "dueOn" | "submittedOn" | "completedOn">,
+  today: CalendarDate,
+): DueNote {
   if (task.status === "completed") {
     return {
       tone: "good",
@@ -183,6 +186,17 @@ export function dueNote(task: TaskRow, today: CalendarDate): DueNote {
   if (days === 0) return { tone: "warn", text: "Due today" };
   if (days === 1) return { tone: "warn", text: "Due tomorrow" };
   return { tone: "plain", text: `in ${days} days` };
+}
+
+/** The address of the task list with the sheet open on a task, or closed when no id is given. */
+export function taskListHref(params: TaskParams, taskId?: string): string {
+  const query = new URLSearchParams({
+    view: params.view,
+    status: params.status,
+    person: params.person,
+  });
+  if (taskId) query.set("task", taskId);
+  return `/tasks?${query}`;
 }
 
 export type TaskPerson = { id: string; name: string; jobRole: JobRole };

@@ -1,4 +1,5 @@
 import { ListChecks, Paperclip } from "lucide-react";
+import Link from "next/link";
 import { DataTable, type DataTableColumn } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
 import { TASK_CATEGORY_LABEL } from "@/lib/domain/task-labels";
@@ -13,12 +14,15 @@ export function TasksTable({
   today,
   showAssignee,
   showAssigner,
+  hrefFor,
 }: {
   rows: TaskRow[];
   nameOf: (personId: string) => string;
   today: CalendarDate;
   showAssignee: boolean;
   showAssigner: boolean;
+  /** The address that opens a task's sheet. */
+  hrefFor: (taskId: string) => string;
 }) {
   const columns: DataTableColumn<TaskRow>[] = [
     {
@@ -26,7 +30,13 @@ export function TasksTable({
       header: "Task",
       cell: (task) => (
         <div className="min-w-48">
-          <p className="font-semibold">{task.title}</p>
+          <Link
+            href={hrefFor(task.id)}
+            scroll={false}
+            className="font-semibold underline-offset-2 hover:underline"
+          >
+            {task.title}
+          </Link>
           <p className="flex flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground">
             <span>{TASK_CATEGORY_LABEL[task.category]}</span>
             {task.projectLabel && <span>· {task.projectLabel}</span>}

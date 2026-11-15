@@ -95,6 +95,11 @@ const row = (status: string, extra: Record<string, unknown> = {}) => ({
   },
   error: null,
 });
+const workFile = (name: string) => ({
+  path: `tasks/${TASK}/1a2b3c4d-${name}`,
+  fileName: name,
+  contentType: name.endsWith(".pdf") ? "application/pdf" : "image/png",
+});
 const saved = { data: [{ id: TASK }], error: null };
 const ok = { data: null, error: null };
 
@@ -270,6 +275,63 @@ describe("status moves", () => {
     expect(calls[2]).toMatchObject({
       payload: { body: "Submitted for review · v2 attached" },
     });
+  });
+
+  it("records the files of a submission under the next version and logs them", async () => {
+    signedIn(MAIN, "designer");
+    const calls = fakeSupabase(
+      row("revision_required"),
+      {
+        data: [
+          { kind: "reference", version: null },
+          { kind: "work", version: 1 },
+        ],
+        error: null,
+      },
+      ok,
+      saved,
+      ok,
+    );
+
+    expect(
+      await submitTask(TASK, "Final", [workFile("a.pdf"), workFile("b.png")]),
+    ).toEqual({ error: null });
+    expect(calls[2]).toMatchObject({
+      table: "task_files",
+      op: "insert",
+      payload: [
+        { task_id: TASK, file_name: "a.pdf", kind: "work", version: 2 },
+        { task_id: TASK, file_name: "b.png", kind: "work", version: 2 },
+      ],
+    });
+    expect(calls[3]?.payload).toEqual({ status: "pending_review" });
+    expect(calls[4]).toMatchObject({
+      payload: { body: "Submitted for review with 2 files (v2) · Final" },
+    });
+  });
+
+  it("refuses files that were uploaded for another task", async () => {
+    signedIn(MAIN, "designer");
+    const calls = fakeSupabase(row("in_progress"));
+    const stray = {
+      ...workFile("a.pdf"),
+      path: "tasks/66666666-6666-4666-8666-666666666666/1a2b3c4d-a.pdf",
+    };
+
+    expect((await submitTask(TASK, "", [stray])).error).toMatch(
+      /does not belong/,
+    );
+    expect(calls).toHaveLength(1);
+  });
+
+  it("does not record files when the move is not allowed", async () => {
+    signedIn(ASSIGNER, "bd");
+    const calls = fakeSupabase(row("in_progress"));
+
+    expect((await submitTask(TASK, "", [workFile("a.pdf")])).error).toMatch(
+      /cannot do that/,
+    );
+    expect(calls).toHaveLength(1);
   });
 
   it("refuses the assignee approving their own work", async () => {

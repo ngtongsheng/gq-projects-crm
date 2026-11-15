@@ -18,10 +18,18 @@ const people: PerformancePerson[] = [
 const order = (
   salespersonId: string,
   loaDate: string,
-  invoice: number,
+  contractSum: number,
   received: number,
   cost: number | null = null,
-): PerformanceOrder => ({ salespersonId, loaDate, invoice, received, cost });
+  variationOrders: PerformanceOrder["variationOrders"] = [],
+): PerformanceOrder => ({
+  salespersonId,
+  loaDate,
+  contractSum,
+  variationOrders,
+  received,
+  cost,
+});
 
 const orders = [
   order(DILLON, "2026-01-10", 16_000, 16_000, 9_000),
@@ -92,6 +100,57 @@ describe("performanceRows", () => {
     expect(idle?.target).toBeNull();
     expect(idle?.achievedPct).toBeNull();
     expect(idle?.ytd).toBe(1_000);
+  });
+
+  describe("variation orders", () => {
+    const withVo = [
+      order(DILLON, "2026-02-03", 10_000, 0, null, [
+        // backfilled VO: dated at the LOA, so it stays in the MOF month
+        { confirmedOn: "2026-02-03", amount: 1_000 },
+        { confirmedOn: "2026-05-14", amount: 2_500 },
+      ]),
+    ];
+    const result = performanceRows(withVo, people, 2026);
+    const dillon = result.rows.find((row) => row.personId === DILLON);
+
+    it("moves only the VO's amount to its confirmed month", () => {
+      expect(dillon?.months[1]).toBe(11_000);
+      expect(dillon?.months[4]).toBe(2_500);
+      expect(dillon?.ytd).toBe(13_500);
+    });
+
+    it("counts the order once and owes on the full invoice", () => {
+      expect(dillon?.count).toBe(1);
+      expect(dillon?.outstanding).toBe(13_500);
+    });
+
+    it("counts a VO confirmed in a later year in that year, not the LOA year", () => {
+      const later = [
+        order(DILLON, "2025-12-20", 10_000, 0, null, [
+          { confirmedOn: "2026-01-08", amount: 700 },
+        ]),
+      ];
+      const y2026 = performanceRows(later, people, 2026);
+      const y2025 = performanceRows(later, people, 2025);
+      expect(y2026.rows[0]?.months[0]).toBe(700);
+      expect(y2026.rows[0]?.count).toBe(0);
+      expect(y2025.rows[0]?.ytd).toBe(10_000);
+    });
+
+    it("subtracts an omission in its own month", () => {
+      const cut = performanceRows(
+        [
+          order(SARAH, "2026-03-05", 4_000, 0, null, [
+            { confirmedOn: "2026-04-01", amount: -500 },
+          ]),
+        ],
+        people,
+        2026,
+      );
+      expect(cut.rows.find((row) => row.personId === SARAH)?.months[3]).toBe(
+        -500,
+      );
+    });
   });
 
   it("hides the year it was not asked for", () => {

@@ -82,21 +82,21 @@ describe("sales figures", () => {
             passedBy: null,
             loaDate: "2026-11-10",
             contractSum: 1000.1,
-            voAmount: 0.2,
+            variationOrders: [{ confirmedOn: "2026-11-10", amount: 0.2 }],
           },
           {
             salespersonId: ME,
             passedBy: null,
             loaDate: "2026-11-30",
             contractSum: 500,
-            voAmount: -100,
+            variationOrders: [{ confirmedOn: "2026-11-30", amount: -100 }],
           },
           {
             salespersonId: ME,
             passedBy: null,
             loaDate: "2026-12-01",
             contractSum: 9000,
-            voAmount: 0,
+            variationOrders: [],
           },
         ],
       }),
@@ -105,6 +105,29 @@ describe("sales figures", () => {
       quotations: 2,
       awardedCount: 2,
       awardedValue: 1400.3,
+    });
+  });
+
+  it("counts a VO in the month it is confirmed, not the month of the order", () => {
+    const orders = [
+      {
+        salespersonId: ME,
+        passedBy: null,
+        loaDate: "2026-10-05",
+        contractSum: 5000,
+        variationOrders: [
+          { confirmedOn: "2026-10-05", amount: 100 },
+          { confirmedOn: "2026-11-12", amount: 250 },
+        ],
+      },
+    ];
+    expect(salesStats(sales({ orders }))).toMatchObject({
+      awardedCount: 0,
+      awardedValue: 250,
+    });
+    expect(salesStats(sales({ orders, month: "2026-10-01" }))).toMatchObject({
+      awardedCount: 1,
+      awardedValue: 5100,
     });
   });
 
@@ -117,21 +140,21 @@ describe("sales figures", () => {
             passedBy: ME,
             loaDate: "2026-11-10",
             contractSum: 2000,
-            voAmount: 0,
+            variationOrders: [],
           },
           {
             salespersonId: ME,
             passedBy: ME,
             loaDate: "2026-11-11",
             contractSum: 300,
-            voAmount: 0,
+            variationOrders: [],
           },
           {
             salespersonId: OTHER,
             passedBy: ME,
             loaDate: "2026-10-31",
             contractSum: 700,
-            voAmount: 0,
+            variationOrders: [],
           },
         ],
       }),

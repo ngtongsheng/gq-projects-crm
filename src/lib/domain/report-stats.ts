@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { JobRole } from "@/lib/auth/job-role";
 import { isSameMonth, startOfMonth } from "@/lib/domain/calendar-grid";
-import { orderTotal } from "@/lib/domain/mof-totals";
+import { type SalesOrder, salesIn } from "@/lib/domain/order-sales";
 import {
   firstMondayOfNextMonth,
   pace,
@@ -86,13 +86,11 @@ export type ReportProject = {
   createdOn: CalendarDate;
 };
 
-export type ReportOrder = {
+/** An order with sales in the month: its LOA date is in it, or one of its VOs was confirmed in it. */
+export type ReportOrder = SalesOrder & {
   salespersonId: string;
   /** Who passed the project down, from Projects. */
   passedBy: string | null;
-  loaDate: CalendarDate;
-  contractSum: number;
-  voAmount: number;
 };
 
 export type SalesInput = {
@@ -116,6 +114,9 @@ function firstVisits(visits: readonly ReportVisit[]): Map<string, ReportVisit> {
   return first;
 }
 
+/** "2026-11" from "2026-11-01". */
+const monthPrefix = (month: CalendarDate) => month.slice(0, 7);
+
 function salesFigures(input: SalesInput): z.infer<typeof SalesFigures> {
   const { personId, month } = input;
   const visits = input.visits.filter(
@@ -131,17 +132,17 @@ function salesFigures(input: SalesInput): z.infer<typeof SalesFigures> {
       project.stage !== "lead" &&
       isSameMonth(project.createdOn, month),
   ).length;
-  const awarded = input.orders.filter(
-    (order) =>
-      order.salespersonId === personId && isSameMonth(order.loaDate, month),
-  );
+  const mine = input.orders.filter((order) => order.salespersonId === personId);
+  const awarded = mine.filter((order) => isSameMonth(order.loaDate, month));
   return {
     visits: visits.length,
     visitTarget: input.targets.salesVisits,
     newCustomers,
     quotations,
     awardedCount: awarded.length,
-    awardedValue: sumRm(awarded.map(orderTotal)),
+    awardedValue: sumRm(
+      mine.map((order) => salesIn(order, monthPrefix(month))),
+    ),
   };
 }
 
@@ -151,17 +152,21 @@ export function salesStats(input: SalesInput): ReportStats {
 
 /** Sales figures plus the orders awarded this month on projects the BD Director passed down. */
 export function bdStats(input: SalesInput): ReportStats {
-  const passedDown = input.orders.filter(
+  const passed = input.orders.filter(
     (order) =>
       order.passedBy === input.personId &&
-      order.salespersonId !== input.personId &&
-      isSameMonth(order.loaDate, input.month),
+      order.salespersonId !== input.personId,
+  );
+  const passedDown = passed.filter((order) =>
+    isSameMonth(order.loaDate, input.month),
   );
   return {
     kind: "bd",
     ...salesFigures(input),
     passDownCount: passedDown.length,
-    passDownValue: sumRm(passedDown.map(orderTotal)),
+    passDownValue: sumRm(
+      passed.map((order) => salesIn(order, monthPrefix(input.month))),
+    ),
   };
 }
 

@@ -152,7 +152,9 @@ const orderRows = z.array(
     salesperson_id: z.string(),
     loa_date: z.string(),
     contract_sum: z.coerce.number(),
-    vo_amount: z.coerce.number(),
+    mof_variation_orders: z.array(
+      z.object({ confirmed_on: z.string(), amount: z.coerce.number() }),
+    ),
     projects: z.object({ passed_by: z.string().nullable() }).nullable(),
   }),
 );
@@ -185,6 +187,25 @@ async function loadSalesStats(
     ),
   ];
 
+  // An order counts in the month of its LOA and in the month of each of its VOs.
+  const monthVos = await supabase
+    .from("mof_variation_orders")
+    .select("mof_id")
+    .gte("confirmed_on", month)
+    .lt("confirmed_on", shiftMonth(month, 1));
+  if (monthVos.error) {
+    throw new Error(`Could not load report figures: ${monthVos.error.message}`);
+  }
+  const vosMofIds = [
+    ...new Set(
+      z
+        .array(z.object({ mof_id: z.string() }))
+        .parse(monthVos.data)
+        .map((row) => row.mof_id),
+    ),
+  ];
+  const inMonth = `and(loa_date.gte.${month},loa_date.lt.${shiftMonth(month, 1)})`;
+
   // Earlier visits to the same contacts decide who met them first.
   const [visits, projects, orders] = await Promise.all([
     contactIds.length === 0
@@ -205,10 +226,13 @@ async function loadSalesStats(
     supabase
       .from("mofs")
       .select(
-        "salesperson_id, loa_date, contract_sum, vo_amount, projects(passed_by)",
+        "salesperson_id, loa_date, contract_sum, mof_variation_orders(confirmed_on, amount), projects(passed_by)",
       )
-      .gte("loa_date", month)
-      .lt("loa_date", shiftMonth(month, 1)),
+      .or(
+        vosMofIds.length === 0
+          ? inMonth
+          : `${inMonth},id.in.(${vosMofIds.join(",")})`,
+      ),
   ]);
   for (const result of [visits, projects, orders]) {
     if (result.error) {
@@ -235,7 +259,10 @@ async function loadSalesStats(
       passedBy: row.projects?.passed_by ?? null,
       loaDate: row.loa_date,
       contractSum: row.contract_sum,
-      voAmount: row.vo_amount,
+      variationOrders: row.mof_variation_orders.map((vo) => ({
+        confirmedOn: vo.confirmed_on,
+        amount: vo.amount,
+      })),
     })),
   };
   return kind === "bd" ? bdStats(input) : salesStats(input);

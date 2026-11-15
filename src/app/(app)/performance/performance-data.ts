@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { loadMyTeam } from "@/lib/auth/my-team";
 import { inMyTeam } from "@/lib/auth/team";
-import { orderTotal } from "@/lib/domain/mof-totals";
 import type {
   PerformanceOrder,
   PerformancePerson,
@@ -15,7 +14,9 @@ const mofRows = z.array(
     salesperson_id: z.string(),
     loa_date: z.string(),
     contract_sum: z.number(),
-    vo_amount: z.number(),
+    mof_variation_orders: z.array(
+      z.object({ confirmed_on: z.string(), amount: z.coerce.number() }),
+    ),
     payments: z.array(z.object({ amount: z.number() })),
   }),
 );
@@ -31,8 +32,8 @@ const profileRows = z.array(
 );
 
 /**
- * Every order that is not cancelled with what was invoiced and received, and everyone's yearly
- * target. Admins only: the database lets nobody else read other people's targets. Cost is
+ * Every order that is not cancelled with its contract sum, variation orders and what was
+ * received, and everyone's yearly target. Admins only: the database lets nobody else read other people's targets. Cost is
  * asked for only when the viewer may see it.
  */
 export async function loadPerformance(seesCost: boolean): Promise<{
@@ -44,7 +45,7 @@ export async function loadPerformance(seesCost: boolean): Promise<{
     supabase
       .from("mofs")
       .select(
-        "id, salesperson_id, loa_date, contract_sum, vo_amount, payments(amount)",
+        "id, salesperson_id, loa_date, contract_sum, mof_variation_orders(confirmed_on, amount), payments(amount)",
       )
       .neq("stage", "cancelled"),
     seesCost
@@ -70,10 +71,11 @@ export async function loadPerformance(seesCost: boolean): Promise<{
     orders: mofRows.parse(mofsResult.data).map((row) => ({
       salespersonId: row.salesperson_id,
       loaDate: row.loa_date,
-      invoice: orderTotal({
-        contractSum: row.contract_sum,
-        voAmount: row.vo_amount,
-      }),
+      contractSum: row.contract_sum,
+      variationOrders: row.mof_variation_orders.map((vo) => ({
+        confirmedOn: vo.confirmed_on,
+        amount: vo.amount,
+      })),
       received: sumRm(row.payments.map((payment) => payment.amount)),
       cost: costOf.get(row.id) ?? null,
     })),

@@ -240,7 +240,8 @@ async function ownSiteIds(supabase: Supabase, supervisorId: string) {
     supabase
       .from("site_logs")
       .select("mof_id")
-      .eq("supervisor_id", supervisorId),
+      .eq("supervisor_id", supervisorId)
+      .not("mof_id", "is", null),
   ]);
   const failed = jobs.error ?? logs.error;
   if (failed) throw new Error(`Could not load your sites: ${failed.message}`);

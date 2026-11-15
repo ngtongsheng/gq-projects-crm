@@ -73,6 +73,7 @@ describe("buildItinerary", () => {
       siteLogs: logs.map((entry) => ({
         supervisorId: "me",
         mofId: entry.mofId,
+        siteName: null,
         visitedOn: entry.visitedOn,
         activity: entry.activity,
         handoverSigned: entry.handoverSigned,

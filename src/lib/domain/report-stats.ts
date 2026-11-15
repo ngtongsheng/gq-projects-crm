@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { JobRole } from "@/lib/auth/job-role";
 import { isSameMonth, startOfMonth } from "@/lib/domain/calendar-grid";
 import { type SalesOrder, salesIn } from "@/lib/domain/order-sales";
+import { countSiteVisits } from "@/lib/domain/site-log";
 import {
   firstMondayOfNextMonth,
   pace,
@@ -185,7 +186,8 @@ export type SiteInput = {
   month: CalendarDate;
   siteLogs: readonly {
     supervisorId: string;
-    mofId: string;
+    mofId: string | null;
+    siteName: string | null;
     visitedOn: CalendarDate;
     activity: string;
     handoverSigned: boolean;
@@ -205,9 +207,7 @@ export function siteStats(input: SiteInput): ReportStats {
       log.supervisorId === input.personId &&
       isSameMonth(log.visitedOn, input.month),
   );
-  // A site visit is one site on one day, however many activities were logged there.
-  const siteVisits = new Set(logs.map((log) => `${log.visitedOn}|${log.mofId}`))
-    .size;
+  const siteVisits = countSiteVisits(logs, input.month);
   const otHours = input.otClaims
     .filter(
       (claim) =>

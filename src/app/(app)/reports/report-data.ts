@@ -314,7 +314,8 @@ async function loadSalesStats(
 const siteLogRows = z.array(
   z.object({
     supervisor_id: z.string(),
-    mof_id: z.string(),
+    mof_id: z.string().nullable(),
+    site_name: z.string().nullable(),
     visited_on: z.string(),
     activity: z.string(),
     handover_signed: z.boolean(),
@@ -340,7 +341,9 @@ async function loadSiteStats(
   const [logs, claims] = await Promise.all([
     supabase
       .from("site_logs")
-      .select("supervisor_id, mof_id, visited_on, activity, handover_signed")
+      .select(
+        "supervisor_id, mof_id, site_name, visited_on, activity, handover_signed",
+      )
       .eq("supervisor_id", personId)
       .gte("visited_on", month)
       .lt("visited_on", next),
@@ -364,6 +367,7 @@ async function loadSiteStats(
     siteLogs: siteLogRows.parse(logs.data).map((row) => ({
       supervisorId: row.supervisor_id,
       mofId: row.mof_id,
+      siteName: row.site_name,
       visitedOn: row.visited_on,
       activity: row.activity,
       handoverSigned: row.handover_signed,
@@ -391,16 +395,21 @@ export function loadLiveStats(
 
 const siteReportLogRows = z.array(
   z.object({
-    mof_id: z.string(),
+    mof_id: z.string().nullable(),
+    site_name: z.string().nullable(),
+    project_id: z.string().nullable(),
     visited_on: z.string(),
     activity: z.enum(SITE_ACTIVITIES),
     handover_signed: z.boolean(),
     drive_link: z.string().nullable(),
-    mofs: z.object({
-      company_name: z.string(),
-      project_name: z.string(),
-      project_id: z.string().nullable(),
-    }),
+    // Null for a new site logged before it had an MOF.
+    mofs: z
+      .object({
+        company_name: z.string(),
+        project_name: z.string(),
+        project_id: z.string().nullable(),
+      })
+      .nullable(),
   }),
 );
 
@@ -439,7 +448,7 @@ export async function loadSiteReport(
     supabase
       .from("site_logs")
       .select(
-        "mof_id, visited_on, activity, handover_signed, drive_link, mofs(company_name, project_name, project_id)",
+        "mof_id, site_name, project_id, visited_on, activity, handover_signed, drive_link, mofs(company_name, project_name, project_id)",
       )
       .eq("supervisor_id", personId)
       .gte("visited_on", month)
@@ -468,8 +477,10 @@ export async function loadSiteReport(
 
   const siteLogs = siteReportLogRows.parse(logs.data).map((row) => ({
     mofId: row.mof_id,
-    projectId: row.mofs.project_id,
-    siteLabel: `${row.mofs.company_name} · ${row.mofs.project_name}`,
+    projectId: row.mofs ? row.mofs.project_id : row.project_id,
+    siteLabel: row.mofs
+      ? `${row.mofs.company_name} · ${row.mofs.project_name}`
+      : (row.site_name ?? ""),
     visitedOn: row.visited_on,
     activity: row.activity,
     handoverSigned: row.handover_signed,

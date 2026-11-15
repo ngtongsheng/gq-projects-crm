@@ -4,7 +4,8 @@ import type { CalendarDate } from "@/lib/format/date";
 
 /** A logged site visit with the order it was for. */
 export type ReportSiteLog = {
-  mofId: string;
+  /** Null for a new site logged before it had an MOF; its site label is the typed-in name. */
+  mofId: string | null;
   /** The pipeline project the order came from; how a log is matched to a booking. */
   projectId: string | null;
   siteLabel: string;
@@ -52,11 +53,12 @@ export type ItineraryCounts = {
 export type Itinerary = { lines: ItineraryLine[]; counts: ItineraryCounts };
 
 // A booking matches a log by project when both have one; a log on an order with no project
-// and a typed-in site cannot be matched and counts as added.
+// cannot be matched and counts as added. A log for a new site with no MOF matches a booking
+// with the same typed-in site.
 const bookingKey = (day: CalendarDate, booking: ReportBooking) =>
   `${day}|${booking.projectId ? `p:${booking.projectId}` : `s:${booking.siteLabel}`}`;
 const logKey = (log: ReportSiteLog) =>
-  `${log.visitedOn}|${log.projectId ? `p:${log.projectId}` : `m:${log.mofId}`}`;
+  `${log.visitedOn}|${log.projectId ? `p:${log.projectId}` : log.mofId ? `m:${log.mofId}` : `s:${log.siteLabel}`}`;
 
 /**
  * One line per site per day for the month, in date order, with whether each was scheduled

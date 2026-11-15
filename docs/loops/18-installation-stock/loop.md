@@ -25,8 +25,8 @@ Merged to `main`. Starts after loop 17 merges.
 | 05 | DO on the job + print + delivery log | done | 04 | sonnet/high |
 | 06 | Stock page deltas | done | - | sonnet/medium |
 | 07 | Samples migration + rules | done | - | opus/medium |
-| 08 | Samples page + pickup form print | in-progress | 07 | sonnet/high |
-| 09 | Leftover migration + rules | todo | - | opus/medium |
+| 08 | Samples page + pickup form print | done | 07 | sonnet/high |
+| 09 | Leftover migration + rules | in-progress | - | opus/medium |
 | 10 | Leftover page | todo | 09 | sonnet/high |
 | 11 | Chinese/BM strings + dev seed | todo | 02, 03, 05, 06, 08, 10 | sonnet/medium |
 | 12 | Parity pass, docs, merge | todo | 01-11 | sonnet/medium |
@@ -62,3 +62,7 @@ Merged to `main`. Starts after loop 17 merges.
 2026-11-15 · #07 · done · verified: check, typecheck, test (2742), guard:migrations pass; migration only proven in PGlite, test-copy check in #12
 2026-11-15 · #07 · decision · pickup row over stock is refused (demo clamped to 0); pickup row must use the sample's unit; pickup forms deletable by sample editors (cancels number, returns samples out); pickup methods stored as keys; added pdf_saved_at; canEditSamples in job-role.ts; qty changes only via sample_moves · subagent deviations, sensible
 2026-11-15 · #08 · started
+2026-11-15 · #08 · done · verified: check, typecheck, test (2771), guard:migrations pass; parity + print preview deferred to #12 (verify loadSamples/pickup embeds, save_sample_pickup + numbering rpcs, settings update `.eq("id", true)`, receipt title wrap and one-A4 fit)
+2026-11-15 · #08 · decision · added migration 20261118160000 import_samples; paste keeps existing unit, default skip existing; explicit Edit button per row; Settings button holds Best Link no/Drive link/next form no; "I saved the PDF" button; pickup-form delete UI not built (DB allows it); app-shell keeps Stock highlighted on /samples · subagent deviations, sensible
+2026-11-15 · #08 · follow-up · #12: log debt for unpaged samples list (1000 rows) and `moved_on` default current_date UTC (MYT 00:00-08:00 off by a day) in docs/debt.md, or fix with Asia/Kuala_Lumpur
+2026-11-15 · #09 · started

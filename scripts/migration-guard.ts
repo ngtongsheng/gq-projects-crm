@@ -153,17 +153,20 @@ const DEFINITION_ONLY_DROP =
   /^drop\s+(?:policy|function|trigger|view|index)\b/i;
 
 // `drop constraint c, add constraint c ...` in one statement replaces a rule and keeps every row:
-// a stricter rule makes the migration fail instead of removing data.
-function dropsOnlyReplacedConstraints(sql: string): boolean {
+// a stricter rule makes the migration fail instead of removing data. `drop not null` only
+// relaxes a rule, so every row keeps its value too.
+function dropsOnlyRules(sql: string): boolean {
   const added = new Set(
     [...sql.matchAll(/\badd\s+constraint\s+(\w+)/gi)].map((m) =>
       m[1].toLowerCase(),
     ),
   );
-  const rest = sql.replace(
-    /\bdrop\s+constraint\s+(?:if\s+exists\s+)?(\w+)/gi,
-    (whole, name: string) => (added.has(name.toLowerCase()) ? "" : whole),
-  );
+  const rest = sql
+    .replace(
+      /\bdrop\s+constraint\s+(?:if\s+exists\s+)?(\w+)/gi,
+      (whole, name: string) => (added.has(name.toLowerCase()) ? "" : whole),
+    )
+    .replace(/\bdrop\s+not\s+null\b/gi, "");
   return !/\bdrop\b/i.test(rest);
 }
 
@@ -180,7 +183,7 @@ function classify(statement: string): string | null {
     return "DELETE FROM removes rows of data.";
   }
   if (/^alter\b/i.test(sql)) {
-    if (/\bdrop\b/i.test(sql) && !dropsOnlyReplacedConstraints(sql)) {
+    if (/\bdrop\b/i.test(sql) && !dropsOnlyRules(sql)) {
       return "ALTER ... DROP removes a column, constraint or default that exists today.";
     }
     if (/\brename\b/i.test(sql)) {

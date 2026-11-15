@@ -17,8 +17,8 @@ Log work wizard (site role landing page) and the seven Site Work tabs match Vick
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Site log migration | todo | - | opus/medium |
-| 02 | Site log rules | todo | 01 | opus/medium |
+| 01 | Site log migration | done | - | opus/medium |
+| 02 | Site log rules | in-progress | 01 | opus/medium |
 | 03 | Log work home | todo | 02 | sonnet/high |
 | 04 | Log work wizard | todo | 02 | sonnet/high |
 | 05 | Follow-ups: owner, still waiting, snooze | todo | 01 | sonnet/high |
@@ -33,3 +33,9 @@ Log work wizard (site role landing page) and the seven Site Work tabs match Vick
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-15 · plan · loop written from drift-site-stock.md (Log work, Site Work) · next: wait for loop 16 merge, then #01
+2026-11-15 · #01 · in-progress · delegated (opus/medium), worktree ../gq-projects-crm-loops/17-site-work
+2026-11-15 · #01 · done · verified: check, typecheck, test (2435), guard pass
+2026-11-15 · #01 · decision · migration guard now lets `DROP NOT NULL` through (loses no data; `DROP NOT NULL, DROP COLUMN` still caught) · avoids a needless data-loss approval for a false positive; record in docs/decisions.md in #10
+2026-11-15 · #01 · decision · one site_logs row per activity per visit; photos_* columns shared by shooting and handover rows; snooze lives in site_follow_up_waits only · keeps reports and per-activity counts unchanged
+2026-11-15 · #01 · note · report-data.ts (~317, 394) has mof_id: z.string() and SITE_ACTIVITIES lacks stock_return; #02 must cover both
+2026-11-15 · #02 · in-progress · delegated (opus/medium)

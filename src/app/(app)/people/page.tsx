@@ -24,6 +24,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { refreshYearlyTargets } from "@/lib/yearly-targets";
 import { AddPersonDialog } from "./add-person-dialog";
+import { handoversOf, loadHandoverItems } from "./handover-data";
 import { loadGradeTargets, loadYearlyTargets } from "./people-targets-data";
 import { PersonSettingsDialog } from "./person-settings-dialog";
 import { RoleAccess } from "./role-access";
@@ -52,18 +53,24 @@ export default async function PeoplePage() {
   const setsTargets = isManager(me.jobRole);
 
   await refreshYearlyTargets();
-  const [{ data: profiles, error }, emails, ownTargets, gradeTargets] =
-    await Promise.all([
-      supabase
-        .from("profiles")
-        .select(
-          "id, full_name, role, job_role, arranges_stock, commission_mode, yearly_target, created_at, title, joined_on, active, left_on, left_reason, reports_to, sells, sees_margin, whatsapp, language",
-        )
-        .order("created_at"),
-      emailsById(),
-      setsTargets ? loadYearlyTargets([year, year + 1]) : null,
-      setsTargets && canSeeHr(me.jobRole) ? loadGradeTargets() : null,
-    ]);
+  const [
+    { data: profiles, error },
+    emails,
+    ownTargets,
+    gradeTargets,
+    handoverItems,
+  ] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select(
+        "id, full_name, role, job_role, arranges_stock, commission_mode, yearly_target, created_at, title, joined_on, active, left_on, left_reason, reports_to, sells, sees_margin, whatsapp, language",
+      )
+      .order("created_at"),
+    emailsById(),
+    setsTargets ? loadYearlyTargets([year, year + 1]) : null,
+    setsTargets && canSeeHr(me.jobRole) ? loadGradeTargets() : null,
+    loadHandoverItems(),
+  ]);
   if (error) throw new Error(`Could not load people: ${error.message}`);
 
   const rows = profiles.map((row) => ({
@@ -118,6 +125,11 @@ export default async function PeoplePage() {
   const leads = rows
     .filter((row) => row.settings.active && canLeadTeam(row.settings.jobRole))
     .map((row) => ({ id: row.id, name: row.name ?? "Unnamed" }));
+
+  const recipients = rows
+    .filter((row) => row.settings.active)
+    .map((row) => ({ id: row.id, name: row.name ?? "Unnamed" }));
+  const names = new Map(rows.map((row) => [row.id, row.name ?? "Unnamed"]));
 
   const teams = salesTeams(
     rows.map((row) => ({
@@ -193,7 +205,12 @@ export default async function PeoplePage() {
             header: "Settings",
             cell: (row) => (
               <div className="flex flex-wrap gap-2">
-                <PersonSettingsDialog person={row.settings} leads={leads} />
+                <PersonSettingsDialog
+                  person={row.settings}
+                  leads={leads}
+                  recipients={recipients}
+                  handovers={handoversOf(row.id, handoverItems, names)}
+                />
                 {me.jobRole === "md" && row.id !== me.id && (
                   <ViewAsButton userId={row.id} name={row.name} />
                 )}

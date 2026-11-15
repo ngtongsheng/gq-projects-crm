@@ -13,7 +13,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -33,6 +38,8 @@ import { formatMobile } from "@/lib/domain/mobile";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { Language, LanguageLabel } from "@/lib/i18n/dictionary";
 import { updatePersonSettings } from "./actions";
+import type { HandoverEntry } from "./handover-data";
+import { HandoverList } from "./handover-list";
 import {
   type PersonTargets,
   PersonTargetsFields,
@@ -62,10 +69,16 @@ export type PersonSettings = {
 export function PersonSettingsDialog({
   person,
   leads,
+  recipients,
+  handovers,
 }: {
   person: PersonSettings;
   /** Active Sales Directors and Marketing Directors. */
   leads: Option[];
+  /** Everyone still working here, who can receive a leaver's work. */
+  recipients: Option[];
+  /** What they handed over or received when someone left. */
+  handovers: HandoverEntry[];
 }) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -214,7 +227,13 @@ export function PersonSettingsDialog({
                 defaultValue={person.joinedOn ?? ""}
               />
             </Field>
-            <LeftFields person={person} />
+            <LeftFields
+              person={person}
+              recipients={recipients.filter(
+                (recipient) => recipient.id !== person.userId,
+              )}
+            />
+            <HandoverList entries={handovers} />
             <Button type="submit" disabled={pending}>
               {pending ? "Saving..." : "Save"}
             </Button>
@@ -225,8 +244,17 @@ export function PersonSettingsDialog({
   );
 }
 
-/** Leaving date and reason appear once "Has left" is ticked; someone who has left cannot sign in. */
-function LeftFields({ person }: { person: PersonSettings }) {
+/**
+ * Leaving date, reason and handover appear once "Has left" is ticked; someone who has left
+ * cannot sign in. Handing over can also be done later, by saving again with someone chosen.
+ */
+function LeftFields({
+  person,
+  recipients,
+}: {
+  person: PersonSettings;
+  recipients: Option[];
+}) {
   const [hasLeft, setHasLeft] = useState(!person.active);
   return (
     <>
@@ -261,6 +289,21 @@ function LeftFields({ person }: { person: PersonSettings }) {
               maxLength={500}
               defaultValue={person.leftReason ?? ""}
             />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="handOverTo">
+              Hand over customers and open projects to
+            </FieldLabel>
+            <OptionalSelect
+              id="handOverTo"
+              name="handOverTo"
+              defaultValue=""
+              options={recipients}
+              noneLabel="No one"
+            />
+            <FieldDescription>
+              Commission on their orders stays with them.
+            </FieldDescription>
           </Field>
         </>
       )}

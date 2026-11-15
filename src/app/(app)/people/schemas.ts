@@ -107,15 +107,18 @@ export const personSettingsSchema = z
     hasLeft: checkbox,
     leftOn: optionalDate("Choose the date they left."),
     leftReason: optionalText(500),
+    // Who receives their customers and open projects; blank keeps them where they are.
+    handOverTo: optionalId("Choose who receives their work."),
   })
   .refine((person) => !person.hasLeft || person.leftOn !== null, {
     path: ["leftOn"],
     message: "Enter the date they left.",
   })
-  // Someone still here has no leaving date or reason.
-  .transform(({ hasLeft, leftOn, leftReason, ...person }) => ({
+  // Someone still here has no leaving date or reason, and keeps their work.
+  .transform(({ hasLeft, leftOn, leftReason, handOverTo, ...person }) => ({
     ...person,
     active: !hasLeft,
     leftOn: hasLeft ? leftOn : null,
     leftReason: hasLeft ? leftReason : null,
+    handOverTo: hasLeft ? handOverTo : null,
   }));

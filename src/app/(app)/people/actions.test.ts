@@ -386,6 +386,7 @@ function fakeSettingsClient(
   updatedRows = 1,
   error: { code: string; message: string } | null = null,
   targetError: { code: string; message: string } | null = null,
+  handoverError: { code: string; message: string } | null = null,
 ) {
   const update = vi.fn(() => ({
     eq: vi.fn(() => ({
@@ -400,12 +401,14 @@ function fakeSettingsClient(
   const upsert = vi.fn(async () => ({ error: targetError }));
   const deleteEq = vi.fn(async () => ({ error: targetError }));
   const remove = vi.fn(() => ({ eq: vi.fn(() => ({ eq: deleteEq })) }));
+  const rpc = vi.fn(async () => ({ data: 0, error: handoverError }));
   vi.mocked(createClient).mockResolvedValue({
     from: vi.fn((table: string) =>
       table === "yearly_targets" ? { upsert, delete: remove } : { update },
     ),
+    rpc,
   } as unknown as Awaited<ReturnType<typeof createClient>>);
-  return { update, upsert, remove };
+  return { update, upsert, remove, rpc };
 }
 
 describe("updatePersonSettings", () => {
@@ -483,6 +486,64 @@ describe("updatePersonSettings", () => {
         left_on: null,
         left_reason: null,
       }),
+    );
+  });
+
+  it("hands their work over after marking them as left", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    const { update, rpc } = fakeSettingsClient();
+
+    const result = await updatePersonSettings(
+      personForm({
+        ...validSettings,
+        hasLeft: "on",
+        leftOn: "2026-11-10",
+        handOverTo: LEAD_ID,
+      }),
+    );
+
+    expect(result).toEqual({ error: null });
+    expect(rpc).toHaveBeenCalledWith("hand_over_work", {
+      leaver: OTHER_ID,
+      recipient: LEAD_ID,
+    });
+    expect(update.mock.invocationCallOrder[0]).toBeLessThan(
+      rpc.mock.invocationCallOrder[0],
+    );
+  });
+
+  it("hands nothing over for someone still here or with no one chosen", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    const { rpc } = fakeSettingsClient();
+
+    await updatePersonSettings(
+      personForm({ ...validSettings, handOverTo: LEAD_ID }),
+    );
+    await updatePersonSettings(
+      personForm({ ...validSettings, hasLeft: "on", leftOn: "2026-11-10" }),
+    );
+
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
+  it("says so when the handover is refused, after saving the rest", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("admin"));
+    fakeSettingsClient(1, null, null, {
+      code: "22023",
+      message: "Choose someone who still works here.",
+    });
+
+    const result = await updatePersonSettings(
+      personForm({
+        ...validSettings,
+        hasLeft: "on",
+        leftOn: "2026-11-10",
+        handOverTo: LEAD_ID,
+      }),
+    );
+
+    expect(result.error).toBe(
+      "Their other settings were saved. Choose someone else who still works here to receive their work.",
     );
   });
 

@@ -25,8 +25,8 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 | 04 | HR: Sales grades & bonus | done | 01 | sonnet/high |
 | 05 | Per-year targets migration | done | 01 | opus/medium |
 | 06 | People: targets + Sales teams | done | 05 | sonnet/high |
-| 07 | Resignation handover | in-progress | - | opus/medium |
-| 08 | Tools: calculators | todo | - | sonnet/high |
+| 07 | Resignation handover | done | - | opus/medium |
+| 08 | Tools: calculators | in-progress | - | sonnet/high |
 | 09 | Tools: A4 forms + links | todo | - | sonnet/high |
 | 10 | Chinese strings + dev seed | todo | 02, 03, 04, 06, 07, 08, 09 | sonnet/medium |
 | 11 | Parity pass, docs, merge | todo | 01-10 | sonnet/medium |
@@ -67,3 +67,7 @@ Parity checked per `docs/office-parity/parity.md`. Merged to `main`. Starts afte
 2026-11-15 · #06 · decision · target fields on person sheet only for MD, Sales Directors, HR & Accounts (DB refuses others); year select = this or next year; visit target = visits per month · D3 policies
 2026-11-15 · #06 · note · scripts/example-data/test-users.ts still writes profiles.yearly_target; #10 must write yearly_targets rows · two debt entries added to docs/debt.md
 2026-11-15 · #07 · in-progress
+2026-11-15 · #07 · done · check, typecheck, test (2389), guard:migrations pass; migration 20261116130000_resignation_handover.sql; browser parity deferred to #11 · next: #08
+2026-11-15 · #07 · decision · open projects for handover = every stage except Awarded and Lost (On Hold moves); support-role projects and archived customers also move · stranding them with a leaver is worse
+2026-11-15 · #07 · decision · guard_project_write() bypassed via transaction-local gqp.handover set only by hand_over_work, so any admin can run it · PIC change otherwise refused for non-MD admins
+2026-11-15 · #08 · in-progress

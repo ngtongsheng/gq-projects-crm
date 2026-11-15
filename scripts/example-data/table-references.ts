@@ -44,4 +44,5 @@ export const EXAMPLE_REFERENCES: Record<string, Record<string, string>> = {
   leave_approval_steps: { request_id: "leave_requests" },
   hr_policy_documents: { replaces_id: "hr_policy_documents" },
   staff_hr_records: { grade: "sales_grades" },
+  handover_items: { contact_id: "contacts", project_id: "projects" },
 };

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LanguageToggle } from "@/components/app/language-toggle";
 import { PageHeader } from "@/components/app/page-header";
 import { canEditLeaveSetup, isManager } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
@@ -8,6 +9,7 @@ import { awayByDay } from "@/lib/domain/leave-away";
 import { FIRST_LEAVE_YEAR } from "@/lib/domain/leave-balance";
 import { weekKindFor } from "@/lib/domain/workdays";
 import { todayMyt } from "@/lib/format/date";
+import { resolveLanguage } from "@/lib/i18n/current-language";
 import { getT } from "@/lib/i18n/server-t";
 import { loadWorkCalendar } from "@/lib/work-calendar";
 import { ApplyLeaveDialog } from "./apply-leave-dialog";
@@ -99,20 +101,26 @@ export default async function LeavePage({
         title={t("Leave")}
         description={`${t("Apply for leave here.")} ${approvers} ${t("approves; HR & Accounts sees every record. Sick? Choose Medical leave (MC) and upload a photo of the MC.")}`}
         actions={
-          <ApplyLeaveDialog
-            today={today}
-            week={calendar.week}
-            holidays={[...calendar.holidays]}
-            approvers={approvers}
-            available={
-              balance && {
-                ...balance,
-                annualBalance: balance.annualBalance - balance.annualPending,
-                mcBalance: balance.mcBalance - balance.mcPending,
+          <>
+            <LanguageToggle
+              language={await resolveLanguage(me.language)}
+              languages={["en", "zh"]}
+            />
+            <ApplyLeaveDialog
+              today={today}
+              week={calendar.week}
+              holidays={[...calendar.holidays]}
+              approvers={approvers}
+              available={
+                balance && {
+                  ...balance,
+                  annualBalance: balance.annualBalance - balance.annualPending,
+                  mcBalance: balance.mcBalance - balance.mcPending,
+                }
               }
-            }
-            availableYear={year}
-          />
+              availableYear={year}
+            />
+          </>
         }
       />
       {waiting.length > 0 && (

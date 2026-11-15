@@ -259,6 +259,9 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
 - Chinese: server-action messages, page titles and calendar month and weekday names stay English; wording outside the
   demo's own strings needs a native read.
 
+### Loop 15 parity pass (Chrome, test copy)
+Checked Vicky (md), Cavan (sales), Jany (accounts), Affifa (designer), Akmal (site) on Tasks and Leave; 390 px via iframe. Accepted differences from the demo: task sheet is a side sheet, not a modal; no Customer field, Edit button or WhatsApp reminder; salespeople see the four task tiles; Workload lists everyone with tasks; approvers named by job title; example data differs; "Attach" strings from the shared file upload stay English; the Apply leave dialog closes with its X only.
+
 ## Loop 20 (browser control in opencode), decided 2026-11-15
 - opencode cannot load Claude in Chrome: those tools exist only inside a Claude session. Control instead comes from
   `chrome-devtools-mcp@1.13.0` with `--autoConnect`, which drives her real Chrome, so her profile and sign-ins are

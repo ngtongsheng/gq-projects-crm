@@ -48,13 +48,17 @@ export function WaitingLeaveTable({
     {
       key: "type",
       header: t("Type"),
-      cell: (row) => t(LEAVE_TYPE_LABEL[row.leaveType]),
+      cell: (row) => (
+        <span className="whitespace-normal">
+          {t(LEAVE_TYPE_LABEL[row.leaveType])}
+        </span>
+      ),
     },
     {
       key: "dates",
       header: t("Dates"),
       cell: (row) => (
-        <span className="font-mono whitespace-nowrap tabular-nums">
+        <span className="inline-block min-w-28 font-mono whitespace-normal tabular-nums">
           {leaveDates(row)}
         </span>
       ),
@@ -64,7 +68,7 @@ export function WaitingLeaveTable({
       key: "reason",
       header: t("Reason"),
       cell: (row) => (
-        <div className="min-w-40">
+        <div className="min-w-40 whitespace-normal">
           <p>{row.reason || "—"}</p>
           <LeaveSlipCell row={row} viewer={viewer} t={t} />
         </div>

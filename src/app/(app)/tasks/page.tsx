@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { z } from "zod";
+import { LanguageToggle } from "@/components/app/language-toggle";
 import { PageHeader } from "@/components/app/page-header";
 import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
@@ -10,6 +11,7 @@ import {
   canMoveTask,
 } from "@/lib/domain/task-flow";
 import { todayMyt } from "@/lib/format/date";
+import { resolveLanguage } from "@/lib/i18n/current-language";
 import { getT } from "@/lib/i18n/server-t";
 import { loadWorkCalendar } from "@/lib/work-calendar";
 import { NewTaskDialog } from "./new-task-dialog";
@@ -74,14 +76,20 @@ export default async function TasksPage({
           "Assign work, follow deadlines and approve finished work. A task is completed only after the person who assigned it approves.",
         )}
         actions={
-          assigns && calendar ? (
-            <NewTaskDialog
-              people={people.filter((person) => person.id !== me.id)}
-              projects={projects}
-              holidays={[...calendar.holidays]}
-              today={today}
+          <>
+            <LanguageToggle
+              language={await resolveLanguage(me.language)}
+              languages={["en", "zh"]}
             />
-          ) : null
+            {assigns && calendar && (
+              <NewTaskDialog
+                people={people.filter((person) => person.id !== me.id)}
+                projects={projects}
+                holidays={[...calendar.holidays]}
+                today={today}
+              />
+            )}
+          </>
         }
       />
       {banner && <TaskBannerLine banner={banner} t={t} />}

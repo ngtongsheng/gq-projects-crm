@@ -114,7 +114,7 @@ export function TeamLeaveTable({
       header: t("Next leave"),
       cell: ({ next }) =>
         next ? (
-          <span className="whitespace-nowrap">
+          <span className="whitespace-normal">
             {LEAVE_TYPE_SHORT[next.leaveType]} {leaveDates(next)}
             {next.status === "pending" ? ` (${t("waiting")})` : ""}
           </span>

@@ -4,6 +4,7 @@ import {
   canBookSiteSupervisor,
   canChangeSettings,
   canDecideOvertime,
+  canEditInstallers,
   canEditRegister,
   canEditSite,
   canEditStock,
@@ -165,6 +166,25 @@ describe("job scheduling", () => {
       "site",
       "support",
     ]);
+  });
+});
+
+describe("installer directory", () => {
+  it("lets the MD, Sales Director, Site Supervisors and Purchasing edit it", () => {
+    const edits = (jobRole: JobRole) =>
+      canEditInstallers({ jobRole, arrangesStock: false });
+    expect(JobRole.options.filter(edits)).toEqual([
+      "md",
+      "director",
+      "site",
+      "support",
+    ]);
+  });
+
+  it("also lets whoever arranges stock edit it", () => {
+    expect(canEditInstallers({ jobRole: "sales", arrangesStock: true })).toBe(
+      true,
+    );
   });
 });
 

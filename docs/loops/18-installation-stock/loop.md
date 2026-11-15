@@ -19,8 +19,8 @@ Merged to `main`. Starts after loop 17 merges.
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
 | 01 | Installers migration + backfill | done | - | opus/medium |
-| 02 | Installer directory + calendar views | in-progress | 01 | sonnet/high |
-| 03 | Supervisor bookings + job form extras | todo | 01 | sonnet/high |
+| 02 | Installer directory + calendar views | done | 01 | sonnet/high |
+| 03 | Supervisor bookings + job form extras | in-progress | 01 | sonnet/high |
 | 04 | DO numbering + lines migration | todo | - | opus/medium |
 | 05 | DO on the job + print + delivery log | todo | 04 | sonnet/high |
 | 06 | Stock page deltas | todo | - | sonnet/medium |
@@ -41,3 +41,7 @@ Merged to `main`. Starts after loop 17 merges.
 2026-11-15 · #01 · done, verified (check, typecheck, test, guard:migrations) · next: #02
 2026-11-15 · #01 · decision · added installers.description, backfilled mofs.installer_name too, link_job_installer sync trigger keeps text+installer_id in step · subagent deviation, sensible
 2026-11-15 · #02 · started
+2026-11-15 · #02 · done · verified: check, typecheck, test (2626) pass; parity deferred to #12 (migration not on test copy; also verify `delivery_orders` `jobs!inner` embed with `.eq("jobs.status","done")` and paged `jobs` read)
+2026-11-15 · #02 · decision · no "Coming up" table, no Team size, text WhatsApp link, phone required on save; Site supervisors tab comes in #03 · subagent deviations, sensible
+2026-11-15 · #02 · decision · renaming an installer does not rewrite old job text (RLS blocks editors from jobs); calendar filters by installer_id · fix in #12 via a trigger on installers, or log as debt
+2026-11-15 · #03 · started

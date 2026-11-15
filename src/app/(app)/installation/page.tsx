@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   canAnswerBookings,
   canBookSiteSupervisor,
+  canEditInstallers,
   canScheduleJobs,
   canUpdateJobStatus,
 } from "@/lib/auth/job-role";
@@ -22,11 +23,7 @@ import {
   weekDays,
 } from "@/lib/domain/calendar-grid";
 import { formatDate, todayMyt } from "@/lib/format/date";
-import {
-  calendarHref,
-  parseCalendarParams,
-  stepDate,
-} from "../calendar/calendar-params";
+import { parseCalendarParams, stepDate } from "../calendar/calendar-params";
 import { AddJobDialog } from "./add-job-dialog";
 import {
   loadBookableProjects,
@@ -37,12 +34,22 @@ import {
 import { BookingDialog } from "./booking-form";
 import { calendarItems } from "./calendar-items";
 import { loadCalendarJobs } from "./calendar-jobs";
+import { InstallationFilters } from "./installation-filters";
+import {
+  installationHref,
+  parseInstallationTab,
+  parseInstallerFilter,
+} from "./installation-params";
+import { InstallationTabs } from "./installation-tabs";
+import { InstallerContacts } from "./installer-contacts";
+import { loadInstallerChoices } from "./installer-data";
 import { JobList } from "./job-list";
 import { loadMofOptions } from "./mof-options";
+import { loadUnsignedDos } from "./unsigned-do-data";
+import { UnsignedDosPanel } from "./unsigned-dos-panel";
 
 export const metadata: Metadata = { title: "Installation" };
 
-const PATH = "/installation";
 const NOUN = { one: "job", many: "jobs" };
 
 export default async function InstallationPage({
@@ -51,13 +58,18 @@ export default async function InstallationPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const me = await requirePage("inst");
-  const params = parseCalendarParams(await searchParams);
+  const query = await searchParams;
+  const title = pageLabel("inst", me);
+  if (parseInstallationTab(query.tab) === "contacts") {
+    return <InstallerContacts title={title} canEdit={canEditInstallers(me)} />;
+  }
+  const params = parseCalendarParams(query);
   const { view } = params;
+  const installerId = parseInstallerFilter(query.installer);
   const today = todayMyt();
   const canSchedule = canScheduleJobs(me.jobRole);
   const canBook = canBookSiteSupervisor(me.jobRole);
   const answersBookings = canAnswerBookings(me.jobRole);
-  const title = pageLabel("inst", me);
 
   const weeks = view === "month" ? monthWeeks(params.date) : null;
   const days = weeks ? weeks.flat() : weekDays(params.date);
@@ -66,21 +78,40 @@ export default async function InstallationPage({
 
   // A Site Supervisor sees their own jobs and bookings; everyone else sees the whole schedule.
   const ownOnly = me.jobRole === "site" ? me.id : null;
-  const [jobs, bookings, team, mofs, supervisors, projects, pendingDays] =
-    await Promise.all([
-      loadCalendarJobs(from, to, ownOnly),
-      loadCalendarBookings(from, to, ownOnly),
-      getTeamDirectory(),
-      canSchedule && params.add ? loadMofOptions() : Promise.resolve(null),
-      canBook ? loadSiteSupervisors() : Promise.resolve([]),
-      canBook ? loadBookableProjects(me) : Promise.resolve([]),
-      answersBookings ? loadPendingBookingDays(me.id) : Promise.resolve([]),
-    ]);
+  // Someone else's filter does not widen a Site Supervisor's own jobs.
+  const supervisorFilter = ownOnly ?? params.who ?? null;
+  const [
+    jobs,
+    bookings,
+    team,
+    mofs,
+    supervisors,
+    projects,
+    pendingDays,
+    installers,
+    unsignedDos,
+  ] = await Promise.all([
+    loadCalendarJobs(from, to, supervisorFilter, installerId),
+    // A booking has no installer, so filtering by installer leaves none.
+    installerId
+      ? Promise.resolve([])
+      : loadCalendarBookings(from, to, supervisorFilter),
+    getTeamDirectory(),
+    canSchedule && params.add ? loadMofOptions() : Promise.resolve(null),
+    ownOnly ? Promise.resolve([]) : loadSiteSupervisors(),
+    canBook ? loadBookableProjects(me) : Promise.resolve([]),
+    answersBookings ? loadPendingBookingDays(me.id) : Promise.resolve([]),
+    loadInstallerChoices(installerId),
+    loadUnsignedDos(supervisorFilter, installerId),
+  ]);
 
-  const keep = { view };
+  const keep = {
+    view,
+    installer: installerId,
+    who: ownOnly ? undefined : params.who,
+  };
   const here = { ...keep, date: params.date };
-  const href = (next: Parameters<typeof calendarHref>[0]) =>
-    calendarHref(next, PATH);
+  const href = installationHref;
 
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
   const eventsByDay = calendarItems({
@@ -89,7 +120,7 @@ export default async function InstallationPage({
     from,
     to,
     supervisorName: (id) => nameOf.get(id) ?? "Unnamed",
-    hrefFor: (day) => href({ view: "week", date: day }),
+    hrefFor: (day) => href({ ...keep, view: "week", date: day }),
   });
 
   // The month grid needs room, so a phone gets a list of the days that have jobs instead.
@@ -129,6 +160,7 @@ export default async function InstallationPage({
         description={`${jobs.length} ${jobs.length === 1 ? "job" : "jobs"} · ${inProgress} in progress this ${weeks ? "month" : "week"}${me.jobRole === "site" ? " · yours" : ""}`}
         actions={
           <>
+            <InstallationTabs active="installers" />
             <div className="inline-flex gap-1">
               <Button
                 asChild
@@ -199,6 +231,16 @@ export default async function InstallationPage({
         <Button asChild size="sm" variant="ghost">
           <Link href={href(keep)}>Today</Link>
         </Button>
+        <div className="ml-auto">
+          <InstallationFilters
+            view={view}
+            date={params.date}
+            installers={installers}
+            supervisors={ownOnly ? undefined : supervisors}
+            installerId={installerId}
+            supervisorId={params.who}
+          />
+        </div>
       </div>
       {weeks ? (
         <>
@@ -233,6 +275,7 @@ export default async function InstallationPage({
       ) : (
         list
       )}
+      <UnsignedDosPanel dos={unsignedDos} today={today} />
       <p className="text-sm text-muted-foreground">
         Jobs: green = done · amber = in progress · blue = scheduled · grey =
         postponed. Site supervisor bookings: amber = waiting for an answer ·

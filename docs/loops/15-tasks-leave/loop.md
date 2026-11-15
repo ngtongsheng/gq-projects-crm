@@ -19,7 +19,7 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Tasks migration | todo | - | opus/medium |
+| 01 | Tasks migration | done | - | opus/medium |
 | 02 | Task flow rules | todo | 01 | opus/medium |
 | 03 | Tasks page: tabs + tiles | todo | 02 | sonnet/high |
 | 04 | Task sheet | todo | 02 | sonnet/high |
@@ -37,3 +37,7 @@ Tasks and Leave match Vicky's demo (`docs/mockup/gqp-office-demo.html`, `vTasks`
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-15 · plan · loop written from drift-new-modules.md (Tasks, Leave) · next: wait for loop 13 merge, then #01
+2026-11-15 · #01 · in-progress · worktree ../gq-projects-crm-loops/15-tasks-leave on loop/15-tasks-leave
+2026-11-15 · #01 · done · tasks, co-assignees, log, files tables + RLS + 32 tests; checks pass · next: #02
+2026-11-15 · #01 · decision · status rules also enforced by trigger guard_task_write (assignee can't self-complete); #02 task-flow.ts mirrors them; revision comment required in server action · security
+2026-11-15 · #01 · decision · slugs for category/priority/status; customer, bring-me-along, appointment link not modelled (Integration) · not in drift field list

@@ -18,8 +18,8 @@ Merged to `main`. Starts after loop 17 merges.
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Installers migration + backfill | todo | - | opus/medium |
-| 02 | Installer directory + calendar views | todo | 01 | sonnet/high |
+| 01 | Installers migration + backfill | done | - | opus/medium |
+| 02 | Installer directory + calendar views | in-progress | 01 | sonnet/high |
 | 03 | Supervisor bookings + job form extras | todo | 01 | sonnet/high |
 | 04 | DO numbering + lines migration | todo | - | opus/medium |
 | 05 | DO on the job + print + delivery log | todo | 04 | sonnet/high |
@@ -37,3 +37,7 @@ Merged to `main`. Starts after loop 17 merges.
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-15 · plan · loop written from drift-site-stock.md (Installation, Stock, Samples, Leftover) · next: wait for loop 17 merge, then #01
+2026-11-15 · #01 · started in worktree ../gq-projects-crm-loops/18-installation-stock · next: verify
+2026-11-15 · #01 · done, verified (check, typecheck, test, guard:migrations) · next: #02
+2026-11-15 · #01 · decision · added installers.description, backfilled mofs.installer_name too, link_job_installer sync trigger keeps text+installer_id in step · subagent deviation, sensible
+2026-11-15 · #02 · started

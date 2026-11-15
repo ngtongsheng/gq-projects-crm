@@ -15,6 +15,8 @@ function referencesInMigrations(): Record<string, Record<string, string>> {
     )) {
       const created = line.match(/create table public\.([a-z_]+)/);
       if (created) table = created[1];
+      // A later `alter table` in the same file adds columns to another table.
+      if (/^alter table/.test(line)) table = "";
       const ref = line.match(/^\s*([a-z_]+)\s.*references public\.([a-z_]+)/);
       if (table && ref && ref[2] !== "profiles") {
         found[table] = { ...found[table], [ref[1]]: ref[2] };

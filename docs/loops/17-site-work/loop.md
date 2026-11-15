@@ -66,3 +66,4 @@ Log work wizard (site role landing page) and the seven Site Work tabs match Vick
 2026-11-15 · #09 · decision · BM in new src/lib/i18n/bm-site-work.ts; server-action error strings and WhatsApp texts stay untranslated (not passed through t()); one closed follow-up seeded via direct done_at insert · scope
 2026-11-15 · #10 · in-progress · parity cannot run (task 01 migration not on test copy, no browser env); parity checklist for Log work + Site Work recorded as awaiting live parity like loops 12/14/16; delegating docs (sonnet/medium)
 2026-11-15 · #10 · done · docs updated (features, decisions, drift-site-stock, roadmap 4B-i/4B-ii; Claims renumbered 19, Integration 20 per D1); browser parity still to run after go-live (checklist in drift-site-stock.md)
+2026-11-15 · merged to main (PR from loop/17-site-work)

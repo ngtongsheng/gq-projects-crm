@@ -4,6 +4,7 @@ import { StatusBadge } from "@/components/app/status-badge";
 import { formatDateTime } from "@/lib/format/date";
 import { ActivityActions } from "./activity-actions";
 import { activityStatusTone } from "./activity-status-tone";
+import { type VisitResult, VisitResultLabel } from "./outcome-schema";
 import {
   type ActivityStatus,
   ActivityStatusLabel,
@@ -19,6 +20,10 @@ export type CustomerActivity = {
   outcome: string | null;
   startsAt: string;
   status: ActivityStatus;
+  result: VisitResult | null;
+  lateLogged: boolean;
+  /** Planned and its time has passed: the outcome is still to be logged. */
+  needsOutcome: boolean;
   canEdit: boolean;
 };
 
@@ -58,6 +63,17 @@ export function CustomerActivities({
               <StatusBadge tone={activityStatusTone[activity.status]}>
                 {ActivityStatusLabel[activity.status]}
               </StatusBadge>
+              {activity.needsOutcome && (
+                <StatusBadge tone="warn">Outcome not logged</StatusBadge>
+              )}
+              {activity.result && (
+                <StatusBadge tone="good">
+                  {VisitResultLabel[activity.result]}
+                </StatusBadge>
+              )}
+              {activity.lateLogged && (
+                <StatusBadge tone="warn">Logged late</StatusBadge>
+              )}
             </div>
             <p className="text-sm">
               <span className="font-medium">
@@ -78,6 +94,7 @@ export function CustomerActivities({
             <ActivityActions
               contactId={contactId}
               customerName={customerName}
+              needsOutcome={activity.needsOutcome}
               activity={{
                 id: activity.id,
                 type: activity.type,

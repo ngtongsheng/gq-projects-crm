@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
+import { type Colleague, InviteePicker } from "../calendar/invitee-picker";
 import { saveActivity } from "./actions";
 import { parseMytInput, toMytInput } from "./activity-time";
 import {
@@ -101,8 +102,14 @@ type ActivityFormProps = {
   /** Customers to choose from when `contactId` is not known, e.g. on the calendar. */
   customers?: CustomerOption[];
   activity?: EditableActivity;
+  /** Colleagues who can be invited along, for a new activity. None to hide the choice. */
+  colleagues?: Colleague[];
   /** Starting date and time for a new activity, as a datetime-local value. Defaults to now. */
   defaultStartsAt?: string;
+  /** The type a new activity starts as. Defaults to a visit. */
+  defaultType?: ActivityType;
+  /** The status a new activity starts as. Defaults to planned when in the future, else completed. */
+  defaultStatus?: ActivityStatus;
   onSaved: () => void;
 };
 
@@ -110,11 +117,15 @@ export function ActivityForm({
   contactId,
   customers,
   activity,
+  colleagues,
   defaultStartsAt,
+  defaultType = "visit",
+  defaultStatus,
   onSaved,
 }: ActivityFormProps) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [type, setType] = useState<ActivityType>(activity?.type ?? defaultType);
   const [startsAt] = useState(() =>
     activity
       ? toMytInput(activity.startsAt)
@@ -122,6 +133,7 @@ export function ActivityForm({
   );
   // A day picked in the future is a plan; today or earlier is something that already happened.
   const [newStatus] = useState<ActivityStatus>(() => {
+    if (defaultStatus) return defaultStatus;
     const picked = parseMytInput(startsAt);
     return picked && picked > new Date() ? "planned" : "completed";
   });
@@ -165,7 +177,11 @@ export function ActivityForm({
         )}
         <Field>
           <FieldLabel htmlFor="type">Type</FieldLabel>
-          <Select name="type" defaultValue={activity?.type ?? "visit"}>
+          <Select
+            name="type"
+            value={type}
+            onValueChange={(value) => setType(ActivityType.parse(value))}
+          >
             <SelectTrigger id="type">
               <SelectValue />
             </SelectTrigger>
@@ -232,6 +248,9 @@ export function ActivityForm({
             )}
           </Field>
         </div>
+        {colleagues && type !== "call" && (
+          <InviteePicker colleagues={colleagues} />
+        )}
         <Field>
           <FieldLabel htmlFor="outcome">Outcome</FieldLabel>
           <Textarea

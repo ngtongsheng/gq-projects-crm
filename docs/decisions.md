@@ -183,3 +183,72 @@ accounts, secrets and billing. Full table and log: `docs/loops/09-self-serve-shi
   - D3: a salesperson who raised a FOB enquiry sees the supplier's reply (FOB, rate, shipping, landed cost) on their
     own costing, as the demo intends ("Sales sees it here"). Owner to confirm or strip it for people without the
     margin flag.
+
+## Loop 12 (sales parity), decided 2026-11-15
+- Company salespeople (D1): derived from the owners of the company's people (`contact_owners`); the demo's 2-owner limit
+  is shown (first two), not enforced. "Only owners add people" checks that list. Salesperson assignment fields and
+  Remove are not built (Remove loses data). Company sheet add-person is also open to the MD, Sales Director, and anyone
+  when the company has no owned people (otherwise nobody could add the first). Header "Add customer" now refuses a
+  non-owner adding to an existing company. Saving a company is MD and Sales Director only, as the database allows.
+- Visits before go-live (D3): the migration sets `logged_at` on existing completed activities, so only later visits can
+  be "not logged" or "late". Existing outcome text stays as learnings.
+- Weekly report deadline (D6): `app_settings` row `weekly_report_due` = `{weekday:5,time:"18:00"}`; its editing screen
+  comes with Tools & Forms. Only sales and bd file weekly reports.
+- Outcomes: a trigger stamps `logged_at` and `late_logged`, so the client cannot write them. A lead is stored as
+  `activities.lead_project_id` and copies `saveProject`'s schema and permission rule; lead source is fixed to cold call.
+  A next step needs a follow-up date, owned by the person logging. "Needs outcome" means planned and start time passed.
+  The three writes are not one transaction (see `debt.md`).
+- Companies view: "No visit yet" is its own status, included in the inactive filter; the demo's "Assigned firms" filter is
+  dropped (no company-level owners). Companies is the default view; the Salesperson filter is for managers only (not BD
+  with a team); the company name is the link, not the whole row (DataTable has no row click). Pure derivation lives in
+  `company-rows.ts`.
+- Invitations: the invite list is every colleague except the creator (the demo limits it to MD, directors, BD and sales;
+  `team_directory` has no job roles). Invitations go out only when an activity is created; no re-invite or change of
+  answer later (no activity detail view). The picker is hidden for calls.
+- Calendar: Monthly list replaces the sales Month grid (old `?view=month` opens the list). Week keeps one row per day,
+  not the demo's 7-column grid (phone). Plan a call is a `?call=<date>` dialog. A Marketing Director with a team gets no
+  Who filter. Excel and Copy list buttons are not built.
+- Weekly outcomes: rows come from `my_team()` or the picked person; MD and Accounts see `report_filers()` plus anyone
+  with a visit or report that week. On a Monday the default week is the week just ended (the demo's Sunday logic is
+  buggy). Submit is blocked while outcomes are unlogged, enforced in the action, not the database.
+  `weekly_report_due_at` is in `READ_ONLY_FUNCTIONS` so View as keeps working.
+- Projects: migration `20261115140000` takes site out of "projects: read all". A site person who sells still cannot
+  create or edit projects (the demo gives them full sales use; needs an add/edit rule change, not planned).
+- Dashboard banners, the Sales Calendar nav badge and the on-leave strip go to the Integration loop (D2). Sales screens
+  stay English only (D4).
+- Migrations (D5): ours are `20261115130000` and `20261115140000` (renamed after loop 13 took `20261115120000`); rename again at merge if `main` has a
+  newer one.
+- Parity pass (2026-11-15, test copy, md, Sales Director, BD, sales, site, site who sells; 1280 and 390 px, no
+  horizontal overflow). Page headings now read "Calendar & itinerary" and "Project pipeline" as in the demo, and the
+  calendar's "visits done" counts walk-ins like the demo and Weekly outcomes. Deviations left, all deliberate:
+  - All people keeps the existing people table (Position, Company, Mobile, Owners, rating, account type, CSV) and its
+    filters, not the demo's six columns.
+  - Weekly outcomes rows are expandable cards (a table does not fit a phone); the same numbers, the Week bar and the
+    report block are there. Monthly list moves months with the arrows, not a Month picker.
+  - Projects keep the existing Person filter and stage filters instead of the demo's per-person count chips; the List
+    columns are the existing ones (Flags, Est. commission, PIC).
+  - Sales and Site who sell read every company and customer (existing "read all" rules) and request ownership to edit;
+    the demo lists only their own under "My customers". Site who sell see only their own projects (none in the
+    example data); a Site supervisor who does not sell has no Customers, Calendar or Projects, as in the demo.
+  - Calendar cards and the Monthly list badge open the customer page, where Log outcome lives; the demo logs from the
+    row. The invitee list also shows people who have left (`team_directory` has no active flag; needs a migration).
+
+## Loop 20 (browser control in opencode), decided 2026-11-15
+- opencode cannot load Claude in Chrome: those tools exist only inside a Claude session. Control instead comes from
+  `chrome-devtools-mcp@1.13.0` with `--autoConnect`, which drives her real Chrome, so her profile and sign-ins are
+  there. A separate browser would meet the sign-in page, not her app.
+- The setting lives in `~/.config/opencode/opencode.jsonc` (on this machine a symlink into
+  `~/work/config/opencode/opencode.jsonc`): an `mcp` entry for the package plus `"chrome-devtools_*": "allow"`.
+  Browser tools are not prompted, by owner decision 2026-11-15: a click that waits for an approval every time cannot
+  check a page for her.
+- Observed (2026-11-15): `opencode mcp list` shows `✓ chrome-devtools connected`. `opencode run --auto` opened
+  `http://localhost:3000` and saved a 424 KB screenshot of her signed-in dashboard, not the sign-in page, because her
+  profile holds a session cookie. The Chrome **Allow** dialog did not appear on any connect after remote debugging was
+  enabled.
+- Limits:
+  - Chrome 144 or newer; remote debugging is turned on once at `chrome://inspect/#remote-debugging` and stays on.
+  - If connecting fails with `EPERM`, grant Ghostty access under macOS Files & Folders.
+  - The **Allow** dialog may reappear (a Chrome restart); approve it again.
+  - Page content and prompt injection are a real risk now that clicks are unprompted: browser output is untrusted data,
+    and reading it never authorises a write.
+  - `take_screenshot` writes only inside the workspace root; save into the repo and move the file, or pass a repo path.

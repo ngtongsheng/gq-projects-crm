@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getCurrentProfile, type Profile } from "@/lib/auth/current-profile";
 import { createClient } from "@/lib/supabase/server";
-import { saveContact } from "./actions";
+import { saveCompany, saveContact } from "./actions";
 
 vi.mock("@/lib/auth/current-profile", () => ({ getCurrentProfile: vi.fn() }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: vi.fn() }));
@@ -59,7 +59,10 @@ function fakeSupabase(queues: Record<string, Result[]>) {
     from: vi.fn((table: string) => {
       const call: Call = { table, steps: [], payload: undefined };
       calls.push(call);
-      const result = queues[table]?.shift() ?? { data: null, error: null };
+      const result = queues[table]?.shift() ?? {
+        data: table === "contact_owners" ? [] : null,
+        error: null,
+      };
       const query: Record<string, unknown> = {};
       for (const step of [
         "select",
@@ -67,6 +70,7 @@ function fakeSupabase(queues: Record<string, Result[]>) {
         "update",
         "eq",
         "neq",
+        "is",
         "maybeSingle",
         "single",
       ]) {
@@ -76,12 +80,13 @@ function fakeSupabase(queues: Record<string, Result[]>) {
           );
           call.steps.push(step);
           if (step === "insert" || step === "update") call.payload = payload;
-          if (step === "maybeSingle" || step === "single") {
+          if (step === "maybeSingle" || step === "single" || step === "is") {
             return Promise.resolve(result);
           }
           if (step === "select" && writing) {
             return Object.assign(Promise.resolve(result), {
               single: () => Promise.resolve(result),
+              maybeSingle: () => Promise.resolve(result),
             });
           }
           return query;
@@ -114,6 +119,24 @@ function form(fields: Record<string, string>) {
   return data;
 }
 
+const companyForm = (fields: Record<string, string>) => {
+  const data = new FormData();
+  for (const [key, value] of Object.entries({
+    companyId: COMPANY,
+    name: "Atlas Interiors",
+    companyType: "designer",
+    rating: "4",
+    accountType: "",
+    passedBy: "",
+    address: "",
+    notes: "",
+    ...fields,
+  })) {
+    data.set(key, value);
+  }
+  return data;
+};
+
 const none: Result = { data: null, error: null };
 const saved: Result = { data: CONTACT, error: null };
 
@@ -142,6 +165,55 @@ describe("saveContact", () => {
       },
       company: null,
     });
+  });
+
+  it("refuses a person who is not one of the company's salespeople", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    const calls = fakeSupabase({
+      contact_owners: [
+        { data: [{ profile_id: ARUN, contacts: {} }], error: null },
+      ],
+    });
+
+    const result = await saveContact(form({}));
+
+    expect(result.error).toBe(
+      "Only this company's salespeople, the MD or the Sales Director can add people to it.",
+    );
+    expect(savedWith(calls)).toHaveLength(0);
+  });
+
+  it("lets one of the company's salespeople add a person", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    const calls = fakeSupabase({
+      contact_owners: [
+        {
+          data: [
+            { profile_id: ARUN, contacts: {} },
+            { profile_id: ME, contacts: {} },
+          ],
+          error: null,
+        },
+      ],
+    });
+
+    const result = await saveContact(form({}));
+
+    expect(result.error).toBeNull();
+    expect(savedWith(calls)).toHaveLength(1);
+  });
+
+  it("lets the MD add a person to a company they have no people at", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
+    fakeSupabase({
+      contact_owners: [
+        { data: [{ profile_id: ARUN, contacts: {} }], error: null },
+      ],
+    });
+
+    const result = await saveContact(form({}));
+
+    expect(result.error).toBeNull();
   });
 
   it("lets the MD change the rating of an existing company", async () => {
@@ -381,5 +453,54 @@ describe("saveContact", () => {
     await expect(saveContact(form({}))).rejects.toThrow(
       "redirect:/not-allowed",
     );
+  });
+});
+
+describe("saveCompany", () => {
+  beforeEach(() => {
+    vi.mocked(getCurrentProfile).mockReset();
+  });
+
+  it("saves the company for the MD", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
+    const calls = fakeSupabase({
+      companies: [{ data: { id: COMPANY }, error: null }],
+    });
+
+    const result = await saveCompany(
+      companyForm({ accountType: "pass_down", passedBy: ARUN }),
+    );
+
+    expect(result.error).toBeNull();
+    expect(calls[0]?.payload).toMatchObject({
+      name: "Atlas Interiors",
+      company_type: "designer",
+      rating: 4,
+      account_type: "pass_down",
+      passed_by: ARUN,
+    });
+  });
+
+  it("refuses anyone but the MD or Sales Director", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    const calls = fakeSupabase({});
+
+    const result = await saveCompany(companyForm({}));
+
+    expect(result.error).toBe(
+      "Only the MD or the Sales Director can change a company.",
+    );
+    expect(calls).toHaveLength(0);
+  });
+
+  it("names the problem when the name is taken", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
+    fakeSupabase({
+      companies: [{ data: null, error: { code: "23505", message: "dup" } }],
+    });
+
+    const result = await saveCompany(companyForm({}));
+
+    expect(result.error).toBe("A company with that name already exists.");
   });
 });

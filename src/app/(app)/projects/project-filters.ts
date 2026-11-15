@@ -20,3 +20,16 @@ export function filterByPerson<
   if (!person) return rows;
   return rows.filter((row) => row.picId === person || row.supportId === person);
 }
+
+/** The Person filter offers only people on the projects I can read (demo: TF()). */
+export function peopleOnProjects<Member extends { id: string }>(
+  members: readonly Member[],
+  rows: readonly { picId: string; supportId: string | null }[],
+): Member[] {
+  const onProjects = new Set(
+    rows.flatMap((row) =>
+      row.supportId ? [row.picId, row.supportId] : [row.picId],
+    ),
+  );
+  return members.filter((member) => onProjects.has(member.id));
+}

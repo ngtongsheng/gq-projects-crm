@@ -20,7 +20,7 @@ her opencode settings, and the decision is recorded.
 | 01 | Prove the Chrome connection with the package CLI | done | - | standard |
 | 02 | Owner pastes the opencode setting | done | 01 | economy |
 | 03 | End to end through opencode | done | 02 | standard |
-| 04 | Record the decision | in-progress | 03 | economy |
+| 04 | Record the decision | done | 03 | economy |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 Do these before task 01; the agent parks task 01 if Chrome cannot be reached.
@@ -52,3 +52,4 @@ Do these before task 01; the agent parks task 01 if Chrome cannot be reached.
 2026-11-15 · #03 · done · `opencode run --auto` opened localhost:3000 in her Chrome via the MCP (new_page, evaluate_script, take_screenshot), 424 KB screenshot, no Allow dialog, exit 0 · next #04
 2026-11-15 · #03 · decision · acceptance expected the sign-in page; it opened the signed-in dashboard instead because her profile holds a session cookie · the goal (drive her real Chrome) is met, so accepted and recorded in #04
 2026-11-15 · #03 · decision · `chrome-devtools_take_screenshot` refuses paths outside the workspace roots (`/tmp`), so the agent saved into the worktree and moved the file out · recorded in #04; not a config change
+2026-11-15 · #04 · done · `docs/decisions.md` Loop 20 entry + one CLAUDE.md line; `pnpm check` passes · next: merge

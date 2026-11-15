@@ -41,3 +41,4 @@ Do these before task 01; the agent parks task 01 if Chrome cannot be reached.
 2026-11-15 · #01 · blocked: owner · CLI starts fine, `navigate_page` fails `Could not find DevToolsActivePort`; Chrome 157 runs window-less with no debug port · owner enables remote debugging, then rerun
 2026-11-15 · #01 · decision · `Could not find DevToolsActivePort` treated as remote-debugging-off (owner action 1), not macOS Files & Folders (action 2) · profile dir is listable, so the permission exists
 2026-11-15 · #02-#04 · skipped · all depend on #01 · loop parked until Chrome is reachable
+2026-11-15 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-15-loop-20-opencode-browser.md

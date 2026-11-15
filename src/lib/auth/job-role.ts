@@ -111,6 +111,10 @@ export const canEnterPayments = (jobRole: JobRole) =>
 export const canPayOutCommission = (jobRole: JobRole) =>
   has(jobRole, ["md", "accounts"]);
 
+/** Approves or rejects a late-cut appeal (SQL: the update policy on commission_appeals, which also bars your own). */
+export const canDecideCommissionAppeal = (jobRole: JobRole) =>
+  has(jobRole, ["md", "accounts"]);
+
 export const canEditStock = (person: {
   jobRole: JobRole;
   arrangesStock: boolean;

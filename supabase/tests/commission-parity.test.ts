@@ -49,6 +49,8 @@ type Case = {
   payments?: { amount: number; day: number }[];
   payouts?: { person: Person; amount: number }[];
   settings?: Partial<CommissionSettings>;
+  /** Appeals on the order and how they stand. */
+  appeals?: Partial<Record<Person, "pending" | "approved" | "rejected">>;
   /** Payable now per person, worked out by hand; anyone left out is 0. */
   expected: Partial<Record<Person, number>>;
 };
@@ -182,10 +184,37 @@ const cases: Case[] = [
     expected: { sales: 262.5 },
   },
   {
-    name: "second late cut counts from the invoice date",
+    name: "180 days after the invoice: still the first late cut",
     cost: 6000,
-    invoiceDay: 50,
-    payments: [{ amount: 10_000, day: 171 }],
+    invoiceDay: 10,
+    payments: [{ amount: 10_000, day: 190 }],
+    expected: { sales: 225 },
+  },
+  {
+    name: "second late cut from day 181, counted from the invoice date",
+    cost: 6000,
+    invoiceDay: 10,
+    payments: [{ amount: 10_000, day: 191 }],
+    expected: { sales: 150 },
+  },
+  {
+    name: "an approved appeal waives that person's late cut only",
+    second: "bd",
+    cost: 6000,
+    invoiceDay: 10,
+    payments: [
+      { amount: 5000, day: 120 },
+      { amount: 5000, day: 191 },
+    ],
+    appeals: { sales: "approved", bd: "pending" },
+    expected: { sales: 150, bd: 93.75 },
+  },
+  {
+    name: "a rejected appeal leaves the late cut",
+    cost: 6000,
+    invoiceDay: 10,
+    payments: [{ amount: 10_000, day: 191 }],
+    appeals: { sales: "rejected" },
     expected: { sales: 150 },
   },
   {
@@ -336,6 +365,17 @@ async function addCase(c: Case, settings: CommissionSettings) {
     );
   }
 
+  for (const [person, status] of Object.entries(c.appeals ?? {})) {
+    await t.db.query(
+      `insert into public.commission_appeals (mof_id, profile_id, reason, status, reply, decided_by, decided_at)
+       values ($1, $2, 'Client pays slowly every time.', $3,
+         case when $3 = 'pending' then null else 'Noted.' end,
+         case when $3 = 'pending' then null else $4::uuid end,
+         case when $3 = 'pending' then null else now() end)`,
+      [mofId, t.profileIds[person as Person], status, t.profileIds.md],
+    );
+  }
+
   const people: CommissionPerson[] = PEOPLE.map((person) => ({
     id: t.profileIds[person],
     name: person,
@@ -359,6 +399,9 @@ async function addCase(c: Case, settings: CommissionSettings) {
     people,
     settings,
     today: await malaysiaDate(t),
+    lateCutWaivedFor: Object.entries(c.appeals ?? {})
+      .filter(([, status]) => status === "approved")
+      .map(([person]) => t.profileIds[person as Person]),
   };
   return { mofId, input };
 }

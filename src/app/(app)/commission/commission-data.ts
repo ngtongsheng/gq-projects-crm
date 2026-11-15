@@ -69,6 +69,12 @@ const mofRows = z.array(
         note: z.string().nullable(),
       }),
     ),
+    commission_appeals: z.array(
+      z.object({
+        profile_id: z.string(),
+        status: z.enum(["pending", "approved", "rejected"]),
+      }),
+    ),
   }),
 );
 
@@ -95,7 +101,7 @@ export async function loadCommissionLines(
   const query = supabase
     .from("mofs")
     .select(
-      "id, mof_no, company_name, project_name, loa_date, invoice_date, contract_sum, vo_amount, commission_type, salesperson_id, second_salesperson_id, payments(amount, received_on), commission_payouts(id, profile_id, amount, paid_on, note)",
+      "id, mof_no, company_name, project_name, loa_date, invoice_date, contract_sum, vo_amount, commission_type, salesperson_id, second_salesperson_id, payments(amount, received_on), commission_payouts(id, profile_id, amount, paid_on, note), commission_appeals(profile_id, status)",
     )
     .neq("stage", "cancelled")
     .order("loa_date", { ascending: false })
@@ -162,6 +168,9 @@ export async function loadCommissionLines(
       people,
       settings,
       today,
+      lateCutWaivedFor: mof.commission_appeals
+        .filter((appeal) => appeal.status === "approved")
+        .map((appeal) => appeal.profile_id),
     });
 
     for (const commission of result.people) {

@@ -42,6 +42,8 @@ export type CommissionInput = {
   knownTier?: MarginTier;
   payments: readonly { amount: number; receivedOn: CalendarDate }[];
   people: readonly CommissionPerson[];
+  /** People whose appeal on this MOF was approved: their late cut is 0. */
+  lateCutWaivedFor: readonly string[];
   settings: CommissionSettings;
   today: CalendarDate;
 };
@@ -273,18 +275,22 @@ export function calculateCommission(input: CommissionInput): CommissionResult {
     ];
     if (note) lines.push(note);
 
+    const waived = input.lateCutWaivedFor.includes(share.person.id);
     let grossCents = 0;
     let cutCents = 0;
     for (const payment of counted) {
       const commission = payment.cents * factor;
       grossCents += commission;
-      if (payment.cutPct > 0 && commission > 0) {
+      if (!waived && payment.cutPct > 0 && commission > 0) {
         const cut = (commission * payment.cutPct) / 100;
         cutCents += cut;
         lines.push(
           `${formatRm(fromCents(payment.cents))} received ${formatDate(payment.receivedOn)}, ${payment.days} days after the invoice: cut ${pct(payment.cutPct)} (-${formatRm(fromCents(roundCents(cut)))}).`,
         );
       }
+    }
+    if (waived && counted.some((payment) => payment.cutPct > 0)) {
+      lines.push("Late cut waived: appeal approved as a special favour.");
     }
     const lateCut = roundCents(cutCents);
     const earned = roundCents(grossCents) - lateCut;

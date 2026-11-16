@@ -1,10 +1,27 @@
-# GQ Projects CRM
+# GQP Office
 
-![GQ Projects CRM demo](docs/screenshots/demo.gif)
+![Team dashboard with attention list and monthly figures](docs/screenshots/dashboard.jpg)
 
-Invite-only internal CRM for GQ Projects, a 17-person carpet sales and installation company. Admins add people; there
-is no public sign-up. The code is also built to be extended by non-developers working with a coding agent, so the
-repo carries its own rules and docs.
+Invite-only internal app for GQ Projects, a 17-person carpet sales and installation company. People sign in with
+Google; admins add them, and there is no public sign-up. The code is also built to be extended by non-developers
+working with a coding agent, so the repo carries its own rules and docs.
+
+## What it does
+
+One sidebar lists the pages each person's job role may open. The Managing Director sets who sees what in People.
+
+| Area | Pages |
+|---|---|
+| Sales | Dashboard, Sales Calendar, Customers, Projects, Costing |
+| Orders and delivery | MOF Register, Installation, Site Work, Stock, Collection |
+| Money | Commission, Claims (commission, travel, overtime) |
+| Reporting | Team Reports, Director Report |
+| People | HR, Tasks, Leave, Tools & Forms, People |
+
+![Customers list](docs/screenshots/customers.jpg)
+![MOF register](docs/screenshots/mofs.jpg)
+
+Every screen is described in [docs/features.md](docs/features.md), with pictures for most.
 
 ## Stack
 
@@ -21,7 +38,7 @@ repo carries its own rules and docs.
    `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
 3. Server-only features need `SUPABASE_SERVICE_ROLE_KEY`. It is not committed and not set locally, so admin-only
    server features show a "can't be tried on your laptop" message by design.
-4. `pnpm dev`, then open `http://localhost:3000`.
+4. `pnpm dev`, then open `http://localhost:3000`. Google sign-in is off there; use the "Sign in as" panel at the bottom of the page.
 
 Seeding admins and example data: see [docs/environments.md](docs/environments.md).
 
@@ -53,7 +70,8 @@ Seeding admins and example data: see [docs/environments.md](docs/environments.md
 
 ## Roles
 
-Two roles: `admin` (manages people and settings) and `staff` (day-to-day CRM use).
+Two access roles: `admin` (manages people and settings) and `staff` (day-to-day use). On top of that each person has
+a job role (MD, directors, salesperson, site supervisor and others) that decides which pages they see.
 
 ## Working on a change
 

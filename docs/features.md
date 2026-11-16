@@ -1,8 +1,8 @@
 # Features
 
-One section per screen, in sidebar order. Screenshots are the Sales Director's view of the test copy with its
-example records, so a colleague with another job role sees fewer or different screens and records. The in-app
-**Guide** lists what each role can open.
+One section per screen, in sidebar order. Screenshots are the Managing Director's view of the development database
+with its example records (fake names and numbers), so a colleague with another job role sees fewer or different screens
+and records. The in-app **Guide** lists what each role can open. Not every screen has a picture.
 
 Job roles: MD, Sales Director, Marketing Director, Salesperson, HR & Accounts, Site Supervisor, Purchasing, Sales support, Designer, Marketing Executive. The MD sets which pages each role sees in People ("What each role can see") and can open the app as anyone with **View as** (read only).
 
@@ -50,12 +50,11 @@ remembered in the browser.
 Used by: everyone.
 
 ## Sign in
-Invite-only sign-in with the email and password an admin set up. There is no public sign-up.
-"Forgot password?" shows a note to ask an admin, who makes a new link on the People page. No emails are sent.
+Invite-only sign-in with Google, using the account an admin added in People. There is no public sign-up and no
+password in the app. On a laptop (development) Google sign-in is off; a "Sign in as" panel lists the test people
+instead.
 
 Used by: everyone.
-
-![Sign-in form with empty email and password fields](screenshots/sign-in.jpg)
 
 ## Dashboard
 Headline numbers for the month: what needs attention, visits against target, new customers, open pipeline,
@@ -172,15 +171,11 @@ history with the option to log a new one. The owner or a manager edits it; anyon
 
 Used by: MD, Sales Director, BD Director, Sales, HR & Accounts.
 
-![Customer detail with contact panel, other contacts at the company and activity log](screenshots/customers-detail.jpg)
-
 ## Ownership requests
 Requests from a salesperson to take over a customer, with the reason, who owns it now and the outcome.
 Managers approve or reject; approving makes the requester the owner.
 
 Used by: MD, Sales Director, BD Director, Sales, HR & Accounts.
-
-![Ownership requests table with approved and rejected outcomes](screenshots/customers-ownership.jpg)
 
 ## Projects
 Every deal by stage from lead to job, as a board or a list, with value, area, estimated commission and the
@@ -216,8 +211,6 @@ required when the job is complete or the order total changes. Cost rows are hidd
 
 Used by: MD, BD Director, Sales, HR & Accounts, Purchasing.
 
-![MOF detail form with order, site and contact sections](screenshots/mofs-detail.jpg)
-
 ## Site Work
 Open orders and the whole site side of the business, in seven tabs. Everyone sees the first six; **Daily log & reminders** is for managers and the Sales support team. Marketing sees only
 **Photos & videos** and **Site log**. A tab name shows a count where something needs doing.
@@ -252,8 +245,6 @@ and links. Site supervisors log visits and update the stage.
 
 Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Site Supervisor, Purchasing.
 
-![Site detail with site stage, leftover stock and site visit log](screenshots/site-work-detail.jpg)
-
 ## Claims
 One monthly claim per person, for commission and travelling costs. The sidebar says **My claims** for staff and
 **Claims** for managers. A claim runs: Draft, Submitted, Checked (HR & Accounts), Approved (HR & Accounts or the MD),
@@ -287,13 +278,13 @@ original-versus-final box. It leaves out the invoice date, a meals column and th
 
 Used by: everyone with a job role for their own claim; MD and HR & Accounts to check and approve.
 
+![Claims page with overtime to decide and the monthly claim table](screenshots/claims.jpg)
+
 ## Overtime
 Night and weekend work claims. The page is no longer in the sidebar: staff open the form from **Claims**. Staff add a claim with the time and the job; the MD or Sales Director approves
 it as paid overtime or as replacement leave, or rejects it. HR & Accounts can decide too.
 
 Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Site Supervisor, Purchasing.
-
-![Overtime screen with pending claims and approve or reject buttons](screenshots/overtime.jpg)
 
 ## Stock
 Four tabs: **Reserved for clients**, **Stock items**, **Leftover stock at Best Link (N)** and **Samples at Best Link
@@ -350,8 +341,6 @@ Offcuts and spare stock from finished jobs, on two tables.
 Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Purchasing, Marketing. A Site Supervisor marks
 collection from Site Work.
 
-![Leftover stock table with status and credit note details](screenshots/stock-leftover.jpg)
-
 ## Collection
 Invoice, received and outstanding amount per order, with payment status. Commission opens at 90% paid. Open an
 order to see or enter payments.
@@ -380,8 +369,6 @@ The rules every commission is worked out from. Per-person exceptions are set on 
 
 Used by: MD and admins.
 
-![Commission settings with rates, margin rule and late collection cuts](screenshots/commission-settings.jpg)
-
 ## Team Reports
 Monthly reports for the whole team, for salespeople and for site supervisors, with figures taken from the
 calendar, projects and MOFs. They freeze when a report is submitted. People who are not managers see My Report
@@ -405,8 +392,6 @@ Team Reports.
 
 Used by: MD, Sales Director, BD Director, HR & Accounts.
 
-![Director Report listing each director's monthly report and its status](screenshots/reports-director.jpg)
-
 ## Tasks
 Work handed between people, with a due date and a review step. Tabs: **My tasks**, **Assigned by me**, **All tasks**
 and **Workload** (MD and Sales Director). Tiles show overdue, due this week, waiting review and revision. Click a task
@@ -416,6 +401,8 @@ revision needs a comment. The MD, Directors, BD, Sales support and Marketing can
 app only (tiles and overdue marks); WhatsApp reminders come later. A task cannot be edited after it is made yet.
 
 Used by: everyone with the Tasks page.
+
+![Tasks assigned by the MD with due date and status](screenshots/tasks.jpg)
 
 ## HR
 Pay and policy papers for the whole company. Only the MD and HR & Accounts can open it. The **admin** role alone does
@@ -437,6 +424,8 @@ on full-year sales); the app does not work bonuses out. Marking "appendix signed
 English with a 中文 toggle.
 
 Used by: MD, HR & Accounts.
+
+![HR page with current policies and the sales target scheme](screenshots/hr.jpg)
 
 ## Tools & Forms
 Small helpers for everyone, in the sidebar just before Leave. Tabs: **Wallpaper calculator**, **Vinyl sheet calculator** and **Forms to print** (the forms tab also holds Best Link and the Drive links).
@@ -474,8 +463,6 @@ Used by: everyone with the Leave page.
 A short in-app list of the screens the signed-in role can open and what each is for.
 
 Used by: everyone.
-
-![Guide listing each screen and its purpose](screenshots/guide.jpg)
 
 ## Sales Performance
 Sales, margin and collection per salesperson for a year, against each person's yearly target. A target is

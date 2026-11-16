@@ -32,8 +32,8 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 | 05 | Hook, CLAUDE.md, skills and laptop UI fixes | done | 03 | standard |
 | 06 | Laptop playbook | done | 05 | standard |
 | 07 | Google sign-in go-live | in-progress | 01 | standard |
-| 08 | Screenshots, README and docs | in-progress | 05 | standard |
-| 09 | Rehearsal on a fresh clone | todo | 04,05,06 | frontier |
+| 08 | Screenshots, README and docs | done | 05 | standard |
+| 09 | Rehearsal on a fresh clone | in-progress | 04,05,06 | frontier |
 | 10 | Hand-off: what's new, bootstrap issue, close #31, docs, merge | todo | 07,08,09 | standard |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
@@ -81,3 +81,7 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 2026-11-16 · #06 · done: docs/laptop.md (16 scenarios), all named scripts exist; debt: no helper to repair dev migration history · next: #08
 2026-11-16 · #06 · decision · people count: seed makes 17 sign-ins, 2 inactive, so a fresh panel shows 15; task 05 acceptance "17 in panel" was wrong · seed asserts 17
 2026-11-16 · #08 · started (sonnet/high)
+2026-11-16 · #08 · done: 15 shots (dark, 1512 px), README + features.md refreshed, all refs resolve · next: #09
+2026-11-16 · #08 · decision · 1512 px not 1280 (resize_window had no effect); sign-in shot and 9 stale detail shots + demo.gif dropped · stale images mislead
+2026-11-16 · #08 · note · sidebar: Claims and HR share the Dashboard icon (unrelated, not fixed)
+2026-11-16 · #09 · started (opus/medium)

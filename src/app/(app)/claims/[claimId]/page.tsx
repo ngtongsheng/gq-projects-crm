@@ -5,7 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
-import { canDecideOvertime } from "@/lib/auth/job-role";
+import { canDecideOvertime, JobRoleLabel } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import {
   canAdjustClaim,
@@ -22,6 +22,8 @@ import { loadCommissionSettings } from "../../commission/commission-settings-dat
 import { AdjustedNote } from "../adjusted-note";
 import { ClaimBanner } from "../claim-banner";
 import { commissionRows } from "../claim-commission-rows";
+import { ClaimPrintButton } from "../claim-print-button";
+import { ClaimPrintSheet } from "../claim-print-sheet";
 import { loadClaimReview } from "../claim-review-data";
 import { ClaimReviewFooter } from "../claim-review-footer";
 import {
@@ -29,6 +31,7 @@ import {
   ClaimReviewProvider,
   reviewKey,
 } from "../claim-review-state";
+import { loadClaimSignoffs } from "../claim-signoffs-data";
 import { ClaimStatusBadge } from "../claim-status-badge";
 import { WaiveLateCutButton } from "../claim-waive-button";
 import { CommissionSection } from "../commission-section";
@@ -50,6 +53,7 @@ export default async function ClaimReviewPage({
   if (!id.success) notFound();
   const review = await loadClaimReview(id.data);
   if (!review) notFound();
+  const signoffs = await loadClaimSignoffs(id.data);
 
   const t = await getT(me.language);
   const { head, month, settings, personName } = review;
@@ -98,197 +102,218 @@ export default async function ClaimReviewPage({
     review.lastMonthReport !== null && review.lastMonthReport !== "draft";
 
   return (
-    <div className="flex flex-col gap-4">
-      <PageHeader
-        title={`${personName} · ${monthLabel} ${t("claim")}`}
-        actions={
-          <Button asChild variant="outline">
-            <Link href={ALL_CLAIMS}>
-              <ArrowLeft data-icon="inline-start" />
-              {t("All claims")}
-            </Link>
-          </Button>
-        }
-      />
-      <ClaimBanner tone="info">
-        {review.submittedAt && (
-          <>
-            {t("Submitted")}{" "}
-            {formatDate(todayMyt(new Date(review.submittedAt)))} ·{" "}
-          </>
-        )}
-        <ClaimStatusBadge status={head.status} t={t} />
-        {review.filesReport && (
-          <>
-            {" "}
-            · {t("Last month's monthly report")}{" "}
-            {lastMonthDone ? (
-              t("submitted")
-            ) : (
-              <b className="text-bad">{t("not submitted")}</b>
-            )}
-          </>
-        )}
-        {adjustable && (
-          <>
-            {" "}
-            ·{" "}
-            {t(
-              "Change any amount if it needs adjusting, give the reason, then Save.",
-            )}
-          </>
-        )}
-        {head.status === "returned" && head.returnReason && (
-          <p className="mt-1">
-            {t("Returned")}: <i>{head.returnReason}</i>
-          </p>
-        )}
-        {head.note && (
-          <p className="mt-1">
-            <b>
-              {t("Note from")} {personName}:
-            </b>{" "}
-            {head.note}
-          </p>
-        )}
-      </ClaimBanner>
-      {review.flags.count > 0 && (
-        <ClaimBanner tone="warn">
-          <b>
-            {review.flags.count}{" "}
-            {review.flags.count > 1 ? t("items") : t("item")} {t("to check")}
-          </b>{" "}
-          –{" "}
-          {t(
-            "nothing logged that day or over the standard. If justified, approve and write the reason in the remark.",
+    <>
+      <div className="flex flex-col gap-4 print:hidden">
+        <PageHeader
+          title={`${personName} · ${monthLabel} ${t("claim")}`}
+          actions={
+            <>
+              <ClaimPrintButton label={t("Print claim form")} />
+              <Button asChild variant="outline">
+                <Link href={ALL_CLAIMS}>
+                  <ArrowLeft data-icon="inline-start" />
+                  {t("All claims")}
+                </Link>
+              </Button>
+            </>
+          }
+        />
+        <ClaimBanner tone="info">
+          {review.submittedAt && (
+            <>
+              {t("Submitted")}{" "}
+              {formatDate(todayMyt(new Date(review.submittedAt)))} ·{" "}
+            </>
+          )}
+          <ClaimStatusBadge status={head.status} t={t} />
+          {review.filesReport && (
+            <>
+              {" "}
+              · {t("Last month's monthly report")}{" "}
+              {lastMonthDone ? (
+                t("submitted")
+              ) : (
+                <b className="text-bad">{t("not submitted")}</b>
+              )}
+            </>
+          )}
+          {adjustable && (
+            <>
+              {" "}
+              ·{" "}
+              {t(
+                "Change any amount if it needs adjusting, give the reason, then Save.",
+              )}
+            </>
+          )}
+          {head.status === "returned" && head.returnReason && (
+            <p className="mt-1">
+              {t("Returned")}: <i>{head.returnReason}</i>
+            </p>
+          )}
+          {head.note && (
+            <p className="mt-1">
+              <b>
+                {t("Note from")} {personName}:
+              </b>{" "}
+              {head.note}
+            </p>
           )}
         </ClaimBanner>
-      )}
-      <ClaimReviewProvider
-        key={`${Object.values(stored).join("|")}|${head.remark}|${head.originalReceiptsReceived}`}
-        stored={stored}
-        remark={head.remark}
-        originalReceiptsReceived={head.originalReceiptsReceived}
-      >
-        {commissionRules && rows.length > 0 && (
-          <CommissionSection
-            rows={rows}
-            month={month}
+        {review.flags.count > 0 && (
+          <ClaimBanner tone="warn">
+            <b>
+              {review.flags.count}{" "}
+              {review.flags.count > 1 ? t("items") : t("item")} {t("to check")}
+            </b>{" "}
+            –{" "}
+            {t(
+              "nothing logged that day or over the standard. If justified, approve and write the reason in the remark.",
+            )}
+          </ClaimBanner>
+        )}
+        <ClaimReviewProvider
+          key={`${Object.values(stored).join("|")}|${head.remark}|${head.originalReceiptsReceived}`}
+          stored={stored}
+          remark={head.remark}
+          originalReceiptsReceived={head.originalReceiptsReceived}
+        >
+          {commissionRules && rows.length > 0 && (
+            <CommissionSection
+              rows={rows}
+              month={month}
+              editable={false}
+              personId={review.personId}
+              rules={commissionRules}
+              heading={`1 · ${t("Commission")}`}
+              amountCell={
+                adjustable
+                  ? (row) => (
+                      <div className="flex flex-col items-end gap-1">
+                        <ClaimAmountInput
+                          kind="commission"
+                          id={row.mofId}
+                          label={`${t("Amount")} ${row.mofNo}`}
+                        />
+                        <AdjustedNote
+                          originalAmount={row.originalAmount}
+                          amount={row.amount}
+                          reason={row.adjustmentReason}
+                          t={t}
+                        />
+                        {row.lateCut > 0 &&
+                          review.approvedAppealMofIds.has(row.mofId) && (
+                            <WaiveLateCutButton
+                              claimId={head.id}
+                              mofId={row.mofId}
+                            />
+                          )}
+                      </div>
+                    )
+                  : undefined
+              }
+              t={t}
+            />
+          )}
+          <ExpenseSection
+            expenses={review.expenses}
+            flags={review.flags.byExpense}
+            monthlyFlag={review.flags.monthly}
+            cap={
+              review.flags.monthlyCap === null
+                ? null
+                : {
+                    used: sumRm(
+                      review.expenses
+                        .filter((line) =>
+                          CAPPED_EXPENSE_TYPES.includes(line.expenseType),
+                        )
+                        .map((line) => line.amount),
+                    ),
+                    max: review.flags.monthlyCap,
+                  }
+            }
             editable={false}
-            personId={review.personId}
-            rules={commissionRules}
-            heading={`1 · ${t("Commission")}`}
+            rules={{
+              today: todayMyt(),
+              cutOffDay: settings.cutOffDay,
+              mileageRatePerKm: settings.mileageRatePerKm,
+              meals: null,
+              hotelBudget: null,
+            }}
+            heading={`${rows.length > 0 ? "2 · " : ""}${t("Travelling expense")} · ${monthLabel}`}
             amountCell={
               adjustable
-                ? (row) => (
-                    <div className="flex flex-col items-end gap-1">
-                      <ClaimAmountInput
-                        kind="commission"
-                        id={row.mofId}
-                        label={`${t("Amount")} ${row.mofNo}`}
-                      />
-                      <AdjustedNote
-                        originalAmount={row.originalAmount}
-                        amount={row.amount}
-                        reason={row.adjustmentReason}
-                        t={t}
-                      />
-                      {row.lateCut > 0 &&
-                        review.approvedAppealMofIds.has(row.mofId) && (
-                          <WaiveLateCutButton
-                            claimId={head.id}
-                            mofId={row.mofId}
-                          />
-                        )}
-                    </div>
+                ? (line) => (
+                    <ClaimAmountInput
+                      kind="expense"
+                      id={line.id}
+                      label={`${t("Amount")} ${formatDate(line.spentOn)}`}
+                    />
                   )
                 : undefined
             }
             t={t}
           />
-        )}
-        <ExpenseSection
-          expenses={review.expenses}
-          flags={review.flags.byExpense}
-          monthlyFlag={review.flags.monthly}
-          cap={
-            review.flags.monthlyCap === null
-              ? null
-              : {
-                  used: sumRm(
-                    review.expenses
-                      .filter((line) =>
-                        CAPPED_EXPENSE_TYPES.includes(line.expenseType),
-                      )
-                      .map((line) => line.amount),
-                  ),
-                  max: review.flags.monthlyCap,
-                }
-          }
-          editable={false}
-          rules={{
-            today: todayMyt(),
-            cutOffDay: settings.cutOffDay,
-            mileageRatePerKm: settings.mileageRatePerKm,
-            meals: null,
-            hotelBudget: null,
-          }}
-          heading={`${rows.length > 0 ? "2 · " : ""}${t("Travelling expense")} · ${monthLabel}`}
-          amountCell={
-            adjustable
-              ? (line) => (
-                  <ClaimAmountInput
-                    kind="expense"
-                    id={line.id}
-                    label={`${t("Amount")} ${formatDate(line.spentOn)}`}
-                  />
-                )
-              : undefined
-          }
-          t={t}
-        />
-        {(review.overtime.entries.length > 0 || head.otAmount !== null) && (
-          <OvertimeSection
-            overtime={review.overtime}
-            amount={otStored}
-            editable={false}
-            canDecide={
-              canDecideOvertime(me.jobRole) && review.personId !== me.id
+          {(review.overtime.entries.length > 0 || head.otAmount !== null) && (
+            <OvertimeSection
+              overtime={review.overtime}
+              amount={otStored}
+              editable={false}
+              canDecide={
+                canDecideOvertime(me.jobRole) && review.personId !== me.id
+              }
+              mofs={[]}
+              today={todayMyt()}
+              heading={`${rows.length > 0 ? "3" : "2"} · ${t("Overtime / replacement leave")} · ${monthLabel}`}
+              t={t}
+            />
+          )}
+          {pendingOt > 0 && (
+            <p className="text-sm text-warn">
+              {pendingOt} {t("hrs of OT still waiting.")}
+              {canDecideOvertime(me.jobRole) && review.personId !== me.id
+                ? ` ${t("Approve or reject each entry above.")}`
+                : ""}
+            </p>
+          )}
+          <ClaimReviewFooter
+            claimId={head.id}
+            personName={personName}
+            adjustable={adjustable}
+            steps={steps}
+            originalTotal={totals.original}
+            existingRemark={head.remark}
+            receiptCount={receiptCount}
+            ot={
+              head.otAmount !== null
+                ? {
+                    hours: review.overtime.hours.ot,
+                    estimate: review.overtime.amount,
+                  }
+                : null
             }
-            mofs={[]}
-            today={todayMyt()}
-            heading={`${rows.length > 0 ? "3" : "2"} · ${t("Overtime / replacement leave")} · ${monthLabel}`}
-            t={t}
+            payBlock={payBlock}
+            backHref={ALL_CLAIMS}
           />
-        )}
-        {pendingOt > 0 && (
-          <p className="text-sm text-warn">
-            {pendingOt} {t("hrs of OT still waiting.")}
-            {canDecideOvertime(me.jobRole) && review.personId !== me.id
-              ? ` ${t("Approve or reject each entry above.")}`
-              : ""}
-          </p>
-        )}
-        <ClaimReviewFooter
-          claimId={head.id}
-          personName={personName}
-          adjustable={adjustable}
-          steps={steps}
-          originalTotal={totals.original}
-          existingRemark={head.remark}
-          receiptCount={receiptCount}
-          ot={
-            head.otAmount !== null
-              ? {
-                  hours: review.overtime.hours.ot,
-                  estimate: review.overtime.amount,
-                }
-              : null
-          }
-          payBlock={payBlock}
-          backHref={ALL_CLAIMS}
-        />
-      </ClaimReviewProvider>
-    </div>
+        </ClaimReviewProvider>
+      </div>
+      <ClaimPrintSheet
+        personName={personName}
+        position={t(JobRoleLabel[review.jobRole])}
+        monthLabel={monthLabel}
+        submittedAt={signoffs.submittedAt}
+        commissions={review.commissions}
+        expenses={review.expenses}
+        overtime={review.overtime.entries}
+        otAmount={head.otAmount}
+        totals={totals}
+        note={head.note}
+        remark={head.remark}
+        checked={signoffs.checked}
+        approved={signoffs.approved}
+        t={t}
+      />
+    </>
   );
 }

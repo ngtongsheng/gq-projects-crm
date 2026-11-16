@@ -35,7 +35,7 @@ export default async function ClaimsPage({
 
   if (!canManageClaims(me.jobRole)) {
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 print:[&>:not([data-print-sheet])]:hidden">
         <PageHeader
           title={title}
           description={`${t("One claim a month for commission, travelling expense and overtime. Submit by day")} ${settings.cutOffDay}. ${t("Expenses dated after that go into next month's claim.")}`}
@@ -68,7 +68,7 @@ export default async function ClaimsPage({
   ];
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 print:[&>:not([data-print-sheet])]:hidden">
       <PageHeader
         title={title}
         description={t(

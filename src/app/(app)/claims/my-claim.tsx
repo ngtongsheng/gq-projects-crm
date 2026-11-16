@@ -1,4 +1,5 @@
 import type { Profile } from "@/lib/auth/current-profile";
+import { JobRoleLabel } from "@/lib/auth/job-role";
 import { canClaimCommission } from "@/lib/domain/claim-eligibility";
 import {
   CAPPED_EXPENSE_TYPES,
@@ -19,6 +20,9 @@ import { loadCommissionOptions } from "./claim-commission-options";
 import { commissionRows } from "./claim-commission-rows";
 import { loadLoggedDays } from "./claim-itinerary-data";
 import { loadClaimOvertime } from "./claim-ot-data";
+import { ClaimPrintButton } from "./claim-print-button";
+import { ClaimPrintSheet } from "./claim-print-sheet";
+import { loadClaimSignoffs } from "./claim-signoffs-data";
 import { ClaimStatusBadge } from "./claim-status-badge";
 import { ClaimSubmitBar } from "./claim-submit-bar";
 import { CommissionSection } from "./commission-section";
@@ -47,7 +51,7 @@ export async function MyClaim({
   const status = head?.status ?? "draft";
   const editable = status === "draft" || status === "returned";
 
-  const [caps, loggedDays, options, commissionRules, overtime, mofs] =
+  const [caps, loggedDays, options, commissionRules, overtime, mofs, signoffs] =
     await Promise.all([
       loadOwnClaimCaps(me),
       loadLoggedDays(me.id, period),
@@ -55,6 +59,7 @@ export async function MyClaim({
       claimsCommission ? loadCommissionSettings() : null,
       loadClaimOvertime(me.id, period, head?.id ?? null),
       editable ? loadMofOptions() : [],
+      head ? loadClaimSignoffs(head.id) : null,
     ]);
 
   const rows = options
@@ -106,127 +111,156 @@ export async function MyClaim({
   const heading = (title: string) => `${++section} · ${title}`;
 
   return (
-    <div className="flex flex-col gap-4">
-      <ClaimBanner tone="info">
-        <b>
-          {monthLabel} {t("claim")}
-        </b>{" "}
-        · {t("expenses")} {formatDate(period.from)} – {formatDate(period.to)}
-        {head && head.status !== "draft" && (
-          <>
-            {" "}
-            · <ClaimStatusBadge status={head.status} t={t} />
-            {head.status !== "paid" && head.status !== "returned" && (
-              <> {t("can't be changed now")}</>
-            )}
-          </>
-        )}
-        {head?.status === "returned" && head.returnReason && (
-          <p className="mt-1">
-            {t("Returned")}: <i>{head.returnReason}</i> –{" "}
-            {t("fix and submit again.")}
-          </p>
-        )}
-        {head?.remark && (
-          <p className="mt-1">
-            <b>{t("HR & Accounts")}:</b> {head.remark}
-          </p>
-        )}
-        {adjusted && (
-          <p className="mt-1">
-            {t(
-              "Some amounts were adjusted by HR & Accounts. See the lines below.",
-            )}
-          </p>
-        )}
-      </ClaimBanner>
-
-      {claimsCommission && commissionRules && (
-        <CommissionSection
-          rows={rows}
-          month={month}
-          editable={editable}
-          personId={me.id}
-          rules={commissionRules}
-          heading={heading(t("Commission"))}
-          t={t}
-        />
-      )}
-      <ExpenseSection
-        expenses={mine.expenses}
-        flags={flags.byExpense}
-        monthlyFlag={flags.monthly}
-        cap={
-          monthlyCap === null
-            ? null
-            : {
-                used: sumRm(
-                  mine.expenses
-                    .filter((line) =>
-                      CAPPED_EXPENSE_TYPES.includes(line.expenseType),
-                    )
-                    .map((line) => line.amount),
-                ),
-                max: monthlyCap,
-              }
-        }
-        editable={editable}
-        rules={rules}
-        heading={heading(`${t("Travelling expense")} · ${monthLabel}`)}
-        t={t}
-      />
-      {showOvertime && (
-        <OvertimeSection
-          overtime={overtime}
-          amount={otFinal}
-          editable={editable}
-          mofs={mofs}
-          today={today}
-          heading={heading(
-            `${t("Overtime / replacement leave")} · ${monthLabel}`,
+    <>
+      <div className="flex flex-col gap-4 print:hidden">
+        <ClaimBanner tone="info">
+          <b>
+            {monthLabel} {t("claim")}
+          </b>{" "}
+          · {t("expenses")} {formatDate(period.from)} – {formatDate(period.to)}
+          {head && head.status !== "draft" && (
+            <>
+              {" "}
+              · <ClaimStatusBadge status={head.status} t={t} />
+              {head.status !== "paid" && head.status !== "returned" && (
+                <> {t("can't be changed now")}</>
+              )}
+            </>
           )}
-          t={t}
-        />
-      )}
-
-      <p className="text-right text-sm font-semibold">
-        {t("Total claim")}{" "}
-        <span className="font-mono tabular-nums">{formatRm(totals.final)}</span>
-      </p>
-      {adjusted && (
-        <ClaimBanner tone="warn">
-          {t("Original claim")} <b>{formatRm(totals.original)}</b> →{" "}
-          {t("final approved amount")} <b>{formatRm(totals.final)}</b> (
-          {totals.difference < 0 ? "−" : "+"}
-          {formatRm(Math.abs(totals.difference))})
+          {head?.status === "returned" && head.returnReason && (
+            <p className="mt-1">
+              {t("Returned")}: <i>{head.returnReason}</i> –{" "}
+              {t("fix and submit again.")}
+            </p>
+          )}
+          {head?.remark && (
+            <p className="mt-1">
+              <b>{t("HR & Accounts")}:</b> {head.remark}
+            </p>
+          )}
+          {adjusted && (
+            <p className="mt-1">
+              {t(
+                "Some amounts were adjusted by HR & Accounts. See the lines below.",
+              )}
+            </p>
+          )}
         </ClaimBanner>
-      )}
 
-      {editable ? (
-        <ClaimSubmitBar
-          month={month}
-          monthLabel={monthLabel}
-          initialNote={head?.note ?? ""}
-          cutOffLabel={formatDate(period.to)}
+        {claimsCommission && commissionRules && (
+          <CommissionSection
+            rows={rows}
+            month={month}
+            editable={editable}
+            personId={me.id}
+            rules={commissionRules}
+            heading={heading(t("Commission"))}
+            t={t}
+          />
+        )}
+        <ExpenseSection
+          expenses={mine.expenses}
+          flags={flags.byExpense}
+          monthlyFlag={flags.monthly}
+          cap={
+            monthlyCap === null
+              ? null
+              : {
+                  used: sumRm(
+                    mine.expenses
+                      .filter((line) =>
+                        CAPPED_EXPENSE_TYPES.includes(line.expenseType),
+                      )
+                      .map((line) => line.amount),
+                  ),
+                  max: monthlyCap,
+                }
+          }
+          editable={editable}
+          rules={rules}
+          heading={heading(`${t("Travelling expense")} · ${monthLabel}`)}
+          t={t}
         />
-      ) : (
-        <div className="flex flex-col gap-1 text-sm text-muted-foreground">
-          {head?.note && (
-            <p>
-              {t("Your note to HR & Accounts")}: {head.note}
-            </p>
-          )}
-          {receiptCount > 0 && (
-            <p>
-              {head?.originalReceiptsReceived
-                ? t("HR & Accounts has your original receipts.")
-                : t(
-                    "Write R1, R2... on each original receipt, staple them behind the claim form and hand them to HR & Accounts.",
-                  )}
-            </p>
-          )}
-        </div>
+        {showOvertime && (
+          <OvertimeSection
+            overtime={overtime}
+            amount={otFinal}
+            editable={editable}
+            mofs={mofs}
+            today={today}
+            heading={heading(
+              `${t("Overtime / replacement leave")} · ${monthLabel}`,
+            )}
+            t={t}
+          />
+        )}
+
+        <p className="text-right text-sm font-semibold">
+          {t("Total claim")}{" "}
+          <span className="font-mono tabular-nums">
+            {formatRm(totals.final)}
+          </span>
+        </p>
+        {adjusted && (
+          <ClaimBanner tone="warn">
+            {t("Original claim")} <b>{formatRm(totals.original)}</b> →{" "}
+            {t("final approved amount")} <b>{formatRm(totals.final)}</b> (
+            {totals.difference < 0 ? "−" : "+"}
+            {formatRm(Math.abs(totals.difference))})
+          </ClaimBanner>
+        )}
+
+        {editable ? (
+          <ClaimSubmitBar
+            month={month}
+            monthLabel={monthLabel}
+            initialNote={head?.note ?? ""}
+            cutOffLabel={formatDate(period.to)}
+          />
+        ) : (
+          <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+            {head?.note && (
+              <p>
+                {t("Your note to HR & Accounts")}: {head.note}
+              </p>
+            )}
+            {receiptCount > 0 && (
+              <p>
+                {head?.originalReceiptsReceived
+                  ? t("HR & Accounts has your original receipts.")
+                  : t(
+                      "Write R1, R2... on each original receipt, staple them behind the claim form and hand them to HR & Accounts.",
+                    )}
+              </p>
+            )}
+          </div>
+        )}
+        {head && (
+          <div className="flex">
+            <ClaimPrintButton
+              label={editable ? t("Print draft") : t("Print claim form")}
+            />
+          </div>
+        )}
+      </div>
+      {head && signoffs && (
+        <ClaimPrintSheet
+          personName={me.fullName ?? "Unnamed"}
+          position={t(JobRoleLabel[me.jobRole])}
+          monthLabel={monthLabel}
+          submittedAt={signoffs.submittedAt}
+          commissions={mine.commissions}
+          expenses={mine.expenses}
+          overtime={overtime.entries}
+          otAmount={head.otAmount}
+          totals={totals}
+          note={head.note}
+          remark={head.remark}
+          checked={signoffs.checked}
+          approved={signoffs.approved}
+          t={t}
+        />
       )}
-    </div>
+    </>
   );
 }

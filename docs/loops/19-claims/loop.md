@@ -24,8 +24,8 @@ Parity per `docs/office-parity/parity.md`. Merged to `main`. Starts after loops 
 | 04 | My claim: sections A-C | done | 02, 03 | sonnet/high |
 | 05 | Manager views + settings | done | 03 | sonnet/high |
 | 06 | Appeals tab move + OT fold-in | done | 04 | sonnet/high |
-| 07 | Claim print | in-progress | 04 | sonnet/medium |
-| 08 | Strings + dev seed | todo | 04, 05, 06, 07 | sonnet/medium |
+| 07 | Claim print | done | 04 | sonnet/medium |
+| 08 | Strings + dev seed | in-progress | 04, 05, 06, 07 | sonnet/medium |
 | 09 | Parity pass, docs, merge | todo | 01-08 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
@@ -67,3 +67,6 @@ Parity per `docs/office-parity/parity.md`. Merged to `main`. Starts after loops 
 2026-11-16 · #06 · decision · no overtime entry existed in nav/registry, /overtime stays as deep link; added "Overtime to decide" section in Claims (directors have no manager view) and repointed attention link to /claims · D3
 2026-11-16 · #06 · decision · old /commission?tab=appeals not redirected (nothing links to it); new strings go to BM/ZH in #08 · scope
 2026-11-16 · #07 · in-progress · delegated sonnet/medium
+2026-11-16 · #07 · done · check, typecheck, test (2734) pass; print preview deferred to #09 (verify checker:profiles!changed_by embed and staff read of checker names) · next: #08
+2026-11-16 · #07 · decision · print omits invoice date (not stored), meals column (nights only), OT approver name; signature heading "Approved by" (roles, never names) · D1
+2026-11-16 · #08 · in-progress · delegated sonnet/medium

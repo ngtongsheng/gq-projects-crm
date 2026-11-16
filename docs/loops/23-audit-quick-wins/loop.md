@@ -31,7 +31,7 @@ No behaviour change for the team. All other audit findings are logged in `docs/d
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 
 ## Owner actions
-None.
+Push the merged branch to main: `git -C ~/work/projects/gq-projects-crm-loops/23-audit-quick-wins push origin HEAD:main` (checks already pass on it).
 
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
@@ -55,4 +55,4 @@ None.
 2026-11-16 · #07 · in-progress · delegated (economy)
 2026-11-16 · #07 · done · 9 debt entries + audit verification section · all tasks done
 2026-11-16 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-16-loop-23-audit-quick-wins.md
-2026-11-16 · merged to main
+2026-11-16 · merge · blocked: owner · push to main denied by permission classifier; branch loop/23-audit-quick-wins pushed, worktree kept

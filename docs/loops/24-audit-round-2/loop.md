@@ -85,3 +85,4 @@ error pages, and sign-out closing impersonation. Every other finding is in `docs
 2026-11-16 · #11 · decision · extra findings folded into existing debt.md entries to stay within 8 new entries
 2026-11-16 · #11 · done · all 16 deferred IDs found in debt.md; audit has "Loop 24 outcome"; pnpm check passes
 2026-11-16 · vault · /Users/tongshengng/work/vault/sessions/gq-projects-crm/2026-11-16-loop-24-audit-round-2.md
+2026-11-16 · finish · branch up to date with origin/main, checks pass (3100); pushed loop/24-audit-round-2, not merged (D10/D11: owner pushes to main)

@@ -163,7 +163,9 @@ describe("viewAs", () => {
 
     const result = await viewAs(DANIEL_ID);
 
-    expect(result.error).toMatch(/preview link or the live site/);
+    expect(result.error).toMatch(
+      /live app, or after Claude sets up your laptop/,
+    );
   });
 
   it("records the view, opens it as the person and remembers the MD", async () => {

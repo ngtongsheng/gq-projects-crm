@@ -1,11 +1,11 @@
 ---
 name: connect-test-copy
-description: Connect Vicky's laptop to the test copy. Use when an admin feature says it can't be tried on her laptop, when a change needs new database changes on the test copy, or when she pastes the two values Tong Sheng sent.
+description: Fallback for connecting Vicky's laptop to the test copy by hand, for when `pnpm catch-up` cannot fetch the keys (no GitHub access). Use when catch-up says so, or when she pastes the two values Tong Sheng sent.
 ---
 # Connect to the test copy
 
-One-time setup. Afterwards her laptop can use admin features and new database changes on the test copy (`gq-crm-dev`),
-never the live app. Talk in the `plain` style. The two values are secrets: never print them, quote them back, write
+Fallback: `pnpm catch-up` normally fetches the keys itself. Use this only when it could not. Afterwards her laptop can
+use admin features and new database changes on the test copy (`gq-crm-dev`), never the live app. Talk in the `plain` style. The two values are secrets: never print them, quote them back, write
 them anywhere except through step 3, or put them in a commit, issue or note.
 
 ## 1. See what is already set

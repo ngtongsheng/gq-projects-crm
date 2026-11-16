@@ -158,8 +158,22 @@ describe("formatSync", () => {
         replies: [],
         rulesUpdated: false,
         behindBy: 0,
+        catchUpDue: false,
       }),
     ).toBe("");
+  });
+
+  it("puts the laptop update line first when catch-up is due", () => {
+    const output = formatSync({
+      instructions: [],
+      replies: [],
+      rulesUpdated: true,
+      behindBy: 0,
+      catchUpDue: true,
+    });
+    expect(output.split("\n")[0]).toBe(
+      "Laptop update due: run `pnpm catch-up` before anything else.",
+    );
   });
 
   it("lists each instruction with its number", () => {
@@ -168,6 +182,7 @@ describe("formatSync", () => {
       replies: [{ number: 7, title: null, text: "Try again" }],
       rulesUpdated: true,
       behindBy: 2,
+      catchUpDue: false,
     });
     expect(output).toContain("Rules updated");
     expect(output).toContain("2 commit(s) behind origin/main");

@@ -10,7 +10,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { DEV_PROJECT_REF } from "../../src/lib/supabase/test-copy.ts";
-import { catchUp, parseWhatsNew } from "./catch-up.mjs";
+import { catchUp, isCatchUpDue, parseWhatsNew } from "./catch-up.mjs";
 
 const devKeys = {
   SUPABASE_SERVICE_ROLE_KEY: "sb_secret_dev",
@@ -228,6 +228,31 @@ describe("catchUp", () => {
     const retry = stubs();
     await catchUp(top, retry.deps);
     expect(retry.runs).toEqual(["install", "free-port"]);
+  });
+});
+
+describe("isCatchUpDue", () => {
+  it("is due before the first run and not after it", async () => {
+    const top = checkout();
+    expect(isCatchUpDue(top)).toBe(true);
+    await catchUp(top, stubs().deps);
+    expect(isCatchUpDue(top)).toBe(false);
+  });
+
+  it.each([
+    ["the lockfile", "pnpm-lock.yaml", "lock: 2\n"],
+    ["a new migration", "supabase/migrations/002_more.sql", ""],
+    ["an example data file", "scripts/example-data/people.ts", "b\n"],
+    [
+      "a new what's new version",
+      "docs/whats-new.md",
+      "version: 2026-11-16\nHi\n",
+    ],
+  ])("is due again after %s changes", async (_case, file, text) => {
+    const top = checkout();
+    await catchUp(top, stubs().deps);
+    writeFileSync(join(top, file), text);
+    expect(isCatchUpDue(top)).toBe(true);
   });
 });
 

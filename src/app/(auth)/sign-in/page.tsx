@@ -29,6 +29,9 @@ export default async function SignInPage({
         ? params.refused
         : null;
 
+  // On a laptop the test sign-ins replace Google; the "Sign in as" panel is at the bottom of the page.
+  const onLaptop = process.env.NODE_ENV === "development";
+
   return (
     <main className="flex flex-1 items-center justify-center p-4">
       <Card className="w-full max-w-sm">
@@ -42,9 +45,16 @@ export default async function SignInPage({
           {refusal && (
             <FieldError>{SIGN_IN_REFUSAL_MESSAGE[refusal]}</FieldError>
           )}
-          <form action={signInWithGoogle}>
-            <GoogleSignInButton />
-          </form>
+          {onLaptop ? (
+            <p className="text-sm text-muted-foreground">
+              Google sign-in is off on your laptop. Use the "Sign in as" panel
+              at the bottom of the page.
+            </p>
+          ) : (
+            <form action={signInWithGoogle}>
+              <GoogleSignInButton />
+            </form>
+          )}
         </CardContent>
       </Card>
     </main>

@@ -77,9 +77,11 @@ Installer claims are seeded unverified and unpaid, and site follow-ups open: ver
 
 ## Trying database changes from a laptop
 
-Vicky's agent can try database changes and admin-only screens on the test copy without help. The owner sends her two
-values privately (WhatsApp, never git or an issue): the `gq-crm-dev` secret key and the `gq-crm-dev` database password.
-The prod values never leave the owner's machines.
+Vicky's agent can try database changes and admin-only screens on the test copy without help. `pnpm catch-up` runs at
+every session start: it fetches the `gq-crm-dev` keys from the private repo (after she accepts the owner's invite),
+applies new migrations and refreshes the test sign-ins. The steps below are the fallback, used when catch-up cannot
+fetch the keys: the owner sends her two values privately (WhatsApp, never git or an issue), the `gq-crm-dev` secret
+key and the `gq-crm-dev` database password. The prod values never leave the owner's machines.
 
 1. She pastes both into the `connect-test-copy` skill. `pnpm connect:test-copy` reads them from stdin, checks the key
    against the test copy and writes `SUPABASE_SERVICE_ROLE_KEY` and `SUPABASE_DEV_DB_URL` to `.env.local` (gitignored,
@@ -91,7 +93,7 @@ The prod values never leave the owner's machines.
 4. A new worktree has no `.env.local`; `pnpm copy-env` copies it from the main folder. Works on Windows and Mac.
 
 Owner check after sending the values, on your Mac in the main checkout: `pnpm connect:test-copy`, `pnpm db:test-copy`
-(expect "up to date"), `pnpm reset:sign-ins` (expect 7 sign-ins).
+(expect "up to date"), `pnpm reset:sign-ins` (expect 17 sign-ins).
 
 ## Agent hooks and permissions
 

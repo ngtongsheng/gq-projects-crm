@@ -101,6 +101,31 @@ export function parseWhatsNew(text) {
   return { version: match[1], body: rest.join("\n").trim() };
 }
 
+/** @param {string} top */
+function readWhatsNew(top) {
+  const file = path.join(top, WHATS_NEW_FILE);
+  return existsSync(file) ? parseWhatsNew(readFileSync(file, "utf8")) : null;
+}
+
+/**
+ * True when a step of `catchUp` would run, so session-sync can tell her before anything else.
+ * @param {string} cwd
+ */
+export function isCatchUpDue(cwd) {
+  const { top, commonDir } = gitDirs(cwd);
+  /** @type {Stamp} */
+  const stamp = readJson(path.join(commonDir, STAMP_FILE)) ?? {};
+  const current = fingerprints(top);
+  const whatsNew = readWhatsNew(top);
+  return (
+    stamp.installed?.[top] !== current.lock ||
+    !existsSync(path.join(top, "node_modules")) ||
+    stamp.migrations !== current.migrations ||
+    stamp.seed !== current.seed ||
+    (whatsNew !== null && (stamp.whatsNew ?? "") < whatsNew.version)
+  );
+}
+
 /**
  * The one line she sees.
  * @param {string[]} done
@@ -263,10 +288,7 @@ export async function catchUp(cwd, deps) {
   if (archived?.ok) notes.push(archived.label);
   else if (archived) failed.push(archived.label);
 
-  const whatsNewPath = path.join(top, WHATS_NEW_FILE);
-  const whatsNew = existsSync(whatsNewPath)
-    ? parseWhatsNew(readFileSync(whatsNewPath, "utf8"))
-    : null;
+  const whatsNew = readWhatsNew(top);
   const showWhatsNew =
     whatsNew !== null && (stamp.whatsNew ?? "") < whatsNew.version;
   if (showWhatsNew) next.whatsNew = whatsNew.version;

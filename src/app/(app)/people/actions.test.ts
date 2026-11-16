@@ -114,7 +114,8 @@ describe("addPerson", () => {
     vi.mocked(createAdminClient).mockReturnValue(null);
     const result = await addPerson(personForm(validForm));
     expect(result).toEqual({
-      error: "Adding people works on the preview link or the live site.",
+      error:
+        "Adding people works on the live app, or after Claude sets up your laptop.",
       invite: null,
     });
   });

@@ -22,7 +22,7 @@ export function DevRolePanel({
   currentRole: JobRole | null;
 }) {
   const [open, setOpen] = useState(false);
-  const [people, setPeople] = useState<DevPerson[]>([]);
+  const [people, setPeople] = useState<DevPerson[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const current = currentRole ? JobRoleLabel[currentRole] : "Signed out";
@@ -74,8 +74,14 @@ export function DevRolePanel({
           <X aria-hidden />
         </Button>
       </div>
+      {people?.length === 0 && (
+        <p className="text-sm text-muted-foreground">
+          Your laptop isn't set up for test sign-ins yet. Ask Claude to set up
+          your laptop.
+        </p>
+      )}
       <div className="grid max-h-80 gap-1.5 overflow-y-auto">
-        {people.map((person) => (
+        {people?.map((person) => (
           <Button
             key={person.id}
             type="button"

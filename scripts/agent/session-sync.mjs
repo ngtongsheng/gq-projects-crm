@@ -121,10 +121,19 @@ export function rulesChanged(changedPaths) {
 
 /**
  * The block the hook prints, or "" when there is nothing to act on.
- * @param {{ instructions: Instruction[], replies: Instruction[], rulesUpdated: boolean, behindBy: number }} sync
+ * @param {{ instructions: Instruction[], replies: Instruction[], rulesUpdated: boolean, behindBy: number, catchUpDue: boolean }} sync
  */
-export function formatSync({ instructions, replies, rulesUpdated, behindBy }) {
+export function formatSync({
+  instructions,
+  replies,
+  rulesUpdated,
+  behindBy,
+  catchUpDue,
+}) {
   const lines = [];
+  if (catchUpDue) {
+    lines.push("Laptop update due: run `pnpm catch-up` before anything else.");
+  }
   if (rulesUpdated) {
     lines.push(
       "Rules updated: re-read CLAUDE.md and the skills you use before continuing.",
@@ -228,6 +237,19 @@ async function syncGit(cwd) {
   return result;
 }
 
+/**
+ * Loaded on demand: catch-up.mjs imports OWNER from this file, so a static import would be a cycle.
+ * @param {string} cwd
+ */
+async function laptopUpdateDue(cwd) {
+  try {
+    const { isCatchUpDue } = await import("./catch-up.mjs");
+    return isCatchUpDue(cwd);
+  } catch {
+    return false;
+  }
+}
+
 /** @param {string} cwd */
 async function fetchIssues(cwd) {
   // No --author flag: it routes gh through the search API, which misses issues created seconds ago.
@@ -302,8 +324,17 @@ async function main() {
     flag === -1 ? null : parseDuration(process.argv[flag + 1] ?? "");
   if (!(await claimSlot(cwd, throttleMs))) return;
   const [git, issues] = await Promise.all([syncGit(cwd), fetchIssues(cwd)]);
-  if (!issues) return;
-  const output = formatSync({ ...issues, ...git });
+  // The pull may have changed the lockfile or migrations, so the check comes after it.
+  const catchUpDue = await laptopUpdateDue(cwd);
+  const output = issues
+    ? formatSync({ ...issues, ...git, catchUpDue })
+    : formatSync({
+        instructions: [],
+        replies: [],
+        rulesUpdated: false,
+        behindBy: 0,
+        catchUpDue,
+      });
   if (output) process.stdout.write(`${output}\n`);
 }
 

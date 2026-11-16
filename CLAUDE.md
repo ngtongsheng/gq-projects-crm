@@ -57,6 +57,11 @@ rather than copying it. Theme tokens only, never raw colours.
 - The migration guard blocks changes that lose stored information until she approves the loss (see "Who decides").
 - On her laptop, admin-only server features show a "can't be tried on your laptop" message; that is by design, not a bug.
 
+## Start of session
+Before anything else, run `pnpm -s catch-up` in the main folder. It brings her laptop up to date and prints one line:
+relay it, and any "What's new", in plain words. It prints nothing when nothing changed. On exit 1, fix the step it
+names using `docs/laptop.md`.
+
 ## Tidy-up at session start
 After the session-sync output, start a background subagent that runs the `ship-queue` skill. It merges what she
 approved, rebases and fixes her other saved changes and clears finished worktrees. Relay its one-line report to
@@ -87,6 +92,7 @@ approval to build and ship without asking her.
 ## Where things live
 - `docs/decisions.md`: why things are the way they are. `docs/loops/`: the build plan history.
 - `docs/environments.md`: Supabase projects, Vercel, keys and where they live.
+- `docs/laptop.md`: how her laptop is set up and what each `pnpm catch-up` step does; read it when catch-up fails.
 - `docs/debt.md`: known shortcuts. Log any new one there with what, why and when to fix.
 - Browser control: her opencode settings drive her own Chrome (profile and sign-ins), so open `http://localhost:3000`
   or the live app and look at the page yourself; screenshots and clicks are not prompted (limits in

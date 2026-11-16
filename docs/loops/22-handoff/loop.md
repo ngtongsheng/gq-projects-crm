@@ -29,8 +29,8 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 | 02 | Private dev repo, key upload script, key fetch | done | 01 | standard |
 | 03 | `pnpm catch-up` | done | 02 | frontier |
 | 04 | Archive pre-parity work | done | 03 | standard |
-| 05 | Hook, CLAUDE.md, skills and laptop UI fixes | in-progress | 03 | standard |
-| 06 | Laptop playbook | todo | 05 | standard |
+| 05 | Hook, CLAUDE.md, skills and laptop UI fixes | done | 03 | standard |
+| 06 | Laptop playbook | in-progress | 05 | standard |
 | 07 | Google sign-in go-live | in-progress | 01 | standard |
 | 08 | Screenshots, README and docs | todo | 05 | standard |
 | 09 | Rehearsal on a fresh clone | todo | 04,05,06 | frontier |
@@ -73,3 +73,8 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 2026-11-16 · #04 · decision · feat/database-for-preview2 left for #10 (task text) · PR #31 close order
 2026-11-16 · #04 · decision · dirty worktree gets a local "save draft before archive" commit (fallback identity, no hooks) before tagging · never lose work
 2026-11-16 · #05 · started (sonnet/high)
+2026-11-16 · #05 · done: full suite 3034 pass; Google button hidden in dev, panel empty-state, hook prints catch-up due line · next: #06
+2026-11-16 · #05 · decision · session-sync loads catch-up via dynamic import (catch-up imports OWNER from session-sync) · avoids an import cycle
+2026-11-16 · #05 · decision · preview skill drops "no db:test-copy without new migrations" rule · catch-up only applies changed migrations
+2026-11-16 · #05 · note · dev panel lists 12 active people, docs say 17 sign-ins; #09 rehearsal confirms the real count. "preview link" text remains in file-open errors and people/page.tsx (out of scope)
+2026-11-16 · #06 · started (sonnet/high)

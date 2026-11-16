@@ -3,7 +3,7 @@ import { isViewingAs } from "@/lib/auth/impersonation";
 import { viewOnlyFetch } from "./view-only-fetch";
 
 export const ADMIN_UNAVAILABLE_MESSAGE =
-  "Adding people works on the preview link or the live site.";
+  "Adding people works on the live app, or after Claude sets up your laptop.";
 
 /**
  * Server-only client with the service-role key. Returns null when the key is

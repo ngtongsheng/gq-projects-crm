@@ -30,7 +30,7 @@ async function loadQuietCustomers(personId: string, today: CalendarDate) {
       .select("id, name, companies(name), contact_owners!inner(profile_id)")
       .eq("contact_owners.profile_id", personId)
       .is("archived_at", null),
-    getLastCompletedDays(supabase),
+    getLastCompletedDays(),
   ]);
   if (contacts.error) {
     throw new Error(`Could not load customers: ${contacts.error.message}`);

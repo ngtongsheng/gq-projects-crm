@@ -21,7 +21,7 @@ export async function loadInactiveCustomerOwners(
       .from("contacts")
       .select("id, contact_owners(profile_id)")
       .is("archived_at", null),
-    getLastCompletedDays(supabase),
+    getLastCompletedDays(),
   ]);
   if (contacts.error) {
     throw new Error(`Could not load customers: ${contacts.error.message}`);

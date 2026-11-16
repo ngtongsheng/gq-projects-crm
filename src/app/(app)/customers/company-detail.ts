@@ -69,7 +69,7 @@ export async function loadCompanyDetail(me: Profile, id: string) {
       .eq("company_id", id)
       .is("archived_at", null)
       .order("name"),
-    getLastCompletedDays(supabase),
+    getLastCompletedDays(),
     getTeamDirectory(),
   ]);
   if (peopleResult.error) {

@@ -40,7 +40,7 @@ export async function loadCustomers(me: Profile) {
       )
       .is("archived_at", null)
       .order("name"),
-    getLastCompletedDays(supabase),
+    getLastCompletedDays(),
     getTeamDirectory(),
   ]);
   if (contactsResult.error) {

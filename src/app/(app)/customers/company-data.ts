@@ -37,7 +37,7 @@ export async function loadCompanies() {
       .from("contacts")
       .select("id, company_id, name, contact_owners(profile_id)")
       .is("archived_at", null),
-    getLastCompletedDays(supabase),
+    getLastCompletedDays(),
     getTeamDirectory(),
   ]);
   if (companiesResult.error) {

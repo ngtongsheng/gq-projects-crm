@@ -22,7 +22,7 @@ No behaviour change for the team. All other audit findings are logged in `docs/d
 | # | Task | Status | Depends | Tier |
 |---|---|---|---|---|
 | 01 | Layout: run independent awaits in parallel (P1) | done | | standard |
-| 02 | Cache `getLastCompletedDays` per request (P2) | todo | | standard |
+| 02 | Cache `getLastCompletedDays` per request (P2) | done | | standard |
 | 03 | MOF detail: parallelise post-load queries (P4) | todo | | standard |
 | 04 | Leave entitlement: handle the concurrent insert (B1) | todo | | standard |
 | 05 | Cleanup: dead skeleton, dead export, `shadcn` to devDependencies (B3, Q3, Q4) | todo | | economy |
@@ -39,3 +39,5 @@ None.
 2026-11-16 · planner · YES, tab w7:t12 closed · worktree ready, deps installed
 2026-11-16 · #01 · in-progress · delegated (standard)
 2026-11-16 · #01 · done · check/typecheck/test pass (3034 tests) · next: #02
+2026-11-16 · #02 · in-progress · delegated (standard)
+2026-11-16 · #02 · done · all checks pass · next: #03

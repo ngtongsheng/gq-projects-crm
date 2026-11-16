@@ -130,4 +130,7 @@ export const bm: Dictionary = {
   ...bmSiteWork,
   ...bmClaims,
   ...bmInstallation,
+  "This number belongs to archived contact":
+    "Nombor ini milik kenalan yang telah diarkibkan",
+  "Ask an admin to restore them.": "Minta pentadbir memulihkannya.",
 };

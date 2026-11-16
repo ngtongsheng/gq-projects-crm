@@ -611,4 +611,6 @@ export const zh: Dictionary = {
   ...zhHrTools,
   ...zhClaims,
   ...zhInstallationStock,
+  "This number belongs to archived contact": "此号码属于已归档的联系人",
+  "Ask an admin to restore them.": "请联系管理员恢复该联系人。",
 };

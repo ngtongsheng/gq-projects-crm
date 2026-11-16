@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { textField } from "@/lib/form/form-fields";
+import { getT } from "@/lib/i18n/server-t";
 import { createClient } from "@/lib/supabase/server";
 import {
   canAddContact,
@@ -54,6 +55,7 @@ const companyOwnerRows = z.array(z.object({ profile_id: z.string() }));
 const duplicateRow = z.object({
   id: z.string(),
   name: z.string(),
+  archived_at: z.string().nullable(),
   companies: z.object({ name: z.string() }),
   contact_owners: z.array(z.object({ profile_id: z.string() })),
 });
@@ -171,7 +173,9 @@ export async function saveContact(
 
   const duplicateQuery = supabase
     .from("contacts")
-    .select("id, name, companies(name), contact_owners(profile_id)")
+    .select(
+      "id, name, archived_at, companies(name), contact_owners(profile_id)",
+    )
     .eq("mobile", contact.data.mobile);
   const { data: duplicateData, error: duplicateError } = await (contactId
     ? duplicateQuery.neq("id", contactId)
@@ -183,6 +187,13 @@ export async function saveContact(
   }
   if (duplicateData) {
     const found = duplicateRow.parse(duplicateData);
+    // An archived contact keeps its number for good, and there is no restore screen yet.
+    if (found.archived_at) {
+      const t = await getT(me.language);
+      return fail(
+        `${t("This number belongs to archived contact")} ${found.name}. ${t("Ask an admin to restore them.")}`,
+      );
+    }
     const ownerIds = found.contact_owners.map((owner) => owner.profile_id);
     const team = await getTeamDirectory();
     return {

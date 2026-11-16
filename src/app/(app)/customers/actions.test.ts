@@ -8,6 +8,9 @@ vi.mock("@/lib/supabase/server", () => ({ createClient: vi.fn() }));
 vi.mock("@/lib/auth/access-overrides", () => ({
   loadAccessOverrides: async () => ({}),
 }));
+vi.mock("@/lib/i18n/server-t", () => ({
+  getT: async () => (text: string) => text,
+}));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("next/navigation", () => ({
   redirect: vi.fn((path: string) => {
@@ -342,6 +345,7 @@ describe("saveContact", () => {
           data: {
             id: CONTACT,
             name: "Lim Wei",
+            archived_at: null,
             companies: { name: "Atlas Interiors" },
             contact_owners: [{ profile_id: ARUN }],
           },
@@ -361,6 +365,33 @@ describe("saveContact", () => {
         ownerNames: ["Arun"],
         ownedByMe: false,
       },
+    });
+    expect(savedWith(calls)).toHaveLength(0);
+  });
+
+  it("names the archived contact that holds the mobile number", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
+    const calls = fakeSupabase({
+      contacts: [
+        {
+          data: {
+            id: CONTACT,
+            name: "Lim Wei",
+            archived_at: "2026-10-01T00:00:00Z",
+            companies: { name: "Atlas Interiors" },
+            contact_owners: [{ profile_id: ARUN }],
+          },
+          error: null,
+        },
+      ],
+    });
+
+    const result = await saveContact(form({}));
+
+    expect(result).toEqual({
+      error:
+        "This number belongs to archived contact Lim Wei. Ask an admin to restore them.",
+      duplicate: null,
     });
     expect(savedWith(calls)).toHaveLength(0);
   });

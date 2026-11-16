@@ -31,8 +31,8 @@ error pages, and sign-out closing impersonation. Every other finding is in `docs
 | 05 | Order total floor at payments received (D1) | done | | frontier |
 | 06 | Link installer POs to the installer directory (D2) | done | | frontier |
 | 07 | Storage and RLS hardening (S-DB1, S-DB2, S-DB3) | done | | frontier |
-| 08 | Small data fixes: MYT defaults, receipt lock, archived mobile message (D6, D7, D4) | in-progress | | standard |
-| 09 | Error pages and upload failures (O5, O6) | todo | | standard |
+| 08 | Small data fixes: MYT defaults, receipt lock, archived mobile message (D6, D7, D4) | done | | standard |
+| 09 | Error pages and upload failures (O5, O6) | in-progress | | standard |
 | 10 | Sign-out closes the impersonation log row (S4) | todo | | standard |
 | 11 | Log deferred findings in debt.md and the audit | todo | 01-10 | economy |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
@@ -73,3 +73,6 @@ error pages, and sign-out closing impersonation. Every other finding is in `docs
 2026-11-16 · #07 · decision · alter policy instead of drop/recreate (migration guard refuses drop policy); can_attach follows each area's table rule; hr-policies md/accounts only since the row is saved after upload
 2026-11-16 · #07 · done · upload order verified (leave applies then uploads; claims/tasks existing records); check/typecheck/test pass (3087). Out of scope: commission_appeals, mof_changes lack "left people" policy → #11 debt
 2026-11-16 · #08 · in-progress · delegated (standard)
+2026-11-16 · #08 · decision · receipt trigger now security definer (authenticated lacks UPDATE on monthly_claims, so FOR UPDATE needs it); lock tested by function source (PGlite is single-connection); archived message says "Ask an admin to restore them" (no restore action exists), translated via two zh/bm fragments
+2026-11-16 · #08 · done · check/typecheck/test pass (3092). Out of scope → #11 debt: samples.form_date/moved_on and variation_orders vo_date still use UTC current_date
+2026-11-16 · #09 · in-progress · delegated (standard)

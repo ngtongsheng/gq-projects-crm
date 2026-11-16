@@ -1,6 +1,6 @@
-import { useT } from "@/lib/i18n/language-context";
+"use client";
 
-("use client");
+import { useT } from "@/lib/i18n/language-context";
 
 /** The demo's "Show sold out": changes the list as soon as it is ticked. */
 export function ShowSoldOutToggle({ checked }: { checked: boolean }) {

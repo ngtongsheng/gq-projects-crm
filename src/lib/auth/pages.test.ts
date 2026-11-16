@@ -244,6 +244,15 @@ describe("navPagesFor: defaults", () => {
     expect(labels(viewer("marketing"))).toContain("Site photos");
   });
 
+  it("opens Claims at /claims for everyone who has it", () => {
+    for (const jobRole of ["sales", "site", "director", "accounts"] as const) {
+      const claims = navPagesFor(viewer(jobRole), {}).find(
+        (page) => page.key === "claims",
+      );
+      expect(claims?.href).toBe("/claims");
+    }
+  });
+
   it("sends managers to Team Reports and others to their own report", () => {
     const report = (person: Viewer) =>
       navPagesFor(person, {}).find((page) => page.key === "rep");

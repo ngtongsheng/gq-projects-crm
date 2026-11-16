@@ -48,7 +48,7 @@ export const CLAIM_EXPENSE_TYPES = [
 export type ClaimExpenseType = (typeof CLAIM_EXPENSE_TYPES)[number];
 
 /** What the monthly claim cap covers (the HR package's "petrol + toll + parking claim max"). */
-const CAPPED_EXPENSE_TYPES: readonly ClaimExpenseType[] = [
+export const CAPPED_EXPENSE_TYPES: readonly ClaimExpenseType[] = [
   "petrol",
   "toll",
   "parking",

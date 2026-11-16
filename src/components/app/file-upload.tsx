@@ -3,7 +3,7 @@
 import { Paperclip } from "lucide-react";
 import { useId, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ATTACHMENT_TYPES } from "@/lib/storage/attachment-rules";
+import { ATTACHMENT_TYPES, IMAGE_TYPES } from "@/lib/storage/attachment-rules";
 import { prepareAttachment } from "@/lib/storage/downscale";
 
 export type UploadOutcome = { ok: true } | { ok: false; error: string };
@@ -14,6 +14,8 @@ type FileUploadProps = {
   /** Sends the checked, downscaled file (see uploadToTarget); the module decides where it is recorded. */
   upload: (file: File) => Promise<UploadOutcome>;
   disabled?: boolean;
+  /** Photos only, e.g. a claim receipt; the picker and the hint leave out PDF. */
+  imagesOnly?: boolean;
 };
 
 type State =
@@ -23,7 +25,12 @@ type State =
   | { status: "failed"; error: string };
 
 /** Pick a photo or PDF: photos are shrunk, the type and size are checked, then it is handed to `upload`. */
-export function FileUpload({ label, upload, disabled }: FileUploadProps) {
+export function FileUpload({
+  label,
+  upload,
+  disabled,
+  imagesOnly = false,
+}: FileUploadProps) {
   const inputId = useId();
   const input = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<State>({ status: "idle" });
@@ -49,7 +56,7 @@ export function FileUpload({ label, upload, disabled }: FileUploadProps) {
         ref={input}
         id={inputId}
         type="file"
-        accept={ATTACHMENT_TYPES.join(",")}
+        accept={(imagesOnly ? IMAGE_TYPES : ATTACHMENT_TYPES).join(",")}
         className="sr-only"
         tabIndex={-1}
         disabled={disabled}
@@ -77,7 +84,7 @@ export function FileUpload({ label, upload, disabled }: FileUploadProps) {
           <span className="text-sm text-good">{state.name} attached</span>
         ) : (
           <span className="text-xs text-muted-foreground">
-            Photo or PDF, up to 1.5 MB
+            {imagesOnly ? "Photo, up to 1.5 MB" : "Photo or PDF, up to 1.5 MB"}
           </span>
         )}
       </div>

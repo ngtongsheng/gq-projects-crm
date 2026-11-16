@@ -109,8 +109,7 @@ const PAGES: Record<PageKey, Page> = {
     key: "claims",
     matrixLabel: "Claims (commission & travel)",
     label: (viewer) => (isManager(viewer.jobRole) ? "Claims" : "My claims"),
-    // Overtime is part of the monthly claim in the demo; it is the only claim built so far.
-    href: fixed("/overtime"),
+    href: fixed("/claims"),
     group: "main",
     built: true,
   },

@@ -21,7 +21,7 @@ Parity per `docs/office-parity/parity.md`. Merged to `main`. Starts after loops 
 | 01 | Claims migration | done | - | opus/medium |
 | 02 | Claim maths + flags | done | 01 | opus/medium |
 | 03 | Claim flow + gates | done | 01 | opus/medium |
-| 04 | My claim: sections A-C | todo | 02, 03 | sonnet/high |
+| 04 | My claim: sections A-C | done | 02, 03 | sonnet/high |
 | 05 | Manager views + settings | todo | 03 | sonnet/high |
 | 06 | Appeals tab move + OT fold-in | todo | 04 | sonnet/high |
 | 07 | Claim print | todo | 04 | sonnet/medium |
@@ -50,3 +50,8 @@ Parity per `docs/office-parity/parity.md`. Merged to `main`. Starts after loops 
 2026-11-16 · #03 · decision · extra migration 20261118110000 with approve_monthly_claim (atomic approve + commission_payouts) and monthly_claim_ot_amount · avoids approved claim without payouts
 2026-11-16 · #03 · decision · flagged-claim remark requirement deferred to #05 (needs flag data it loads); #05 must add it in checkClaim/approveClaim and add adjustment-save actions · demo parity
 2026-11-16 · #03 · decision · pay is accounts-only; pay gate uses claim month's report, submit gate last month's · as demo
+2026-11-16 · #04 · in-progress · delegated sonnet/high
+2026-11-16 · #04 · done · check, typecheck, test (2717), build pass; parity deferred to #09 (migrations not on test copy; also verify actions on test copy) · next: #05
+2026-11-16 · #04 · decision · claimant page reads caps/meal rates via createAdminClient for that one person (packages RLS is md/accounts only); salary never reaches the page · avoids new migration
+2026-11-16 · #04 · decision · commission lines start unticked (tick = DB row); section C always shown while editable; OT amount shows once a claim row exists · #06 may revisit with /overtime
+2026-11-16 · #04 · decision · expense edit cannot cross claim months (delete and re-add) · simple, safe

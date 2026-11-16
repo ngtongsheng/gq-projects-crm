@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { JobRole } from "@/lib/auth/job-role";
 import {
@@ -27,14 +28,23 @@ const packageRows = z.array(
   }),
 );
 
-/** Every recorded package row, the whole history; row-level security lets only the MD and HR & Accounts read them. */
-export async function loadPackages(): Promise<StaffPackage[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
+/** Who reads the HR tables: the signed-in person's client by default; the claim page passes the service-role client to read one person's caps. */
+type HrReader = Pick<SupabaseClient, "from">;
+
+/** Every recorded package row, the whole history (or one person's); row-level security lets only the MD and HR & Accounts read them. */
+export async function loadPackages(
+  reader?: HrReader,
+  profileId?: string,
+): Promise<StaffPackage[]> {
+  const supabase = reader ?? (await createClient());
+  const query = supabase
     .from("staff_packages")
     .select(
       "id, profile_id, effective_on, basic, allowances, claim_cap, hotel_level, reason, added_by",
     );
+  const { data, error } = await (profileId
+    ? query.eq("profile_id", profileId)
+    : query);
   if (error) throw new Error(`Could not load packages: ${error.message}`);
   return packageRows.parse(data).map((row) => ({
     id: row.id,
@@ -66,8 +76,10 @@ const recordRows = z.array(
   }),
 );
 
-async function loadHrRecords(): Promise<Map<string, StaffHrRecord>> {
-  const supabase = await createClient();
+export async function loadHrRecords(
+  reader?: HrReader,
+): Promise<Map<string, StaffHrRecord>> {
+  const supabase = reader ?? (await createClient());
   const { data, error } = await supabase
     .from("staff_hr_records")
     .select("profile_id, grade, confirmed_on, offer_letter_link, note");
@@ -93,8 +105,10 @@ const standardRows = z.array(
   }),
 );
 
-async function loadStandardPackages(): Promise<StandardPackages> {
-  const supabase = await createClient();
+export async function loadStandardPackages(
+  reader?: HrReader,
+): Promise<StandardPackages> {
+  const supabase = reader ?? (await createClient());
   const { data, error } = await supabase
     .from("standard_packages")
     .select("position, allowances, claim_cap");
@@ -123,8 +137,10 @@ const outstationRow = z.object({
   hotel_director: z.coerce.number(),
 });
 
-async function loadOutstationRules(): Promise<OutstationRules> {
-  const supabase = await createClient();
+export async function loadOutstationRules(
+  reader?: HrReader,
+): Promise<OutstationRules> {
+  const supabase = reader ?? (await createClient());
   const { data, error } = await supabase
     .from("outstation_rules")
     .select(

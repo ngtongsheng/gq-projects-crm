@@ -28,10 +28,10 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 | 01 | Allow rules | done | - | economy |
 | 02 | Private dev repo, key upload script, key fetch | done | 01 | standard |
 | 03 | `pnpm catch-up` | done | 02 | frontier |
-| 04 | Archive pre-parity work | todo | 03 | standard |
-| 05 | Hook, CLAUDE.md, skills and laptop UI fixes | todo | 03 | standard |
+| 04 | Archive pre-parity work | done | 03 | standard |
+| 05 | Hook, CLAUDE.md, skills and laptop UI fixes | in-progress | 03 | standard |
 | 06 | Laptop playbook | todo | 05 | standard |
-| 07 | Google sign-in go-live | blocked: owner — sign Agent Chrome into the gqp-office Google account, then GCP Branding + Publish app | 01 | standard |
+| 07 | Google sign-in go-live | in-progress | 01 | standard |
 | 08 | Screenshots, README and docs | todo | 05 | standard |
 | 09 | Rehearsal on a fresh clone | todo | 04,05,06 | frontier |
 | 10 | Hand-off: what's new, bootstrap issue, close #31, docs, merge | todo | 07,08,09 | standard |
@@ -67,3 +67,9 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 2026-11-16 · #03 · decision · invites checked only when keys must be fetched; free-port only after an install · no network on the no-op path
 2026-11-16 · #03 · decision · log in <git-common-dir>/gq-catch-up.log (mode 600) keeps seed output incl. test-copy sign-in passwords, no keys · dev-only values
 2026-11-16 · #03 · note · docs/whats-new.md still has the old November text; #10 rewrites it. Wire as `pnpm -s catch-up` in #05
+2026-11-16 · #07 · unblocked: gqp-office Branding opens with authuser=1 (owner account); GCP publish deferred to after merge in #10
+2026-11-16 · #04 · started (sonnet/high)
+2026-11-16 · #04 · done: archive step in catch-up, 58 agent tests; origin tags archive/pre-parity/{chore/seed-fixed-password,feat/database-for-preview,loop/06-setup-rehearsal} pushed, branches deleted · next: #05
+2026-11-16 · #04 · decision · feat/database-for-preview2 left for #10 (task text) · PR #31 close order
+2026-11-16 · #04 · decision · dirty worktree gets a local "save draft before archive" commit (fallback identity, no hooks) before tagging · never lose work
+2026-11-16 · #05 · started (sonnet/high)

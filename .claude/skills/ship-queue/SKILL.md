@@ -12,6 +12,9 @@ Nothing here pushes to `main` or force-pushes: `main` changes only through `gh p
 and `view`, `git cherry`, `git worktree list`, `git status`). Do not merge main in, push, comment, merge,
 close, ready or remove anything; print one `would <action>: <reason>` line per planned action and skip step 7.
 
+Skip any branch under `archive/` and any branch that does not contain the parity cut-off commit `3328d4e`
+(`git merge-base --is-ancestor 3328d4e <branch>`); `pnpm catch-up` tags and removes those (loop 22, D6).
+
 `<login>` is `gh api user --jq .login`; a dry run for another account names it in the request.
 
 ## 1. Read the queue

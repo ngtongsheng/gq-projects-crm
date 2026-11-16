@@ -8,6 +8,7 @@ import { lookup } from "node:dns/promises";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { archivePreParity } from "./archive-pre-parity.mjs";
 import {
   copyEnvLocal,
   mainCheckoutFromWorktreeList,
@@ -143,15 +144,6 @@ function gitDirs(cwd) {
 }
 
 /**
- * The last step. Loop 22 task 04 fills it in to archive work from before the rebuild; null means nothing to report.
- * @param {string} _cwd
- * @returns {Promise<StepResult | null>}
- */
-export async function archivePreParity(_cwd) {
-  return null;
-}
-
-/**
  * Runs every due step and reports. A failed step does not stop later ones.
  * @param {string} cwd
  * @param {CatchUpDeps} deps
@@ -169,6 +161,8 @@ export async function catchUp(cwd, deps) {
   const done = [];
   /** @type {string[]} */
   const failed = [];
+  /** @type {string[]} */
+  const notes = [];
   /** @type {string[]} */
   const log = [];
 
@@ -265,7 +259,9 @@ export async function catchUp(cwd, deps) {
   }
 
   const archived = await deps.archive(top);
-  if (archived) (archived.ok ? done : failed).push(archived.label);
+  // Archiving reads as its own sentence, not as a step in the "I ..." list.
+  if (archived?.ok) notes.push(archived.label);
+  else if (archived) failed.push(archived.label);
 
   const whatsNewPath = path.join(top, WHATS_NEW_FILE);
   const whatsNew = existsSync(whatsNewPath)
@@ -285,10 +281,15 @@ export async function catchUp(cwd, deps) {
       { mode: 0o600 },
     );
   }
-  if (done.length === 0 && failed.length === 0 && !showWhatsNew) {
+  if (
+    done.length === 0 &&
+    failed.length === 0 &&
+    notes.length === 0 &&
+    !showWhatsNew
+  ) {
     return { output: "", ok: true };
   }
-  const lines = [statusLine(done, failed)];
+  const lines = [statusLine(done, failed), ...notes];
   if (showWhatsNew && whatsNew) lines.push("", "What's new:", whatsNew.body);
   return { output: lines.join("\n"), ok: failed.length === 0 };
 }

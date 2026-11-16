@@ -183,6 +183,25 @@ describe("catchUp", () => {
     expect(result.ok).toBe(true);
   });
 
+  it("adds one line when older drafts were archived, and fails the run when archiving fails", async () => {
+    const top = checkout();
+    const { deps } = await settled(top);
+    const archived = await catchUp(top, {
+      ...deps,
+      archive: async () => ({ ok: true, label: "Older drafts saved." }),
+    });
+    expect(archived).toEqual({
+      output: "Your laptop is up to date.\nOlder drafts saved.",
+      ok: true,
+    });
+    const stuck = await catchUp(top, {
+      ...deps,
+      archive: async () => ({ ok: false, label: "save older drafts" }),
+    });
+    expect(stuck.ok).toBe(false);
+    expect(stuck.output).toContain("I could not save older drafts");
+  });
+
   it("shows what's new once per version", async () => {
     const top = checkout();
     const { deps } = await settled(top);

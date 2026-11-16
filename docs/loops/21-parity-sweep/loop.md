@@ -23,8 +23,8 @@ the branch is merged to `main`.
 | 02 | Parity: loop 14 money and reports | done | 01 | standard |
 | 03 | Parity: loop 16 People, HR, Tools | done | 01 | standard |
 | 04 | Parity: loop 17 Log work, Site Work | done | 01 | standard |
-| 05 | Parity: loop 18 Installation and DOs | in-progress | 01 | standard |
-| 06 | Parity: loop 18 Stock, Samples, Leftover | todo | 01 | standard |
+| 05 | Parity: loop 18 Installation and DOs | done | 01 | standard |
+| 06 | Parity: loop 18 Stock, Samples, Leftover | in-progress | 01 | standard |
 | 07 | Parity: loop 19 Claims | todo | 01 | standard |
 | 08 | Drift list, docs, merge | todo | 02-07 | standard |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
@@ -57,3 +57,8 @@ the branch is merged to `main`.
 2026-11-16 · #04 · note · Marketing persona unreachable (only a vacant Marketing Exec); 390 px not run for Akmal, Jess, Wai Mun, Vanessa; wizard steps 3-4 at 390 overflow-only · coverage gaps in report
 2026-11-16 · #04 · done · check, typecheck, 2986 tests pass; test copy re-seeded · next: #05
 2026-11-16 · #05 · in-progress · delegated (standard)
+2026-11-16 · #05 · decision · BLOCKING live bug: issue_do_number, set_next_do_number, set_next_sample_pickup_number, save_sample_pickup updated a one-row table with no WHERE; Supabase (pg-safeupdate) refuses it, PGlite did not. Fixed by migration 20261119120000_numbering_where_clause.sql (same bodies plus `where id`), applied to test copy; test scripts/migrations-update-where.test.ts guards new migrations · D6 expected no migration; deploys on merge, no data loss
+2026-11-16 · #05 · decision · fixed /installation crash for Eddie and Vanessa (mofs!inner), week default, headings, DO print scroll at 390 (shared print-layout); drift IN1-IN6, DO1 · bug plus UI-only drift
+2026-11-16 · #05 · note · DO print/numbering/items dialog have app screenshots only (demo needs saved items); samples functions fixed here, #06 must recheck Samples in browser
+2026-11-16 · #05 · done · check, typecheck, 2989 tests pass; test copy re-seeded · next: #06
+2026-11-16 · #06 · in-progress · delegated (standard)

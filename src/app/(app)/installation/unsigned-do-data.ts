@@ -35,7 +35,7 @@ export async function loadUnsignedDos(
   let query = supabase
     .from("delivery_orders")
     .select(
-      "running_no, transporter, delivered_on, mofs(mof_no, project_name), jobs!inner(id, ends_on)",
+      "running_no, transporter, delivered_on, mofs!inner(mof_no, project_name), jobs!inner(id, ends_on)",
     )
     .eq("signed_returned", false)
     .eq("jobs.status", "done");

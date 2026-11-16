@@ -29,7 +29,7 @@ export const parseInstallerFilter = (value: unknown): string | undefined =>
 
 /**
  * A calendar link that also keeps the installer filter (the supervisor filter is `who`) and
- * the tab; the calendar is the default tab and stays out of the link.
+ * the tab. The calendar tab and the week view are the defaults (the demo opens on the week) and stay out of the link.
  */
 export function installationHref(
   params: Partial<CalendarParams> & {
@@ -41,7 +41,7 @@ export function installationHref(
   const extra = new URLSearchParams();
   if (installer) extra.set("installer", installer);
   if (tab && tab !== "installers") extra.set("tab", tab);
-  const base = calendarHref(calendar, INSTALLATION_PATH);
+  const base = calendarHref(calendar, INSTALLATION_PATH, "week");
   const text = extra.toString();
   if (!text) return base;
   return `${base}${base.includes("?") ? "&" : "?"}${text}`;

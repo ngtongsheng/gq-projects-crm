@@ -43,6 +43,13 @@ describe("installationHref", () => {
     ).toBe(`/installation?date=2026-11-16&who=${ID}&tab=supervisors`);
   });
 
+  it("opens on the week, so only the month view is named in a link", () => {
+    expect(installationHref({ view: "week" })).toBe("/installation");
+    expect(installationHref({ view: "month", date: "2026-11-16" })).toBe(
+      "/installation?view=month&date=2026-11-16",
+    );
+  });
+
   it("stays the plain path without filters", () => {
     expect(installationHref({})).toBe("/installation");
   });

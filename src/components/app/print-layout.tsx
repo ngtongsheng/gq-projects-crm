@@ -44,7 +44,7 @@ export function PrintLayout({
   children,
 }: PrintLayoutProps) {
   return (
-    <div className="print-desk -mx-4 -my-5 bg-muted px-4 py-5 print:m-0 print:bg-white print:p-0">
+    <div className="print-desk -mx-4 -my-5 overflow-x-auto bg-muted px-4 py-5 print:m-0 print:overflow-visible print:bg-white print:p-0">
       <div className="mx-auto mb-3 flex w-[210mm] max-w-full flex-wrap items-center gap-3 print:hidden">
         <strong className="min-w-0 flex-1 truncate">
           {toolbarTitle ?? title}

@@ -519,3 +519,33 @@ seed is not the demo's example data; that is never drift. Larger gaps are in `do
 - Not reachable in the browser: the Marketing role (Photos & videos and Site log only). The only marketing person is the
   vacant "Marketing Exec" who has left, in the seed and in the demo; the two-tab rule is covered by the `siteViewsFor`
   unit tests.
+
+### Installation and delivery orders (task 05)
+- Fixed in-loop, bugs: the Installation calendar and the "DOs not yet signed" panel returned a server error for the Sales
+  Director and the Marketing Director (a job whose MOF they cannot read came back with no MOF; both reads now leave such
+  jobs out, so those two see only their team's jobs, see [IN2]). `issue_do_number`, `set_next_do_number` and the two
+  samples functions (`set_next_sample_pickup_number`, `save_sample_pickup`) updated a one-row table with no WHERE clause.
+  Supabase refuses that ("UPDATE requires a WHERE clause"), so on the real database Purchasing could not issue a DO no.
+  or set the next number, and a pickup form could not be saved; PGlite has no such guard, so the tests never saw it.
+  New migration `20261119120000_numbering_where_clause.sql` (same bodies, `where id`), applied to the test copy, and a
+  test that fails on any update in a migration without a WHERE clause. Samples are fixed here because the cause is shared;
+  their parity check is task 06.
+- Fixed in-loop, UI: all three Installation views are headed "Installation calendar" with the demo's subtitle (the
+  sidebar keeps "Installation", "My schedule" or "Delivery & Installation"); the subtitle for people who cannot schedule
+  says "Ask purchasing, sales support or the site supervisors..." (roles, not names). The page opens on the week, as the
+  demo does; Month stays as an extra. The job and booking counts moved from the subtitle to the row with the date arrows;
+  the supervisors and contacts views no longer show a count (demo: "15 active" in the panel heading). A DO print sheet
+  scrolls inside its grey desk on a phone instead of the whole page scrolling sideways (all printable forms share it).
+- Deliberate: "Settings" in the head (next DO running number) is extra; the demo only has "Change" in the Delivery log,
+  which the MOF Register has too. The calendar filters apply with a "Show" button (the demo applies on change). Month and
+  Week toggle, the "DO not issued" note and the Edit button on every job card are extra. The first line of a job's DO is
+  not a separate "Issue DO no. now" panel but the checkbox of the same name next to the DO no.
+- Deliberate: Installer contacts at 390 px shows three columns (Installer, Phone, Jobs); the demo scrolls all seven
+  sideways. The DO print says "Back" where the demo says "Close", and the driver name line carries the transporter as
+  "Transporter: Lalamove". The printed DO fits one A4 (content 929 px of the 1032 px available) with 12 rows.
+- Roles checked on the test copy: Purchasing (support) and HR & Accounts open the next-number dialog and can save it;
+  the MD can too (loop 18 D2); the Sales Director, Marketing Director, salespeople, sales support and Site Supervisors have
+  no Settings button. Site Supervisors have no Edit button, so they cannot issue a DO no. A Site Supervisor sees and answers
+  only their own bookings (Awal confirmed his own request; Akmal's, Sarah's and the others' were not in his list).
+- Test copy changes made by the check (restored by re-seeding): DO no. 9205 issued to MOF-2026-016's delivery, one DO
+  item line saved on it, Awal's measurement booking confirmed. The next DO number is the seed's.

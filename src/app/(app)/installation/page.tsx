@@ -14,7 +14,6 @@ import {
   canUpdateJobStatus,
 } from "@/lib/auth/job-role";
 import { canOpen } from "@/lib/auth/page-access";
-import { pageLabel } from "@/lib/auth/pages";
 import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import {
@@ -67,20 +66,38 @@ export default async function InstallationPage({
   const me = await requirePage("inst");
   const t = await getT(me.language);
   const query = await searchParams;
-  const title = t(pageLabel("inst", me));
+  const title = t("Installation calendar");
+  const canSchedule = canScheduleJobs(me.jobRole);
+  const description = t(
+    canSchedule
+      ? "Installations, deliveries and site measurements. A job can run several days."
+      : "Check when installers and site supervisors are free. Ask purchasing, sales support or the site supervisors to schedule jobs; book a site supervisor here if you need one on site.",
+  );
   if (parseInstallationTab(query.tab) === "contacts") {
     return (
-      <InstallerContacts t={t} title={title} canEdit={canEditInstallers(me)} />
+      <InstallerContacts
+        t={t}
+        title={title}
+        description={description}
+        canEdit={canEditInstallers(me)}
+      />
     );
   }
   if (parseInstallationTab(query.tab) === "supervisors") {
-    return <SupervisorBookings t={t} me={me} query={query} title={title} />;
+    return (
+      <SupervisorBookings
+        t={t}
+        me={me}
+        query={query}
+        title={title}
+        description={description}
+      />
+    );
   }
-  const params = parseCalendarParams(query);
+  const params = parseCalendarParams(query, todayMyt(), "week");
   const { view } = params;
   const installerId = parseInstallerFilter(query.installer);
   const today = todayMyt();
-  const canSchedule = canScheduleJobs(me.jobRole);
   const canBook = canBookSiteSupervisor(me.jobRole);
   const answersBookings = canAnswerBookings(me.jobRole);
 
@@ -180,7 +197,7 @@ export default async function InstallationPage({
     <div className="flex flex-col gap-4">
       <PageHeader
         title={title}
-        description={`${jobs.length} ${t(jobs.length === 1 ? "job" : "jobs")} · ${inProgress} ${t(weeks ? "in progress this month" : "in progress this week")}${me.jobRole === "site" ? ` · ${t("yours")}` : ""}`}
+        description={description}
         actions={
           <>
             <InstallationTabs t={t} active="installers" />
@@ -257,6 +274,9 @@ export default async function InstallationPage({
         <h2 className="min-w-40 font-heading text-base font-medium">
           {periodTitle}
         </h2>
+        <span className="text-sm text-muted-foreground">
+          {`${jobs.length} ${t(jobs.length === 1 ? "job" : "jobs")} · ${inProgress} ${t(weeks ? "in progress this month" : "in progress this week")}${me.jobRole === "site" ? ` · ${t("yours")}` : ""}`}
+        </span>
         <Button asChild size="sm" variant="ghost">
           <Link href={href(keep)}>{t("Today")}</Link>
         </Button>

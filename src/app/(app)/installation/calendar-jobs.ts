@@ -48,7 +48,7 @@ export async function loadCalendarJobs(
   let query = supabase
     .from("jobs")
     .select(
-      `${JOB_COLUMNS}, mof_id, mofs(mof_no, company_name, project_name, installer_name, payment_checked, dos_pre_approved)`,
+      `${JOB_COLUMNS}, mof_id, mofs!inner(mof_no, company_name, project_name, installer_name, payment_checked, dos_pre_approved)`,
     )
     .lte("scheduled_on", to)
     .gte("ends_on", from)

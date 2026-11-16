@@ -39,6 +39,7 @@ type SupervisorBookingsProps = {
   me: Profile;
   query: Record<string, string | string[] | undefined>;
   title: string;
+  description: string;
 };
 
 /**
@@ -51,6 +52,7 @@ export async function SupervisorBookings({
   me,
   query,
   title,
+  description,
 }: SupervisorBookingsProps) {
   const params = parseCalendarParams(query, todayMyt(), "week");
   const today = todayMyt();
@@ -101,13 +103,12 @@ export async function SupervisorBookings({
     supervisorName: (id) => nameOf.get(id) ?? t("Unnamed"),
     hrefFor: href,
   });
-  const waiting = comingUp.filter((booking) => booking.status === "requested");
 
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
         title={title}
-        description={`${comingUp.length} ${t(comingUp.length === 1 ? "booking" : "bookings")} ${t("coming up")} · ${waiting.length} ${t("waiting for an answer")}${ownOnly ? ` · ${t("yours")}` : ""}`}
+        description={description}
         actions={
           <>
             <InstallationTabs t={t} active="supervisors" />

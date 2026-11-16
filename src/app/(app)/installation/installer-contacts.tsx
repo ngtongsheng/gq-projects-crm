@@ -11,20 +11,21 @@ import { InstallerDirectory } from "./installer-directory";
 export async function InstallerContacts({
   t,
   title,
+  description,
   canEdit,
 }: {
   t: Translate;
   title: string;
+  description: string;
   canEdit: boolean;
 }) {
   const installers = await loadInstallers();
-  const active = installers.filter((installer) => installer.active).length;
 
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
         title={title}
-        description={`${active} ${t("active installers")}`}
+        description={description}
         actions={
           <>
             <InstallationTabs t={t} active="contacts" />

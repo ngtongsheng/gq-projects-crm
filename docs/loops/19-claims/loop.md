@@ -20,7 +20,7 @@ Parity per `docs/office-parity/parity.md`. Merged to `main`. Starts after loops 
 |---|---|---|---|---|
 | 01 | Claims migration | done | - | opus/medium |
 | 02 | Claim maths + flags | done | 01 | opus/medium |
-| 03 | Claim flow + gates | todo | 01 | opus/medium |
+| 03 | Claim flow + gates | done | 01 | opus/medium |
 | 04 | My claim: sections A-C | todo | 02, 03 | sonnet/high |
 | 05 | Manager views + settings | todo | 03 | sonnet/high |
 | 06 | Appeals tab move + OT fold-in | todo | 04 | sonnet/high |
@@ -45,3 +45,8 @@ Parity per `docs/office-parity/parity.md`. Merged to `main`. Starts after loops 
 2026-11-16 · #02 · done · check, typecheck, test pass (2640) · next: #03
 2026-11-16 · #02 · decision · monthly cap = petrol+toll+parking, mileage excluded (D5 and HR package label win over demo CAP_TYPES) · specific rule wins
 2026-11-16 · #02 · decision · cap 0 = no cap; monthly cap uses package on cut-off date, hotel budget on each line's date; travel-limit flag only when cap flag absent · as demo
+2026-11-16 · #03 · in-progress · delegated opus/medium
+2026-11-16 · #03 · done · check, typecheck, test, guard pass (2691) · next: #04
+2026-11-16 · #03 · decision · extra migration 20261118110000 with approve_monthly_claim (atomic approve + commission_payouts) and monthly_claim_ot_amount · avoids approved claim without payouts
+2026-11-16 · #03 · decision · flagged-claim remark requirement deferred to #05 (needs flag data it loads); #05 must add it in checkClaim/approveClaim and add adjustment-save actions · demo parity
+2026-11-16 · #03 · decision · pay is accounts-only; pay gate uses claim month's report, submit gate last month's · as demo

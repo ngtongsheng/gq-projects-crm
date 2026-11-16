@@ -3,8 +3,9 @@
 import { Paperclip } from "lucide-react";
 import { useId, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n/language-context";
+import { attachFile } from "@/lib/storage/attach-file";
 import { ATTACHMENT_TYPES, IMAGE_TYPES } from "@/lib/storage/attachment-rules";
-import { prepareAttachment } from "@/lib/storage/downscale";
 
 export type UploadOutcome = { ok: true } | { ok: false; error: string };
 
@@ -34,18 +35,14 @@ export function FileUpload({
   const inputId = useId();
   const input = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<State>({ status: "idle" });
+  const t = useT();
 
   async function onPick(file: File) {
     setState({ status: "working" });
-    const prepared = await prepareAttachment(file);
-    if (!prepared.ok) {
-      setState({ status: "failed", error: prepared.error });
-      return;
-    }
-    const outcome = await upload(prepared.file);
+    const outcome = await attachFile(file, upload);
     setState(
       outcome.ok
-        ? { status: "done", name: prepared.file.name }
+        ? { status: "done", name: outcome.name }
         : { status: "failed", error: outcome.error },
     );
   }
@@ -90,7 +87,7 @@ export function FileUpload({
       </div>
       {state.status === "failed" ? (
         <p role="alert" className="text-sm text-destructive">
-          {state.error}
+          {t(state.error)}
         </p>
       ) : null}
     </div>

@@ -130,6 +130,12 @@ export const bm: Dictionary = {
   ...bmSiteWork,
   ...bmClaims,
   ...bmInstallation,
+  "Something went wrong. Try again.": "Sesuatu tidak kena. Cuba lagi.",
+  "Try again": "Cuba lagi",
+  Reference: "Rujukan",
+  "The upload failed. Try again.": "Muat naik gagal. Cuba lagi.",
+  "That photo could not be read. Try another.":
+    "Foto itu tidak dapat dibaca. Cuba foto lain.",
   "This number belongs to archived contact":
     "Nombor ini milik kenalan yang telah diarkibkan",
   "Ask an admin to restore them.": "Minta pentadbir memulihkannya.",

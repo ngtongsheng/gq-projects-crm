@@ -611,6 +611,11 @@ export const zh: Dictionary = {
   ...zhHrTools,
   ...zhClaims,
   ...zhInstallationStock,
+  "Something went wrong. Try again.": "出错了，请再试一次。",
+  "Try again": "再试一次",
+  Reference: "参考编号",
+  "The upload failed. Try again.": "上传失败，请再试一次。",
+  "That photo could not be read. Try another.": "无法读取这张照片，请换一张。",
   "This number belongs to archived contact": "此号码属于已归档的联系人",
   "Ask an admin to restore them.": "请联系管理员恢复该联系人。",
 };

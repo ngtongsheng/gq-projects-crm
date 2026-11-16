@@ -116,7 +116,11 @@ export function ExpenseDialog({
 
   async function pickReceipt(file: File | undefined) {
     if (!file) return;
-    const prepared = await prepareAttachment(file);
+    // Reading a photo the browser cannot decode rejects; treat it like any other bad file.
+    const prepared = await prepareAttachment(file).catch(() => ({
+      ok: false as const,
+      error: t("That photo could not be read. Try another."),
+    }));
     if (prepared.ok) {
       setReceipt(prepared.file);
       setError(null);

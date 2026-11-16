@@ -22,7 +22,7 @@ Parity per `docs/office-parity/parity.md`. Merged to `main`. Starts after loops 
 | 02 | Claim maths + flags | done | 01 | opus/medium |
 | 03 | Claim flow + gates | done | 01 | opus/medium |
 | 04 | My claim: sections A-C | done | 02, 03 | sonnet/high |
-| 05 | Manager views + settings | todo | 03 | sonnet/high |
+| 05 | Manager views + settings | done | 03 | sonnet/high |
 | 06 | Appeals tab move + OT fold-in | todo | 04 | sonnet/high |
 | 07 | Claim print | todo | 04 | sonnet/medium |
 | 08 | Strings + dev seed | todo | 04, 05, 06, 07 | sonnet/medium |
@@ -55,3 +55,9 @@ Parity per `docs/office-parity/parity.md`. Merged to `main`. Starts after loops 
 2026-11-16 · #04 · decision · claimant page reads caps/meal rates via createAdminClient for that one person (packages RLS is md/accounts only); salary never reaches the page · avoids new migration
 2026-11-16 · #04 · decision · commission lines start unticked (tick = DB row); section C always shown while editable; OT amount shows once a claim row exists · #06 may revisit with /overtime
 2026-11-16 · #04 · decision · expense edit cannot cross claim months (delete and re-add) · simple, safe
+2026-11-16 · #05 · in-progress · delegated sonnet/high
+2026-11-16 · #05 · done · check, typecheck, test (2734), build pass; parity deferred to #09 · next: #06
+2026-11-16 · #05 · decision · remark required on flagged claims for both accounts and md at check and approve · simpler than demo's accounts-only
+2026-11-16 · #05 · decision · adjustments only while submitted/checked (payouts written at approve) · money safety
+2026-11-16 · #05 · decision · waive late cut raises line to original + cut, only with an approved appeal; late_cut_waived unchanged; late1/late2 settings stay on /commission/settings (md only) · no migration
+2026-11-16 · #05 · todo-for-#09 · verify on test copy: embedded profiles(...) selects in all-claims-data/claim-review-data, key:mof_id/key:id aliases in claim-review-actions, md/accounts read of others' activities and site logs, checker expense update vs guard triggers

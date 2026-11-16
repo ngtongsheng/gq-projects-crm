@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import type { JobRole } from "@/lib/auth/job-role";
 import {
   type ClaimStatus,
+  canAdjustClaim,
+  canManageClaims,
   canTakeStep,
+  flagRemarkBlock,
   payReportBlock,
   receiptsBlock,
   stepsFor,
@@ -160,5 +163,54 @@ describe("submitted after the cut-off", () => {
     expect(submittedAfterCutOff("2026-11-01", 25, "2026-11-25")).toBe(false);
     expect(submittedAfterCutOff("2026-11-01", 25, "2026-11-26")).toBe(true);
     expect(submittedAfterCutOff("2026-12-01", 25, "2026-11-30")).toBe(false);
+  });
+});
+
+describe("who adjusts a claim", () => {
+  it("the MD and HR & Accounts manage claims, nobody else", () => {
+    expect(canManageClaims("md")).toBe(true);
+    expect(canManageClaims("accounts")).toBe(true);
+    expect(canManageClaims("director")).toBe(false);
+    expect(canManageClaims("sales")).toBe(false);
+  });
+
+  it("is open to them on someone else's claim while it is submitted or checked", () => {
+    for (const jobRole of ["md", "accounts"] as const) {
+      for (const status of ["submitted", "checked"] as const)
+        expect(canAdjustClaim(viewer(jobRole), claim(status))).toBe(true);
+      for (const status of ["draft", "returned", "approved", "paid"] as const)
+        expect(canAdjustClaim(viewer(jobRole), claim(status))).toBe(false);
+    }
+  });
+
+  it("is closed to their own claim and to other roles", () => {
+    expect(canAdjustClaim(viewer("accounts", OWNER), claim("submitted"))).toBe(
+      false,
+    );
+    expect(canAdjustClaim(viewer("director"), claim("submitted"))).toBe(false);
+  });
+});
+
+describe("remark on a flagged claim", () => {
+  it("blocks checking or approving a flagged claim without a remark", () => {
+    for (const step of ["check", "approve"] as const)
+      expect(flagRemarkBlock({ step, flagCount: 2, remark: "  " })).toMatch(
+        /Write in the remark/,
+      );
+  });
+
+  it("lets it through with a remark, no flags, or any other step", () => {
+    expect(
+      flagRemarkBlock({ step: "check", flagCount: 2, remark: "Justified" }),
+    ).toBeNull();
+    expect(
+      flagRemarkBlock({ step: "approve", flagCount: 0, remark: "" }),
+    ).toBeNull();
+    expect(
+      flagRemarkBlock({ step: "return", flagCount: 2, remark: "" }),
+    ).toBeNull();
+    expect(
+      flagRemarkBlock({ step: "pay", flagCount: 2, remark: "" }),
+    ).toBeNull();
   });
 });

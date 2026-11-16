@@ -8,6 +8,7 @@ import {
   CLAIM_STATUSES,
   type ClaimStep,
   canTakeStep,
+  flagRemarkBlock,
   lastMonthOf,
   payReportBlock,
   receiptsBlock,
@@ -19,6 +20,7 @@ import { reportKindFor } from "@/lib/domain/report-stats";
 import { todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
 import { loadReportFilers } from "../reports/report-filers";
+import { loadClaimFlagCount } from "./claim-review-flags";
 import { loadClaimSettings } from "./claim-settings-data";
 
 export type ClaimStepResult = { error: string | null };
@@ -44,6 +46,7 @@ const claimRow = z.object({
   month: z.iso.date(),
   status: z.enum(CLAIM_STATUSES),
   original_receipts_received: z.boolean(),
+  remark: z.string(),
 });
 type ClaimRow = z.infer<typeof claimRow>;
 
@@ -68,7 +71,7 @@ async function openStep(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("monthly_claims")
-    .select("id, profile_id, month, status, original_receipts_received")
+    .select("id, profile_id, month, status, original_receipts_received, remark")
     .eq("id", id.data)
     .maybeSingle();
   if (error) {
@@ -148,6 +151,23 @@ async function lineCount(
   if (error)
     throw new Error(`Could not count the claim lines: ${error.message}`);
   return count ?? 0;
+}
+
+/** A flagged claim needs the checker's remark first. Counting the flags is only done when there is no remark yet. */
+async function remarkBlock(
+  step: ClaimStep,
+  claim: ClaimRow,
+): Promise<string | null> {
+  if (claim.remark.trim() !== "") return null;
+  return flagRemarkBlock({
+    step,
+    flagCount: await loadClaimFlagCount({
+      id: claim.id,
+      profileId: claim.profile_id,
+      month: claim.month,
+    }),
+    remark: claim.remark,
+  });
 }
 
 /**
@@ -234,6 +254,8 @@ export async function checkClaim(claimId: string): Promise<ClaimStepResult> {
     originalReceiptsReceived: claim.original_receipts_received,
   });
   if (blocked) return { error: blocked };
+  const unexplained = await remarkBlock("check", claim);
+  if (unexplained) return { error: unexplained };
   return moveClaim(supabase, "check", claim);
 }
 
@@ -258,6 +280,8 @@ export async function approveClaim(claimId: string): Promise<ClaimStepResult> {
     originalReceiptsReceived: claim.original_receipts_received,
   });
   if (blocked) return { error: blocked };
+  const unexplained = await remarkBlock("approve", claim);
+  if (unexplained) return { error: unexplained };
 
   const { error } = await supabase.rpc("approve_monthly_claim", {
     claim: claim.id,

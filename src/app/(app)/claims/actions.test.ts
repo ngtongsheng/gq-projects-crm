@@ -10,6 +10,7 @@ import {
   returnClaim,
   submitClaim,
 } from "./actions";
+import { loadClaimFlagCount } from "./claim-review-flags";
 import { loadClaimSettings } from "./claim-settings-data";
 
 vi.mock("@/lib/auth/current-profile", () => ({ getCurrentProfile: vi.fn() }));
@@ -19,6 +20,7 @@ vi.mock("@/lib/auth/access-overrides", () => ({
 }));
 vi.mock("../reports/report-filers", () => ({ loadReportFilers: vi.fn() }));
 vi.mock("./claim-settings-data", () => ({ loadClaimSettings: vi.fn() }));
+vi.mock("./claim-review-flags", () => ({ loadClaimFlagCount: vi.fn() }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("next/navigation", () => ({
   redirect: vi.fn((path: string) => {
@@ -52,6 +54,7 @@ type DbError = { code?: string; message: string } | null;
 type World = {
   status: ClaimStatus;
   receiptsReceived: boolean;
+  remark: string;
   receipts: number;
   commissions: number;
   expenses: number;
@@ -91,6 +94,7 @@ function fakeSupabase(world: World) {
               month: "2026-11-01",
               status: world.status,
               original_receipts_received: world.receiptsReceived,
+              remark: world.remark,
             },
             error: null,
           };
@@ -150,6 +154,7 @@ function given(me: Profile, overrides: Partial<World> = {}): void {
   fakeSupabase({
     status: "draft",
     receiptsReceived: false,
+    remark: "",
     receipts: 0,
     commissions: 0,
     expenses: 1,
@@ -177,6 +182,7 @@ beforeEach(() => {
     monthlyTravelLimit: 0,
     needReport: true,
   });
+  vi.mocked(loadClaimFlagCount).mockResolvedValue(0);
   vi.mocked(loadReportFilers).mockResolvedValue([
     { id: SARAH, name: "Sarah", kind: "sales" },
   ]);
@@ -269,6 +275,26 @@ describe("check", () => {
       receiptsReceived: true,
     });
     expect((await checkClaim(CLAIM)).error).toBeNull();
+  });
+});
+
+describe("a flagged claim", () => {
+  it("is not checked or approved until the checker has written a remark", async () => {
+    vi.mocked(loadClaimFlagCount).mockResolvedValue(2);
+    given(profile("accounts"), { status: "submitted" });
+    expect((await checkClaim(CLAIM)).error).toMatch(/Write in the remark/);
+    given(profile("md"), { status: "checked" });
+    expect((await approveClaim(CLAIM)).error).toMatch(/Write in the remark/);
+    expect(calls.updates).toEqual([]);
+    expect(calls.rpcs).toEqual([]);
+  });
+
+  it("goes on once there is a remark", async () => {
+    vi.mocked(loadClaimFlagCount).mockResolvedValue(2);
+    given(profile("accounts"), { status: "submitted", remark: "Client visit" });
+    expect(await checkClaim(CLAIM)).toEqual({ error: null });
+    given(profile("md"), { status: "checked", remark: "Client visit" });
+    expect(await approveClaim(CLAIM)).toEqual({ error: null });
   });
 });
 
@@ -376,6 +402,7 @@ describe("pay", () => {
   });
 
   it("pays someone who files no report", async () => {
+    vi.mocked(loadClaimFlagCount).mockResolvedValue(0);
     vi.mocked(loadReportFilers).mockResolvedValue([]);
     given(profile("accounts"), { status: "approved", reports: {} });
     expect((await payClaim(CLAIM)).error).toBeNull();

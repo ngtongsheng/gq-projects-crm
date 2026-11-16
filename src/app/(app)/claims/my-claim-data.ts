@@ -107,13 +107,21 @@ export async function loadMyClaim(personId: string, month: CalendarDate) {
   }
   const head = claimHead.parse(data);
 
+  return { head, ...(await loadClaimLines(supabase, head.id)) };
+}
+
+/** A claim's expense and commission lines, in the order the person entered them. */
+export async function loadClaimLines(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  claimId: string,
+) {
   const [expenses, commissions] = await Promise.all([
     supabase
       .from("monthly_claim_expenses")
       .select(
         "id, spent_on, expense_type, description, km, nights, original_amount, amount, adjustment_reason, receipt_no, receipt_path",
       )
-      .eq("claim_id", head.id)
+      .eq("claim_id", claimId)
       .order("spent_on")
       .order("created_at"),
     supabase
@@ -121,20 +129,19 @@ export async function loadMyClaim(personId: string, month: CalendarDate) {
       .select(
         "mof_id, late_cut_amount, late_cut_waived, original_amount, amount, adjustment_reason, mofs!inner(mof_no, company_name, project_name)",
       )
-      .eq("claim_id", head.id)
+      .eq("claim_id", claimId)
       .order("created_at"),
   ]);
   if (expenses.error) {
-    throw new Error(`Could not load your expenses: ${expenses.error.message}`);
+    throw new Error(`Could not load the expenses: ${expenses.error.message}`);
   }
   if (commissions.error) {
     throw new Error(
-      `Could not load your commission lines: ${commissions.error.message}`,
+      `Could not load the commission lines: ${commissions.error.message}`,
     );
   }
 
   return {
-    head,
     expenses: expenseRows.parse(expenses.data).map(
       (row): ExpenseLine => ({
         id: row.id,

@@ -67,6 +67,25 @@ export function canTakeStep(
   }
 }
 
+/** The MD and HR & Accounts see every claim and settle them (demo clCanManage). */
+export const canManageClaims = (jobRole: JobRole): boolean =>
+  jobRole === "md" || jobRole === "accounts";
+
+const ADJUSTABLE: readonly ClaimStatus[] = ["submitted", "checked"];
+
+/**
+ * Who may change amounts, the remark, the OT amount or tick the original receipts: the MD or
+ * HR & Accounts on someone else's claim while it is with them. Not once approved, because the
+ * commission is paid out at approval (the demo also lets amounts change then).
+ */
+export const canAdjustClaim = (
+  viewer: ClaimViewer,
+  claim: FlowClaim,
+): boolean =>
+  canManageClaims(viewer.jobRole) &&
+  claim.profileId !== viewer.id &&
+  ADJUSTABLE.includes(claim.status);
+
 /** The steps the viewer may take on this claim, in flow order. */
 export const stepsFor = (viewer: ClaimViewer, claim: FlowClaim): ClaimStep[] =>
   CLAIM_STEPS.filter((step) => canTakeStep(step, viewer, claim));
@@ -92,6 +111,23 @@ export function receiptsBlock(input: {
     return "Tick 'Original receipts received' first. The signed claim form and receipts must be with you.";
   }
   return null;
+}
+
+/**
+ * A flagged claim (nothing logged that day, over a standard) is checked or approved only once
+ * the checker has written what they found (demo clChk, clApp). The remark is the person's to read.
+ */
+export function flagRemarkBlock(input: {
+  step: ClaimStep;
+  flagCount: number;
+  remark: string;
+}): string | null {
+  const decides = input.step === "check" || input.step === "approve";
+  if (!decides || input.flagCount === 0 || input.remark.trim() !== "")
+    return null;
+  return input.step === "check"
+    ? "Some items are not in the itinerary or are over the standard. Write in the remark what you found (justified or adjusted) so the MD can decide."
+    : "Some items are not in the itinerary or are over the standard. Write in the remark what you found before approving.";
 }
 
 // Values mirror the status check on monthly_reports.

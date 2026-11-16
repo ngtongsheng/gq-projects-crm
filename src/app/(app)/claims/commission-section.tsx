@@ -1,5 +1,6 @@
 import { Percent } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { DataTable, type DataTableColumn } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
 import type { CommissionSettings } from "@/lib/domain/commission-settings";
@@ -20,6 +21,7 @@ export function CommissionSection({
   personId,
   rules,
   heading,
+  amountCell,
   t,
 }: {
   rows: CommissionRow[];
@@ -28,6 +30,8 @@ export function CommissionSection({
   personId: string;
   rules: CommissionSettings;
   heading: string;
+  /** Replaces the Claim amount, e.g. with a box the checker types in. */
+  amountCell?: (row: CommissionRow) => ReactNode;
   t: Translate;
 }) {
   const untickedIds = rows.filter((row) => !row.ticked).map((row) => row.mofId);
@@ -114,17 +118,20 @@ export function CommissionSection({
       key: "claim",
       header: t("Claim"),
       numeric: true,
-      cell: (row) => (
-        <div>
-          <b>{formatRm(row.amount)}</b>
-          <AdjustedNote
-            originalAmount={row.originalAmount}
-            amount={row.amount}
-            reason={row.adjustmentReason}
-            t={t}
-          />
-        </div>
-      ),
+      cell: (row) =>
+        amountCell ? (
+          amountCell(row)
+        ) : (
+          <div>
+            <b>{formatRm(row.amount)}</b>
+            <AdjustedNote
+              originalAmount={row.originalAmount}
+              amount={row.amount}
+              reason={row.adjustmentReason}
+              t={t}
+            />
+          </div>
+        ),
     },
   ];
 
@@ -152,16 +159,18 @@ export function CommissionSection({
           />
         }
       />
-      <p className="text-xs text-muted-foreground">
-        {t("Late collection: money received more than")}{" "}
-        {rules.firstLateCut.afterDays} {t("days after the invoice takes")}{" "}
-        {rules.firstLateCut.cutPct}% {t("off the commission; more than")}{" "}
-        {rules.secondLateCut.afterDays} {t("days takes")}{" "}
-        {rules.secondLateCut.cutPct}%.{" "}
-        {t(
-          "If the client was difficult and you followed up, press Appeal. The MD or HR & Accounts may give a special approval, once.",
-        )}
-      </p>
+      {editable && (
+        <p className="text-xs text-muted-foreground">
+          {t("Late collection: money received more than")}{" "}
+          {rules.firstLateCut.afterDays} {t("days after the invoice takes")}{" "}
+          {rules.firstLateCut.cutPct}% {t("off the commission; more than")}{" "}
+          {rules.secondLateCut.afterDays} {t("days takes")}{" "}
+          {rules.secondLateCut.cutPct}%.{" "}
+          {t(
+            "If the client was difficult and you followed up, press Appeal. The MD or HR & Accounts may give a special approval, once.",
+          )}
+        </p>
+      )}
     </section>
   );
 }

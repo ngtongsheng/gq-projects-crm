@@ -1,4 +1,5 @@
 import { Route } from "lucide-react";
+import type { ReactNode } from "react";
 import { DataTable, type DataTableColumn } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
 import { EXPENSE_TYPE_LABEL } from "@/lib/domain/claim-expense";
@@ -22,6 +23,7 @@ export function ExpenseSection({
   editable,
   rules,
   heading,
+  amountCell,
   t,
 }: {
   expenses: ExpenseLine[];
@@ -32,6 +34,8 @@ export function ExpenseSection({
   editable: boolean;
   rules: ExpenseRules;
   heading: string;
+  /** Replaces the Amount, e.g. with a box the checker types in. */
+  amountCell?: (line: ExpenseLine) => ReactNode;
   t: Translate;
 }) {
   const columns: DataTableColumn<ExpenseLine>[] = [
@@ -87,7 +91,7 @@ export function ExpenseSection({
       key: "amount",
       header: t("Amount"),
       numeric: true,
-      cell: (line) => formatRm(line.amount),
+      cell: (line) => (amountCell ? amountCell(line) : formatRm(line.amount)),
     },
     {
       key: "receipt",

@@ -1,26 +1,21 @@
-import { FileText } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { z } from "zod";
-import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { pageLabel } from "@/lib/auth/pages";
 import { requirePage } from "@/lib/auth/require-page";
 import { canFileClaim } from "@/lib/domain/claim-eligibility";
-import { lastMonthOf } from "@/lib/domain/claim-flow";
-import { openClaimMonth } from "@/lib/domain/claim-open-month";
-import { claimMonthOf } from "@/lib/domain/monthly-claim";
-import { formatMonth, todayMyt } from "@/lib/format/date";
+import { canManageClaims } from "@/lib/domain/claim-flow";
 import { getT } from "@/lib/i18n/server-t";
-import { cn } from "@/lib/utils";
+import { AllClaims } from "./all-claims";
 import { loadClaimSettings } from "./claim-settings-data";
-import { EarlierClaims } from "./earlier-claims";
-import { MyClaim } from "./my-claim";
-import { loadMyClaimList } from "./my-claim-data";
+import { ClaimSettingsForm } from "./claim-settings-form";
+import { ClaimTabs } from "./claim-tabs";
+import { MyClaimsView } from "./my-claims-view";
 
 export const metadata: Metadata = { title: "Claims" };
 
 const monthParam = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/);
+const viewParam = z.enum(["all", "mine", "settings"]).catch("all");
 
 export default async function ClaimsPage({
   searchParams,
@@ -30,83 +25,73 @@ export default async function ClaimsPage({
   const me = await requirePage("claims");
   const t = await getT(me.language);
   const title = t(pageLabel("claims", me));
+  const settings = await loadClaimSettings();
+  const search = await searchParams;
+  const asked = monthParam.safeParse(search.month);
+  const requestedMonth = asked.success ? `${asked.data}-01` : null;
 
-  if (!canFileClaim(me)) {
+  if (!canManageClaims(me.jobRole)) {
     return (
       <div className="flex flex-col gap-4">
-        <PageHeader title={title} />
-        <div className="rounded-xl border bg-card">
-          <EmptyState
-            icon={FileText}
-            title={t("Your role does not file a monthly claim.")}
-          />
-        </div>
+        <PageHeader
+          title={title}
+          description={`${t("One claim a month for commission, travelling expense and overtime. Submit by day")} ${settings.cutOffDay}. ${t("Expenses dated after that go into next month's claim.")}`}
+        />
+        <MyClaimsView
+          me={me}
+          settings={settings}
+          requestedMonth={requestedMonth}
+          hrefFor={(month) => `/claims?month=${month}`}
+          t={t}
+        />
       </div>
     );
   }
 
-  const today = todayMyt();
-  const [settings, claims] = await Promise.all([
-    loadClaimSettings(),
-    loadMyClaimList(me.id),
-  ]);
-  const current = claimMonthOf(today, settings.cutOffDay);
-  const previous = claims.find((claim) => claim.month === lastMonthOf(current));
-  const asked = monthParam.safeParse((await searchParams).month);
-  const requested = asked.success ? `${asked.data}-01` : null;
-  // Claims for months that have not begun do not exist yet.
-  const month =
-    requested && requested <= current
-      ? requested
-      : openClaimMonth({
-          today,
-          cutOffDay: settings.cutOffDay,
-          previous: previous
-            ? { status: previous.status, lineCount: previous.lineCount }
-            : null,
-        });
-
-  const switcher = [lastMonthOf(current), current].filter(
-    (candidate) =>
-      candidate === month ||
-      candidate === current ||
-      claims.some((claim) => claim.month === candidate),
-  );
-  const tabs = [...new Set([...switcher, month])].sort();
+  // The MD and HR & Accounts settle claims; they have a claim of their own only when their role files one.
+  const files = canFileClaim(me);
+  const asView = viewParam.parse(search.view);
+  const view = asView === "mine" && !files ? "all" : asView;
+  const tabs = [
+    { id: "all", label: t("All claims"), href: "/claims?view=all" },
+    ...(files
+      ? [{ id: "mine", label: t("My claim"), href: "/claims?view=mine" }]
+      : []),
+    { id: "settings", label: t("Settings"), href: "/claims?view=settings" },
+  ];
 
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
         title={title}
-        description={`${t("One claim a month for commission, travelling expense and overtime. Submit by day")} ${settings.cutOffDay}. ${t("Expenses dated after that go into next month's claim.")}`}
+        description={t(
+          "Check, approve and pay the monthly claims for commission, travelling expense and overtime.",
+        )}
       />
-      {tabs.length > 1 && (
-        <div
-          role="tablist"
-          aria-label={t("Claim month")}
-          className="flex gap-2"
-        >
-          {tabs.map((tab) => (
-            <Link
-              key={tab}
-              role="tab"
-              aria-selected={tab === month}
-              href={`/claims?month=${tab.slice(0, 7)}`}
-              className={cn(
-                "rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted/50",
-                tab === month && "border-primary bg-muted",
-              )}
-            >
-              {formatMonth(tab)} {t("claim")}
-            </Link>
-          ))}
-        </div>
+      <ClaimTabs tabs={tabs} active={view} label={t("Claims views")} />
+      {view === "all" && (
+        <AllClaims
+          me={me}
+          settings={settings}
+          requestedMonth={requestedMonth}
+          t={t}
+        />
       )}
-      <MyClaim me={me} month={month} settings={settings} t={t} />
-      <EarlierClaims
-        claims={claims.filter((claim) => claim.month !== month)}
-        t={t}
-      />
+      {view === "mine" && (
+        <MyClaimsView
+          me={me}
+          settings={settings}
+          requestedMonth={requestedMonth}
+          hrefFor={(month) => `/claims?view=mine&month=${month}`}
+          t={t}
+        />
+      )}
+      {view === "settings" && (
+        <ClaimSettingsForm
+          settings={settings}
+          canSetLateCuts={me.jobRole === "md"}
+        />
+      )}
     </div>
   );
 }

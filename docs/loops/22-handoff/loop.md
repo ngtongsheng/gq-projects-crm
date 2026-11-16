@@ -26,7 +26,7 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 | # | Task | Status | Depends | Tier |
 |---|---|---|---|---|
 | 01 | Allow rules | done | - | economy |
-| 02 | Private dev repo, key upload script, key fetch | in-progress | 01 | standard |
+| 02 | Private dev repo, key upload script, key fetch | done | 01 | standard |
 | 03 | `pnpm catch-up` | todo | 02 | frontier |
 | 04 | Archive pre-parity work | todo | 03 | standard |
 | 05 | Hook, CLAUDE.md, skills and laptop UI fixes | todo | 03 | standard |
@@ -53,3 +53,6 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 2026-11-16 · #01 · started (haiku/low) · planner tab closed (YES)
 2026-11-16 · #01 · done; global auth-config.yml rule added per D13 · next: #02
 2026-11-16 · #02 · started (sonnet/high)
+2026-11-16 · #02 · done except invite: repo private, scripts + 10 tests pass · next: #03
+2026-11-16 · #02 · decision · read-only invite impossible (GitHub 422: personal repos only grant write); no write invite sent, parked as owner action · grants more than D3 approved
+2026-11-16 · #02 · decision · sb_secret_ keys carry no ref; assertDevKeys checks the dev ref on SUPABASE_DEV_DB_URL and refuses any prod ref · format limit

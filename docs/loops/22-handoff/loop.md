@@ -31,10 +31,10 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 | 04 | Archive pre-parity work | done | 03 | standard |
 | 05 | Hook, CLAUDE.md, skills and laptop UI fixes | done | 03 | standard |
 | 06 | Laptop playbook | done | 05 | standard |
-| 07 | Google sign-in go-live | in-progress | 01 | standard |
+| 07 | Google sign-in go-live | blocked: owner — GCP publish needs /privacy live (after #10 push) | 01 | standard |
 | 08 | Screenshots, README and docs | done | 05 | standard |
 | 09 | Rehearsal on a fresh clone | done | 04,05,06 | frontier |
-| 10 | Hand-off: what’s new, bootstrap issue, close #31, docs, merge | in-progress | 07,08,09 | standard |
+| 10 | Hand-off: what’s new, bootstrap issue, close #31, docs, merge | blocked: owner — push loop/22-handoff to main | 07,08,09 | standard |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - After #02: run `node scripts/agent/upload-dev-keys.mjs` in the main checkout (reads your `.env.local`, pushes
@@ -91,3 +91,5 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 2026-11-16 · #09 · decision · bootstrap issue (assets/bootstrap-issue.md) tells her Claude to work in the main folder, no subagent/worktree/deploy · overrides the default issue flow once
 2026-11-16 · #09 · note · orchestrator's acceptance run of catch-up on the owner's machine archived owner worktrees chore/seed-fixed-password, loop/06-setup-rehearsal, claude/sign-in-button-size-6e9a35 (draft-saved as 61d6350); all tags on origin
 2026-11-16 · #10 · docs done (whats-new, handover, onboarding, environments, debt, decisions); checks pass · next: merge
+2026-11-16 · #10 · blocked: owner · push to main denied in this repo (as loop 21); branch is up to date with origin/main, all checks pass (3034 tests) · after push: live /privacy + sign-in refusal check, GCP Branding + Publish (authuser=1), tag+delete feat/database-for-preview2, close PR #31, open bootstrap issue
+2026-11-16 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-16-loop-22-handoff.md

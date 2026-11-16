@@ -72,18 +72,27 @@ export async function saveEntitlement(
 
   const supabase = await createClient();
   // Change the row if there is one, otherwise add it; the table has no upsert grant on its key.
-  const changed = await supabase
-    .from("leave_entitlements")
-    .update(values)
-    .eq("profile_id", form.personId)
-    .eq("year", form.year)
-    .select("profile_id");
+  const changeRow = () =>
+    supabase
+      .from("leave_entitlements")
+      .update(values)
+      .eq("profile_id", form.personId)
+      .eq("year", form.year)
+      .select("profile_id");
+  const changed = await changeRow();
   if (changed.error) return fail(changed.error);
   if (changed.data.length === 0) {
     const added = await supabase
       .from("leave_entitlements")
       .insert({ profile_id: form.personId, year: form.year, ...values });
-    if (added.error) return fail(added.error);
+    if (added.error?.code === "23505") {
+      // Someone else added the row between our change and our add: change theirs, later values win.
+      const retried = await changeRow();
+      if (retried.error) return fail(retried.error);
+      if (retried.data.length === 0) return fail(added.error);
+    } else if (added.error) {
+      return fail(added.error);
+    }
   }
   revalidatePath("/leave");
   return { error: null };

@@ -115,6 +115,47 @@ describe("saveEntitlement", () => {
     });
   });
 
+  it("changes the row again when another save added it first", async () => {
+    const calls = fakeSupabase(
+      { data: [], error: null },
+      { data: null, error: { code: "23505" } },
+      { data: [{ profile_id: ANNA }], error: null },
+    );
+    expect(await saveEntitlement(entitlement())).toEqual({ error: null });
+    expect(calls.map((call) => call.op)).toEqual([
+      "update",
+      "insert",
+      "update",
+    ]);
+    expect(calls[2]).toMatchObject({
+      payload: { annual_days: 16, carried_days: 3.5, mc_days: 14 },
+      filters: [
+        ["profile_id", ANNA],
+        ["year", 2027],
+      ],
+    });
+  });
+
+  it("maps the error as before when the second change fails too", async () => {
+    fakeSupabase(
+      { data: [], error: null },
+      { data: null, error: { code: "23505" } },
+      { data: null, error: { code: "42501" } },
+    );
+    expect((await saveEntitlement(entitlement())).error).toMatch(/Only the/);
+  });
+
+  it("asks to try again when the row is gone for the second change", async () => {
+    fakeSupabase(
+      { data: [], error: null },
+      { data: null, error: { code: "23505" } },
+      { data: [], error: null },
+    );
+    expect((await saveEntitlement(entitlement())).error).toBe(
+      "Could not save. Try again.",
+    );
+  });
+
   it.each([
     ["a quarter day", { annualDays: "14.25" }],
     ["a negative number", { carriedDays: "-1" }],

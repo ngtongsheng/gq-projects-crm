@@ -24,7 +24,7 @@ No behaviour change for the team. All other audit findings are logged in `docs/d
 | 01 | Layout: run independent awaits in parallel (P1) | done | | standard |
 | 02 | Cache `getLastCompletedDays` per request (P2) | done | | standard |
 | 03 | MOF detail: parallelise post-load queries (P4) | done | | standard |
-| 04 | Leave entitlement: handle the concurrent insert (B1) | todo | | standard |
+| 04 | Leave entitlement: handle the concurrent insert (B1) | done | | standard |
 | 05 | Cleanup: dead skeleton, dead export, `shadcn` to devDependencies (B3, Q3, Q4) | todo | | economy |
 | 06 | zh/bm key-parity test (R6) | todo | | standard |
 | 07 | Log deferred findings, add verification notes to the audit | todo | | economy |
@@ -43,3 +43,6 @@ None.
 2026-11-16 · #02 · done · all checks pass · next: #03
 2026-11-16 · #03 · in-progress · delegated (standard)
 2026-11-16 · #03 · done · all checks pass · next: #04
+2026-11-16 · #04 · in-progress · delegated (standard)
+2026-11-16 · #04 · decision · retry finds no row after 23505 -> generic save error · task silent on it
+2026-11-16 · #04 · done · 3037 tests pass · next: #05

@@ -1,7 +1,8 @@
 # Drift: log work, site work, installation, stock, samples, leftover
 
 Spec: `docs/mockup/gqp-office-demo.html`. Analysed 2026-11-14 against the app at `a8ddcaa`. Log work and Site Work
-were built in loop 17 (see their headings); the rest is still open for loop 18. Leftovers have no sold / keep-why.
+were built in loop 17 and Installation, Stock, Samples and Leftover in loop 18 (see their headings). Browser parity for
+both loops is still to run after go-live (see the checklists below).
 
 ## Log work (`vToday` ~2769): DONE (loop 17; browser parity after go-live)
 Built: site role landing page, 4-step wizard, away days (Leave / MC through the Leave module, office and other here),
@@ -65,7 +66,17 @@ Not run in loop 17: the new migration was not on the test copy. Like loop 16, ru
 - The marketing Photos & videos view (only two tabs).
 - The sticky bottom bar at 390px against the demo (`lwfab`).
 
-## Installation (`vInst` ~3802; ours `/installation`): major, L
+## Installation (`vInst` ~3802; ours `/installation`): DONE (loop 18; browser parity after go-live)
+Built: three views (Installers calendar with installer and supervisor filters and the unsigned-DO panel, Site supervisors
+bookings, Installer contacts directory), the `installers` table and backfill, job form team picker with Supervisor only,
+DO numbering with void list, DO items with delivered-to-date, A4 DO print, delivery log on the MOF Register. Deviations:
+`docs/decisions.md` "Loop 18". Gaps left:
+- No "Coming up" table and no Team size.
+- Site supervisors is a day-by-day week list, not a 7-column grid. No Cancel on a booking (no cancelled status).
+- Phone is required to save an installer.
+- Renaming an installer does not rewrite the name on old jobs (`docs/debt.md`).
+- DO items are edited in a dialog on the MOF page, not in the job form.
+Original drift, kept for reference:
 - Views: Installers calendar (filter by installer and supervisor, "DOs not yet signed & returned" panel); Site
   supervisors (booking Requested / Confirmed / Declined with reply); Installer contacts directory (name, company, two
   phones with WhatsApp links, skills, area, notes, job count, last job, active). `jobs.installer` is free text today.
@@ -78,11 +89,21 @@ Not run in loop 17: the new migration was not on the test copy. Like loop 16, ru
   check or DO pre-approval box is not ticked. Delivery log on the MOF register (14 columns).
 - Job form extras: team incl. "Supervisor only", salesperson in charge, remarks.
 
-## Stock (`/stock`): minor, S
+## Stock (`/stock`): DONE (loop 18; browser parity after go-live)
+Built: four tiles, four segments (Reserved for clients, Stock items, Leftover at Best Link (N), Samples at Best Link (N)),
+"Paste from sheet" (already there), Email suppliers (N) with the notice flag. Gaps left: the draft opens in the email app
+with To empty (supplier addresses are not stored); "Stock items" stays as a fourth segment.
+Original drift, kept for reference:
 - Segmented Reserved / Leftover / Samples, four tiles, table, "Paste from sheet", "Email suppliers (N)" with a
   supplier-notice flag.
 
-## Samples (`vSamples` ~3452): missing, M-L
+## Samples (`vSamples` ~3452; ours `/samples`): DONE (loop 18; browser parity after go-live)
+Built: SKU list with search, filters, tiles, Take out / Back / client keeps it, paste from sheet, SR-0001 pickup forms that
+deduct stock, bilingual A4 receipt, Best Link number + Drive folder + next number as settings. Gaps left:
+- A pickup row over stock is refused (the demo clamped it to 0).
+- No delete button for a pickup form (the database allows it).
+- The samples list is not paged (debt).
+Original drift, kept for reference:
 - `samples`: product, brand, SKU, name, qty, unit, spec, notes, in/out/adjust log. Table with select, qty at Best Link +
   who has some out, Take out / Back, "client keeps it". Paste from Excel.
 - Pickup forms numbered SR-0001: "V-GQ SIGNATURE RECEIPT", bilingual 中文/English, person in charge, contact, method
@@ -91,13 +112,39 @@ Not run in loop 17: the new migration was not on the test copy. Like loop 16, ru
   as settings.
 - Edit: purchasing, stock arrangers, accounts, marketing.
 
-## Leftover / returns (`vLeftover` ~3565; ours `/stock/leftover`): major, M
+## Leftover / returns (`vLeftover` ~3565; ours `/stock/leftover`): DONE (loop 18; browser parity after go-live)
+Built: Collected by supervisor status, return method, transport arranged, supplier, keep-why, WhatsApp sent, supervisor
+collection (Mark collected on the Site Work MOF page), Use for project allocations with available balance, Show sold out,
+credit note. Gaps left:
+- "+ Add leftover stock" without a MOF is not built (a MOF is still required).
+- Allocations are add-only (no edit or delete).
+- No transport banner; the status cell shows the transport instead.
+Original drift, kept for reference:
 - Statuses: Pending pickup, Collected by supervisor, Returned to supplier, At Best Link (for resale), Left with client,
   Disposed (ours lacks "Collected by supervisor").
 - Return method; transport arranged by purchasing (Lalamove / lorry, date, cost, delivered to); supplier; keep-why
   (Indent from China, Custom made, GQ own stock, Salesperson ordered wrong + who, Others); WhatsApp sent; supervisor
   collected audit; `sold[]` allocations to another project ("Use for project": qty, date, note, available balance);
   defaults `suggestDest` / `keepWhyGuess`; "Show sold out" toggle. Credit note number, amount, who and when.
+
+## Browser parity still to run, loop 18 (after go-live)
+Not run in loop 18: its eight migrations (20261118100000 to 20261118170000) were not on the test copy, so nothing here was
+proven against real Supabase, only in PGlite. Run `parity.md` in Chrome profile "Agent", desktop and 390px, for each role
+that sees Installation, Stock, Samples and Leftover. Check first:
+- Installation: the `delivery_orders` `jobs!inner` embed with `.eq("jobs.status","done")`, the paged `jobs` read, the
+  `salespeople()` RPC, the grouped Select, `supervisor_only` in the `JOB_COLUMNS` queries.
+- DO: the nested `mofs(projects(contacts(companies(address))))` embed, the `delivery_order_lines` `delivery_orders!inner`
+  filter, and the RPCs `next_do_number`, `delivered_to_date`, `replace_delivery_order_lines`, `issue_do_number`,
+  `set_next_do_number`. Print preview fits one A4.
+- Stock: tile labels and order, segment labels and the (N) counts, the Email suppliers dialog, status-cell notices,
+  segment wrap at 390px.
+- Samples: `loadSamples` and pickup embeds, `save_sample_pickup` and the numbering RPCs, the settings update
+  `.eq("id", true)`, receipt title wrap and one-A4 fit.
+- Leftover: the `leftover_allocations(projects)` embed, the count query, supervisor RLS update, the allocation guard
+  message, "Show sold out" auto-submit, dialogs at 390px.
+- Roles: supervisor can answer only their own booking; support and accounts can set the next DO number; site role cannot
+  issue DO numbers.
+- Before the first live DO: Vicky sets the next DO number once (the loop seeds 5541).
 
 ## WhatsApp hooks (config `db.remind`, nothing sent in the demo)
 - Daily site log 17:00 to each supervisor with no log and no off entry, Mon-Sat (decided: follow the demo's Mon-Sat

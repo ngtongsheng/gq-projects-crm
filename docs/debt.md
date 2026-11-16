@@ -54,3 +54,39 @@
 - What: `profiles.yearly_target` stays as a copy of this year's effective target. The database keeps it in step on every change, and Performance, the sales dashboard and People call `refresh_yearly_targets()` first so it is right on 1 January. Other readers of the copy (the signed-in profile) can be stale until one of those pages loads.
 - Why: dropping the column (D3 rejected) would touch every reader.
 - When to fix: if a new page reads `profiles.yearly_target` directly, call `refreshYearlyTargets()` first, or move readers to the per-year table and drop the column.
+
+## Unpaged lists (loop 18)
+- What: the delivery log (MOF Register), the samples list, and the per-installer job counts read
+  everything in one query. PostgREST cuts a read at 1000 rows without an error, so a longer list would silently lose rows.
+- Why: the team has far fewer rows today; paging was outside the screens' tasks.
+- When to fix: when a list passes about 800 rows (the delivery log first, about 1000 DOs): page it or move the count into SQL.
+
+## Sample pickup date uses UTC (loop 18 #08)
+- What: `moved_on` defaults to `current_date` in `save_sample_pickup`, which is UTC. Between 00:00 and 08:00 Malaysia
+  time a move is dated the day before.
+- Why: the default is in the database; the screens pass no date.
+- When to fix: next migration that touches samples: use `(now() at time zone 'Asia/Kuala_Lumpur')::date`.
+
+## Installer rename does not update old jobs (loop 18 #02)
+- What: renaming an installer changes the directory only. Old jobs keep the name text they were saved with (the calendar
+  and counts use `installer_id`, so they still match).
+- Why: RLS stops installer editors writing to `jobs`; a trigger on `installers` could do it as the owner.
+- When to fix: if people complain about stale names in the job list or exports: add a `security definer` trigger on
+  `installers` that rewrites `jobs.installer`, or drop the text columns in an approved step.
+
+## Supplier emails are not stored (loop 18 #06)
+- What: "Email suppliers (N)" opens a `mailto:` draft with To empty, because suppliers have no stored address.
+- Why: no supplier table or email provider (D6).
+- When to fix: when Integration picks a sender: add supplier contacts and send from the app.
+
+## No pickup form delete button (loop 18 #08)
+- What: the database lets people who edit samples delete a pickup form (the number is cancelled and the samples return),
+  but no screen offers it.
+- Why: not in the task; a wrong form is rare.
+- When to fix: when someone needs to undo a form: add Delete to the pickup forms table.
+
+## A hand-keyed DO number typo cancels the old number (loop 18 #04)
+- What: changing a DO's number by hand voids the old number for good, so a typo burns a number. Only the MD can correct
+  an issued number.
+- Why: the void rule has to cover every change of `running_no`; there is no separate cancel function.
+- When to fix: if numbers are burned often: add a confirm step before changing an issued number.

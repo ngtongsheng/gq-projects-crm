@@ -365,6 +365,50 @@ Checked Vicky (md), Cavan (sales), Jany (accounts), Affifa (designer), Akmal (si
   (`leave_people()` is manager-only); Site log and other tables are not scoped per salesperson (RLS gives read to all).
 - Browser parity was not run in this loop (the new migration was not on the test copy yet). Run it after go-live.
 
+## Loop 18 (installation and stock), decided 2026-11-15
+- D1: `installers` is a new table, backfilled from the distinct trimmed names in `jobs.installer`, `installer_pos` and
+  `installer_claims`, plus `mofs.installer_name`. Jobs get an `installer_id`. The text columns stay (no data lost) and a
+  trigger (`link_job_installer`) keeps text and id in step; dropping the text is a later, approved step. Installers got
+  a `description` column (what they can do). People who have left get no access to the table.
+- Renaming an installer does not rewrite the name on old jobs (RLS stops editors writing to `jobs`). The calendar
+  filters by `installer_id`, so it still finds them. Logged in `docs/debt.md`.
+- D2: DO numbers are issued by the database. Next = max(used, cancelled) + 1, seeded at 5541, shown as the MOF no plus
+  four digits. The next number lives in its own one-row table (`delivery_order_numbering`), not `app_settings`, so
+  "must exceed the last used" cannot be bypassed. Issuing locks that row (`for update`) and `running_no` is unique, so two
+  people cannot get the same number. PGlite is single-connection, so concurrency is argued from the lock, not tested.
+- There is no cancel function: the number goes on the void list automatically when `running_no` is changed or cleared or
+  the DO is deleted. The Cancel button on the job postpones the job and clears the number. Void-list rows cascade when the
+  example data is reset.
+- `issue_do_number` is for MD, Director and Purchasing; `set_next_do_number` for MD, Purchasing and HR & Accounts. Only
+  the MD can correct an issued number. A typo when keying a number by hand cancels the old one (see debt).
+- D3: print never blocks (the warnings stay warnings). Saving DO items is one atomic function (`replace_delivery_order_lines`).
+  DO items are edited in a dialog on the MOF page, not in the job form; the old free-text items input is gone and old DOs
+  keep their text.
+- D4: Samples use the D2 pattern for SR-0001 (`sample_pickup_settings` holds the next number, a void table keeps cancelled
+  ones). A saved pickup form takes samples out in the same transaction (`save_sample_pickup`). Sample quantity changes
+  only through `sample_moves`, so it always matches the history.
+- A pickup row over what is in stock is refused (the demo clamped it to zero), and its unit must be the sample's unit.
+  Pickup forms can be deleted by people who edit samples (that cancels the number and returns the samples), but there is
+  no delete button yet. Methods are stored as keys. Paste keeps a sample's existing unit and skips existing lines by default.
+- Samples tab links keep Stock highlighted in the sidebar on `/samples`.
+- D5: leftover gets a `collected_by_supervisor` status (the check was re-added, existing rows kept), `received_at` and
+  `received_by`, transport (arranged state is worked out from `transport_by`), credit note, keep-why and `sold`
+  allocations in `leftover_allocations`. Allocations are add-only (no edit or delete) and cannot take more than is
+  available. `leftover_id` stays tied to a MOF: "+ Add leftover stock" with no MOF is not built.
+- Supervisors mark leftover collected on the Site Work MOF page (not on the leftover page). `/stock/leftover` shows two
+  tables: Best Link and Returns from site. The supplier is free text with a suggestion list.
+- D6: supplier emails are `mailto:` drafts only. The database sets the notice on confirm, extend or release
+  (`supplier_notice`); people only mark it sent. The supplier address is not stored, so the draft's To is empty.
+- Installation: no Coming up table and no Team size; phone is required to save an installer; the Site supervisors view is
+  a day-by-day week list, not a 7-column grid; a decline reply is saved only on decline (a database check); the booking
+  list runs from today to 365 days ahead and includes Declined; there is no Cancel for a booking (no cancelled status);
+  `supervisor_only` and `salespeople()` came in a second migration (20261118110000).
+- The delivery log and the samples list are not paged: more than 1000 rows would be cut off by PostgREST (debt).
+- Chinese and BM: `t()` is now wired through about 55 screens. BM covers the screens a site person sees; the printed DO and
+  the pickup receipt stay English. The example data gets DOs 9202 and 9203 and a cancelled 9204 (the existing Zoho DO is 9201).
+- Browser parity was not run in this loop: the eight new migrations were not on the test copy. Run the checklist in
+  `docs/office-parity/drift-site-stock.md` after go-live. After go-live, tell Vicky to set the next DO number once.
+
 ## Loop 20 (browser control in opencode), decided 2026-11-15
 - opencode cannot load Claude in Chrome: those tools exist only inside a Claude session. Control instead comes from
   `chrome-devtools-mcp@1.13.0` with `--autoConnect`, which drives her real Chrome, so her profile and sign-ins are

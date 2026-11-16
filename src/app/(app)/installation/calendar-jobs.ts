@@ -36,12 +36,13 @@ export type CalendarJob = JobRow & {
 
 /**
  * Jobs that run on any day from `from` to `to`, earliest first, each delivery with its DO.
- * `supervisorId` limits the list to one Site Supervisor's own jobs.
+ * `supervisorId` limits the list to one Site Supervisor's jobs, `installerId` to one installer's.
  */
 export async function loadCalendarJobs(
   from: string,
   to: string,
   supervisorId: string | null,
+  installerId?: string,
 ): Promise<CalendarJob[]> {
   const supabase = await createClient();
   let query = supabase
@@ -54,6 +55,7 @@ export async function loadCalendarJobs(
     .order("scheduled_on")
     .order("start_time", { nullsFirst: false });
   if (supervisorId) query = query.eq("site_supervisor_id", supervisorId);
+  if (installerId) query = query.eq("installer_id", installerId);
 
   const jobsResult = await query;
   if (jobsResult.error) {

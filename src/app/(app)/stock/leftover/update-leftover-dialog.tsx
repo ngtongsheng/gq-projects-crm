@@ -25,24 +25,49 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { TeamMember } from "@/lib/auth/team-directory";
 import {
+  guessLeftoverKeepReason,
   LEFTOVER_CONDITION_LABEL,
   LEFTOVER_CONDITIONS,
   LEFTOVER_DESTINATION_LABEL,
   LEFTOVER_DESTINATIONS,
+  LEFTOVER_KEEP_REASON_LABEL,
+  LEFTOVER_KEEP_REASONS,
+  LEFTOVER_RETURN_METHOD_LABEL,
+  LEFTOVER_RETURN_METHODS,
   LEFTOVER_STATUS_LABEL,
   LEFTOVER_STATUSES,
   type LeftoverCondition,
   type LeftoverDestination,
+  type LeftoverKeepReason,
+  type LeftoverReturnMethod,
   type LeftoverStatus,
 } from "@/lib/domain/leftover";
 import { isOneOf } from "@/lib/form/one-of";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
+import { useT } from "@/lib/i18n/language-context";
 import { updateLeftover } from "./actions";
 import type { Leftover } from "./leftover-data";
+import { TransportFields } from "./transport-fields";
 
-/** Purchasing moves an item along: pickup, return to the supplier, the credit note. */
-export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
+const NONE = "none";
+
+/**
+ * Purchasing moves an item along: how it goes back and the transport, the supplier or why GQ
+ * keeps it, the status, the credit note.
+ */
+export function UpdateLeftoverDialog({
+  leftover,
+  people,
+  suppliers,
+}: {
+  leftover: Leftover;
+  people: TeamMember[];
+  /** Supplier names already in use, offered while typing. */
+  suppliers: string[];
+}) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -53,13 +78,22 @@ export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
   const [destination, setDestination] = useState<LeftoverDestination>(
     leftover.destination,
   );
+  const [returnMethod, setReturnMethod] = useState<LeftoverReturnMethod | "">(
+    leftover.returnMethod ?? "",
+  );
+  const [keepReason, setKeepReason] = useState<LeftoverKeepReason>(
+    leftover.keepReason ?? guessLeftoverKeepReason(leftover.item),
+  );
+  const [orderedWrongBy, setOrderedWrongBy] = useState(
+    leftover.orderedWrongBy ?? "",
+  );
 
   function save(formData: FormData) {
     startTransition(async () => {
       const result = await updateLeftover(formData);
       setError(result.error);
       if (!result.error) {
-        toast.success("Leftover stock updated.");
+        toast.success(t("Leftover stock updated."));
         setOpen(false);
       }
     });
@@ -69,7 +103,7 @@ export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" variant="outline">
-          Update
+          {t("Update")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
@@ -84,9 +118,22 @@ export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
           <input type="hidden" name="status" value={status} />
           <input type="hidden" name="condition" value={condition} />
           <input type="hidden" name="destination" value={destination} />
+          <input type="hidden" name="returnMethod" value={returnMethod} />
+          {destination === "gq" && (
+            <>
+              <input type="hidden" name="keepReason" value={keepReason} />
+              <input
+                type="hidden"
+                name="orderedWrongBy"
+                value={keepReason === "ordered_wrong" ? orderedWrongBy : ""}
+              />
+            </>
+          )}
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor={`status-${leftover.id}`}>Status</FieldLabel>
+              <FieldLabel htmlFor={`status-${leftover.id}`}>
+                {t("Status")}
+              </FieldLabel>
               <Select
                 value={status}
                 onValueChange={(value) => {
@@ -99,15 +146,70 @@ export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
                 <SelectContent>
                   {LEFTOVER_STATUSES.map((value) => (
                     <SelectItem key={value} value={value}>
-                      {LEFTOVER_STATUS_LABEL[value]}
+                      {t(LEFTOVER_STATUS_LABEL[value])}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </Field>
             <Field>
+              <FieldLabel htmlFor={`method-${leftover.id}`}>
+                {t("How it goes back")}
+              </FieldLabel>
+              <Select
+                value={returnMethod === "" ? NONE : returnMethod}
+                onValueChange={(value) => {
+                  if (value === NONE) setReturnMethod("");
+                  else if (isOneOf(LEFTOVER_RETURN_METHODS, value))
+                    setReturnMethod(value);
+                }}
+              >
+                <SelectTrigger id={`method-${leftover.id}`}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NONE}>{t("Not said yet")}</SelectItem>
+                  {LEFTOVER_RETURN_METHODS.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {t(LEFTOVER_RETURN_METHOD_LABEL[value])}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            {returnMethod === "transport" && (
+              <TransportFields
+                idPrefix={`transport-${leftover.id}`}
+                defaults={{
+                  by: leftover.transportBy ?? "",
+                  on: leftover.transportOn ?? "",
+                  to:
+                    leftover.transportTo ??
+                    (destination === "gq"
+                      ? "Best Link"
+                      : (leftover.supplier ?? "")),
+                  cost: leftover.transportCost,
+                }}
+                mustName={false}
+              />
+            )}
+            {status === "collected_by_supervisor" && (
+              <Field>
+                <FieldLabel htmlFor={`collected-to-${leftover.id}`}>
+                  {t("Where the supervisor took it")}
+                </FieldLabel>
+                <Input
+                  id={`collected-to-${leftover.id}`}
+                  name="collectedTo"
+                  defaultValue={leftover.collectedTo ?? ""}
+                  maxLength={100}
+                  placeholder={t("e.g. Best Link, Floor Place")}
+                />
+              </Field>
+            )}
+            <Field>
               <FieldLabel htmlFor={`destination-${leftover.id}`}>
-                Goes to
+                {t("Goes to")}
               </FieldLabel>
               <Select
                 value={destination}
@@ -122,29 +224,101 @@ export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
                 <SelectContent>
                   {LEFTOVER_DESTINATIONS.map((value) => (
                     <SelectItem key={value} value={value}>
-                      {LEFTOVER_DESTINATION_LABEL[value]}
+                      {t(LEFTOVER_DESTINATION_LABEL[value])}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </Field>
             {destination === "supplier" && (
+              <Field>
+                <FieldLabel htmlFor={`supplier-${leftover.id}`}>
+                  {t("Supplier")}
+                </FieldLabel>
+                <Input
+                  id={`supplier-${leftover.id}`}
+                  name="supplier"
+                  list={`suppliers-${leftover.id}`}
+                  defaultValue={leftover.supplier ?? ""}
+                  maxLength={100}
+                  placeholder={t("e.g. Floor Place")}
+                />
+                <datalist id={`suppliers-${leftover.id}`}>
+                  {suppliers.map((name) => (
+                    <option key={name} value={name} />
+                  ))}
+                </datalist>
+              </Field>
+            )}
+            {destination === "gq" && (
+              <>
+                <Field>
+                  <FieldLabel htmlFor={`keep-${leftover.id}`}>
+                    {t("Why GQ keeps it")}
+                  </FieldLabel>
+                  <Select
+                    value={keepReason}
+                    onValueChange={(value) => {
+                      if (isOneOf(LEFTOVER_KEEP_REASONS, value))
+                        setKeepReason(value);
+                    }}
+                  >
+                    <SelectTrigger id={`keep-${leftover.id}`}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LEFTOVER_KEEP_REASONS.map((value) => (
+                        <SelectItem key={value} value={value}>
+                          {t(LEFTOVER_KEEP_REASON_LABEL[value])}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                {keepReason === "ordered_wrong" && (
+                  <Field>
+                    <FieldLabel htmlFor={`wrong-by-${leftover.id}`}>
+                      {t("Ordered by (salesperson)")}
+                    </FieldLabel>
+                    <Select
+                      value={orderedWrongBy === "" ? NONE : orderedWrongBy}
+                      onValueChange={(value) =>
+                        setOrderedWrongBy(value === NONE ? "" : value)
+                      }
+                    >
+                      <SelectTrigger id={`wrong-by-${leftover.id}`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={NONE}>{t("Not said")}</SelectItem>
+                        {people.map((member) => (
+                          <SelectItem key={member.id} value={member.id}>
+                            {member.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                )}
+              </>
+            )}
+            {destination === "supplier" && (
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field>
                   <FieldLabel htmlFor={`cn-${leftover.id}`}>
-                    Supplier credit note no.
+                    {t("Supplier credit note no.")}
                   </FieldLabel>
                   <Input
                     id={`cn-${leftover.id}`}
                     name="creditNoteNo"
                     defaultValue={leftover.creditNoteNo ?? ""}
                     maxLength={60}
-                    placeholder="e.g. CN-2026-0412"
+                    placeholder={t("e.g. CN-2026-0412")}
                   />
                 </Field>
                 <Field>
                   <FieldLabel htmlFor={`cn-amount-${leftover.id}`}>
-                    Credit note amount (RM)
+                    {t("Credit note amount (RM)")}
                   </FieldLabel>
                   <Input
                     id={`cn-amount-${leftover.id}`}
@@ -160,7 +334,7 @@ export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
             )}
             <Field>
               <FieldLabel htmlFor={`condition-${leftover.id}`}>
-                Condition
+                {t("Condition")}
               </FieldLabel>
               <Select
                 value={condition}
@@ -174,14 +348,16 @@ export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
                 <SelectContent>
                   {LEFTOVER_CONDITIONS.map((value) => (
                     <SelectItem key={value} value={value}>
-                      {LEFTOVER_CONDITION_LABEL[value]}
+                      {t(LEFTOVER_CONDITION_LABEL[value])}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </Field>
             <Field>
-              <FieldLabel htmlFor={`note-${leftover.id}`}>Note</FieldLabel>
+              <FieldLabel htmlFor={`note-${leftover.id}`}>
+                {t("Note")}
+              </FieldLabel>
               <Input
                 id={`note-${leftover.id}`}
                 name="note"
@@ -191,7 +367,7 @@ export function UpdateLeftoverDialog({ leftover }: { leftover: Leftover }) {
             </Field>
             {error && <FieldError>{error}</FieldError>}
             <Button type="submit" disabled={pending}>
-              {pending ? "Saving..." : "Save"}
+              {pending ? t("Saving...") : t("Save")}
             </Button>
           </FieldGroup>
         </form>

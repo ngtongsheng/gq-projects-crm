@@ -1,3 +1,4 @@
+import { bmInstallation } from "./bm-installation";
 import { bmSiteWork } from "./bm-site-work";
 import type { Dictionary } from "./dictionary";
 
@@ -124,4 +125,5 @@ export const bm: Dictionary = {
   "Problem for": "Masalah untuk",
   "No MOF": "Tiada MOF",
   ...bmSiteWork,
+  ...bmInstallation,
 };

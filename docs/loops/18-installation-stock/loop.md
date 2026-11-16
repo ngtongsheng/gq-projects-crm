@@ -18,18 +18,18 @@ Merged to `main`. Starts after loop 17 merges.
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Installers migration + backfill | todo | - | opus/medium |
-| 02 | Installer directory + calendar views | todo | 01 | sonnet/high |
-| 03 | Supervisor bookings + job form extras | todo | 01 | sonnet/high |
-| 04 | DO numbering + lines migration | todo | - | opus/medium |
-| 05 | DO on the job + print + delivery log | todo | 04 | sonnet/high |
-| 06 | Stock page deltas | todo | - | sonnet/medium |
-| 07 | Samples migration + rules | todo | - | opus/medium |
-| 08 | Samples page + pickup form print | todo | 07 | sonnet/high |
-| 09 | Leftover migration + rules | todo | - | opus/medium |
-| 10 | Leftover page | todo | 09 | sonnet/high |
-| 11 | Chinese/BM strings + dev seed | todo | 02, 03, 05, 06, 08, 10 | sonnet/medium |
-| 12 | Parity pass, docs, merge | todo | 01-11 | sonnet/medium |
+| 01 | Installers migration + backfill | done | - | opus/medium |
+| 02 | Installer directory + calendar views | done | 01 | sonnet/high |
+| 03 | Supervisor bookings + job form extras | done | 01 | sonnet/high |
+| 04 | DO numbering + lines migration | done | - | opus/medium |
+| 05 | DO on the job + print + delivery log | done | 04 | sonnet/high |
+| 06 | Stock page deltas | done | - | sonnet/medium |
+| 07 | Samples migration + rules | done | - | opus/medium |
+| 08 | Samples page + pickup form print | done | 07 | sonnet/high |
+| 09 | Leftover migration + rules | done | - | opus/medium |
+| 10 | Leftover page | done | 09 | sonnet/high |
+| 11 | Chinese/BM strings + dev seed | done | 02, 03, 05, 06, 08, 10 | sonnet/medium |
+| 12 | Parity pass, docs, merge | done | 01-11 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Start only after loop 17 is merged: `/execute-loop docs/loops/18-installation-stock`.
@@ -37,3 +37,43 @@ Merged to `main`. Starts after loop 17 merges.
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-15 · plan · loop written from drift-site-stock.md (Installation, Stock, Samples, Leftover) · next: wait for loop 17 merge, then #01
+2026-11-15 · #01 · started in worktree ../gq-projects-crm-loops/18-installation-stock · next: verify
+2026-11-15 · #01 · done, verified (check, typecheck, test, guard:migrations) · next: #02
+2026-11-15 · #01 · decision · added installers.description, backfilled mofs.installer_name too, link_job_installer sync trigger keeps text+installer_id in step · subagent deviation, sensible
+2026-11-15 · #02 · started
+2026-11-15 · #02 · done · verified: check, typecheck, test (2626) pass; parity deferred to #12 (migration not on test copy; also verify `delivery_orders` `jobs!inner` embed with `.eq("jobs.status","done")` and paged `jobs` read)
+2026-11-15 · #02 · decision · no "Coming up" table, no Team size, text WhatsApp link, phone required on save; Site supervisors tab comes in #03 · subagent deviations, sensible
+2026-11-15 · #02 · decision · renaming an installer does not rewrite old job text (RLS blocks editors from jobs); calendar filters by installer_id · fix in #12 via a trigger on installers, or log as debt
+2026-11-15 · #03 · started
+2026-11-15 · #03 · done · verified: check, typecheck, test (2644), guard:migrations pass; parity deferred to #12 (also verify `salespeople()` RPC, grouped Select, `supervisor_only` in JOB_COLUMNS queries)
+2026-11-15 · #03 · decision · supervisors tab uses day-by-day week list not 7-col grid; reply saved only on decline (DB check); booking list shows today..+365d incl. Declined; no Cancel (no cancelled status); added migration 20261118110000 (supervisor_only, salespeople()) · subagent deviations, sensible
+2026-11-15 · #04 · started
+2026-11-15 · #04 · done · verified: check, typecheck, test (2660), guard:migrations pass; concurrency proven by row lock (`for update` on numbering row) + unique running_no, PGlite is single-connection
+2026-11-15 · #04 · decision · no cancel function: number is voided automatically when running_no is changed/cleared/DO deleted (task 05 cancels by postponing job + clearing number); next-number in own one-row table not app_settings (so "must exceed last used" can't be bypassed); issue_do_number limited to md/director/support; void-list FKs cascade (example-data reset) · subagent deviations, sensible
+2026-11-15 · #01 · decision · added missing "left people: no access" restrictive policy to installers migration (subagent #04 spotted it; branch unmerged so edited in place) · security fix
+2026-11-15 · #05 · started
+2026-11-15 · #05 · done · verified: check, typecheck, test (2696), guard:migrations pass; parity + print preview deferred to #12 (verify on test copy: `delivery_orders` `jobs!inner` embed, nested `mofs(projects(contacts(companies(address))))` embed, `delivery_order_lines` `delivery_orders!inner` filter, rpcs next_do_number/delivered_to_date/replace_delivery_order_lines/issue_do_number/set_next_do_number)
+2026-11-15 · #05 · decision · added migration 20261118130000 replace_delivery_order_lines (atomic save); DO items in a dialog on the MOF page not the job form; free-text items input removed (old DOs keep text); only MD can correct an issued number; cancel = postpone job + clear running_no; print never blocks (D3); delivery log not paged (>1000 DOs would be cut by PostgREST limit) · subagent deviations, sensible; log limit as debt in #12
+2026-11-15 · #06 · started
+2026-11-15 · #06 · done · verified: check, typecheck, test (2712), guard:migrations pass; parity deferred to #12 (check tile labels/order, segment labels, Email suppliers dialog, status-cell notices, segment wrap at 390px)
+2026-11-15 · #06 · decision · "Paste from sheet" already existed; kept "Stock items" as 4th segment; migration 20261118140000 (supplier_notice trigger); mailto To empty (supplier emails not stored); Samples segment links /samples, no count yet · subagent deviations, sensible
+2026-11-15 · #06 · follow-up · #08 adds (N) to Samples label in stock-tabs.tsx; #10 changes Leftover count to "available after sold allocations" (leftAvail)
+2026-11-15 · #07 · started
+2026-11-15 · #07 · done · verified: check, typecheck, test (2742), guard:migrations pass; migration only proven in PGlite, test-copy check in #12
+2026-11-15 · #07 · decision · pickup row over stock is refused (demo clamped to 0); pickup row must use the sample's unit; pickup forms deletable by sample editors (cancels number, returns samples out); pickup methods stored as keys; added pdf_saved_at; canEditSamples in job-role.ts; qty changes only via sample_moves · subagent deviations, sensible
+2026-11-15 · #08 · started
+2026-11-15 · #08 · done · verified: check, typecheck, test (2771), guard:migrations pass; parity + print preview deferred to #12 (verify loadSamples/pickup embeds, save_sample_pickup + numbering rpcs, settings update `.eq("id", true)`, receipt title wrap and one-A4 fit)
+2026-11-15 · #08 · decision · added migration 20261118160000 import_samples; paste keeps existing unit, default skip existing; explicit Edit button per row; Settings button holds Best Link no/Drive link/next form no; "I saved the PDF" button; pickup-form delete UI not built (DB allows it); app-shell keeps Stock highlighted on /samples · subagent deviations, sensible
+2026-11-15 · #08 · follow-up · #12: log debt for unpaged samples list (1000 rows) and `moved_on` default current_date UTC (MYT 00:00-08:00 off by a day) in docs/debt.md, or fix with Asia/Kuala_Lumpur
+2026-11-15 · #09 · started
+2026-11-15 · #09 · done · verified: check, typecheck, test (2793), guard:migrations pass; migration proven in PGlite only, test-copy check in #12
+2026-11-15 · #09 · decision · new status collected_by_supervisor (check re-added, rows kept); transport arranged state derived from transport_by; added received_at/by; allocations add-only (no edit/delete); "+ Add leftover stock" with no MOF not built (mof_id stays required) · subagent deviations, sensible; #12 flag if parity needs it
+2026-11-15 · #10 · started
+2026-11-16 · #10 · done · verified: check, typecheck, test (2824), guard:migrations pass (subagent saw one resignation-handover PGlite flake under load, reruns clean); parity deferred to #12 (verify leftovers `leftover_allocations(projects)` embed, count query, supervisor RLS update, allocation guard message, "Show sold out" auto-submit, dialogs at 390px)
+2026-11-16 · #10 · decision · two tables on /stock/leftover (Best Link list + Returns from site); free-text supplier with datalist; transport via LEFTOVER_TRANSPORTERS; supervisor Mark collected on Site Work MOF page; no transport banner · subagent deviations, sensible
+2026-11-16 · #11 · started
+2026-11-16 · #11 · done · verified: check, typecheck, guard:migrations pass; full vitest 257 files / 2834 tests pass with --maxWorkers=3 (default parallelism hits PGlite hook timeouts when machine load is 30-60; environmental)
+2026-11-16 · #11 · decision · wired t() into ~55 screen files (tasks 02-10 had not); BM only for site-visible screens; printed DO + pickup receipt stay English; seed DOs 9202/9203, voided 9204 (existing Zoho DO is 9201); no seeded "Back" returns; collected_by/received_by empty in seed · subagent deviations, sensible
+2026-11-16 · #12 · started
+2026-11-16 · #12 · done · docs written (features, decisions D1-D6, drift doc marked done + live-parity checklist, roadmap 4B-ii, debt.md); browser parity NOT run, awaiting live parity after go-live (same as loops 14-17); main unchanged since branch, no migration renames needed
+2026-11-16 · #12 · fix · CI build failed: show-sold-out-toggle.tsx had "use client" after import (task 11 codemod); fixed, pnpm build passes locally; scanned all files, no other instance

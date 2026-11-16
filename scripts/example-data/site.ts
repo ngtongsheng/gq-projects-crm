@@ -3,6 +3,7 @@ import { addDays } from "../../src/lib/format/date.ts";
 import { projectId } from "./customers.ts";
 import { at } from "./dates.ts";
 import { exampleId } from "./ids.ts";
+import { buildInstallationJobs } from "./installation.ts";
 import { mofId } from "./orders.ts";
 import type { PersonKey } from "./people.ts";
 import type { BuildContext, ExampleTable, Row } from "./types.ts";
@@ -198,12 +199,18 @@ export function buildJobs({ people, today }: BuildContext): Jobs {
     }),
   );
 
+  const issued = buildInstallationJobs({ people, today });
   return {
     tables: [
-      { table: "jobs", key: "id", rows: initialJobs },
-      { table: "delivery_orders", key: "id", rows: orders },
+      { table: "jobs", key: "id", rows: [...initialJobs, ...issued.jobs] },
+      {
+        table: "delivery_orders",
+        key: "id",
+        rows: [...orders, ...issued.orders],
+      },
+      ...issued.tables,
     ],
-    deliveriesToFinish,
+    deliveriesToFinish: [...deliveriesToFinish, ...issued.deliveriesToFinish],
   };
 }
 
@@ -615,69 +622,6 @@ export function buildOtClaims({ people, today }: BuildContext): ExampleTable {
     };
   });
   return { table: "ot_claims", key: "id", rows };
-}
-
-export function buildLeftovers(): ExampleTable {
-  const seeds: Array<Row & { key: string; mof: string }> = [
-    {
-      key: "lo1",
-      mof: "m4",
-      item: "Halcyon Carpet Tile Slate",
-      qty: 3,
-      unit: "box",
-      condition: "good",
-      destination: "supplier",
-      status: "pending_pickup",
-      note: "Boxes sealed, stored at the site office.",
-      credit_note_no: null,
-      credit_note_amount: null,
-    },
-    {
-      key: "lo2",
-      mof: "m5",
-      item: "Orbis Vinyl Plank offcuts",
-      qty: 18,
-      unit: "pcs",
-      condition: "offcut",
-      destination: "gq",
-      status: "at_best_link",
-      note: null,
-      credit_note_no: null,
-      credit_note_amount: null,
-    },
-    {
-      key: "lo3",
-      mof: "m4",
-      item: "Halcyon Carpet Tile Slate",
-      qty: 5,
-      unit: "box",
-      condition: "good",
-      destination: "supplier",
-      status: "returned_to_supplier",
-      note: null,
-      credit_note_no: "CN-2026-0087",
-      credit_note_amount: 1240,
-    },
-    {
-      key: "lo4",
-      mof: "m1",
-      item: "Underlay 8mm",
-      qty: 12,
-      unit: "roll",
-      condition: "damaged",
-      destination: "gq",
-      status: "disposed",
-      note: "Water damage in transit.",
-      credit_note_no: null,
-      credit_note_amount: null,
-    },
-  ];
-  const rows: Row[] = seeds.map(({ key, mof, ...row }) => ({
-    id: exampleId("leftovers", key),
-    mof_id: mofId(mof),
-    ...row,
-  }));
-  return { table: "leftovers", key: "id", rows };
 }
 
 export function buildStock({ people, today }: BuildContext): ExampleTable[] {

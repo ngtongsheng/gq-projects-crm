@@ -8,7 +8,9 @@ import {
   JOB_TYPE_LABEL,
   missingDeliveryChecks,
 } from "@/lib/domain/delivery-status";
+import type { JobPeople } from "@/lib/domain/job-team";
 import { type CalendarDate, formatDate } from "@/lib/format/date";
+import type { Translate } from "@/lib/i18n/translate";
 import { cn } from "@/lib/utils";
 import { BookingCard } from "./booking-card";
 import type { CalendarItem } from "./calendar-items";
@@ -19,13 +21,18 @@ import { JobStatusSelect } from "./job-status-select";
 type Team = { id: string; name: string }[];
 
 type JobListProps = {
+  t: Translate;
   days: CalendarDate[];
   today: CalendarDate;
   eventsByDay: ReadonlyMap<CalendarDate, CalendarItem[]>;
   team: Team;
+  /** For the job form's pickers; absent for people who cannot schedule. */
+  people?: JobPeople;
   /** The signed-in person; a Site Supervisor moves only the jobs assigned to them. */
   meId: string;
   canSchedule: boolean;
+  /** Only the MD may correct a DO no. the app issued. */
+  canCorrectDoNo: boolean;
   canUpdateStatus: boolean;
   /** Whether the person may open the MOF register page the job belongs to. */
   canOpenMof: boolean;
@@ -37,9 +44,12 @@ type JobListProps = {
 
 /** One row per day with a card per job or booking: the phone-friendly way to read the calendar. */
 export function JobList({
+  t,
   team,
+  people,
   meId,
   canSchedule,
+  canCorrectDoNo,
   canUpdateStatus,
   canOpenMof,
   canAnswerBookings,
@@ -53,8 +63,8 @@ export function JobList({
         event.kind === "booking" ? (
           <BookingCard
             booking={event.booking}
-            supervisor={nameOf.get(event.booking.supervisorId) ?? "Unnamed"}
-            requester={nameOf.get(event.booking.requestedBy) ?? "Unnamed"}
+            supervisor={nameOf.get(event.booking.supervisorId) ?? t("Unnamed")}
+            requester={nameOf.get(event.booking.requestedBy) ?? t("Unnamed")}
             canAnswer={
               canAnswerBookings &&
               event.booking.status === "requested" &&
@@ -63,10 +73,13 @@ export function JobList({
           />
         ) : (
           <JobCard
+            t={t}
             job={event.job}
             supervisor={nameOf.get(event.job.siteSupervisorId)}
             team={team}
+            people={people}
             canSchedule={canSchedule}
+            canCorrectDoNo={canCorrectDoNo}
             canMove={
               canUpdateStatus &&
               (canSchedule || event.job.siteSupervisorId === meId)
@@ -80,19 +93,25 @@ export function JobList({
 }
 
 type JobCardProps = {
+  t: Translate;
   job: CalendarJob;
   supervisor: string | undefined;
   team: Team;
+  people: JobPeople | undefined;
   canSchedule: boolean;
+  canCorrectDoNo: boolean;
   canMove: boolean;
   canOpenMof: boolean;
 };
 
 function JobCard({
+  t,
   job,
   supervisor,
   team,
+  people,
   canSchedule,
+  canCorrectDoNo,
   canMove,
   canOpenMof,
 }: JobCardProps) {
@@ -100,7 +119,12 @@ function JobCard({
     ? deliveryOrderNumber(job.mofNo, job.order.runningNo)
     : null;
   const title = `${job.mofNo} · ${job.companyName}`;
-  const crew = [job.installer, supervisor].filter(Boolean).join(" · ");
+  const crew = [
+    job.supervisorOnly ? t("Supervisor only") : job.installer,
+    supervisor,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <div
@@ -111,10 +135,10 @@ function JobCard({
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="font-mono text-xs tabular-nums text-muted-foreground">
-          {job.startTime || "All day"}
+          {job.startTime || t("All day")}
         </span>
         <StatusBadge tone={JOB_STATUS_TONE[job.status]}>
-          {JOB_STATUS_LABEL[job.status]}
+          {t(JOB_STATUS_LABEL[job.status])}
         </StatusBadge>
       </div>
       <div className="min-w-0">
@@ -129,7 +153,7 @@ function JobCard({
           <p className="font-medium">{title}</p>
         )}
         <p className="text-muted-foreground">
-          {JOB_TYPE_LABEL[job.jobType]} · {job.projectName}
+          {t(JOB_TYPE_LABEL[job.jobType])} · {job.projectName}
         </p>
         {job.endsOn !== job.scheduledOn && (
           <p className="font-mono text-xs tabular-nums text-muted-foreground">
@@ -139,10 +163,21 @@ function JobCard({
         {crew && <p className="text-muted-foreground">{crew}</p>}
         {job.jobType === "delivery" && (
           <p className="text-muted-foreground">
-            DO{" "}
+            {t("DO")}{" "}
             <span className="font-mono tabular-nums">
-              {number ?? "not issued"}
+              {number ?? t("not issued")}
             </span>
+            {number && (
+              <>
+                {" · "}
+                <Link
+                  href={`/installation/do/${job.id}`}
+                  className="underline-offset-2 hover:underline"
+                >
+                  {t("Print DO")}
+                </Link>
+              </>
+            )}
           </p>
         )}
         {job.notes && <p className="text-muted-foreground">{job.notes}</p>}
@@ -156,13 +191,15 @@ function JobCard({
               status={job.status}
             />
           )}
-          {canSchedule && (
+          {canSchedule && people && (
             <JobDialog
               mofId={job.mofId}
               mofNo={job.mofNo}
               job={job}
               team={team}
+              people={people}
               defaultInstaller={job.mofInstaller}
+              canCorrectDoNo={canCorrectDoNo}
               missingChecks={missingDeliveryChecks({
                 paymentChecked: job.paymentChecked,
                 dosPreApproved: job.dosPreApproved,

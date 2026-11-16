@@ -1,5 +1,6 @@
 import type { Dictionary } from "./dictionary";
 import { zhHrTools } from "./zh-hr-tools";
+import { zhInstallationStock } from "./zh-installation-stock";
 import { zhTasksLeave } from "./zh-tasks-leave";
 
 // Seeded from the demo's ZHEN dictionary, which maps 中文 to English for the Costing screens; turned
@@ -607,4 +608,5 @@ export const zh: Dictionary = {
   "Returned for changes": "已退回修改",
   ...zhTasksLeave,
   ...zhHrTools,
+  ...zhInstallationStock,
 };

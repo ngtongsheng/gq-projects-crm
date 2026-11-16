@@ -5,6 +5,10 @@ import {
   STOCK_UNITS,
   type StockUnit,
 } from "@/lib/domain/reservation";
+import {
+  SUPPLIER_NOTICES,
+  type SupplierNotice,
+} from "@/lib/domain/supplier-notice";
 import { createClient } from "@/lib/supabase/server";
 
 export type StockItem = {
@@ -34,6 +38,8 @@ export type Reservation = {
   expiresOn: string | null;
   note: string;
   createdAt: string;
+  supplierNotice: SupplierNotice | null;
+  supplierNotifiedAt: string | null;
 };
 
 const itemRows = z.array(
@@ -73,6 +79,8 @@ const reservationRows = z.array(
     expires_on: z.string().nullable(),
     note: z.string().nullable(),
     created_at: z.string(),
+    supplier_notice: z.enum(SUPPLIER_NOTICES).nullable(),
+    supplier_notified_at: z.string().nullable(),
     stock_items: z.object({
       sku: z.string(),
       supplier: z.string(),
@@ -96,7 +104,7 @@ export async function loadReservations(): Promise<Reservation[]> {
   const { data, error } = await supabase
     .from("stock_reservations")
     .select(
-      "id, item_id, qty, project_id, reserved_by, status, reserved_at, expires_on, note, created_at, stock_items(sku, supplier, collection, unit), projects(name, mofs(mof_no), contacts(companies(name)))",
+      "id, item_id, qty, project_id, reserved_by, status, reserved_at, expires_on, note, created_at, supplier_notice, supplier_notified_at, stock_items(sku, supplier, collection, unit), projects(name, mofs(mof_no), contacts(companies(name)))",
     )
     .order("created_at", { ascending: false });
   if (error) throw new Error(`Could not load reservations: ${error.message}`);
@@ -118,6 +126,8 @@ export async function loadReservations(): Promise<Reservation[]> {
     expiresOn: row.expires_on,
     note: row.note ?? "",
     createdAt: row.created_at,
+    supplierNotice: row.supplier_notice,
+    supplierNotifiedAt: row.supplier_notified_at,
   }));
 }
 

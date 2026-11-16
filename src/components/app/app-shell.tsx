@@ -33,13 +33,20 @@ const SIDEBAR_OPEN_KEY = "gqp-office-sidebar-open";
 const opensPage = (href: string, pathname: string) =>
   pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
 
+// Pages that live outside their sidebar item's path. Samples is a Stock segment in the demo.
+const SIDEBAR_HOME: Record<string, string> = { "/samples": "/stock" };
+
 // The longest matching link wins, so /reports/team beats /reports.
 function activeHref(
   items: SidebarItem[],
   pathname: string,
 ): string | undefined {
+  const home = Object.entries(SIDEBAR_HOME).find(([path]) =>
+    opensPage(path, pathname),
+  );
+  const at = home ? home[1] : pathname;
   return items
-    .filter(({ href }) => opensPage(href, pathname))
+    .filter(({ href }) => opensPage(href, at))
     .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 }
 

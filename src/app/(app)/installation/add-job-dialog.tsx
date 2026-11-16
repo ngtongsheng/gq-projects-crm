@@ -17,7 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { JobPeople } from "@/lib/domain/job-team";
 import { formatDate } from "@/lib/format/date";
+import { useT } from "@/lib/i18n/language-context";
 import { JobForm } from "./job-form";
 
 export type MofOption = {
@@ -33,6 +35,7 @@ type AddJobDialogProps = {
   date: string;
   mofs: MofOption[];
   team: { id: string; name: string }[];
+  people: JobPeople;
   /** The calendar address without the add day; closing goes back to it. */
   closeHref: string;
 };
@@ -42,8 +45,10 @@ export function AddJobDialog({
   date,
   mofs,
   team,
+  people,
   closeHref,
 }: AddJobDialogProps) {
+  const t = useT();
   const router = useRouter();
   const [mofId, setMofId] = useState("");
   const close = () => router.replace(closeHref);
@@ -53,16 +58,17 @@ export function AddJobDialog({
     <Dialog open onOpenChange={(open) => !open && close()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Schedule job</DialogTitle>
+          <DialogTitle>{t("Schedule job")}</DialogTitle>
           <DialogDescription>
-            Starting {formatDate(date)}. Pick the MOF, then key in the details.
+            {t("Starting")} {formatDate(date)}
+            {t(". Pick the MOF, then key in the details.")}
           </DialogDescription>
         </DialogHeader>
         <Field>
-          <FieldLabel htmlFor="mofSelect">MOF</FieldLabel>
+          <FieldLabel htmlFor="mofSelect">{t("MOF")}</FieldLabel>
           <Select value={mofId} onValueChange={setMofId}>
             <SelectTrigger id="mofSelect">
-              <SelectValue placeholder="Choose the MOF" />
+              <SelectValue placeholder={t("Choose the MOF")} />
             </SelectTrigger>
             <SelectContent>
               {mofs.map((option) => (
@@ -79,6 +85,7 @@ export function AddJobDialog({
             mofId={mof.id}
             mofNo={mof.mofNo}
             team={team}
+            people={people}
             defaultInstaller={mof.installer}
             missingChecks={mof.missingChecks}
             defaultDate={date}

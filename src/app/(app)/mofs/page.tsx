@@ -15,13 +15,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { canEditRegister } from "@/lib/auth/job-role";
+import {
+  canEditRegister,
+  canScheduleJobs,
+  canSetNextDoNumber,
+} from "@/lib/auth/job-role";
 import { seesMofCost } from "@/lib/auth/page-access";
 import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { isFinalStage, MOF_STAGE_TONE } from "@/lib/domain/mof-stages";
-import { formatDate } from "@/lib/format/date";
+import { formatDate, todayMyt } from "@/lib/format/date";
 import { formatRm, sumRm } from "@/lib/format/money";
+import { getT } from "@/lib/i18n/server-t";
+import { DeliveryLog } from "./delivery-log";
+import { loadDeliveryLog } from "./delivery-log-data";
 import { importMofs, previewMofImport } from "./import-actions";
 import { loadRegister } from "./mof-data";
 import { parseMofFilters, seesOnlyOwnMofs, visibleMofs } from "./mof-filters";
@@ -39,12 +46,19 @@ export default async function MofRegisterPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const me = await requirePage("mof");
+  const t = await getT(me.language);
   const seesCost = await seesMofCost(me);
   const filters = parseMofFilters(await searchParams);
   const ownOnly = seesOnlyOwnMofs(me.jobRole);
   const canEdit = canEditRegister(me.jobRole);
-  const [all, team] = await Promise.all([loadRegister(), getTeamDirectory()]);
+  const [all, team, deliveries] = await Promise.all([
+    loadRegister(),
+    getTeamDirectory(),
+    loadDeliveryLog(),
+  ]);
   const rows = visibleMofs(all, me, filters);
+  // The log is not narrowed by the filters above, only by whose MOFs the person may see.
+  const loggedMofIds = new Set(visibleMofs(all, me, {}).map((row) => row.id));
   const filtered = filters.stage !== undefined || filters.person !== undefined;
   const live = rows.filter((row) => row.stage !== "cancelled");
 
@@ -230,6 +244,15 @@ export default async function MofRegisterPage({
             ),
           },
         ]}
+      />
+      <DeliveryLog
+        t={t}
+        rows={deliveries.rows.filter((row) => loggedMofIds.has(row.mofId))}
+        cancelled={deliveries.cancelled}
+        nextNo={deliveries.nextNo}
+        today={todayMyt()}
+        canSchedule={canScheduleJobs(me.jobRole)}
+        canSetNextNo={canSetNextDoNumber(me.jobRole)}
       />
     </div>
   );

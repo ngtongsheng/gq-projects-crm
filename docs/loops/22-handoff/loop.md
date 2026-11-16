@@ -31,10 +31,10 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 | 04 | Archive pre-parity work | done | 03 | standard |
 | 05 | Hook, CLAUDE.md, skills and laptop UI fixes | done | 03 | standard |
 | 06 | Laptop playbook | done | 05 | standard |
-| 07 | Google sign-in go-live | blocked: owner — GCP publish needs /privacy live (after #10 push) | 01 | standard |
+| 07 | Google sign-in go-live | done | 01 | standard |
 | 08 | Screenshots, README and docs | done | 05 | standard |
 | 09 | Rehearsal on a fresh clone | done | 04,05,06 | frontier |
-| 10 | Hand-off: what’s new, bootstrap issue, close #31, docs, merge | blocked: owner — push loop/22-handoff to main | 07,08,09 | standard |
+| 10 | Hand-off: what’s new, bootstrap issue, close #31, docs, merge | done | 07,08,09 | standard |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - After #02: run `node scripts/agent/upload-dev-keys.mjs` in the main checkout (reads your `.env.local`, pushes
@@ -93,3 +93,7 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 2026-11-16 · #10 · docs done (whats-new, handover, onboarding, environments, debt, decisions); checks pass · next: merge
 2026-11-16 · #10 · blocked: owner · push to main denied in this repo (as loop 21); branch is up to date with origin/main, all checks pass (3034 tests) · after push: live /privacy + sign-in refusal check, GCP Branding + Publish (authuser=1), tag+delete feat/database-for-preview2, close PR #31, open bootstrap issue
 2026-11-16 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-16-loop-22-handoff.md
+2026-11-16 · #10 · owner pushed loop to main (59b505c); Vercel prod success; live /privacy 200, /customers 307 to sign-in
+2026-11-16 · #07 · done: GCP Branding saved (home, /privacy, domain gq-projects-crm.vercel.app), Audience "In production"; live Google button reaches account chooser via prod Supabase callback
+2026-11-16 · #07 · decision · live refusal of a non-added account not re-run (extension blocks accounts.google.com); relies on the 2026-11-15 check and sign-ups off in Supabase · owner spot check optional
+2026-11-16 · #10 · done: feat/database-for-preview2 tagged and deleted, PR #31 closed, bootstrap issue #50 opened (for:vicky-claude) · final docs commit awaits owner push to main

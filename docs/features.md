@@ -115,6 +115,8 @@ Delivery & Installation.
   can do, area, notes, how many jobs and the last job. Search by name, phone, skill or area; inactive installers are
   hidden until you tick **Show inactive**. MD, Sales Director, Site Supervisor, Purchasing and stock arrangers can add
   and edit.
+- **Who sees which jobs**: the Sales Director and the Marketing Director see only jobs whose MOF they can read, in the
+  calendar and in **DOs not yet signed & returned**. Jobs of other people's MOFs are left out.
 - **Site supervisors**: a week list of each supervisor's jobs and bookings, and the bookings coming up. A booking is
   Requested, Confirmed or Declined. Sales, BD, MD and the Director book; only the supervisor answers their own, and a
   reason is saved when they decline.
@@ -132,7 +134,7 @@ Delivery & Installation.
   the DO pre-approval box is not ticked.
 - **Delivery log**: on the MOF Register, one row per DO with the DO no, MOF, company, project, date, transporter, job
   scope, partial or full, passed to supplier, signed and returned, items, remarks and project delivered. It also lists
-  the cancelled DO numbers.
+  the cancelled DO numbers. Delivery orders of a MOF the person cannot read are left out (the Marketing Director).
 - **Not built**: the Coming up table and a Team size on the calendar.
 
 Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Site Supervisor, Purchasing.
@@ -265,7 +267,9 @@ Expenses dated after the cut-off day (25 by default, MD can change it) go to nex
   receipt number (R1, R2...) and a photo, except Mileage. The screen warns, but never blocks, when there is no visit
   logged that day, the hotel is over budget, meals are claimed twice, a day is over 150 km, or petrol, toll and parking
   pass the monthly limit in the person's HR package. Mileage does not count toward that monthly limit.
-- **C. Overtime.** The month's approved overtime and replacement leave are added up for you.
+- **C. Overtime.** The month's approved overtime and replacement leave are added up for you. This section shows only for
+  Site Supervisors, or when the person has an overtime entry that month; the Travelling section is numbered B only for
+  people who claim commission.
 
 You can only send the claim after last month's report is submitted. The checker and the approver see the warnings and
 must write a remark when a claim has any. After a claim is Submitted, the checker and approver can adjust a line with a
@@ -341,6 +345,7 @@ Offcuts and spare stock from finished jobs, on two tables.
   took it.
 - Tiles count what waits for pickup, needs transport or waits for a credit note.
 - **Not built**: adding leftover stock without a MOF.
+- The Sales Director sees only the rows of MOFs he can read, so his Best Link count is lower than the MD's.
 
 Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Purchasing, Marketing. A Site Supervisor marks
 collection from Site Work.

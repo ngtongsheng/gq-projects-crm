@@ -463,6 +463,46 @@ Checked Vicky (md), Cavan (sales), Jany (accounts), Affifa (designer), Akmal (si
 Browser parity ran on the test copy (`pnpm dev`) against the demo. Numbers differ everywhere because the test copy's
 seed is not the demo's example data; that is never drift. Larger gaps are in `docs/office-parity/drift-after-sweep.md`.
 
+Loop decisions (`docs/loops/21-parity-sweep/loop.md`):
+- D1 Scope: loops 14, 16, 17, 18 and 19 (12, 13 and 15 had already passed). Integration became loop 22.
+- D2 Depth: every role that sees the screen, at 1280 and 390 px, structure diff plus screenshots.
+- D3 Target: `pnpm dev` on the test copy (`gq-crm-dev`), signed in through the dev role panel, demo from `docs/mockup`.
+- D4 Fixes: UI-only and at most about three files are fixed in the loop; anything needing a migration, a new rule, a
+  business answer or more files is a row in `drift-after-sweep.md` (42 rows: S 10, M 21, L 11).
+- D5 Seeding: `seed:example` reads `.env.local` and still refuses any URL but the test copy.
+
+### Real bugs found by the sweep
+These only showed in the real browser against real Supabase. All are fixed in this loop.
+- Marketing Director and Sales Director got a server error on the MOF Register, Installation (calendar and unsigned
+  DOs) and Leftover: a row whose MOF they cannot read came back with a null MOF. Those reads now use `!inner`, so such
+  rows are left out (see [IN2], [SW4], [ST5] for the product question).
+- The Log work wizard crashed on step 1 in Chrome 157 (an effect returned the Promise from `scrollTo`).
+- Four numbering functions (`issue_do_number`, `set_next_do_number`, `set_next_sample_pickup_number`,
+  `save_sample_pickup`) updated a one-row table with no WHERE clause, which Supabase (pg-safeupdate) refuses: no DO
+  numbers and no pickup forms on the real database. `20261119120000_numbering_where_clause.sql`.
+- HR & Accounts got a server error on All claims and the claim review page: the `profiles` embed came back null for
+  them. New `claim_people()` function for the MD and HR & Accounts (`20261120100000_claim_people.sql`).
+- The claim review page `/claims/[id]` failed for every role (a client helper called from a server page).
+- Saving claim, commission, stock and site-reminder settings was refused for the MD: the `app_settings` upsert writes
+  `key`, which had no update grant (`20261120110000_app_settings_upsert.sql`).
+
+Lesson: PGlite tests do not catch pg-safeupdate (UPDATE without WHERE) or per-role RLS null embeds, so browser parity per
+role on the test copy is the check for any new read or database function. `scripts/migrations-update-where.test.ts` now
+guards the first.
+
+### Not covered
+- Cells compared by structure and overflow only, not side by side with the demo: 390 px for much of Money and reports
+  (sample only), Tools for eight people at 1280 px, HR as HR & Accounts at 390 px, Log work wizard steps 3 and 4 at 390 px,
+  Log work and Site Work at 390 px for Akmal, Jess, Wai Mun and Vanessa, DO print, DO items and numbering dialogs (demo
+  has no saved items to compare).
+- The Marketing role: the only marketing person is the vacant "Marketing Exec" in the seed, so Photos & videos and its
+  two-tab rule were checked by the `siteViewsFor` unit tests only.
+- Claims [CL2] (late-cut Appeal and Decide dialogs, Commission's link to Appeals) and [CL3] (BM and Chinese labels at
+  both widths) were not run; also not run: the laptop message when the service key is missing, and the stock settings and
+  site reminders saves (they share the fixed upsert but were not re-run in the browser).
+- Samples [ST6] and Commission [C5]: the demo or the seed has no data for them, so only structure or empty state was seen.
+- Printed forms were measured against the A4 height, not printed.
+
 ### Money and reports (task 02)
 - Fixed in-loop: the MOF Register returned a server error for the Marketing Director (the delivery log read a DO whose
   MOF the person cannot see; those DOs are now left out). Page headings read "MOF register", "Team reports", "Director

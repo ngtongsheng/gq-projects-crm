@@ -40,7 +40,7 @@ demo on most of this scope; the work is the deltas below. All lists are team-fil
 - Late-collection appeal (`p.lateWaive[who]`): Pending / Approved / Rejected, reason (10+ chars), by, decision, reply.
   Approved sets the late cut to 0. Favour pill on the row; appeal and decide dialogs; "Appeals" tab under Claims.
 
-## Claims (`vClaims` ~4240): DONE (loop 19; browser parity after go-live)
+## Claims (`vClaims` ~4240): DONE (loop 19; parity passed 2026-11-16, loop 21; open rows in `drift-after-sweep.md`: CL1-CL4)
 Built: monthly claim with sections A to C, the full flow, flags, adjustments, All claims, Appeals tab (moved), Settings,
 OT folded in, print, BM and Chinese strings. Deviations from the demo:
 - Monthly cap is petrol + toll + parking; mileage is excluded.
@@ -85,19 +85,7 @@ Original drift, kept for reference:
   Per-person number and on/off. Weekly digest adds "claim not submitted, cut-off within 10 days" and "N claims to
   approve" for Jany and Vicky. VO additional-work notice to site supervisors.
 
-## Browser parity still to run, loop 19 (after go-live)
-Not run in loop 19: migrations `20261119100000_monthly_claims.sql` and `20261119110000_monthly_claim_steps.sql` were not on
-the test copy, so nothing was proven against real Supabase, only in PGlite. Run `parity.md` in Chrome profile "Agent",
-desktop and 390px, for each role that sees Claims (staff, md, accounts, director) and the Commission link. Check first:
-- [ ] Embedded `profiles(...)` selects in `all-claims-data` and `claim-review-data`.
-- [ ] The `key:mof_id` and `key:id` aliases in `claim-review-actions`.
-- [ ] md and accounts can read other people's activities and site logs (the "no visit logged" flag).
-- [ ] A checker's expense update passes the guard triggers.
-- [ ] The `checker:profiles!changed_by` embed on the print page, and staff can read checker names.
-- [ ] Accounts can decide OT (policy on `ot_claims`); a director sees "Overtime to decide".
-- [ ] A claimant's caps read works without the service key on a laptop (shows the laptop message, not a crash).
-- [ ] Flow end to end: submit gate, check, approve (payouts written), pay (accounts only), return.
-- [ ] A commission line cannot be claimed twice; paid frees it.
-- [ ] Appeals tab decides, and Commission's link opens it.
-- [ ] Print preview fits one A4; sections A to C and signatures.
-- [ ] BM and Chinese labels fit at 390px; Vicky reviews the wording.
+## Browser parity, loops 14 and 19
+Passed 2026-11-16 (loop 21) on the test copy for every role that sees these screens, at 1280 and 390 px. Bugs found
+and fixed are in `docs/decisions.md` "Loop 21"; what still differs is in `drift-after-sweep.md` (M1-M3, C1-C5, P1-P2,
+R1-R2, S1, CL1-CL4). Not covered: see "Not covered" in the same decisions section.

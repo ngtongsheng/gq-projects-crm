@@ -1,9 +1,9 @@
 # Drift: Costing, Tasks, Leave, HR, Tools & Forms, People
 
-Spec: `docs/mockup/gqp-office-demo.html`. Analysed 2026-11-14. Costing, Tasks, Leave, HR, Tools & Forms and People are now built (see each heading); browser parity for loop 16 is still to be run after go-live.
+Spec: `docs/mockup/gqp-office-demo.html`. Analysed 2026-11-14. Costing, Tasks, Leave, HR, Tools & Forms and People are now built (see each heading); browser parity for loop 16 passed 2026-11-16 (loop 21); open rows are in `drift-after-sweep.md` (PE1-PE4, H1).
 The demo keys records by name and stores JSON blobs; the app models them as tables keyed by profile id with RLS.
 
-## People (`vPeople` ~4995; ours `/people`): S-M after loop 11. DONE (loop 16; browser parity after go-live)
+## People (`vPeople` ~4995; ours `/people`): S-M after loop 11. DONE (loop 16; parity passed 2026-11-16, loop 21; open rows PE1-PE4 in `drift-after-sweep.md`)
 - Exists: add person, job role, role, commission mode, yearly target, arranges stock, invite share, Sign in as.
 - Loop 11 adds: join date, left / active, last day + reason, reports-to, sells, margin, WhatsApp, language, access
   matrix editor, read-only View as.
@@ -34,7 +34,7 @@ Integration: nav badge, low-margin banner. `vTeam` not built. Deviations: `docs/
 - Links: `costLines(p)` on the project card (quotes by project, status, option totals, "Use RM X as project value" when
   approved and no MOF, "Open costing"). Gated by the cost page access. Nav badge for md/director.
 
-## Tasks (`vTasks` ~3104): M, independent. DONE (loop 15; browser parity on the test copy pending)
+## Tasks (`vTasks` ~3104): M, independent. DONE (loop 15; browser parity passed, `docs/decisions.md` "Loop 15 parity pass")
 - Tabs: My tasks, Assigned by me, All tasks, Workload (md/director). Tiles overdue, due this week, revision. Task sheet
   with log, file upload (versions), review panel.
 - Fields: title, category (11), project (optional), assignee + co-assignees, assigner, priority Low-Urgent, due, status,
@@ -42,7 +42,7 @@ Integration: nav badge, low-margin banner. `vTeam` not built. Deviations: `docs/
   assigner or md approves; revision needs a comment. Assigners: md, director, bd, support, marketing.
 - Reminders: before, after, escalate (`tkCfg`).
 
-## Leave (`vLeave` ~3206): M. DONE (loop 15; browser parity on the test copy pending)
+## Leave (`vLeave` ~3206): M. DONE (loop 15; browser parity passed, `docs/decisions.md` "Loop 15 parity pass")
 Built: all tabs, approvals, slips, balances from 2027, EN/中文. Left to Integration: WhatsApp reminders, leave in the Sales
 Calendar strip and Site Work. Deviations: `docs/decisions.md` "Loop 15".
 - My leave (balance tiles), Waiting for approval, Team leave (md, director, accounts), Who is away (month), Public
@@ -54,7 +54,7 @@ Calendar strip and Site Work. Deviations: `docs/decisions.md` "Loop 15".
   MC and hospitalisation need a slip upload + "original given to HR".
 - Feeds the Sales Calendar on-leave strip and Site Work availability (integration loop).
 
-## HR (`vHR` ~4437): M, md + accounts only. DONE (loop 16; browser parity after go-live)
+## HR (`vHR` ~4437): M, md + accounts only. DONE (loop 16; parity passed 2026-11-16, loop 21; open row H1 in `drift-after-sweep.md`)
 - Policies & schemes: documents (category, version, effective date, Current / Older, PDF or link, "Replaces"), scheme
   summary (bonus bands, commission rates, terms), extra rules log, settings from other modules.
 - Staff packages: dated history per person (basic, allowances, claim cap), standard packages for sales and site,
@@ -63,7 +63,7 @@ Calendar strip and Site Work. Deviations: `docs/decisions.md` "Loop 15".
   on full-year sales; "appendix signed".
 - Feeds Claims (caps), OT rate (basic), targets (People).
 
-## Tools & Forms (`vTools` ~4105): S. DONE (loop 16; browser parity after go-live)
+## Tools & Forms (`vTools` ~4105): S. DONE (loop 16; parity passed 2026-11-16, loop 21)
 - Wallpaper calculator (European 0.53 × 10.06 m, Korean 1.06 × 15.5 m, Fabric Back 1.37 m by running metre; panels =
   ceil(width / roll width) × (height + allowance), then rolls). Vinyl sheet calculator (L × W + skirting, roll width and
   length, layouts A/B by offcut).

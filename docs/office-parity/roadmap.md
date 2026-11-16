@@ -20,14 +20,17 @@ they fit. Drift found on 2026-11-14 is in the four `drift-*.md` files here; `par
 | 1 (done) | 11 Office foundation | Shell, roles, teams, access matrix, View as, Google sign-in, storage, print layout, i18n, public holidays, seed | all | - |
 | 2A (done) | Sales | Companies view, customer sheet, Sales Calendar (invites, calls, outcomes, weekly outcomes and reports), Projects deltas | shell-sales | 11 |
 | 2B (done) | Costing | Whole Costing module + project card link | new-modules | 11 |
-| 3A (done) | MOF & money | Variation orders, MOF change history, commission 180-day cut and appeals, performance, reports two-step review + print, site report | money-reports | 2A |
+| 3A (done, parity passed loop 21) | MOF & money | Variation orders, MOF change history, commission 180-day cut and appeals, performance, reports two-step review + print, site report | money-reports | 2A |
 | 3B-i (loop 15) | Tasks & Leave | Tasks, Leave | new-modules | 2B |
-| 3B-ii (done, loop 16) | HR, Tools & People | HR, Tools & Forms, People leftovers (targets, handover, sales teams). Browser parity still to run after go-live | new-modules | 3B-i |
-| 4B-i (done, loop 17) | Site work | Log work (BM), Site Work tabs. Browser parity still to run after go-live | site-stock | 3B-ii |
-| 4B-ii (done, loop 18) | Installation & stock | Installation views, installers, DO numbering + lines + print, delivery log, Stock, Samples, Leftover. Browser parity still to run after go-live | site-stock | 4B-i |
-| 4A (done, loop 19) | Claims | Monthly claims, travel expenses, OT folded in, appeals tab, settings, print. Browser parity still to run after go-live | money-reports | 3A, 3B-ii |
-| 5 (loop 20) | Integration | Role dashboards and banners, nav badges, leave in calendar and site work, WhatsApp reminders, PWA | all | all |
+| 3B-ii (done, loop 16) | HR, Tools & People | HR, Tools & Forms, People leftovers (targets, handover, sales teams). Parity passed 2026-11-16 (loop 21); open rows PE1-PE4, H1 in `drift-after-sweep.md` | new-modules | 3B-i |
+| 4B-i (done, loop 17) | Site work | Log work (BM), Site Work tabs. Parity passed 2026-11-16 (loop 21); open rows LW1-LW2, SW1-SW5 in `drift-after-sweep.md` | site-stock | 3B-ii |
+| 4B-ii (done, loop 18) | Installation & stock | Installation views, installers, DO numbering + lines + print, delivery log, Stock, Samples, Leftover. Parity passed 2026-11-16 (loop 21); open rows IN1-IN6, DO1, ST1-ST6 in `drift-after-sweep.md` | site-stock | 4B-i |
+| 4A (done, loop 19) | Claims | Monthly claims, travel expenses, OT folded in, appeals tab, settings, print. Parity passed 2026-11-16 (loop 21); open rows CL1-CL4 in `drift-after-sweep.md` | money-reports | 3A, 3B-ii |
+| 5 (loop 22) | Integration | Role dashboards and banners, nav badges, leave in calendar and site work, WhatsApp reminders, PWA | all | all |
 | later | Zoho | Link to Zoho (Vicky: "later") | - | 5 |
+
+Loop 22 (Integration) first takes the S and M rows of `drift-after-sweep.md` if the owner wants them; the L rows need a
+business answer or a migration and are planned on their own.
 
 Loop numbers are given when each loop is planned (`/plan-loop`), from this table and its drift doc.
 

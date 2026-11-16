@@ -19,7 +19,7 @@ Parity per `docs/office-parity/parity.md`. Merged to `main`. Starts after loops 
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
 | 01 | Claims migration | done | - | opus/medium |
-| 02 | Claim maths + flags | todo | 01 | opus/medium |
+| 02 | Claim maths + flags | done | 01 | opus/medium |
 | 03 | Claim flow + gates | todo | 01 | opus/medium |
 | 04 | My claim: sections A-C | todo | 02, 03 | sonnet/high |
 | 05 | Manager views + settings | todo | 03 | sonnet/high |
@@ -41,3 +41,7 @@ Parity per `docs/office-parity/parity.md`. Merged to `main`. Starts after loops 
 2026-11-16 · #01 · decision · pending = submitted/checked/approved; paid frees the commission line, so #03 must write commission_payouts at approve · avoids double pay
 2026-11-16 · #01 · decision · late1/late2 settings stay in `commission` key (accounts cannot write it); claim settings key `claims` · no duplication
 2026-11-16 · #01 · decision · approver/checker and times live in monthly_claim_log only; claimant `note` field added · demo says appeals go in note
+2026-11-16 · #02 · in-progress · delegated opus/medium
+2026-11-16 · #02 · done · check, typecheck, test pass (2640) · next: #03
+2026-11-16 · #02 · decision · monthly cap = petrol+toll+parking, mileage excluded (D5 and HR package label win over demo CAP_TYPES) · specific rule wins
+2026-11-16 · #02 · decision · cap 0 = no cap; monthly cap uses package on cut-off date, hotel budget on each line's date; travel-limit flag only when cap flag absent · as demo

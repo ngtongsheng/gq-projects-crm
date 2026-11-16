@@ -456,6 +456,8 @@ export const zhInstallationStock: Dictionary = {
   "Email supplier:": "电邮供应商:",
   "Supplier told": "已通知供应商",
   "Reserved for clients": "为客户预留",
+  "Stock reserved": "已预留库存",
+  "days held": "天已持有",
   "Leftover stock at Best Link": "Best Link 剩余库存",
   Marked: "已标记",
   "as told.": "为已通知。",

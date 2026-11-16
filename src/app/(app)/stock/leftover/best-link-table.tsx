@@ -90,7 +90,7 @@ export function BestLinkTable({
             key: "item",
             header: t("Item"),
             cell: (leftover) => (
-              <div className="flex min-w-48 flex-col">
+              <div className="flex max-w-56 min-w-40 flex-col whitespace-normal">
                 <span className="font-medium">{leftover.item}</span>
                 <span className="text-xs text-muted-foreground">
                   {[
@@ -114,7 +114,7 @@ export function BestLinkTable({
             cell: (leftover) => (
               <Link
                 href={`/site-work/${leftover.mofId}`}
-                className="flex flex-col hover:underline"
+                className="flex max-w-44 flex-col whitespace-normal hover:underline"
               >
                 <span className="font-mono text-sm">{leftover.mofNo}</span>
                 <span className="text-xs text-muted-foreground">
@@ -168,7 +168,7 @@ export function BestLinkTable({
               leftover.uses.length === 0 ? (
                 "–"
               ) : (
-                <div className="flex min-w-48 flex-col gap-0.5">
+                <div className="flex max-w-64 min-w-40 flex-col gap-0.5 whitespace-normal">
                   {leftover.uses.map((use) => (
                     <span
                       key={use.id}

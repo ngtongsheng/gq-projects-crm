@@ -149,7 +149,7 @@ export default async function StockPage({
 
   const header = (
     <PageHeader
-      title={t("Stock")}
+      title={view === "items" ? t("Stock") : t("Stock reserved")}
       description={
         summary.length > 0
           ? summary.join(" · ")

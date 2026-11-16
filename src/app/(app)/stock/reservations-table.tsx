@@ -10,7 +10,7 @@ import {
   pendingNotices,
   SUPPLIER_NOTICE_LABEL,
 } from "@/lib/domain/supplier-notice";
-import { formatDate, todayMyt } from "@/lib/format/date";
+import { daysBetween, formatDate, todayMyt } from "@/lib/format/date";
 import { formatQuantity } from "@/lib/format/quantity";
 import type { Translate } from "@/lib/i18n/translate";
 import { ReservationActions } from "./reservation-actions";
@@ -34,6 +34,7 @@ export function ReservationsTable({
   arranges: boolean;
   canRequest: boolean;
 }) {
+  const today = todayMyt();
   return (
     <DataTable
       rows={rows}
@@ -67,7 +68,7 @@ export function ReservationsTable({
           key: "project",
           header: t("Client · project"),
           cell: ({ line }) => (
-            <div className="flex max-w-52 min-w-40 flex-col whitespace-normal">
+            <div className="flex max-w-40 min-w-28 flex-col whitespace-normal">
               <span className="font-medium">{line.companyName}</span>
               <span className="text-xs text-muted-foreground">
                 {line.projectName}
@@ -80,7 +81,7 @@ export function ReservationsTable({
           key: "sku",
           header: t("SKU"),
           cell: ({ line }) => (
-            <div className="flex max-w-48 min-w-36 flex-col whitespace-normal">
+            <div className="flex max-w-48 min-w-32 flex-col whitespace-normal">
               <span className="font-mono text-sm font-medium">{line.sku}</span>
               <span className="text-xs text-muted-foreground">
                 {[line.collection, line.supplier].filter(Boolean).join(" · ")}
@@ -104,7 +105,7 @@ export function ReservationsTable({
           key: "status",
           header: t("Status"),
           cell: ({ line, hold }) => (
-            <div className="flex flex-col items-start gap-1">
+            <div className="flex max-w-44 flex-col items-start gap-1 whitespace-normal">
               <ReservationBadges t={t} status={line.status} hold={hold} />
               <SupplierNoticeNote t={t} line={line} />
             </div>
@@ -115,9 +116,19 @@ export function ReservationsTable({
           header: t("Hold until"),
           numeric: true,
           cell: ({ line }) =>
-            line.expiresOn && isLive(line.status)
-              ? formatDate(line.expiresOn)
-              : "",
+            line.expiresOn && isLive(line.status) ? (
+              <div className="flex flex-col items-end">
+                <span>{formatDate(line.expiresOn)}</span>
+                {line.reservedAt && (
+                  <span className="font-sans text-xs font-normal text-muted-foreground">
+                    {Math.max(0, daysBetween(line.reservedAt, today))}{" "}
+                    {t("days held")}
+                  </span>
+                )}
+              </div>
+            ) : (
+              ""
+            ),
         },
         {
           key: "actions",

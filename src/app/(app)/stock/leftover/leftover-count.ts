@@ -14,7 +14,7 @@ export async function countLeftoverAvailable(): Promise<number> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("leftovers")
-    .select("qty, leftover_allocations(qty)")
+    .select("qty, leftover_allocations(qty), mofs!inner(id)")
     .eq("status", "at_best_link");
   if (error)
     throw new Error(`Could not count leftover stock: ${error.message}`);

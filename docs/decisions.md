@@ -549,3 +549,37 @@ seed is not the demo's example data; that is never drift. Larger gaps are in `do
   only their own bookings (Awal confirmed his own request; Akmal's, Sarah's and the others' were not in his list).
 - Test copy changes made by the check (restored by re-seeding): DO no. 9205 issued to MOF-2026-016's delivery, one DO
   item line saved on it, Awal's measurement booking confirmed. The next DO number is the seed's.
+
+### Stock, Samples and Leftover (task 06)
+- Fixed in-loop, bugs: `/stock/leftover` returned a server error for the Sales Director (a leftover row whose MOF he
+  cannot read came back with no MOF). The list and the segment count now leave such rows out (`mofs!inner`), so he sees
+  fewer leftover items, same rule as Installation (task 05, [IN2]). The two samples numbering functions fixed in task 05
+  were re-run in the browser: the MD, Sales Director, Purchasing, Sales support and HR & Accounts each saved a pickup form
+  and set the next form no. without error. No other `.update()` or `.delete()` in `src`, and no other `update` or `delete`
+  in `supabase/migrations`, runs without a filter (checked by script across both).
+- Fixed in-loop, UI: the reservations page is headed "Stock reserved" as in the demo ("Stock" stays on the Stock items
+  view); the reservation table no longer scrolls sideways at 1280 px (client, SKU and status columns wrap, so the hold
+  buttons are visible) and shows "N days held" under the hold date; the Best Link and Returns tables and the Samples list
+  no longer scroll sideways at 1280 px (long text wraps, so "Use for project" and Take out are visible); on a phone the
+  printed forms' toolbar title ("Pickup form SR-0010", "DO ...") sits on its own row instead of shrinking to "P.".
+- Deliberate: the Stock segment bar has a fourth segment, "Stock items", and the head carries "Download CSV" and "Add
+  stock item" (the demo has neither). Salespeople and the Marketing Director get a "Request a hold" button (the demo says
+  to WhatsApp Jess). The page subtitle is the count of lines needing action ("1 to confirm") and falls back to a shorter
+  sentence than the demo's; it names roles, not Jess. The filter row is Active / Expired / expiring / All buttons. The
+  "Expired - follow up" tile uses a hyphen where the demo has an en dash.
+- Deliberate: the Email suppliers dialog has no "To:" line ("no email saved") because supplier addresses are not stored
+  (loop 18 D6); it tells the person to add the address in their email app. "Mark as sent" works (tile went from 2 to 0).
+- Deliberate: Samples has a "Settings" button (Best Link number, Drive folder, next form no.) and a "Pickup forms" list under
+  the samples; the demo keeps the number and folder link inside the pickup form dialog and has no pickup list. The paste button reads "Paste from sheet" on every screen where the demo
+  says "Paste from Excel" in Samples. The demo's 📄 icon is a Lucide icon. Take out, Back and Edit stack in a narrow column
+  when the row is tall (the demo opens Edit by clicking the row).
+- Deliberate: Leftover shows a "Search" button next to the search box (the page filters on the server; the demo filters as
+  you type) and a second table, "Returns from site" (loop 18 D5). Its subtitle says "WhatsApp purchasing", not "Jess". The
+  button that opens "Arrange transport" is labelled "Transport arranged" (the dialog and the badge read correctly).
+- Checked on the test copy: Mark collected by the Site Supervisor (Awal, MOF-2026-016) and Arrange transport by Purchasing
+  saved; "Use for project" saved a 1 pc allocation as the MD (the form refuses more than is available before it reaches
+  the server); "Show sold out" reloads the list on click (1 item became 2). The receipt fits one A4 (751 px of 1032 px,
+  10 rows). At 390 px the receipt keeps its A4 width and scrolls inside its grey desk (task 05).
+- Test copy changes made by the check (restored by re-seeding): next pickup form no. set to 10, 20, 30, 40 and 50; five
+  pickup forms saved (SR-0010 took 1 pc of UNJ-CT-37 out); 1 pc of Orbis Vinyl Plank offcuts used for a project; the two
+  supplier emails marked sent; Awal marked MOF-2026-016's leftover collected; Purchasing arranged its transport.

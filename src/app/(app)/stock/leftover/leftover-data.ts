@@ -109,13 +109,16 @@ const rows = z.array(
   }),
 );
 
-/** Leftover stock, items waiting for pickup first, then newest. One site when `mofId` is given. */
+/**
+ * Leftover stock, items waiting for pickup first, then newest. One site when `mofId` is given. A row whose MOF
+ * the person cannot read is left out (`!inner`), as the Sales Director cannot read every MOF.
+ */
 export async function loadLeftovers(mofId?: string): Promise<Leftover[]> {
   const supabase = await createClient();
   let query = supabase
     .from("leftovers")
     .select(
-      "id, mof_id, item, qty, unit, condition, destination, status, note, credit_note_no, credit_note_amount, created_at, created_by, return_method, transport_by, transport_on, transport_to, transport_cost, supplier, keep_reason, ordered_wrong_by, whatsapp_sent_at, collected_at, collected_by, collected_to, received_at, received_by, mofs(mof_no, project_name), leftover_allocations(id, qty, allocated_on, note, projects(name, pic_id))",
+      "id, mof_id, item, qty, unit, condition, destination, status, note, credit_note_no, credit_note_amount, created_at, created_by, return_method, transport_by, transport_on, transport_to, transport_cost, supplier, keep_reason, ordered_wrong_by, whatsapp_sent_at, collected_at, collected_by, collected_to, received_at, received_by, mofs!inner(mof_no, project_name), leftover_allocations(id, qty, allocated_on, note, projects(name, pic_id))",
     )
     .order("created_at", { ascending: false });
   if (mofId) query = query.eq("mof_id", mofId);

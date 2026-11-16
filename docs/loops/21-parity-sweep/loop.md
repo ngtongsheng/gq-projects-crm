@@ -24,8 +24,8 @@ the branch is merged to `main`.
 | 03 | Parity: loop 16 People, HR, Tools | done | 01 | standard |
 | 04 | Parity: loop 17 Log work, Site Work | done | 01 | standard |
 | 05 | Parity: loop 18 Installation and DOs | done | 01 | standard |
-| 06 | Parity: loop 18 Stock, Samples, Leftover | in-progress | 01 | standard |
-| 07 | Parity: loop 19 Claims | todo | 01 | standard |
+| 06 | Parity: loop 18 Stock, Samples, Leftover | done | 01 | standard |
+| 07 | Parity: loop 19 Claims | in-progress | 01 | standard |
 | 08 | Drift list, docs, merge | todo | 02-07 | standard |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
@@ -62,3 +62,7 @@ the branch is merged to `main`.
 2026-11-16 · #05 · note · DO print/numbering/items dialog have app screenshots only (demo needs saved items); samples functions fixed here, #06 must recheck Samples in browser
 2026-11-16 · #05 · done · check, typecheck, 2989 tests pass; test copy re-seeded · next: #06
 2026-11-16 · #06 · in-progress · delegated (standard)
+2026-11-16 · #06 · decision · fixed Sales Director 500 on /stock/leftover (mofs!inner), table overflow at 1280, print toolbar title at 390; drift ST1-ST6 · bug plus UI-only drift
+2026-11-16 · #06 · note · Samples pickup/next-number saves re-run in browser after #05 migration, all pass; scan of every .update/.delete in src and migrations found no other unfiltered write
+2026-11-16 · #06 · done · check, typecheck, 2989 tests pass; test copy re-seeded · next: #07
+2026-11-16 · #07 · in-progress · delegated (standard)

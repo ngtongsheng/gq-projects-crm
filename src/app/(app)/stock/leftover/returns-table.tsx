@@ -56,7 +56,7 @@ export function ReturnsTable({
           key: "item",
           header: t("Item"),
           cell: (leftover) => (
-            <div className="flex min-w-48 flex-col">
+            <div className="flex max-w-60 min-w-40 flex-col whitespace-normal">
               <span className="font-medium">{leftover.item}</span>
               <span className="text-xs text-muted-foreground">
                 {t(LEFTOVER_CONDITION_LABEL[leftover.condition])} ·{" "}
@@ -87,7 +87,7 @@ export function ReturnsTable({
           cell: (leftover) => (
             <Link
               href={`/site-work/${leftover.mofId}`}
-              className="flex flex-col hover:underline"
+              className="flex max-w-44 flex-col whitespace-normal hover:underline"
             >
               <span className="font-mono text-sm">{leftover.mofNo}</span>
               <span className="text-xs text-muted-foreground">
@@ -111,7 +111,7 @@ export function ReturnsTable({
               (other) => other.mofId === leftover.mofId,
             );
             return (
-              <div className="flex min-w-48 flex-col gap-1">
+              <div className="flex max-w-60 min-w-40 flex-col gap-1 whitespace-normal">
                 <LeftoverBadges t={t} leftover={leftover} />
                 <LeftoverProgress t={t} leftover={leftover} nameOf={nameOf} />
                 {canEdit &&

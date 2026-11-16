@@ -159,7 +159,9 @@ export function SamplesList({
             key: "name",
             header: t("Product name"),
             cell: (sample) => (
-              <span className="font-medium">{sample.name}</span>
+              <span className="block max-w-48 font-medium whitespace-normal">
+                {sample.name}
+              </span>
             ),
           },
           {
@@ -167,7 +169,9 @@ export function SamplesList({
             header: t("Size / spec"),
             className: "max-sm:hidden",
             cell: (sample) => (
-              <span className="text-muted-foreground">{sample.spec}</span>
+              <span className="block max-w-36 whitespace-normal text-muted-foreground">
+                {sample.spec}
+              </span>
             ),
           },
           {
@@ -204,7 +208,9 @@ export function SamplesList({
             header: t("Notes"),
             className: "max-sm:hidden",
             cell: (sample) => (
-              <span className="text-muted-foreground">{sample.notes}</span>
+              <span className="block max-w-48 whitespace-normal text-muted-foreground">
+                {sample.notes}
+              </span>
             ),
           },
           {

@@ -1,3 +1,4 @@
+import { buildClaims } from "./claims.ts";
 import {
   buildActivities,
   buildCustomers,
@@ -58,6 +59,7 @@ export function buildExampleData(context: BuildContext): ExampleData {
       buildLeftovers(),
       ...buildStock(context),
       ...buildMoney(context),
+      ...buildClaims(context),
       buildMonthlyReports(context),
       ...buildQuotes(context),
       ...buildTasks(context),

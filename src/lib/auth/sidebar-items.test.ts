@@ -111,7 +111,7 @@ describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide",
   });
 
   // The demo's site supervisor with BM selected: tr() turns Log work, My schedule, Site Work and My
-  // Report into Bahasa Malaysia; the other labels have no BM in the demo's TT and stay English.
+  // Report into Bahasa Malaysia, and loop 19 adds My claims; the other labels stay English.
   it("site in Bahasa Malaysia", () => {
     expect(outline("site", false, "bm")).toEqual({
       main: [
@@ -119,7 +119,7 @@ describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide",
         "Jadual saya",
         "Kerja tapak",
         "Laporan saya",
-        "My claims",
+        "Tuntutan saya",
       ],
       after: ["Guide", "Tasks", "Tools & Forms", "Leave"],
     });

@@ -1,4 +1,5 @@
 import type { Dictionary } from "./dictionary";
+import { zhClaims } from "./zh-claims";
 import { zhHrTools } from "./zh-hr-tools";
 import { zhTasksLeave } from "./zh-tasks-leave";
 
@@ -607,4 +608,5 @@ export const zh: Dictionary = {
   "Returned for changes": "已退回修改",
   ...zhTasksLeave,
   ...zhHrTools,
+  ...zhClaims,
 };

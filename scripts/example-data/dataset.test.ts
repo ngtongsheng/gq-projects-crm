@@ -208,6 +208,81 @@ describe("example data", () => {
   });
 });
 
+describe("monthly claims", () => {
+  it("has a claim in every status, each with a log entry per step", () => {
+    const claims = table("monthly_claims").rows;
+    expect(new Set(claims.map((c) => c.status))).toEqual(
+      new Set([
+        "draft",
+        "submitted",
+        "checked",
+        "returned",
+        "approved",
+        "paid",
+      ]),
+    );
+    const logged = new Map<unknown, number>();
+    for (const entry of table("monthly_claim_log").rows) {
+      logged.set(entry.claim_id, (logged.get(entry.claim_id) ?? 0) + 1);
+    }
+    for (const claim of claims) {
+      expect(logged.has(claim.id), String(claim.status)).toBe(
+        claim.status !== "draft",
+      );
+    }
+  });
+
+  it("numbers receipts R1, R2... under the claim's own folder, none for mileage", () => {
+    const perClaim = new Map<unknown, number[]>();
+    for (const e of table("monthly_claim_expenses").rows) {
+      if (e.receipt_path === null) {
+        expect(e.receipt_no).toBeNull();
+        continue;
+      }
+      expect(e.expense_type).not.toBe("mileage");
+      expect(String(e.receipt_path).startsWith(`claims/${e.claim_id}/`)).toBe(
+        true,
+      );
+      perClaim.set(e.claim_id, [
+        ...(perClaim.get(e.claim_id) ?? []),
+        Number(e.receipt_no),
+      ]);
+    }
+    expect(perClaim.size).toBeGreaterThan(0);
+    for (const numbers of perClaim.values()) {
+      expect(numbers).toEqual(numbers.map((_, i) => i + 1));
+    }
+  });
+
+  it("keeps every adjusted line's reason and keeps one pending commission line per order", () => {
+    const lines = [
+      ...table("monthly_claim_expenses").rows,
+      ...table("monthly_claim_commissions").rows,
+    ];
+    expect(lines.some((l) => l.amount !== l.original_amount)).toBe(true);
+    for (const l of lines) {
+      if (l.amount !== l.original_amount)
+        expect(l.adjustment_reason).toBeTruthy();
+    }
+    const pending = table("monthly_claim_commissions")
+      .rows.filter((l) => l.pending)
+      .map((l) => `${l.mof_id}:${l.profile_id}`);
+    expect(new Set(pending).size).toBe(pending.length);
+  });
+
+  it("gives flagged examples: meals twice, over 150 km, a hotel by the night", () => {
+    const rows = table("monthly_claim_expenses").rows;
+    const meals = rows.filter((r) => r.expense_type === "outstation_meals");
+    expect(
+      new Set(meals.map((r) => `${r.claim_id}:${r.spent_on}`)).size,
+    ).toBeLessThan(meals.length);
+    expect(
+      rows.some((r) => r.expense_type === "mileage" && Number(r.km) > 150),
+    ).toBe(true);
+    expect(rows.some((r) => r.expense_type === "hotel" && r.nights)).toBe(true);
+  });
+});
+
 describe("site work", () => {
   const logs = () => table("site_logs").rows;
 

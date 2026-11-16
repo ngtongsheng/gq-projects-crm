@@ -25,7 +25,7 @@ Parity per `docs/office-parity/parity.md`. Merged to `main`. Starts after loops 
 | 05 | Manager views + settings | done | 03 | sonnet/high |
 | 06 | Appeals tab move + OT fold-in | done | 04 | sonnet/high |
 | 07 | Claim print | done | 04 | sonnet/medium |
-| 08 | Strings + dev seed | in-progress | 04, 05, 06, 07 | sonnet/medium |
+| 08 | Strings + dev seed | done | 04, 05, 06, 07 | sonnet/medium |
 | 09 | Parity pass, docs, merge | todo | 01-08 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
@@ -70,3 +70,4 @@ Parity per `docs/office-parity/parity.md`. Merged to `main`. Starts after loops 
 2026-11-16 · #07 · done · check, typecheck, test (2734) pass; print preview deferred to #09 (verify checker:profiles!changed_by embed and staff read of checker names) · next: #08
 2026-11-16 · #07 · decision · print omits invoice date (not stored), meals column (nights only), OT approver name; signature heading "Approved by" (roles, never names) · D1
 2026-11-16 · #08 · in-progress · delegated sonnet/medium
+2026-11-16 · #08 · done · check, typecheck, test (2739) pass; BM/ZH wording is the agent's own (no demo text), review by Vicky; seed not run on a real DB, PGlite test covers it · next: #09

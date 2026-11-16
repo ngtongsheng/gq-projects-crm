@@ -31,6 +31,13 @@ describe("t", () => {
     expect(t("zh", "Wallpaper calculator")).toBe("壁纸计算器");
   });
 
+  it("translates the Claims screens and print form", () => {
+    expect(t("bm", "Monthly claim form")).toBe("Borang tuntutan bulanan");
+    expect(t("zh", "TOTAL CLAIM")).toBe("报销总额");
+    expect(t("bm", "Overtime to decide")).toBe("Overtime untuk diputuskan");
+    expect(t("zh", "Appeals")).toBe("申诉");
+  });
+
   it("falls back to the English text when a translation is missing", () => {
     expect(t("bm", "Sales Calendar")).toBe("Sales Calendar");
     expect(t("zh", "Sales Calendar")).toBe("Sales Calendar");

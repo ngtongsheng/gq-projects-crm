@@ -19,7 +19,7 @@ the branch is merged to `main`.
 ## Tasks
 | # | Task | Status | Depends | Tier |
 |---|---|---|---|---|
-| 01 | Seed access, migrate and seed test copy | todo | - | economy |
+| 01 | Seed access, migrate and seed test copy | in-progress | - | economy |
 | 02 | Parity: loop 14 money and reports | todo | 01 | standard |
 | 03 | Parity: loop 16 People, HR, Tools | todo | 01 | standard |
 | 04 | Parity: loop 17 Log work, Site Work | todo | 01 | standard |
@@ -36,3 +36,5 @@ the branch is merged to `main`.
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-16 · plan · loop written; loop 19 merged; parity sweep before Integration (now loop 22) · next: #01
+2026-11-16 · exec · worktree ../gq-projects-crm-loops/21-parity-sweep on loop/21-parity-sweep · next: #01
+2026-11-16 · #01 · in-progress · delegated (economy)

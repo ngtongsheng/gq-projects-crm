@@ -2,20 +2,25 @@ import { Scale } from "lucide-react";
 import { EmptyState } from "@/components/app/empty-state";
 import { formatDateTime } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
-import { AppealPill } from "./appeal-pill";
-import { appealKey } from "./appeal-rules";
-import type { CommissionAppeal } from "./appeals-data";
-import { DecideAppealDialog } from "./decide-appeal-dialog";
+import { AppealPill } from "../commission/appeal-pill";
+import { appealKey } from "../commission/appeal-rules";
+import { loadCommissionAppeals } from "../commission/appeals-data";
+import { loadCommissionLines } from "../commission/commission-data";
+import { DecideAppealDialog } from "../commission/decide-appeal-dialog";
 
-type AppealsTabProps = {
-  appeals: CommissionAppeal[];
-  /** Late cut still taken off each line, by `appealKey`. */
-  lateCutByLine: Map<string, number>;
-  myId: string;
-};
-
-/** Every late-collection appeal the MD or HR & Accounts can see, waiting ones first, with a Decide button. */
-export function AppealsTab({ appeals, lateCutByLine, myId }: AppealsTabProps) {
+/** Every late-collection appeal the MD or HR & Accounts can see (D7), waiting ones first, with a Decide button. */
+export async function AppealsTab({ myId }: { myId: string }) {
+  const [appeals, lines] = await Promise.all([
+    loadCommissionAppeals(),
+    loadCommissionLines(),
+  ]);
+  // The late cut still taken off each line.
+  const lateCutByLine = new Map(
+    lines.map((line) => [
+      appealKey(line.mofId, line.personId),
+      line.commission.lateCut,
+    ]),
+  );
   return (
     <section className="flex flex-col gap-2">
       <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">

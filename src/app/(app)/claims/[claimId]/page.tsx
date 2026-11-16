@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
+import { canDecideOvertime } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import {
   canAdjustClaim,
@@ -251,6 +252,9 @@ export default async function ClaimReviewPage({
             overtime={review.overtime}
             amount={otStored}
             editable={false}
+            canDecide={
+              canDecideOvertime(me.jobRole) && review.personId !== me.id
+            }
             mofs={[]}
             today={todayMyt()}
             heading={`${rows.length > 0 ? "3" : "2"} · ${t("Overtime / replacement leave")} · ${monthLabel}`}
@@ -259,10 +263,10 @@ export default async function ClaimReviewPage({
         )}
         {pendingOt > 0 && (
           <p className="text-sm text-warn">
-            {pendingOt} {t("hrs of OT still waiting.")}{" "}
-            <Link href="/overtime" className="underline">
-              {t("Decide on the Overtime page.")}
-            </Link>
+            {pendingOt} {t("hrs of OT still waiting.")}
+            {canDecideOvertime(me.jobRole) && review.personId !== me.id
+              ? ` ${t("Approve or reject each entry above.")}`
+              : ""}
           </p>
         )}
         <ClaimReviewFooter

@@ -109,7 +109,7 @@ export const canAnswerBookings = (jobRole: JobRole) => jobRole === "site";
 
 /** Approves or rejects overtime (SQL: the update policy on ot_claims, which also bars deciding your own). */
 export const canDecideOvertime = (jobRole: JobRole) =>
-  has(jobRole, ["md", "director"]);
+  has(jobRole, ["md", "director", "accounts"]);
 
 export const canEnterPayments = (jobRole: JobRole) =>
   has(jobRole, ["md", "accounts"]);

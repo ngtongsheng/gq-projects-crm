@@ -83,8 +83,8 @@ export function OtClaimDialog({ mofs, today }: OtClaimDialogProps) {
         <DialogHeader>
           <DialogTitle>Add overtime</DialogTitle>
           <DialogDescription>
-            Night or weekend work. The MD or Sales Director approves it as an OT
-            claim or replacement leave, or rejects it.
+            Night or weekend work. The MD, Sales Director or HR & Accounts
+            approves it as an OT claim or replacement leave, or rejects it.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submitKeepingValues(save)}>

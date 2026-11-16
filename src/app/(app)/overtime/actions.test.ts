@@ -153,8 +153,8 @@ describe("submitOtClaim", () => {
 });
 
 describe("decideOtClaim", () => {
-  it("lets the MD and Sales Director approve as a chosen type", async () => {
-    for (const role of ["md", "director"] as const) {
+  it("lets the MD, Sales Director and HR & Accounts approve as a chosen type", async () => {
+    for (const role of ["md", "director", "accounts"] as const) {
       vi.mocked(getCurrentProfile).mockResolvedValue(profile(role));
       const calls = fakeSupabase({ data: [{ id: CLAIM }], error: null });
 
@@ -182,13 +182,15 @@ describe("decideOtClaim", () => {
 
   it("refuses every other role before touching the database", async () => {
     // Purchasing has no Claims page in the demo, so the page check stops them first.
-    for (const role of ["bd", "sales", "accounts", "site"] as const) {
+    for (const role of ["bd", "sales", "site"] as const) {
       vi.mocked(getCurrentProfile).mockResolvedValue(profile(role));
       const calls = fakeSupabase();
 
       const result = await decideOtClaim(CLAIM, "ot");
 
-      expect(result.error).toMatch(/Only the MD or Sales Director/);
+      expect(result.error).toMatch(
+        /Only the MD, Sales Director or HR & Accounts/,
+      );
       expect(calls).toHaveLength(0);
     }
   });

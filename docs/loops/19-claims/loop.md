@@ -23,8 +23,8 @@ Parity per `docs/office-parity/parity.md`. Merged to `main`. Starts after loops 
 | 03 | Claim flow + gates | done | 01 | opus/medium |
 | 04 | My claim: sections A-C | done | 02, 03 | sonnet/high |
 | 05 | Manager views + settings | done | 03 | sonnet/high |
-| 06 | Appeals tab move + OT fold-in | in-progress | 04 | sonnet/high |
-| 07 | Claim print | todo | 04 | sonnet/medium |
+| 06 | Appeals tab move + OT fold-in | done | 04 | sonnet/high |
+| 07 | Claim print | in-progress | 04 | sonnet/medium |
 | 08 | Strings + dev seed | todo | 04, 05, 06, 07 | sonnet/medium |
 | 09 | Parity pass, docs, merge | todo | 01-08 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
@@ -63,3 +63,7 @@ Parity per `docs/office-parity/parity.md`. Merged to `main`. Starts after loops 
 2026-11-16 · #05 · todo-for-#09 · verify on test copy: embedded profiles(...) selects in all-claims-data/claim-review-data, key:mof_id/key:id aliases in claim-review-actions, md/accounts read of others' activities and site logs, checker expense update vs guard triggers
 2026-11-16 · #06 · in-progress · delegated sonnet/high
 2026-11-16 · #05 · note · full pnpm test showed PGlite hook timeouts under machine load 42 (different files each run); the failing files pass when run alone (107 tests); rerun full suite at low load before merge
+2026-11-16 · #06 · done · check, typecheck, test (2734) pass; parity deferred to #09 (also verify accounts deciding OT on test copy) · next: #07
+2026-11-16 · #06 · decision · no overtime entry existed in nav/registry, /overtime stays as deep link; added "Overtime to decide" section in Claims (directors have no manager view) and repointed attention link to /claims · D3
+2026-11-16 · #06 · decision · old /commission?tab=appeals not redirected (nothing links to it); new strings go to BM/ZH in #08 · scope
+2026-11-16 · #07 · in-progress · delegated sonnet/medium

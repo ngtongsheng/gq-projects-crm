@@ -74,7 +74,7 @@ const RULES: Record<AttentionKey, Rule> = {
   },
   pendingOvertime: {
     tone: "info",
-    href: () => "/overtime",
+    href: () => "/claims",
     label: (n) => `${plural(n, "overtime claim", "overtime claims")} to decide`,
   },
   overdueFollowUps: {
@@ -150,7 +150,7 @@ const KEYS_BY_ROLE: Record<JobRole, readonly AttentionKey[]> = {
     "overdueFollowUps",
     "claimsToVerify",
   ],
-  accounts: ["lateReports"],
+  accounts: ["lateReports", "pendingOvertime"],
   bd: ["ownReport", "overdueProjects", "staleProjects", "inactiveCustomers"],
   sales: ["ownReport", "overdueProjects", "staleProjects", "inactiveCustomers"],
   support: [

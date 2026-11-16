@@ -10,6 +10,7 @@ import {
 import { formatDate } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
 import type { Translate } from "@/lib/i18n/translate";
+import { DecisionButtons } from "../overtime/decision-buttons";
 import { OtClaimDialog } from "../overtime/ot-claim-dialog";
 import type { MofOption, OtClaim } from "../overtime/overtime-data";
 import type { loadClaimOvertime } from "./claim-ot-data";
@@ -21,6 +22,7 @@ export function OvertimeSection({
   overtime,
   amount,
   editable,
+  canDecide = false,
   mofs,
   today,
   heading,
@@ -30,6 +32,8 @@ export function OvertimeSection({
   /** The OT amount in the claim: frozen at submit, else the database's figure for the month. */
   amount: number | null;
   editable: boolean;
+  /** The viewer may approve or reject the pending entries: a decider looking at someone else's claim. */
+  canDecide?: boolean;
   mofs: MofOption[];
   today: string;
   heading: string;
@@ -86,6 +90,18 @@ export function OvertimeSection({
         </StatusBadge>
       ),
     },
+    ...(canDecide
+      ? [
+          {
+            key: "decide",
+            header: "",
+            cell: (entry: OtClaim) =>
+              entry.status === "pending" ? (
+                <DecisionButtons claimId={entry.id} />
+              ) : null,
+          },
+        ]
+      : []),
   ];
 
   return (

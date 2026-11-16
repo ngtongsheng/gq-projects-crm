@@ -17,7 +17,8 @@ import { createClient } from "@/lib/supabase/server";
 
 export type OvertimeResult = { error: string | null };
 
-const NOT_DECIDER = "Only the MD or Sales Director can approve overtime.";
+const NOT_DECIDER =
+  "Only the MD, Sales Director or HR & Accounts can approve overtime.";
 const NOT_FOUND_MOF = "Could not find that order. Reload the page.";
 const NOT_FOUND_CLAIM =
   "This claim is already decided, is your own, or was not found. Reload the page.";
@@ -90,6 +91,7 @@ export async function submitOtClaim(
   }
 
   revalidatePath("/overtime");
+  revalidatePath("/claims", "layout");
   return { error: null };
 }
 
@@ -124,5 +126,6 @@ export async function decideOtClaim(
   if (data.length === 0) return { error: NOT_FOUND_CLAIM };
 
   revalidatePath("/overtime");
+  revalidatePath("/claims", "layout");
   return { error: null };
 }

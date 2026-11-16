@@ -1,21 +1,24 @@
 import type { Metadata } from "next";
 import { z } from "zod";
 import { PageHeader } from "@/components/app/page-header";
+import { canDecideCommissionAppeal } from "@/lib/auth/job-role";
 import { pageLabel } from "@/lib/auth/pages";
 import { requirePage } from "@/lib/auth/require-page";
 import { canFileClaim } from "@/lib/domain/claim-eligibility";
 import { canManageClaims } from "@/lib/domain/claim-flow";
 import { getT } from "@/lib/i18n/server-t";
 import { AllClaims } from "./all-claims";
+import { AppealsTab } from "./appeals-tab";
 import { loadClaimSettings } from "./claim-settings-data";
 import { ClaimSettingsForm } from "./claim-settings-form";
 import { ClaimTabs } from "./claim-tabs";
 import { MyClaimsView } from "./my-claims-view";
+import { OvertimeToDecide } from "./overtime-to-decide";
 
 export const metadata: Metadata = { title: "Claims" };
 
 const monthParam = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/);
-const viewParam = z.enum(["all", "mine", "settings"]).catch("all");
+const viewParam = z.enum(["all", "mine", "appeals", "settings"]).catch("all");
 
 export default async function ClaimsPage({
   searchParams,
@@ -37,6 +40,7 @@ export default async function ClaimsPage({
           title={title}
           description={`${t("One claim a month for commission, travelling expense and overtime. Submit by day")} ${settings.cutOffDay}. ${t("Expenses dated after that go into next month's claim.")}`}
         />
+        <OvertimeToDecide me={me} t={t} />
         <MyClaimsView
           me={me}
           settings={settings}
@@ -57,6 +61,9 @@ export default async function ClaimsPage({
     ...(files
       ? [{ id: "mine", label: t("My claim"), href: "/claims?view=mine" }]
       : []),
+    ...(canDecideCommissionAppeal(me.jobRole)
+      ? [{ id: "appeals", label: t("Appeals"), href: "/claims?view=appeals" }]
+      : []),
     { id: "settings", label: t("Settings"), href: "/claims?view=settings" },
   ];
 
@@ -70,13 +77,17 @@ export default async function ClaimsPage({
       />
       <ClaimTabs tabs={tabs} active={view} label={t("Claims views")} />
       {view === "all" && (
-        <AllClaims
-          me={me}
-          settings={settings}
-          requestedMonth={requestedMonth}
-          t={t}
-        />
+        <>
+          <OvertimeToDecide me={me} t={t} />
+          <AllClaims
+            me={me}
+            settings={settings}
+            requestedMonth={requestedMonth}
+            t={t}
+          />
+        </>
       )}
+      {view === "appeals" && <AppealsTab myId={me.id} />}
       {view === "mine" && (
         <MyClaimsView
           me={me}

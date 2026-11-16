@@ -184,10 +184,11 @@ describe("site supervisor bookings", () => {
 });
 
 describe("overtime approval", () => {
-  it("lets only the MD and Sales Director decide", () => {
+  it("lets only the MD, Sales Director and HR & Accounts decide", () => {
     expect(JobRole.options.filter(canDecideOvertime)).toEqual([
       "md",
       "director",
+      "accounts",
     ]);
   });
 });

@@ -46,7 +46,7 @@ export default async function OvertimePage() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Overtime"
-        description="Night and weekend work. The MD or Sales Director approves each entry."
+        description="Night and weekend work. The MD, Sales Director or HR & Accounts approves each entry."
         actions={<OtClaimDialog mofs={mofs} today={todayMyt()} />}
       />
 

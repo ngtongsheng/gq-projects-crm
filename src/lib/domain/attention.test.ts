@@ -42,6 +42,7 @@ test("each role sees only the kinds it acts on, with counts and links", () => {
   ]);
   expect(attentionItems("accounts", facts).map((item) => item.key)).toEqual([
     "lateReports",
+    "pendingOvertime",
   ]);
 });
 

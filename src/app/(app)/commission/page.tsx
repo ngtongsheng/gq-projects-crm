@@ -1,4 +1,4 @@
-import { Percent, Search, Settings } from "lucide-react";
+import { Percent, Scale, Search, Settings } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { z } from "zod";
@@ -25,12 +25,10 @@ import { requirePage } from "@/lib/auth/require-page";
 import { inMyTeam } from "@/lib/auth/team";
 import { todayMyt } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
-import { cn } from "@/lib/utils";
 import { AppealDialog } from "./appeal-dialog";
 import { AppealPill } from "./appeal-pill";
 import { appealKey, canSendAppeal } from "./appeal-rules";
 import { latestAppealByLine, loadCommissionAppeals } from "./appeals-data";
-import { AppealsTab } from "./appeals-tab";
 import { loadCommissionLines } from "./commission-data";
 import { CommissionDialog } from "./commission-dialog";
 import { groupByPerson, lineStatus } from "./commission-groups";
@@ -40,12 +38,6 @@ export const metadata: Metadata = { title: "Commission" };
 const ALL = "all";
 
 const personParam = z.uuid().optional().catch(undefined);
-const tabParam = z.enum(["commission", "appeals"]).catch("commission");
-
-const TABS = [
-  { id: "commission", label: "Commission", href: "/commission" },
-  { id: "appeals", label: "Appeals", href: "/commission?tab=appeals" },
-] as const;
 
 export default async function CommissionPage({
   searchParams,
@@ -58,8 +50,6 @@ export default async function CommissionPage({
   const canDecide = canDecideCommissionAppeal(me.jobRole);
   const search = await searchParams;
   const person = personParam.parse(search.person);
-  // Only the people who decide appeals get the tab; everyone else sees their appeal on the row.
-  const tab = canDecide ? tabParam.parse(search.tab) : "commission";
   const today = todayMyt();
 
   const [all, team, appeals] = await Promise.all([
@@ -96,53 +86,30 @@ export default async function CommissionPage({
             : "Your commission on the orders registered under your name."
         }
         actions={
-          canSetRules ? (
-            <Button asChild variant="outline">
-              <Link href="/commission/settings">
-                <Settings data-icon="inline-start" />
-                Commission settings
-              </Link>
-            </Button>
+          canSetRules || canDecide ? (
+            <div className="flex flex-wrap gap-2">
+              {canDecide && (
+                // Appeals are decided in Claims (loop 19 D7); everyone else sees their appeal on the row.
+                <Button asChild variant="outline">
+                  <Link href="/claims?view=appeals">
+                    <Scale data-icon="inline-start" />
+                    Appeals in Claims
+                  </Link>
+                </Button>
+              )}
+              {canSetRules && (
+                <Button asChild variant="outline">
+                  <Link href="/commission/settings">
+                    <Settings data-icon="inline-start" />
+                    Commission settings
+                  </Link>
+                </Button>
+              )}
+            </div>
           ) : undefined
         }
       />
-      {canDecide && (
-        <div
-          role="tablist"
-          aria-label="Commission views"
-          className="flex gap-2"
-        >
-          {TABS.map((item) => (
-            <Link
-              key={item.id}
-              role="tab"
-              aria-selected={item.id === tab}
-              href={item.href}
-              className={cn(
-                "rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted/50",
-                item.id === tab && "border-primary bg-muted",
-              )}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
-      )}
-      {tab === "appeals" && (
-        <AppealsTab
-          appeals={appeals}
-          lateCutByLine={
-            new Map(
-              all.map((line) => [
-                appealKey(line.mofId, line.personId),
-                line.commission.lateCut,
-              ]),
-            )
-          }
-          myId={me.id}
-        />
-      )}
-      {tab === "commission" && seesEveryone && (
+      {seesEveryone && (
         <form
           action="/commission"
           className="flex flex-wrap items-center gap-2"
@@ -166,7 +133,7 @@ export default async function CommissionPage({
           </Button>
         </form>
       )}
-      {tab === "commission" && groups.length === 0 && (
+      {groups.length === 0 && (
         <div className="rounded-xl border bg-card">
           <EmptyState
             icon={Percent}
@@ -175,7 +142,7 @@ export default async function CommissionPage({
           />
         </div>
       )}
-      {(tab === "commission" ? groups : []).map((group) => (
+      {groups.map((group) => (
         <section key={group.personId} className="flex flex-col gap-2">
           <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
             <h2 className="font-heading text-lg font-semibold">

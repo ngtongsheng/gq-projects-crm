@@ -41,6 +41,8 @@ const VO_LIST =
   "The variation orders changed while you were editing. Reload the page; VOs are added on the MOF's VO list.";
 const JOB_DONE =
   "This job is already completed. Write the reason for the change.";
+// Start of the database's own refusal when the order total would drop below the payments received.
+const BELOW_RECEIVED = "The order total can't go below RM";
 
 // The lines editor posts its rows as JSON; an id marks a line that is already saved.
 const postedLines = z.array(
@@ -176,6 +178,9 @@ function dbMessage(error: DbError): string {
       : "That MOF number is already registered. Check the MOF number.";
   }
   if (error.code === "P0002") return RELOAD;
+  if (error.code === "23514" && error.message?.startsWith(BELOW_RECEIVED)) {
+    return error.message;
+  }
   // save_mof refuses a VO amount that differs from the saved one: VOs have their own list.
   if (error.code === "22023" && error.message?.includes("VO list")) {
     return VO_LIST;

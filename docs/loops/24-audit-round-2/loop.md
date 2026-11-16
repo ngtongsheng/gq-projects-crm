@@ -28,8 +28,8 @@ error pages, and sign-out closing impersonation. Every other finding is in `docs
 | 02 | Log auth failures loudly (O1, O7, S3) | done | | standard |
 | 03 | `logServerError` helper on money and HR paths (O4) | done | | standard |
 | 04 | Audit trail for payout removals (O3) | done | 03 | standard |
-| 05 | Order total floor at payments received (D1) | in-progress | | frontier |
-| 06 | Link installer POs to the installer directory (D2) | todo | | frontier |
+| 05 | Order total floor at payments received (D1) | done | | frontier |
+| 06 | Link installer POs to the installer directory (D2) | in-progress | | frontier |
 | 07 | Storage and RLS hardening (S-DB1, S-DB2, S-DB3) | todo | | frontier |
 | 08 | Small data fixes: MYT defaults, receipt lock, archived mobile message (D6, D7, D4) | todo | | standard |
 | 09 | Error pages and upload failures (O5, O6) | todo | | standard |
@@ -63,3 +63,6 @@ error pages, and sign-out closing impersonation. Every other finding is in `docs
 2026-11-16 · #04 · decision · no FK on payout_id (row is gone), indexed instead; removed_by nullable so service-role deletes still record; actions.ts unchanged (already logs via #03)
 2026-11-16 · #04 · done · read policy matches payout delete roles (md, accounts); PGlite 4 tests; check/typecheck/test pass (3052)
 2026-11-16 · #05 · in-progress · delegated (frontier)
+2026-11-16 · #05 · decision · trigger refuses only a lowering, so orders already below payments can still be raised; no i18n entries (MOF/VO screens show raw error, same as cap_payments); commission-parity test disables trigger around its deliberate below-payments setup
+2026-11-16 · #05 · done · PGlite 7 tests + 2 app tests; check/typecheck/test pass (3061)
+2026-11-16 · #06 · in-progress · delegated (frontier)

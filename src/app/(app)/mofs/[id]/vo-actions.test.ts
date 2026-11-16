@@ -179,6 +179,16 @@ describe("saveVariationOrder", () => {
     expect(calls[0]?.payload.cost).toBe(800);
   });
 
+  it("shows the database's refusal to go below the payments received", async () => {
+    const message =
+      "The order total can't go below RM 1,200.00 already received.";
+    fakeSupabase({ data: null, error: { code: "23514", message } });
+
+    const result = await saveVariationOrder(form({ amount: "-500" }));
+
+    expect(result.error).toBe(message);
+  });
+
   it("reports a VO no. already used on the MOF", async () => {
     fakeSupabase({
       data: null,

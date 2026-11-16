@@ -22,6 +22,8 @@ const NOT_COST_READER =
   "Only the MD, Purchasing and HR & Accounts can see or set the cost.";
 const RELOAD = "Could not find that variation order. Reload the page.";
 const TRY_AGAIN = "Could not save the variation order. Try again.";
+// Start of the database's own refusal when a lower VO would take the order total below the payments received.
+const BELOW_RECEIVED = "The order total can't go below RM";
 
 const rm = (message: string) =>
   z
@@ -73,6 +75,9 @@ function dbMessage(error: DbError, voNo: string): string {
     return `${voNo} is already used on this MOF. Use the next VO no.`;
   }
   if (error.code === "P0002") return RELOAD;
+  if (error.code === "23514" && error.message?.startsWith(BELOW_RECEIVED)) {
+    return error.message;
+  }
   console.error("Could not save variation order", error);
   return TRY_AGAIN;
 }

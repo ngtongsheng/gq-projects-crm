@@ -261,6 +261,17 @@ describe("saveMof: register a new MOF", () => {
     expect(result.error).toMatch(/already registered/);
   });
 
+  it("shows the database's refusal to go below the payments received", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
+    const message =
+      "The order total can't go below RM 4,000.00 already received.";
+    fakeSupabase([{ data: null, error: { code: "23514", message } }]);
+
+    const result = await saveMof(form());
+
+    expect(result.error).toBe(message);
+  });
+
   it("asks to try again when the save fails part-way", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));
     vi.spyOn(console, "error").mockImplementation(() => {});

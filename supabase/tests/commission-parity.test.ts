@@ -353,10 +353,18 @@ async function addCase(c: Case, settings: CommissionSettings) {
     );
   }
   if (c.voAfterPayments !== undefined) {
+    // An order already below its payments from before the order total floor (loop 24);
+    // the floor refuses this now, so it is switched off to set the case up.
+    await t.db.query(
+      "alter table public.mofs disable trigger keep_order_total_above_payments",
+    );
     await t.db.query("update public.mofs set vo_amount = $1 where id = $2", [
       c.voAfterPayments,
       mofId,
     ]);
+    await t.db.query(
+      "alter table public.mofs enable trigger keep_order_total_above_payments",
+    );
   }
   for (const payout of c.payouts ?? []) {
     await t.db.query(

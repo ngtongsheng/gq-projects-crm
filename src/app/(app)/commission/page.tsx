@@ -79,7 +79,7 @@ export default async function CommissionPage({
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Commission"
+        title={seesEveryone ? "Commission" : "My commission"}
         description={
           seesEveryone
             ? "What each person has earned on money received, and what is left to pay out."

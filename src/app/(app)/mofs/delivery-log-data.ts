@@ -58,21 +58,31 @@ const logRows = z.array(
       scheduled_on: z.string(),
       notes: z.string().nullable(),
     }),
-    mofs: z.object({
-      mof_no: z.string(),
-      company_name: z.string(),
-      project_name: z.string(),
-      scope: JobScope,
-    }),
+    // Null when the person may read the DO but not its MOF (RLS hides the embedded row).
+    mofs: z
+      .object({
+        mof_no: z.string(),
+        company_name: z.string(),
+        project_name: z.string(),
+        scope: JobScope,
+      })
+      .nullable(),
   }),
 );
+
+/** The DOs whose MOF the person may read; the rest are left out of the log. */
+export function readableDeliveryOrders(data: unknown) {
+  return logRows
+    .parse(data)
+    .flatMap(({ mofs, ...order }) => (mofs ? [{ ...order, mofs }] : []));
+}
 
 const cancelledRows = z.array(
   z.object({
     running_no: z.string(),
     cancelled_at: z.string(),
     cancelled_by: z.string().nullable(),
-    mofs: z.object({ mof_no: z.string() }),
+    mofs: z.object({ mof_no: z.string() }).nullable(),
   }),
 );
 
@@ -107,7 +117,7 @@ export async function loadDeliveryLog(): Promise<{
       `Could not load cancelled DO numbers: ${cancelledResult.error.message}`,
     );
   }
-  const orders = logRows.parse(ordersResult.data);
+  const orders = readableDeliveryOrders(ordersResult.data);
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
 
   const stateByMof = new Map<
@@ -167,11 +177,21 @@ export async function loadDeliveryLog(): Promise<{
         b.runningNo.localeCompare(a.runningNo),
     );
 
-  const cancelled = cancelledRows.parse(cancelledResult.data).map((row) => ({
-    doNo: `${row.mofs.mof_no}${row.running_no}`,
-    cancelledOn: row.cancelled_at,
-    cancelledBy: row.cancelled_by ? (nameOf.get(row.cancelled_by) ?? "") : "",
-  }));
+  const cancelled = cancelledRows
+    .parse(cancelledResult.data)
+    .flatMap(({ mofs, ...row }) =>
+      mofs
+        ? [
+            {
+              doNo: `${mofs.mof_no}${row.running_no}`,
+              cancelledOn: row.cancelled_at,
+              cancelledBy: row.cancelled_by
+                ? (nameOf.get(row.cancelled_by) ?? "")
+                : "",
+            },
+          ]
+        : [],
+    );
 
   return { rows, cancelled, nextNo };
 }

@@ -102,7 +102,7 @@ export default async function TeamReportsPage({
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Team Reports"
+        title="Team reports"
         description={`${formatMonth(view.month)}: ${submitted} of ${rows.length} submitted. ${dueText(view)}.`}
         actions={<MonthSwitcher view={view} query={{ kind }} />}
       />

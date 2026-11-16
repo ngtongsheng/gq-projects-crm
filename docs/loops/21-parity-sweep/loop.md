@@ -20,8 +20,8 @@ the branch is merged to `main`.
 | # | Task | Status | Depends | Tier |
 |---|---|---|---|---|
 | 01 | Seed access, migrate and seed test copy | done | - | economy |
-| 02 | Parity: loop 14 money and reports | in-progress | 01 | standard |
-| 03 | Parity: loop 16 People, HR, Tools | todo | 01 | standard |
+| 02 | Parity: loop 14 money and reports | done | 01 | standard |
+| 03 | Parity: loop 16 People, HR, Tools | in-progress | 01 | standard |
 | 04 | Parity: loop 17 Log work, Site Work | todo | 01 | standard |
 | 05 | Parity: loop 18 Installation and DOs | todo | 01 | standard |
 | 06 | Parity: loop 18 Stock, Samples, Leftover | todo | 01 | standard |
@@ -44,3 +44,8 @@ the branch is merged to `main`.
 2026-11-16 · #01 · note · subagent printed one run of test sign-in passwords; they rotate every seed, already stale
 2026-11-16 · #01 · done · check, typecheck, 2984 tests, db:test-copy up to date, seed:example exit 0 twice; Chrome sign-in left to #02 · next: #02
 2026-11-16 · #02 · in-progress · delegated (standard)
+2026-11-16 · #02 · decision · fixed /mofs 500 for Marketing Director (DO rows with unreadable MOF now skipped) plus 4 heading fixes; 13 drift rows to drift-after-sweep.md · bug and UI-only drift
+2026-11-16 · #02 · decision · 390 px checked in a 390 px frame (Chrome window min ~500); side-by-side screenshots for a sample of cells, rest structure/overflow only · coverage thinner than D2, listed in report
+2026-11-16 · #02 · note · test copy changed: Oct reports for Vanisha and Vernice, VO2 on MOF-2026-009; re-seed resets
+2026-11-16 · #02 · done · check, typecheck, 2986 tests pass · next: #03
+2026-11-16 · #03 · in-progress · delegated (standard)

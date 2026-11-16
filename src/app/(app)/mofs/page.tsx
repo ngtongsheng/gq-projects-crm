@@ -65,7 +65,7 @@ export default async function MofRegisterPage({
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title={ownOnly ? "My Sales" : "MOF Register"}
+        title={ownOnly ? "My Sales" : "MOF register"}
         description={
           ownOnly
             ? "Every MOF registered under your name. This is your sales achievement."

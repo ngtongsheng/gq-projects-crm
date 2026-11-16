@@ -53,7 +53,7 @@ export default async function DirectorReportPage({
   if (me.jobRole === "director") {
     return (
       <div className="flex flex-col gap-4">
-        <PageHeader title="Director Report" />
+        <PageHeader title="Director reports" />
         <div className="rounded-xl border bg-card">
           <EmptyState
             icon={ClipboardList}
@@ -92,7 +92,7 @@ export default async function DirectorReportPage({
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Director Report"
+        title="Director reports"
         description={`${formatMonth(view.month)}. ${dueText(view)}. The MD reviews this report.`}
         actions={<MonthSwitcher view={view} />}
       />

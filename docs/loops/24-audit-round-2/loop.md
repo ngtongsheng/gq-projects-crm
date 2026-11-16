@@ -34,7 +34,7 @@ error pages, and sign-out closing impersonation. Every other finding is in `docs
 | 08 | Small data fixes: MYT defaults, receipt lock, archived mobile message (D6, D7, D4) | done | | standard |
 | 09 | Error pages and upload failures (O5, O6) | done | | standard |
 | 10 | Sign-out closes the impersonation log row (S4) | done | | standard |
-| 11 | Log deferred findings in debt.md and the audit | in-progress | 01-10 | economy |
+| 11 | Log deferred findings in debt.md and the audit | done | 01-10 | economy |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 
 ## Owner actions
@@ -82,3 +82,6 @@ error pages, and sign-out closing impersonation. Every other finding is in `docs
 2026-11-16 · #10 · decision · shared closeImpersonationLog in its own file (a "use server" export would become a callable action); cookie deleted before the log write (viewOnlyFetch refuses writes while viewing as); expired cookie leaves the row open, same as endViewAs → #11 debt
 2026-11-16 · #10 · done · check/typecheck/test pass (3100)
 2026-11-16 · #11 · in-progress · delegated (economy)
+2026-11-16 · #11 · decision · extra findings folded into existing debt.md entries to stay within 8 new entries
+2026-11-16 · #11 · done · all 16 deferred IDs found in debt.md; audit has "Loop 24 outcome"; pnpm check passes
+2026-11-16 · vault · /Users/tongshengng/work/vault/sessions/gq-projects-crm/2026-11-16-loop-24-audit-round-2.md

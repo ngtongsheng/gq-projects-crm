@@ -62,13 +62,14 @@
 - Why: the team has far fewer rows today; paging was outside the screens' tasks.
 - When to fix: when a list passes about 800 rows (the delivery log first, about 1000 DOs): page it or move the count into SQL.
 
-## Sample pickup date uses UTC (loop 18 #08)
-- What: `moved_on` defaults to `current_date` in `save_sample_pickup`, which is UTC. Between 00:00 and 08:00 Malaysia
-  time a move is dated the day before.
+## Dates default to UTC (loop 18 #08, loop 24 #08)
+- What: `moved_on` defaults to `current_date` in `save_sample_pickup`, which is UTC. `samples.form_date` and `samples.moved_on`
+  (`20261118150000_samples.sql`) and `variation_orders.vo_date` (`20261115210000_variation_orders.sql`) do the same. Between
+  00:00 and 08:00 Malaysia time these are dated the day before.
 - Why: the default is in the database; the screens pass no date.
-- When to fix: next migration that touches samples: use `(now() at time zone 'Asia/Kuala_Lumpur')::date`.
+- When to fix: next migration that touches samples or variation orders: use `(now() at time zone 'Asia/Kuala_Lumpur')::date`, as tasks and FOB enquiries already do.
 
-## Installer rename does not update old jobs (loop 18 #02)
+## Installer rename does not update old jobs (loop 18 #02, audit D3)
 - What: renaming an installer changes the directory only. Old jobs keep the name text they were saved with (the calendar
   and counts use `installer_id`, so they still match).
 - Why: RLS stops installer editors writing to `jobs`; a trigger on `installers` could do it as the owner.
@@ -142,12 +143,12 @@
 - When to fix: if contention shows up on 1 January, or move the refresh to a scheduled job.
 
 ## Repeated dialog, data-layer and test-mock code (audit R1, R3, Q2)
-- What: about 99 files re-declare the dialog `useState` and `useTransition` block. The data layer has no shared helpers. The Supabase test mock is copied across about 53 test files.
+- What: about 99 files re-declare the dialog `useState` and `useTransition` block. The data layer has no shared helpers. The Supabase test mock is copied across about 53 test files. There is no component test harness (no jsdom or testing-library), so the upload button is tested through `attachFile` only (loop 24 #09).
 - Why: each copy works on its own; extracting shared code is a wide change with little payoff per file. `FormDialog` and `useSubmit` in `installer-forms.tsx` are the starting point.
-- When to fix: during the next change that touches many dialogs or tests: promote `FormDialog`/`useSubmit` to a shared file and add a shared Supabase fake under `src/lib/supabase/`.
+- When to fix: during the next change that touches many dialogs or tests: promote `FormDialog`/`useSubmit` to a shared file and add a shared Supabase fake under `src/lib/supabase/`. A component harness needs a new dependency: ask first.
 
-## Commission rules are written twice (audit R2)
-- What: `calculateCommission` in TypeScript and `commission_payable_now` / `commission_basis` in SQL both implement the margin tiers, late cuts, splits and rounding. They must be kept in step by hand.
+## Commission rules are written twice (audit R2, D9)
+- What: `calculateCommission` in TypeScript and `commission_payable_now` / `commission_basis` in SQL both implement the margin tiers, late cuts, splits and rounding. They must be kept in step by hand. The engine also exists in 4-5 SQL copies (D9), with only the parity test between them.
 - Why: the app and the database both need the figure; picking one authority is a design change.
 - When to fix: at the next commission rule change: pick one authority and have the other read from it.
 
@@ -157,7 +158,7 @@
 - When to fix: when the file or area is next changed. Enable `noUncheckedIndexedAccess` in one pass with its fixes.
 
 ## Raw English in component files (audit Q1)
-- What: component files render English without `t()`, so a Chinese or Malay user sees English on those screens. The audit's count (about 36 of 229 UI files) was not reproduced in verification.
+- What: component files render English without `t()`, so a Chinese or Malay user sees English on those screens. `global-error.tsx` is English only, because no language provider exists above the root layout (loop 24 #09). The audit's count (about 36 of 229 UI files) was not reproduced in verification.
 - Why: the sweep needs a grep-based inventory first; the dictionary gaps are a separate item (see "Chinese and Malay dictionaries are far from matching", loop 23 #06).
 - When to fix: next i18n sweep: start with `grep` for JSX text without `t()`, then translate the screens Chinese or Malay users reach.
 
@@ -170,3 +171,43 @@
 - What: `ActivityForm` sets its planned/completed default from the clock on first render. It is safe only because it mounts on the client; the audit did not reproduce a bad case. A new read-only RPC that is not in `READ_ONLY_FUNCTIONS` (`src/lib/supabase/view-only-fetch.ts`) shows "View only – not saved." in view-as.
 - Why: both are latent; no current screen triggers them.
 - When to fix: B5 when adding a read-only RPC: add it to `READ_ONLY_FUNCTIONS`. B4 if the default is ever computed on the server.
+
+## Security lows and by-design notes (audit S2, S5, S6, S-DB4, S-DB5)
+- What: `.env.development` (test-copy URL and publishable key) is still tracked in git (S2). `requestOrigin()` trusts `x-forwarded-host` for OAuth redirects (S5). No app-side rate limiting on server actions (S6). `grant update (key)` on `app_settings` lets the MD's update policy rename a settings key and orphan its readers (S-DB4). `mof_lines` read-all is `using (true)` on purpose, since lines hold no money columns (S-DB5).
+- Why: none is exploitable today. The key is public, Vercel sets the host header, RLS makes blind id iteration harmless, and the last two are accepted design. Loop 24 D2 skipped untracking the env file.
+- When to fix: S2 when the test copy stops being shared or the repo goes private. S5 if the app is ever self-hosted. S6 when rate limits are needed. S-DB4 when the settings key policy changes.
+
+## Schema lows: auth delete and DO numbers (audit D5, D8)
+- What: deleting an auth user hits about 120 foreign keys with NO ACTION (D5). The DO number stops at 9999 with a cryptic CHECK message instead of "extend to 5 digits" (D8).
+- Why: the "left" flow never needs the delete, and the DO limit is years away.
+- When to fix: D5 before anyone writes a hard-delete flow: document the order or add cascades. D8 when numbers reach about 9000: widen to five digits and show a plain message.
+
+## Commission appeals and MOF changes lack the left-people policy (loop 24 #07)
+- What: `commission_appeals` and `mof_changes` have RLS but no restrictive "left people: no access" policy, so a person who left can still read them if their role matches.
+- Why: found while fixing S-DB1 to S-DB3; each table needs its own migration.
+- When to fix: the next migration touching either table: add the restrictive policy in that migration.
+
+## Installer POs keep the typed installer name (loop 24 #06)
+- What: `installer_pos` keeps the `installer` text column and the old unique `(mof_id, installer)` constraint. A trigger keeps the text in step with the directory.
+- Why: the app reads the installer id now, but dropping the column changes a table the migration just fixed. Loop 24 D5 kept the old constraint for now.
+- When to fix: once nothing reads `installer_pos.installer` (grep first): drop the unique constraint and the text column in one migration.
+
+## Sign-out leaves an expired view-as row open (loop 24 #10)
+- What: signing out with a view-as cookie older than 8 hours does not set `impersonation_log.ended_at`. `endViewAs` has the same gap.
+- Why: the expired cookie is no longer honoured; the row only stays open in the log. Loop 24 #10 kept `endViewAs` behaviour.
+- When to fix: the next change to `closeImpersonationLog` or `endViewAs`: close rows older than the cookie's expiry too.
+
+## Error logs on other paths lack context (audit O4)
+- What: `logServerError` (message, error and record context) is used only on the money and HR actions. About 150 other `console.error` calls log the raw error with no user or record id.
+- Why: money and HR were the forensic priority (loop 24 D6); the rest adopt the helper when touched.
+- When to fix: when a file is next changed, switch its `console.error` calls to `logServerError`.
+
+## Observability lows (audit O2, O8, O9, O10)
+- What: no timeouts on Supabase calls (O2), so a slow database hangs pages until the Vercel timeout. `session-sync.mjs` fails silently when `gh` auth expires (O8). Zod `.catch()` swaps silent defaults into report and reminder settings (O9). No cron exists; yearly-target rollover runs on request (O10).
+- Why: none breaks today. Each needs a design choice (timeouts, a watcher for the watcher, schema drift logging, a scheduled job).
+- When to fix: O2 when a slow database is seen on the live app. O8 when instructions stop flowing. O9 at the next settings schema change. O10 with the Integration loop.
+
+## Dev-only audit advisories and patch lag (audit X1, X2)
+- What: `pnpm audit` reports 2 advisories, both in the dev-only `shadcn` CLI (`minimatch`, `deepmerge`). Next, react and supabase-js have patch releases pending.
+- Why: production does not run them; patching was not part of loop 24.
+- When to fix: the next dependency update: take the patch versions and recheck `pnpm audit`.

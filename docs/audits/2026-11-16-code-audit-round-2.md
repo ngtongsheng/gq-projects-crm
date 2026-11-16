@@ -90,3 +90,27 @@ Ranked: **S1** (security headers + CSP in next.config — small, closes the bigg
 (log middleware auth errors — small), **D1/D2** (payment-floor + installer key — need a small
 migration each), **O3/O4** (audit table for payout deletes + richer error context), **S-DB1/S2**
 (storage insert permission check, untrack `.env.development`). Everything else is low or noise.
+
+## Loop 24 outcome
+
+Fixed in loop 24 (`loop/24-audit-round-2`):
+- S1, S3, S4, S-DB1, S-DB2, S-DB3
+- O1, O3, O5, O6, O7
+- O4 on money and HR paths only (remainder deferred below)
+- D1, D2, D4, D6, D7
+
+Deferred to `docs/debt.md`:
+- S2, S5, S6, S-DB4, S-DB5: "Security lows and by-design notes"
+- D3: "Installer rename does not update old jobs"
+- D5, D8: "Schema lows: auth delete and DO numbers"
+- D9: "Commission rules are written twice" (with R2)
+- O2, O8, O9, O10: "Observability lows"
+- O4 remainder: "Error logs on other paths lack context"
+- X1, X2: "Dev-only audit advisories and patch lag"
+
+Found during loop 24 and logged in `docs/debt.md`:
+- Commission appeals and MOF changes lack the left-people policy
+- Installer PO text column and old unique constraint kept
+- Sign-out leaves an expired view-as row open
+- Sample, samples form/moved and variation order dates use UTC
+- `global-error.tsx` English only; no component test harness

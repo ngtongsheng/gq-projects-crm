@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requirePage } from "@/lib/auth/require-page";
 import { needsReceipt } from "@/lib/domain/claim-expense";
 import { CLAIM_EXPENSE_TYPES } from "@/lib/domain/monthly-claim";
+import { logServerError } from "@/lib/log-server-error";
 import { AttachmentPath, IMAGE_TYPES } from "@/lib/storage/attachment-rules";
 import { createReadLink } from "@/lib/storage/signed-url";
 import { createUploadTarget, type UploadTarget } from "@/lib/storage/upload";
@@ -96,7 +97,7 @@ export async function attachReceipt(
   expenseId: string,
   file: unknown,
 ): Promise<ReceiptResult> {
-  await requirePage("claims");
+  const me = await requirePage("claims");
   const parsed = ReceiptInput.safeParse(file);
   if (!parsed.success) {
     return { error: "The receipt could not be read. Upload it again." };
@@ -123,7 +124,10 @@ export async function attachReceipt(
     .select("id");
   if (error) {
     if (isNotAllowed(error)) return { error: CLAIM_LOCKED };
-    console.error("Could not save the claim receipt", error);
+    logServerError("Could not save the claim receipt", error, {
+      profileId: me.id,
+      recordId: expense.id,
+    });
     return { error: TRY_AGAIN };
   }
   if (data.length === 0) return { error: CLAIM_LOCKED };

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requirePage } from "@/lib/auth/require-page";
 import { canClaimCommission } from "@/lib/domain/claim-eligibility";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 import { loadCommissionOptions } from "./claim-commission-options";
 import {
@@ -48,7 +49,10 @@ export async function setCommissionLines(
       .eq("claim_id", opened.claimId)
       .in("mof_id", parsed.data.mofIds);
     if (error) {
-      console.error("Could not untick commission lines", error);
+      logServerError("Could not untick commission lines", error, {
+        profileId: me.id,
+        recordId: opened.claimId,
+      });
       return { error: TRY_AGAIN };
     }
     revalidatePath("/claims");
@@ -74,7 +78,10 @@ export async function setCommissionLines(
     .upsert(rows, { onConflict: "claim_id,mof_id", ignoreDuplicates: true });
   if (error) {
     if (isNotAllowed(error)) return { error: CLAIM_LOCKED };
-    console.error("Could not tick commission lines", error);
+    logServerError("Could not tick commission lines", error, {
+      profileId: me.id,
+      recordId: opened.claimId,
+    });
     return { error: TRY_AGAIN };
   }
   revalidatePath("/claims");

@@ -7,6 +7,7 @@ import { canCancelLeave, decideLeave } from "@/lib/domain/leave-approval";
 import { LEAVE_TYPES } from "@/lib/domain/leave-balance";
 import { textField } from "@/lib/form/form-fields";
 import { todayMyt } from "@/lib/format/date";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 import { loadLeave } from "./leave-load";
 
@@ -49,7 +50,7 @@ const applyForm = z
  * approval chain; the id comes back so an MC or hospitalisation slip can be added next.
  */
 export async function applyForLeave(formData: FormData): Promise<ApplyResult> {
-  await requirePage("leave");
+  const me = await requirePage("leave");
   const parsed = applyForm.safeParse({
     leaveType: textField(formData, "leaveType"),
     startsOn: textField(formData, "startsOn"),
@@ -81,7 +82,9 @@ export async function applyForLeave(formData: FormData): Promise<ApplyResult> {
     if (error.code === "23514") {
       return { error: "Leave can be up to a year long. Check the dates." };
     }
-    console.error("Could not apply for leave", error);
+    logServerError("Could not apply for leave", error, {
+      profileId: me.id,
+    });
     return { error: TRY_AGAIN };
   }
   revalidatePath("/leave");
@@ -114,7 +117,10 @@ export async function cancelLeave(id: string): Promise<LeaveResult> {
     .select("id");
   if (error) {
     if (error.code === "42501") return { error: CHANGED };
-    console.error("Could not cancel the leave", error);
+    logServerError("Could not cancel the leave", error, {
+      profileId: me.id,
+      recordId: leave.id,
+    });
     return { error: TRY_AGAIN };
   }
   if (data.length === 0) return { error: CHANGED };
@@ -156,7 +162,10 @@ async function decide(
   if (error) {
     // Someone decided or the slip changed between the load and the call.
     if (error.code === "42501") return { error: CHANGED };
-    console.error("Could not decide the leave", error);
+    logServerError("Could not decide the leave", error, {
+      profileId: me.id,
+      recordId: leave.id,
+    });
     return { error: TRY_AGAIN };
   }
   revalidatePath("/leave");

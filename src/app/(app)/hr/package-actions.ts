@@ -5,6 +5,7 @@ import { z } from "zod";
 import { canSeeHr } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { HOTEL_LEVELS } from "@/lib/domain/staff-package";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 import {
   allowanceListForm,
@@ -51,6 +52,7 @@ const detailsOnlyForm = z.object({
 type Details = z.infer<typeof detailsForm>;
 
 async function upsertDetails(
+  actorId: string,
   profileId: string,
   details: Details,
 ): Promise<PackageResult> {
@@ -65,7 +67,7 @@ async function upsertDetails(
     },
     { onConflict: "profile_id" },
   );
-  return error ? fail(error) : { error: null };
+  return error ? fail(error, actorId, profileId) : { error: null };
 }
 
 /**
@@ -99,10 +101,10 @@ export async function addStaffPackage(input: unknown): Promise<PackageResult> {
           "A package from that date is already recorded and can't be changed. Use a later date.",
       };
     }
-    return fail(error);
+    return fail(error, me.id, form.profileId);
   }
 
-  const saved = await upsertDetails(form.profileId, form.details);
+  const saved = await upsertDetails(me.id, form.profileId, form.details);
   revalidatePath("/hr");
   return saved.error
     ? {
@@ -119,13 +121,24 @@ export async function saveStaffDetails(input: unknown): Promise<PackageResult> {
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Check the details." };
   }
-  const saved = await upsertDetails(parsed.data.profileId, parsed.data.details);
+  const saved = await upsertDetails(
+    me.id,
+    parsed.data.profileId,
+    parsed.data.details,
+  );
   if (!saved.error) revalidatePath("/hr");
   return saved;
 }
 
-function fail(error: { code?: string; message?: string }): PackageResult {
+function fail(
+  error: { code?: string; message?: string },
+  actorId: string,
+  profileId: string,
+): PackageResult {
   if (error.code === "42501") return { error: NOT_ALLOWED };
-  console.error("Could not save the package", error);
+  logServerError("Could not save the package", error, {
+    profileId: actorId,
+    recordId: profileId,
+  });
   return { error: TRY_AGAIN };
 }

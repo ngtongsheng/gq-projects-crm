@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requirePage } from "@/lib/auth/require-page";
 import { canManageClaims } from "@/lib/domain/claim-flow";
 import { ClaimSettings } from "@/lib/domain/monthly-claim";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 
 export type ClaimSettingsResult = { error: string | null };
@@ -44,7 +45,9 @@ export async function saveClaimSettings(
     .upsert({ key: "claims", value: parsed.data }, { onConflict: "key" });
   if (error) {
     if (error.code === "42501") return { error: NOT_ALLOWED };
-    console.error("Could not save the claim settings", error);
+    logServerError("Could not save the claim settings", error, {
+      profileId: me.id,
+    });
     return { error: TRY_AGAIN };
   }
   revalidatePath("/claims", "layout");

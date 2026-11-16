@@ -8,6 +8,7 @@ import { orderTotal } from "@/lib/domain/mof-totals";
 import { textField } from "@/lib/form/form-fields";
 import { todayMyt } from "@/lib/format/date";
 import { formatRm, parseRm, sumRm, toCents } from "@/lib/format/money";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 
 export type CollectionResult = { error: string | null };
@@ -75,7 +76,10 @@ export async function recordPayment(
     .eq("id", payment.mofId)
     .maybeSingle();
   if (orderError) {
-    console.error("Could not read the order for a payment", orderError);
+    logServerError("Could not read the order for a payment", orderError, {
+      profileId: me.id,
+      recordId: payment.mofId,
+    });
     return { error: TRY_AGAIN };
   }
   const known = orderForPayment.safeParse(order);
@@ -103,7 +107,10 @@ export async function recordPayment(
     }
     if (error.code === "42501") return { error: NOT_ALLOWED };
     if (error.code === "23503") return { error: NOT_FOUND_MOF };
-    console.error("Could not record the payment", error);
+    logServerError("Could not record the payment", error, {
+      profileId: me.id,
+      recordId: payment.mofId,
+    });
     return { error: TRY_AGAIN };
   }
 
@@ -128,7 +135,10 @@ export async function removePayment(
     .eq("id", id.data)
     .select("id");
   if (error) {
-    console.error("Could not remove the payment", error);
+    logServerError("Could not remove the payment", error, {
+      profileId: me.id,
+      recordId: id.data,
+    });
     return { error: TRY_AGAIN };
   }
   if (data.length === 0) return { error: NOT_FOUND_PAYMENT };

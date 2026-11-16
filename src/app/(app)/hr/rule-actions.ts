@@ -5,6 +5,7 @@ import { z } from "zod";
 import { canSeeHr } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { textField } from "@/lib/form/form-fields";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 
 export type RuleResult = { error: string | null };
@@ -37,7 +38,7 @@ export async function addExtraRule(formData: FormData): Promise<RuleResult> {
   const { error } = await supabase
     .from("hr_extra_rules")
     .insert({ starts_on: parsed.data.startsOn, rule: parsed.data.rule });
-  if (error) return fail(error);
+  if (error) return fail(error, me.id);
   revalidatePath("/hr");
   return { error: null };
 }
@@ -56,13 +57,17 @@ export async function removeExtraRule(id: string): Promise<RuleResult> {
     .from("hr_extra_rules")
     .delete()
     .eq("id", parsed.data);
-  if (error) return fail(error);
+  if (error) return fail(error, me.id, parsed.data);
   revalidatePath("/hr");
   return { error: null };
 }
 
-function fail(error: { code?: string; message?: string }): RuleResult {
+function fail(
+  error: { code?: string; message?: string },
+  profileId: string,
+  recordId?: string,
+): RuleResult {
   if (error.code === "42501") return { error: NOT_ALLOWED };
-  console.error("Could not save the rule", error);
+  logServerError("Could not save the rule", error, { profileId, recordId });
   return { error: TRY_AGAIN };
 }

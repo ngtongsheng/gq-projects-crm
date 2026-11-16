@@ -7,6 +7,7 @@ import {
   CommissionSettings,
   storedRows,
 } from "@/lib/domain/commission-settings";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 
 export type CommissionSettingsResult = { error: string | null };
@@ -60,7 +61,9 @@ export async function saveCommissionSettings(
     .upsert(storedRows(parsed.data), { onConflict: "key" });
   if (error) {
     if (error.code === "42501") return { error: NOT_MD };
-    console.error("Could not save the commission settings", error);
+    logServerError("Could not save the commission settings", error, {
+      profileId: me.id,
+    });
     return { error: TRY_AGAIN };
   }
 

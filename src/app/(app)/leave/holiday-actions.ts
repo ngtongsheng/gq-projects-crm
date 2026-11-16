@@ -5,6 +5,7 @@ import { z } from "zod";
 import { canEditLeaveSetup } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { textField } from "@/lib/form/form-fields";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 
 export type HolidayResult = { error: string | null };
@@ -37,7 +38,7 @@ export async function addHoliday(formData: FormData): Promise<HolidayResult> {
   const { error } = await supabase
     .from("public_holidays")
     .upsert(parsed.data, { onConflict: "day" });
-  if (error) return fail(error);
+  if (error) return fail(error, me.id, parsed.data.day);
   revalidatePath("/leave");
   return { error: null };
 }
@@ -56,13 +57,20 @@ export async function removeHoliday(day: string): Promise<HolidayResult> {
     .from("public_holidays")
     .delete()
     .eq("day", parsed.data);
-  if (error) return fail(error);
+  if (error) return fail(error, me.id, parsed.data);
   revalidatePath("/leave");
   return { error: null };
 }
 
-function fail(error: { code?: string; message?: string }): HolidayResult {
+function fail(
+  error: { code?: string; message?: string },
+  profileId: string,
+  day: string,
+): HolidayResult {
   if (error.code === "42501") return { error: NOT_ALLOWED };
-  console.error("Could not save the public holiday", error);
+  logServerError("Could not save the public holiday", error, {
+    profileId,
+    recordId: day,
+  });
   return { error: TRY_AGAIN };
 }

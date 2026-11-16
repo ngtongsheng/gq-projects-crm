@@ -2,10 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import type { Profile } from "@/lib/auth/current-profile";
 import { canSeeHr } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { currentScheme, splitPolicies } from "@/lib/domain/hr-policy";
 import { SALES_GRADES } from "@/lib/domain/hr-scheme";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 import { loadPolicyDocuments } from "./policy-data";
 
@@ -57,7 +59,7 @@ export async function saveGradeAmount(input: unknown): Promise<GradeResult> {
         : { annual_target: data.value },
     )
     .eq("grade", data.grade);
-  return finish(error);
+  return finish(error, me.id, data.grade);
 }
 
 const personGradeForm = z.object({
@@ -82,7 +84,7 @@ export async function savePersonGrade(input: unknown): Promise<GradeResult> {
     },
     { onConflict: "profile_id" },
   );
-  return finish(error);
+  return finish(error, me.id, parsed.data.profileId);
 }
 
 const appendixForm = z.object({
@@ -113,22 +115,27 @@ export async function saveAppendixSigned(input: unknown): Promise<GradeResult> {
     },
     { onConflict: "profile_id" },
   );
-  return finish(error);
+  return finish(error, me.id, profileId);
 }
 
-async function mayChangeHr(): Promise<boolean> {
+async function mayChangeHr(): Promise<Profile | null> {
   const me = await requirePage("hr");
-  return canSeeHr(me.jobRole);
+  return canSeeHr(me.jobRole) ? me : null;
 }
 
 function finish(
   error: { code?: string; message?: string } | null,
+  profileId: string,
+  recordId: string,
 ): GradeResult {
   if (!error) {
     revalidatePath("/hr");
     return { error: null };
   }
   if (error.code === "42501") return { error: NOT_ALLOWED };
-  console.error("Could not save the grade setting", error);
+  logServerError("Could not save the grade setting", error, {
+    profileId,
+    recordId,
+  });
   return { error: TRY_AGAIN };
 }

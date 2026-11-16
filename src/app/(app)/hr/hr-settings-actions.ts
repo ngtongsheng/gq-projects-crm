@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { canSeeHr } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 import { allowanceListForm, claimCapForm } from "./package-schemas";
 
@@ -37,7 +38,7 @@ export async function updateStandardPackage(
       claim_cap: parsed.data.claimCap,
     })
     .eq("position", parsed.data.position);
-  return finish(error);
+  return finish(error, me.id, parsed.data.position);
 }
 
 const rate = (message: string) =>
@@ -81,17 +82,22 @@ export async function updateOutstationRules(
       hotel_director: form.hotelDirector,
     })
     .eq("id", true);
-  return finish(error);
+  return finish(error, me.id, "outstation-rules");
 }
 
 function finish(
   error: { code?: string; message?: string } | null,
+  profileId: string,
+  recordId: string,
 ): SettingsResult {
   if (!error) {
     revalidatePath("/hr");
     return { error: null };
   }
   if (error.code === "42501") return { error: NOT_ALLOWED };
-  console.error("Could not save the HR setting", error);
+  logServerError("Could not save the HR setting", error, {
+    profileId,
+    recordId,
+  });
   return { error: TRY_AGAIN };
 }

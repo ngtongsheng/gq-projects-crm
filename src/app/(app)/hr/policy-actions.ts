@@ -5,6 +5,7 @@ import { z } from "zod";
 import { canSeeHr } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { POLICY_CATEGORIES } from "@/lib/domain/hr-policy";
+import { logServerError } from "@/lib/log-server-error";
 import { AttachmentPath } from "@/lib/storage/attachment-rules";
 import { createReadLink } from "@/lib/storage/signed-url";
 import { createUploadTarget, type UploadTarget } from "@/lib/storage/upload";
@@ -133,7 +134,7 @@ export async function addPolicy(input: unknown): Promise<PolicyResult> {
     if (error.code === "23505" && error.message.includes("replaces_id")) {
       return { error: "That policy was already replaced. Reload the page." };
     }
-    return fail(error);
+    return fail(error, me.id, form.id);
   }
   revalidatePath("/hr");
   return { error: null };
@@ -167,7 +168,7 @@ export async function updatePolicy(input: unknown): Promise<PolicyResult> {
     })
     .eq("id", form.id)
     .select("id");
-  if (error) return fail(error);
+  if (error) return fail(error, me.id, form.id);
   if (data.length === 0) return { error: NOT_FOUND };
   revalidatePath("/hr");
   return { error: null };
@@ -196,7 +197,10 @@ export async function openPolicyFile(id: string): Promise<OpenPolicyResult> {
     .eq("id", parsed.data)
     .maybeSingle();
   if (error) {
-    console.error("Could not load the policy file", error);
+    logServerError("Could not load the policy file", error, {
+      profileId: me.id,
+      recordId: parsed.data,
+    });
     return { error: "That file is not available." };
   }
   const path = z.object({ file_path: z.string() }).safeParse(data);
@@ -210,8 +214,12 @@ export async function openPolicyFile(id: string): Promise<OpenPolicyResult> {
   return link.ok ? { error: null, url: link.url } : { error: link.error };
 }
 
-function fail(error: { code?: string; message?: string }): PolicyResult {
+function fail(
+  error: { code?: string; message?: string },
+  profileId: string,
+  recordId: string,
+): PolicyResult {
   if (error.code === "42501") return { error: NOT_ALLOWED };
-  console.error("Could not save the policy", error);
+  logServerError("Could not save the policy", error, { profileId, recordId });
   return { error: TRY_AGAIN };
 }

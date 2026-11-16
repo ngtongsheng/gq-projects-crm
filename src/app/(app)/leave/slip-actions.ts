@@ -7,6 +7,7 @@ import {
   canConfirmOriginalSlip,
   canUploadSlip,
 } from "@/lib/domain/leave-approval";
+import { logServerError } from "@/lib/log-server-error";
 import { AttachmentPath, AttachmentType } from "@/lib/storage/attachment-rules";
 import { createReadLink } from "@/lib/storage/signed-url";
 import { createUploadTarget, type UploadTarget } from "@/lib/storage/upload";
@@ -101,7 +102,10 @@ export async function addLeaveSlip(
     .eq("id", leave.id);
   if (error) {
     if (error.code === "42501") return { error: NOT_ALLOWED };
-    console.error("Could not save the leave slip", error);
+    logServerError("Could not save the leave slip", error, {
+      profileId: me.id,
+      recordId: leave.id,
+    });
     return { error: "Could not save the slip. Try again." };
   }
   revalidatePath("/leave");
@@ -132,7 +136,10 @@ export async function confirmOriginalSlip(
     .eq("id", leave.id);
   if (error) {
     if (error.code === "42501") return { error: NOT_ALLOWED };
-    console.error("Could not tick the original slip", error);
+    logServerError("Could not tick the original slip", error, {
+      profileId: me.id,
+      recordId: leave.id,
+    });
     return { error: "Could not save. Try again." };
   }
   revalidatePath("/leave");

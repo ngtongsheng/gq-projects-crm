@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requirePage } from "@/lib/auth/require-page";
 import { canFileClaim } from "@/lib/domain/claim-eligibility";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 import { type SubmitClaimResult, submitClaim } from "./actions";
 import { openOwnClaim, TRY_AGAIN } from "./own-claim";
@@ -43,7 +44,10 @@ export async function submitOwnClaim(
     .update({ note: parsedNote.data })
     .eq("id", opened.claimId);
   if (error) {
-    console.error("Could not save the claim note", error);
+    logServerError("Could not save the claim note", error, {
+      profileId: me.id,
+      recordId: opened.claimId,
+    });
     return { error: TRY_AGAIN, afterCutOff: false };
   }
   revalidatePath("/claims");

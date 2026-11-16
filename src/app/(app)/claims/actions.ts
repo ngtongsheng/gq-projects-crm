@@ -18,6 +18,7 @@ import {
 } from "@/lib/domain/claim-flow";
 import { reportKindFor } from "@/lib/domain/report-stats";
 import { todayMyt } from "@/lib/format/date";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 import { loadReportFilers } from "../reports/report-filers";
 import { loadClaimFlagCount } from "./claim-review-flags";
@@ -75,7 +76,10 @@ async function openStep(
     .eq("id", id.data)
     .maybeSingle();
   if (error) {
-    console.error("Could not load the monthly claim", error);
+    logServerError("Could not load the monthly claim", error, {
+      profileId: me.id,
+      recordId: id.data,
+    });
     return { error: TRY_AGAIN };
   }
   if (!data) return { error: NOT_FOUND };
@@ -94,6 +98,7 @@ async function openStep(
 /** Moves the claim on, only from the status it was read in; every change is logged by the database. */
 async function moveClaim(
   supabase: Supabase,
+  me: Profile,
   step: ClaimStep,
   claim: ClaimRow,
   extra: Record<string, unknown> = {},
@@ -112,7 +117,10 @@ async function moveClaim(
           "A commission line here is already in another claim waiting to be paid. Remove it, then submit.",
       };
     }
-    console.error(`Could not ${step} the monthly claim`, error);
+    logServerError(`Could not ${step} the monthly claim`, error, {
+      profileId: me.id,
+      recordId: claim.id,
+    });
     return { error: TRY_AGAIN };
   }
   if (data.length === 0) return { error: MOVED_ON };
@@ -210,7 +218,10 @@ export async function submitClaim(claimId: string): Promise<SubmitClaimResult> {
     { claim: claim.id },
   );
   if (otError) {
-    console.error("Could not work out the claim's OT amount", otError);
+    logServerError("Could not work out the claim's OT amount", otError, {
+      profileId: me.id,
+      recordId: claim.id,
+    });
     return { error: TRY_AGAIN, afterCutOff: false };
   }
   const ot = z.coerce.number().nonnegative().parse(otAmount);
@@ -225,7 +236,7 @@ export async function submitClaim(claimId: string): Promise<SubmitClaimResult> {
     };
   }
 
-  const moved = await moveClaim(supabase, "submit", claim, {
+  const moved = await moveClaim(supabase, me, "submit", claim, {
     ot_original_amount: ot,
   });
   return {
@@ -256,7 +267,7 @@ export async function checkClaim(claimId: string): Promise<ClaimStepResult> {
   if (blocked) return { error: blocked };
   const unexplained = await remarkBlock("check", claim);
   if (unexplained) return { error: unexplained };
-  return moveClaim(supabase, "check", claim);
+  return moveClaim(supabase, me, "check", claim);
 }
 
 /**
@@ -295,7 +306,10 @@ export async function approveClaim(claimId: string): Promise<ClaimStepResult> {
         error: `${error.message} Adjust that commission line, then approve.`,
       };
     }
-    console.error("Could not approve the monthly claim", error);
+    logServerError("Could not approve the monthly claim", error, {
+      profileId: me.id,
+      recordId: claim.id,
+    });
     return { error: TRY_AGAIN };
   }
   revalidatePath("/claims");
@@ -320,7 +334,7 @@ export async function returnClaim(
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Say what to fix." };
   }
-  return moveClaim(opened.supabase, "return", opened.claim, {
+  return moveClaim(opened.supabase, opened.me, "return", opened.claim, {
     return_reason: parsed.data,
   });
 }
@@ -329,7 +343,7 @@ export async function returnClaim(
 export async function payClaim(claimId: string): Promise<ClaimStepResult> {
   const opened = await openStep("pay", claimId);
   if (opened.error !== null) return { error: opened.error };
-  const { claim, supabase } = opened;
+  const { me, claim, supabase } = opened;
 
   const filer = (await loadReportFilers()).find(
     (person) => person.id === claim.profile_id,
@@ -342,5 +356,5 @@ export async function payClaim(claimId: string): Promise<ClaimStepResult> {
       : null,
   });
   if (blocked) return { error: blocked };
-  return moveClaim(supabase, "pay", claim);
+  return moveClaim(supabase, me, "pay", claim);
 }

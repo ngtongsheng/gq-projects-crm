@@ -5,6 +5,7 @@ import { z } from "zod";
 import { canDecideCommissionAppeal } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { textField } from "@/lib/form/form-fields";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 import { loadCommissionLines } from "./commission-data";
 
@@ -67,7 +68,10 @@ export async function sendAppeal(formData: FormData): Promise<AppealResult> {
       };
     }
     if (error.code === "23503") return { error: NOT_FOUND_ORDER };
-    console.error("Could not send the commission appeal", error);
+    logServerError("Could not send the commission appeal", error, {
+      profileId: me.id,
+      recordId: appeal.mofId,
+    });
     return { error: TRY_AGAIN };
   }
 
@@ -103,7 +107,10 @@ export async function decideAppeal(formData: FormData): Promise<AppealResult> {
     .select("id");
   if (error) {
     if (error.code === "42501") return { error: NOT_ALLOWED };
-    console.error("Could not decide the commission appeal", error);
+    logServerError("Could not decide the commission appeal", error, {
+      profileId: me.id,
+      recordId: decision.appealId,
+    });
     return { error: TRY_AGAIN };
   }
   // Already decided, someone else's to see, or the decider's own commission: RLS hides the row.

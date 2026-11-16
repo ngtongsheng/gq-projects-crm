@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { Profile } from "@/lib/auth/current-profile";
 import { CLAIM_STATUSES } from "@/lib/domain/claim-flow";
 import { formatMonth } from "@/lib/format/date";
+import { logServerError } from "@/lib/log-server-error";
 import type { createClient } from "@/lib/supabase/server";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
@@ -36,7 +37,10 @@ export async function openOwnClaim(
 
   let { data, error } = await find();
   if (error) {
-    console.error("Could not load the monthly claim", error);
+    logServerError("Could not load the monthly claim", error, {
+      profileId: me.id,
+      month,
+    });
     return { error: TRY_AGAIN };
   }
   if (!data) {
@@ -52,7 +56,10 @@ export async function openOwnClaim(
       ({ data, error } = started);
     }
     if (error || !data) {
-      console.error("Could not start the monthly claim", error);
+      logServerError("Could not start the monthly claim", error, {
+        profileId: me.id,
+        month,
+      });
       return { error: TRY_AGAIN };
     }
   }

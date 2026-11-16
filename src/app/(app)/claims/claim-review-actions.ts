@@ -13,6 +13,7 @@ import {
   ReviewRemark,
 } from "@/lib/domain/claim-review";
 import { sumRm } from "@/lib/format/money";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 
 export type ClaimReviewResult = { error: string | null };
@@ -73,7 +74,10 @@ async function openReview(claimId: string, supabase: Supabase) {
     .eq("id", id.data)
     .maybeSingle();
   if (error) {
-    console.error("Could not load the monthly claim", error);
+    logServerError("Could not load the monthly claim", error, {
+      profileId: me.id,
+      recordId: id.data,
+    });
     return { error: TRY_AGAIN } as const;
   }
   if (!data) return { error: NOT_FOUND } as const;
@@ -83,7 +87,7 @@ async function openReview(claimId: string, supabase: Supabase) {
   ) {
     return { error: NOT_ALLOWED } as const;
   }
-  return { error: null, claim } as const;
+  return { error: null, me, claim } as const;
 }
 
 async function loadLines(
@@ -141,7 +145,7 @@ export async function saveClaimReview(
   const supabase = await createClient();
   const opened = await openReview(claimId, supabase);
   if (opened.error !== null) return { error: opened.error };
-  const { claim } = opened;
+  const { me, claim } = opened;
   const parsed = review.safeParse(input);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? TRY_AGAIN };
@@ -191,7 +195,7 @@ export async function saveClaimReview(
       ...change,
       kind: change.kind,
     });
-    if (failed) return saveFailed(failed);
+    if (failed) return saveFailed(failed, me.id, claim.id);
   }
   if (Object.keys(claimChanges).length > 0) {
     const { data, error } = await supabase
@@ -200,17 +204,24 @@ export async function saveClaimReview(
       .eq("id", claim.id)
       .eq("status", claim.status)
       .select("id");
-    if (error) return saveFailed(error);
+    if (error) return saveFailed(error, me.id, claim.id);
     if (data.length === 0) return { error: MOVED_ON };
   }
   revalidatePath("/claims", "layout");
   return { error: null };
 }
 
-function saveFailed(error: { code?: string; message: string }) {
+function saveFailed(
+  error: { code?: string; message: string },
+  profileId: string,
+  claimId: string,
+) {
   if (error.code === "moved") return { error: MOVED_ON };
   if (error.code === "42501") return { error: NOT_ALLOWED };
-  console.error("Could not save the claim review", error);
+  logServerError("Could not save the claim review", error, {
+    profileId,
+    recordId: claimId,
+  });
   return { error: TRY_AGAIN };
 }
 
@@ -247,7 +258,10 @@ export async function waiveLateCut(
     .eq("claim_id", opened.claim.id)
     .maybeSingle();
   if (error) {
-    console.error("Could not load the commission line", error);
+    logServerError("Could not load the commission line", error, {
+      profileId: opened.me.id,
+      recordId: mof.data,
+    });
     return { error: TRY_AGAIN };
   }
   if (!data) return { error: NOT_FOUND };
@@ -264,7 +278,10 @@ export async function waiveLateCut(
     .eq("status", "approved")
     .limit(1);
   if (approved.error) {
-    console.error("Could not load the appeal", approved.error);
+    logServerError("Could not load the appeal", approved.error, {
+      profileId: opened.me.id,
+      recordId: row.mof_id,
+    });
     return { error: TRY_AGAIN };
   }
   if (approved.data.length === 0) {
@@ -280,7 +297,9 @@ export async function waiveLateCut(
     amount: sumRm([row.original_amount, row.late_cut_amount]),
     reason: WAIVED_REASON,
   });
-  if (failed) return saveFailed(failed);
+  if (failed) {
+    return saveFailed(failed, opened.me.id, opened.claim.id);
+  }
   revalidatePath("/claims", "layout");
   return { error: null };
 }

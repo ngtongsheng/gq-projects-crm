@@ -5,6 +5,7 @@ import {
   type CommissionSettings,
   settingsFromStored,
 } from "@/lib/domain/commission-settings";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 
 const settingRows = z.array(z.object({ key: z.string(), value: z.unknown() }));
@@ -28,7 +29,11 @@ export async function loadCommissionSettings(): Promise<CommissionSettings> {
     claimThresholdPct: byKey.get(CLAIM_THRESHOLD_KEY),
   });
   if (!valid) {
-    console.error("Stored commission settings are unreadable; using defaults");
+    logServerError(
+      "Stored commission settings are unreadable; using defaults",
+      undefined,
+      { recordId: COMMISSION_SETTINGS_KEY },
+    );
   }
   return settings;
 }

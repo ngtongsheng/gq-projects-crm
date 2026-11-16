@@ -7,6 +7,7 @@ import { requirePage } from "@/lib/auth/require-page";
 import { textField } from "@/lib/form/form-fields";
 import { todayMyt } from "@/lib/format/date";
 import { formatRm, parseRm, toCents } from "@/lib/format/money";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 import { loadCommissionLines } from "./commission-data";
 
@@ -96,7 +97,10 @@ export async function recordPayout(formData: FormData): Promise<PayoutResult> {
     }
     if (error.code === "42501") return { error: NOT_ALLOWED };
     if (error.code === "23503") return { error: NOT_FOUND_ORDER };
-    console.error("Could not record the commission payout", error);
+    logServerError("Could not record the commission payout", error, {
+      profileId: me.id,
+      recordId: payout.mofId,
+    });
     return { error: TRY_AGAIN };
   }
 
@@ -119,7 +123,10 @@ export async function removePayout(payoutId: string): Promise<PayoutResult> {
     .eq("id", id.data)
     .select("id");
   if (error) {
-    console.error("Could not remove the commission payout", error);
+    logServerError("Could not remove the commission payout", error, {
+      profileId: me.id,
+      recordId: id.data,
+    });
     return { error: TRY_AGAIN };
   }
   if (data.length === 0) return { error: NOT_FOUND_PAYOUT };

@@ -13,6 +13,7 @@ import { otHours } from "@/lib/domain/ot-hours";
 import { textField } from "@/lib/form/form-fields";
 import { isClockTime } from "@/lib/format/clock-time";
 import { todayMyt } from "@/lib/format/date";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 
 export type OvertimeResult = { error: string | null };
@@ -57,7 +58,7 @@ const decisionForm = z.object({
 export async function submitOtClaim(
   formData: FormData,
 ): Promise<OvertimeResult> {
-  await requirePage("claims");
+  const me = await requirePage("claims");
 
   const parsed = claimForm.safeParse({
     workDate: textField(formData, "workDate"),
@@ -86,7 +87,9 @@ export async function submitOtClaim(
   });
   if (error) {
     if (error.code === "23503") return { error: NOT_FOUND_MOF };
-    console.error("Could not save the overtime claim", error);
+    logServerError("Could not save the overtime claim", error, {
+      profileId: me.id,
+    });
     return { error: TRY_AGAIN };
   }
 
@@ -119,7 +122,10 @@ export async function decideOtClaim(
     .select("id");
   if (error) {
     if (error.code === "42501") return { error: NOT_DECIDER };
-    console.error("Could not decide the overtime claim", error);
+    logServerError("Could not decide the overtime claim", error, {
+      profileId: me.id,
+      recordId: parsed.data.claimId,
+    });
     return { error: TRY_AGAIN };
   }
   // Row-level security hides a decided or own claim, so nothing was updated.

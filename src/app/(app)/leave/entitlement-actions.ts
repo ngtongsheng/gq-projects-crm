@@ -6,6 +6,7 @@ import { canEditLeaveSetup } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { FIRST_LEAVE_YEAR } from "@/lib/domain/leave-balance";
 import { textField } from "@/lib/form/form-fields";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 
 export type EntitlementResult = { error: string | null };
@@ -80,7 +81,7 @@ export async function saveEntitlement(
       .eq("year", form.year)
       .select("profile_id");
   const changed = await changeRow();
-  if (changed.error) return fail(changed.error);
+  if (changed.error) return fail(changed.error, me.id, form.personId);
   if (changed.data.length === 0) {
     const added = await supabase
       .from("leave_entitlements")
@@ -88,10 +89,11 @@ export async function saveEntitlement(
     if (added.error?.code === "23505") {
       // Someone else added the row between our change and our add: change theirs, later values win.
       const retried = await changeRow();
-      if (retried.error) return fail(retried.error);
-      if (retried.data.length === 0) return fail(added.error);
+      if (retried.error) return fail(retried.error, me.id, form.personId);
+      if (retried.data.length === 0)
+        return fail(added.error, me.id, form.personId);
     } else if (added.error) {
-      return fail(added.error);
+      return fail(added.error, me.id, form.personId);
     }
   }
   revalidatePath("/leave");
@@ -118,16 +120,23 @@ export async function resetEntitlement(
     .delete()
     .eq("profile_id", parsed.data.personId)
     .eq("year", parsed.data.year);
-  if (error) return fail(error);
+  if (error) return fail(error, me.id, parsed.data.personId);
   revalidatePath("/leave");
   return { error: null };
 }
 
-function fail(error: { code?: string; message?: string }): EntitlementResult {
+function fail(
+  error: { code?: string; message?: string },
+  profileId: string,
+  personId: string,
+): EntitlementResult {
   if (error.code === "42501") return { error: NOT_ALLOWED };
   if (error.code === "23503") {
     return { error: "Could not find that person. Reload the page." };
   }
-  console.error("Could not save the leave entitlement", error);
+  logServerError("Could not save the leave entitlement", error, {
+    profileId,
+    recordId: personId,
+  });
   return { error: TRY_AGAIN };
 }

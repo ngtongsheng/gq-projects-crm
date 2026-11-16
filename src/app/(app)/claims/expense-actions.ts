@@ -8,6 +8,7 @@ import { describeMeals, ExpenseInput, MEALS } from "@/lib/domain/claim-expense";
 import { claimMonthOf } from "@/lib/domain/monthly-claim";
 import { textField } from "@/lib/form/form-fields";
 import { formatMonth, todayMyt } from "@/lib/format/date";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 import { loadClaimSettings } from "./claim-settings-data";
 import {
@@ -92,7 +93,10 @@ export async function addExpense(
     .single();
   if (error || !data) {
     if (error && isNotAllowed(error)) return { error: CLAIM_LOCKED };
-    console.error("Could not add the claim expense", error);
+    logServerError("Could not add the claim expense", error, {
+      profileId: me.id,
+      recordId: opened.claimId,
+    });
     return { error: TRY_AGAIN };
   }
 
@@ -114,7 +118,7 @@ export async function updateExpense(
   expenseId: string,
   formData: FormData,
 ): Promise<ExpenseResult> {
-  await requirePage("claims");
+  const me = await requirePage("claims");
   const id = z.uuid().safeParse(expenseId);
   if (!id.success) return { error: NOT_FOUND };
   const parsed = readExpense(formData);
@@ -129,7 +133,10 @@ export async function updateExpense(
     .eq("id", id.data)
     .maybeSingle();
   if (error) {
-    console.error("Could not load the claim expense", error);
+    logServerError("Could not load the claim expense", error, {
+      profileId: me.id,
+      recordId: id.data,
+    });
     return { error: TRY_AGAIN };
   }
   if (!data) return { error: NOT_FOUND };
@@ -166,7 +173,10 @@ export async function updateExpense(
     .select("id");
   if (saveError) {
     if (isNotAllowed(saveError)) return { error: CLAIM_LOCKED };
-    console.error("Could not change the claim expense", saveError);
+    logServerError("Could not change the claim expense", saveError, {
+      profileId: me.id,
+      recordId: id.data,
+    });
     return { error: TRY_AGAIN };
   }
   // Row-level security hides a line once the claim has left the person's hands.
@@ -178,7 +188,7 @@ export async function updateExpense(
 
 /** Removes one expense from the person's open claim. */
 export async function deleteExpense(expenseId: string): Promise<ExpenseResult> {
-  await requirePage("claims");
+  const me = await requirePage("claims");
   const id = z.uuid().safeParse(expenseId);
   if (!id.success) return { error: NOT_FOUND };
 
@@ -189,7 +199,10 @@ export async function deleteExpense(expenseId: string): Promise<ExpenseResult> {
     .eq("id", id.data)
     .select("id");
   if (error) {
-    console.error("Could not delete the claim expense", error);
+    logServerError("Could not delete the claim expense", error, {
+      profileId: me.id,
+      recordId: id.data,
+    });
     return { error: TRY_AGAIN };
   }
   if (data.length === 0) return { error: CLAIM_LOCKED };

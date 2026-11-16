@@ -14,6 +14,10 @@ export type ReviewLine = {
   originalAmount: number;
 };
 
+/** The key a line's amount is held under on the review page (its kind and id). */
+export const reviewKey = (kind: ReviewLine["kind"], id: string) =>
+  `${kind}:${id}`;
+
 export type RequestedAmount = {
   kind: ReviewLine["kind"];
   id: string;

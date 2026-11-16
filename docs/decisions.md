@@ -583,3 +583,32 @@ seed is not the demo's example data; that is never drift. Larger gaps are in `do
 - Test copy changes made by the check (restored by re-seeding): next pickup form no. set to 10, 20, 30, 40 and 50; five
   pickup forms saved (SR-0010 took 1 pc of UNJ-CT-37 out); 1 pc of Orbis Vinyl Plank offcuts used for a project; the two
   supplier emails marked sent; Awal marked MOF-2026-016's leftover collected; Purchasing arranged its transport.
+
+### Claims (task 07)
+- Fixed in-loop, bugs: HR & Accounts got a server error on All claims and on the review page, because the claim
+  queries embedded `profiles(...)` and HR & Accounts reads only their own profile (the embed came back null). Names and job
+  roles now come from a new `claim_people()` function for the MD and HR & Accounts (`20261120100000_claim_people.sql`, no
+  data change); the "Not submitted yet" line, the flag count behind Approve and the printed form's "checked by" name use it
+  too (the checker name uses `team_directory()`). The review page `/claims/[id]` failed for every role (a client helper was
+  called from a server page; moved to `src/lib/domain/claim-review.ts`). Saving the claim settings (and the commission
+  settings, stock settings and site reminders, which share the upsert) was refused for the MD: an upsert also writes the
+  `key` column and only `value` could be updated (`20261120110000_app_settings_upsert.sql` grants update on `key`; the
+  policies still decide who may write which key). No `UPDATE` or `DELETE` without a filter under `claims/` or `overtime/`.
+- Fixed in-loop, UI: the claimant's Overtime section shows for site supervisors, or when an entry exists (it showed for
+  everyone); the Sales Director's page is headed "My claims"; the Travelling section is numbered only for people who claim
+  commission, with Overtime counted as 2 or 3 as in the demo; the Commission column shows "—" for no commission.
+- Deliberate: the review is a full page, `/claims/[id]` (loop 19), not the demo's modal sheet. Wording names roles, not
+  people: "Note to HR & Accounts", "Submit Nov 2026 claim", the flow banner and the claimant subtitle (shorter than the
+  demo's, which also tells the person to print, sign and hand over the form). The month is a row of tabs (up to six
+  months) and an "Earlier claims" table for the claimant, where the demo has one select for the current month. Managers
+  also get an "Appeals" tab (D7) and "Overtime to decide" at the top of All claims (D3: directors decide OT there; the demo
+  decides it from the review sheet). The late-collection cuts are edited on Commission settings (MD only), so Claims
+  settings has no card title and no cut fields. Buttons read "Add expense" and "Add overtime" where the demo says "+ Add";
+  the flow banner is blue where the demo's is green; "N to check" has no warning icon; submitted dates carry the year.
+  At 390 px the manager list hides Commission and Submitted and scrolls inside its card.
+- Checked on the test copy: submit gate, check, approve (Jany, and Vicky on a flagged claim), pay (after the MD approved
+  the person's report), return, adjust an amount with a reason, receipt upload, tick and untick a commission line, OT
+  decided by HR & Accounts and by the Sales Director, settings saved by Vicky and by Jany. The print sheet is 659, 654 and
+  738 px high of 1,047 available (one A4). Not run: BM and Chinese labels, the Appeal and Decide dialogs (no late-cut line
+  or appeal in the example data), the laptop message when the service key is missing.
+- Test copy changes made by the check (restored by re-seeding): see `reports/07-claims.md` in this loop.

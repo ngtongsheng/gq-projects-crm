@@ -106,9 +106,15 @@ export async function MyClaim({
     otOriginal !== otFinal;
   const receiptCount = mine.expenses.filter((line) => line.hasReceipt).length;
   const monthLabel = formatMonth(month);
-  const showOvertime = editable || overtime.entries.length > 0;
+  // Overtime is a site supervisor's section; others see it only when an entry exists (demo clMine).
+  const showOvertime = me.jobRole === "site" || overtime.entries.length > 0;
   let section = 0;
-  const heading = (title: string) => `${++section} · ${title}`;
+  // The demo numbers the sections only for people who claim commission, but counts the overtime
+  // section as 2 or 3 either way.
+  const heading = (title: string, numbered = true) => {
+    section += 1;
+    return numbered ? `${section} · ${title}` : title;
+  };
 
   return (
     <>
@@ -178,7 +184,10 @@ export async function MyClaim({
           }
           editable={editable}
           rules={rules}
-          heading={heading(`${t("Travelling expense")} · ${monthLabel}`)}
+          heading={heading(
+            `${t("Travelling expense")} · ${monthLabel}`,
+            claimsCommission,
+          )}
           t={t}
         />
         {showOvertime && (

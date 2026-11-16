@@ -8,11 +8,10 @@ import {
   useState,
 } from "react";
 import { Input } from "@/components/ui/input";
-import type { ReviewLine } from "@/lib/domain/claim-review";
+import { type ReviewLine, reviewKey } from "@/lib/domain/claim-review";
 import { fromCents, sumRm, toCents } from "@/lib/format/money";
 
 type LineKind = ReviewLine["kind"];
-const keyOf = (kind: LineKind, id: string) => `${kind}:${id}`;
 
 type ReviewState = {
   /** What was stored when the page loaded, by line. */
@@ -82,9 +81,9 @@ export function ClaimReviewProvider({
     });
     return {
       stored,
-      amountOf: (kind, id) => amounts[keyOf(kind, id)] ?? "",
+      amountOf: (kind, id) => amounts[reviewKey(kind, id)] ?? "",
       setAmount: (kind, id, text) =>
-        setAmounts((current) => ({ ...current, [keyOf(kind, id)]: text })),
+        setAmounts((current) => ({ ...current, [reviewKey(kind, id)]: text })),
       reason,
       setReason,
       remark,
@@ -102,8 +101,6 @@ export function ClaimReviewProvider({
     <ReviewContext.Provider value={value}>{children}</ReviewContext.Provider>
   );
 }
-
-export const reviewKey = keyOf;
 
 /** The amount box on a line the checker may change. */
 export function ClaimAmountInput({

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { JobRole } from "@/lib/auth/job-role";
+import type { JobRole } from "@/lib/auth/job-role";
 import {
   CLAIM_EXPENSE_TYPES,
   type ClaimSettings,
@@ -17,6 +17,7 @@ import {
   loadStandardPackages,
 } from "../hr/staff-data";
 import { loadLoggedDays } from "./claim-itinerary-data";
+import { loadClaimPeople } from "./claim-people-data";
 import { loadClaimSettings } from "./claim-settings-data";
 
 export type ClaimFlags = ReturnType<typeof claimFlags> & {
@@ -98,8 +99,6 @@ export const toFlagExpenses = (data: unknown): FlagExpense[] =>
 export const FLAG_EXPENSE_COLUMNS =
   "id, spent_on, expense_type, amount, km, nights";
 
-const personRow = z.object({ job_role: JobRole });
-
 /** How many items on the claim are flagged, for the step actions that need a remark first. */
 export async function loadClaimFlagCount(claim: {
   id: string;
@@ -107,28 +106,23 @@ export async function loadClaimFlagCount(claim: {
   month: CalendarDate;
 }): Promise<number> {
   const supabase = await createClient();
-  const [expenses, person, settings] = await Promise.all([
+  const [expenses, people, settings] = await Promise.all([
     supabase
       .from("monthly_claim_expenses")
       .select(FLAG_EXPENSE_COLUMNS)
       .eq("claim_id", claim.id),
-    supabase
-      .from("profiles")
-      .select("job_role")
-      .eq("id", claim.profileId)
-      .single(),
+    loadClaimPeople(),
     loadClaimSettings(),
   ]);
   if (expenses.error) {
     throw new Error(`Could not load the expenses: ${expenses.error.message}`);
   }
-  if (person.error) {
-    throw new Error(`Could not load the person: ${person.error.message}`);
-  }
+  const person = people.get(claim.profileId);
+  if (!person) throw new Error("Could not find the person on the claim");
   const flagsFor = await createClaimFlagger(settings);
   const flags = await flagsFor({
     personId: claim.profileId,
-    jobRole: personRow.parse(person.data).job_role,
+    jobRole: person.jobRole,
     month: claim.month,
     expenses: toFlagExpenses(expenses.data),
   });

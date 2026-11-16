@@ -25,8 +25,8 @@ the branch is merged to `main`.
 | 04 | Parity: loop 17 Log work, Site Work | done | 01 | standard |
 | 05 | Parity: loop 18 Installation and DOs | done | 01 | standard |
 | 06 | Parity: loop 18 Stock, Samples, Leftover | done | 01 | standard |
-| 07 | Parity: loop 19 Claims | in-progress | 01 | standard |
-| 08 | Drift list, docs, merge | todo | 02-07 | standard |
+| 07 | Parity: loop 19 Claims | done | 01 | standard |
+| 08 | Drift list, docs, merge | in-progress | 02-07 | standard |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Before #02: Chrome profile "Agent" open with Claude in Chrome connected. If a task cannot reach Chrome it parks
@@ -66,3 +66,7 @@ the branch is merged to `main`.
 2026-11-16 · #06 · note · Samples pickup/next-number saves re-run in browser after #05 migration, all pass; scan of every .update/.delete in src and migrations found no other unfiltered write
 2026-11-16 · #06 · done · check, typecheck, 2989 tests pass; test copy re-seeded · next: #07
 2026-11-16 · #07 · in-progress · delegated (standard)
+2026-11-16 · #07 · decision · 3 bugs fixed: HR & Accounts 500 on All claims/review (profiles embed null; new security-definer claim_people() limited to md/accounts, migration 20261120100000), review page crash for every role (client helper called from server page), MD could not save claim/commission settings (app_settings upsert writes key; migration 20261120110000 grants update (key); policies still decide who writes which key, accounts policy pins key='claims') · no data loss, reviewed by orchestrator
+2026-11-16 · #07 · note · stock settings and site reminders share the app_settings upsert but were not re-run in browser; CL1-CL4 drift; CL2 appeal/decide dialogs and CL3 BM/Chinese labels not run (no example data / no language switch)
+2026-11-16 · #07 · done · check, typecheck, 2997 tests, guard:migrations pass; test copy re-seeded · next: #08
+2026-11-16 · #08 · in-progress · delegated (standard)

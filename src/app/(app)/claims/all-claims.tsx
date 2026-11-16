@@ -76,7 +76,7 @@ export async function AllClaims({
       header: t("Commission"),
       numeric: true,
       className: "max-sm:hidden",
-      cell: (row) => formatRm(row.commission),
+      cell: (row) => (row.commission > 0 ? formatRm(row.commission) : "—"),
     },
     {
       key: "travel",

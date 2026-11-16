@@ -27,7 +27,10 @@ export default async function ClaimsPage({
 }) {
   const me = await requirePage("claims");
   const t = await getT(me.language);
-  const title = t(pageLabel("claims", me));
+  // Only the MD and HR & Accounts see a claims list; everyone else, directors included, has their own claim.
+  const title = t(
+    canManageClaims(me.jobRole) ? pageLabel("claims", me) : "My claims",
+  );
   const settings = await loadClaimSettings();
   const search = await searchParams;
   const asked = monthParam.safeParse(search.month);

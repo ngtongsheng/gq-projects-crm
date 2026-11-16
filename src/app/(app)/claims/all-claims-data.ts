@@ -1,11 +1,12 @@
 import { z } from "zod";
-import { JobRole } from "@/lib/auth/job-role";
+import type { JobRole } from "@/lib/auth/job-role";
 import { canFileClaim } from "@/lib/domain/claim-eligibility";
 import { CLAIM_STATUSES } from "@/lib/domain/claim-flow";
 import { type ClaimSettings, claimMonthOf } from "@/lib/domain/monthly-claim";
 import { type CalendarDate, todayMyt } from "@/lib/format/date";
 import { sumRm, toCents } from "@/lib/format/money";
 import { createClient } from "@/lib/supabase/server";
+import { loadClaimPeople } from "./claim-people-data";
 import { createClaimFlagger, toFlagExpenses } from "./claim-review-flags";
 
 const monthRows = z.array(z.object({ month: z.iso.date() }));
@@ -43,10 +44,6 @@ const claimRows = z.array(
     original_receipts_received: z.boolean(),
     ot_original_amount: z.coerce.number().nullable(),
     ot_amount: z.coerce.number().nullable(),
-    profiles: z.object({
-      full_name: z.string().nullable(),
-      job_role: JobRole,
-    }),
     monthly_claim_commissions: z.array(amountPair),
     monthly_claim_expenses: z.array(
       amountPair.extend({
@@ -68,7 +65,7 @@ export type ClaimListRow = {
   id: string;
   personId: string;
   name: string;
-  jobRole: z.infer<typeof JobRole>;
+  jobRole: JobRole;
   status: (typeof CLAIM_STATUSES)[number];
   commission: number;
   expenses: number;
@@ -95,15 +92,19 @@ export async function loadClaimsForMonth(
   viewerIsMd: boolean,
 ): Promise<ClaimListRow[]> {
   const supabase = await createClient();
+  const people = await loadClaimPeople();
   const { data, error } = await supabase
     .from("monthly_claims")
     .select(
-      "id, profile_id, status, remark, original_receipts_received, ot_original_amount, ot_amount, profiles(full_name, job_role), monthly_claim_commissions(amount, original_amount), monthly_claim_expenses(id, spent_on, expense_type, km, nights, amount, original_amount, receipt_path), monthly_claim_log(status, changed_at)",
+      "id, profile_id, status, remark, original_receipts_received, ot_original_amount, ot_amount, monthly_claim_commissions(amount, original_amount), monthly_claim_expenses(id, spent_on, expense_type, km, nights, amount, original_amount, receipt_path), monthly_claim_log(status, changed_at)",
     )
     .eq("month", month)
     .neq("status", "draft");
   if (error) throw new Error(`Could not load the claims: ${error.message}`);
-  const claims = claimRows.parse(data);
+  const claims = claimRows.parse(data).flatMap((claim) => {
+    const person = people.get(claim.profile_id);
+    return person ? [{ ...claim, person }] : [];
+  });
 
   const submitted = claims.filter((claim) => claim.status === "submitted");
   const flagsFor =
@@ -114,7 +115,7 @@ export async function loadClaimsForMonth(
       submitted.map(async (claim) => {
         const flags = await flagsFor({
           personId: claim.profile_id,
-          jobRole: claim.profiles.job_role,
+          jobRole: claim.person.jobRole,
           month,
           expenses: toFlagExpenses(claim.monthly_claim_expenses),
         });
@@ -131,8 +132,8 @@ export async function loadClaimsForMonth(
     return {
       id: claim.id,
       personId: claim.profile_id,
-      name: claim.profiles.full_name ?? "Unnamed",
-      jobRole: claim.profiles.job_role,
+      name: claim.person.name,
+      jobRole: claim.person.jobRole,
       status: claim.status,
       commission: sumRm(claim.monthly_claim_commissions.map((l) => l.amount)),
       expenses: sumRm(claim.monthly_claim_expenses.map((l) => l.amount)),
@@ -164,32 +165,18 @@ export async function loadClaimsForMonth(
   );
 }
 
-const peopleRows = z.array(
-  z.object({
-    id: z.uuid(),
-    full_name: z.string().nullable(),
-    job_role: JobRole,
-    sells: z.boolean(),
-  }),
-);
-
 /** Active people who file a claim and have none submitted for the month, by name. */
 export async function loadMissingClaimants(
   submittedPersonIds: ReadonlySet<string>,
 ): Promise<string[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("id, full_name, job_role, sells")
-    .eq("active", true);
-  if (error) throw new Error(`Could not load the people: ${error.message}`);
-  return peopleRows
-    .parse(data)
+  const people = await loadClaimPeople();
+  return [...people.values()]
     .filter(
       (person) =>
-        canFileClaim({ jobRole: person.job_role, sells: person.sells }) &&
+        person.active &&
+        canFileClaim({ jobRole: person.jobRole, sells: person.sells }) &&
         !submittedPersonIds.has(person.id),
     )
-    .map((person) => person.full_name ?? "Unnamed")
+    .map((person) => person.name)
     .sort((a, b) => a.localeCompare(b));
 }

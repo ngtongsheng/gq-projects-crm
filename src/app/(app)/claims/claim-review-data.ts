@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { JobRole } from "@/lib/auth/job-role";
 import { lastMonthOf, type ReportStatus } from "@/lib/domain/claim-flow";
 import { claimPeriod } from "@/lib/domain/monthly-claim";
 import { reportKindFor } from "@/lib/domain/report-stats";
 import type { CalendarDate } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
 import { loadClaimOvertime } from "./claim-ot-data";
+import { loadClaimPeople } from "./claim-people-data";
 import { createClaimFlagger } from "./claim-review-flags";
 import { loadClaimSettings } from "./claim-settings-data";
 import { claimHead, HEAD_COLUMNS, loadClaimLines } from "./my-claim-data";
@@ -14,10 +14,6 @@ const reviewRow = z.object({
   id: z.uuid(),
   profile_id: z.uuid(),
   month: z.iso.date(),
-  profiles: z.object({
-    full_name: z.string().nullable(),
-    job_role: JobRole,
-  }),
   monthly_claim_log: z.array(
     z.object({ status: z.string(), changed_at: z.string() }),
   ),
@@ -40,7 +36,7 @@ export async function loadClaimReview(claimId: string) {
   const { data, error } = await supabase
     .from("monthly_claims")
     .select(
-      `${HEAD_COLUMNS}, profile_id, month, profiles(full_name, job_role), monthly_claim_log(status, changed_at)`,
+      `${HEAD_COLUMNS}, profile_id, month, monthly_claim_log(status, changed_at)`,
     )
     .eq("id", claimId)
     .maybeSingle();
@@ -48,10 +44,12 @@ export async function loadClaimReview(claimId: string) {
   if (!data) return null;
   const head = claimHead.parse(data);
   const row = reviewRow.parse(data);
+  const person = (await loadClaimPeople()).get(row.profile_id);
+  if (!person) return null;
   const month: CalendarDate = row.month;
   const settings = await loadClaimSettings();
   const period = claimPeriod(month, settings.cutOffDay);
-  const kind = reportKindFor(row.profiles.job_role);
+  const kind = reportKindFor(person.jobRole);
 
   const [lines, overtime, appeals, flagsFor, lastMonth, thisMonth] =
     await Promise.all([
@@ -71,7 +69,7 @@ export async function loadClaimReview(claimId: string) {
   }
   const flags = await flagsFor({
     personId: row.profile_id,
-    jobRole: row.profiles.job_role,
+    jobRole: person.jobRole,
     month,
     expenses: lines.expenses,
   });
@@ -79,8 +77,8 @@ export async function loadClaimReview(claimId: string) {
   return {
     head,
     personId: row.profile_id,
-    personName: row.profiles.full_name ?? "Unnamed",
-    jobRole: row.profiles.job_role,
+    personName: person.name,
+    jobRole: person.jobRole,
     month,
     period,
     settings,

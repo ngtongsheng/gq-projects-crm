@@ -95,6 +95,15 @@ key and the `gq-crm-dev` database password. The prod values never leave the owne
 Owner check after sending the values, on your Mac in the main checkout: `pnpm connect:test-copy`, `pnpm db:test-copy`
 (expect "up to date"), `pnpm reset:sign-ins` (expect 17 sign-ins).
 
+## The private dev repo
+
+`ngtongsheng/gq-dev-private` is a private repo for dev-only material that must not sit in the public CRM repo (Vercel
+Hobby blocks deploys of private repos, `docs/debt.md`). Today it holds `crm/.env.dev` with the test copy's
+`SUPABASE_SERVICE_ROLE_KEY` and `SUPABASE_DEV_DB_URL`; never live app values. The owner pushes it with
+`node scripts/agent/upload-dev-keys.mjs` from the main checkout (reads his `.env.local`, refuses a live app key). `vicky-gq`
+is a collaborator; `pnpm --silent catch-up` accepts the invite and merges the keys into her `.env.local`. GitHub
+personal repos cannot grant read-only access, so she has write access (`docs/debt.md`).
+
 ## Agent hooks and permissions
 
 `.claude/settings.json` runs `scripts/agent/session-sync.mjs` at session start and, at most every 15 minutes, on a

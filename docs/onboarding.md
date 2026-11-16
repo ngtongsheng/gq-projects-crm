@@ -63,9 +63,13 @@ Editors get write access (D4): they can push branches and open pull requests, no
   safe, and leaves her work alone when it is not.
 
 ## 3a. Test copy access (once per laptop)
-So she can try database and admin-only features herself. Send her the `gq-crm-dev` secret key and database password
-privately (WhatsApp, never git or an issue), and tell her to give both to Claude when asked. Details and your own check
-commands: `docs/environments.md` "Trying database changes from a laptop".
+So she can try database and admin-only features herself. `pnpm --silent catch-up` does this at every session start: it
+accepts your invite to the private repo `ngtongsheng/gq-dev-private`, fetches the `gq-crm-dev` keys from it and updates
+the test copy. Nothing is sent by WhatsApp. Before her first session: run `node scripts/agent/upload-dev-keys.mjs` in
+your main checkout (once, and again if the keys change) and make sure `vicky-gq` is a collaborator on the private
+repo. WhatsApp (the secret key and database password, never git or an issue) is only the fallback when catch-up
+cannot fetch the keys. Details and your own check commands: `docs/environments.md` "Trying database changes from a
+laptop" and "The private dev repo".
 
 ## 3b. Windows
 `SETUP.md` has a Windows path (winget for Git, mise for gh, Node and pnpm) that has not run on a real PC yet

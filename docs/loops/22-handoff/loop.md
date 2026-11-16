@@ -90,3 +90,4 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 2026-11-16 · #09 · decision · key-failure line no longer blames a missing invite; reason stays in the log · invite already sent
 2026-11-16 · #09 · decision · bootstrap issue (assets/bootstrap-issue.md) tells her Claude to work in the main folder, no subagent/worktree/deploy · overrides the default issue flow once
 2026-11-16 · #09 · note · orchestrator's acceptance run of catch-up on the owner's machine archived owner worktrees chore/seed-fixed-password, loop/06-setup-rehearsal, claude/sign-in-button-size-6e9a35 (draft-saved as 61d6350); all tags on origin
+2026-11-16 · #10 · docs done (whats-new, handover, onboarding, environments, debt, decisions); checks pass · next: merge

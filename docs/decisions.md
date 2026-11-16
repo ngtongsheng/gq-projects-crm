@@ -652,3 +652,24 @@ guards the first.
   738 px high of 1,047 available (one A4). Not run: BM and Chinese labels, the Appeal and Decide dialogs (no late-cut line
   or appeal in the example data), the laptop message when the service key is missing.
 - Test copy changes made by the check (restored by re-seeding): see `reports/07-claims.md` in this loop.
+
+## Loop 22 (handoff to Vicky), decided 2026-11-16
+Goal: Vicky opens Claude and the laptop brings itself up to date; Google sign-in is live. Full table in
+`docs/loops/22-handoff/loop.md`.
+- One command, `pnpm --silent catch-up` (`scripts/agent/catch-up.mjs`, Node only, Mac and Windows), runs at every
+  session start and does only what changed: accepts the owner's invite, fetches the test copy keys, installs, applies
+  migrations, seeds the 17 test sign-ins, saves pre-parity drafts, prints "What's new" once per version. It is silent
+  when nothing changed. `--silent` because pnpm 12 echoes the script line otherwise.
+- Keys travel through a private repo, `ngtongsheng/gq-dev-private` (`crm/.env.dev`), not WhatsApp. The CRM repo stays
+  public (Vercel Hobby). Test copy values only; the fetch refuses a live app ref. Vicky got a write invite because
+  personal repos cannot grant read.
+- Pre-parity drafts are never rebased: each becomes the tag `archive/pre-parity/<branch>`, on her laptop and on origin;
+  the old branches are removed. PR 31 is closed with a pointer to its tag.
+- Her old hook cannot run the new script, so a `for:vicky-claude` issue tells her Claude to pull `main` in the main
+  folder and run catch-up once. After that `session-sync.mjs` prints "Run `pnpm catch-up`" when it is due.
+- Google sign-in goes live by publishing the consent screen (Branding with the live URL and `/privacy`); basic scopes
+  need no Google review. Vicky is the first admin (owner runs `seed-admin.ts`); she adds the rest in People.
+- A fresh test copy shows 15 people in the Sign in as panel, not 17: the seed makes 17 sign-ins and marks 2 as left.
+- Laptop playbook for her agent: `docs/laptop.md`. README and `docs/features.md` use fresh screenshots at 1512 px.
+- Rehearsal on a fresh clone passed (`docs/loops/22-handoff/reports/rehearsal.md`): catch-up 34 s first run, 0.13 s
+  silent rerun.

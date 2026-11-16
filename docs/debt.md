@@ -2,8 +2,9 @@
 
 | What | Why | When to fix |
 |---|---|---|
-| Vercel Hobby plan for a business app | Hobby is non-commercial only; accepted during evaluation | At handover: Vercel Pro on Vicky's billing |
+| Vercel Hobby plan for a business app | Hobby is non-commercial only (loop 22 D11); accepted during evaluation. It is also why the CRM repo stays public: Hobby cannot deploy a private repo's commits from other people | At handover: Vercel Pro on Vicky's billing |
 | Supabase Free (no built-in backups; pauses after 7 idle days) | Evaluation, $0. Mitigated: nightly and pre-migration prod dumps (`backup.yml`, encrypted, 30 days, in the repo's Actions) and a weekly keep-awake query (`health.yml`). The test copy is not backed up | At handover: Supabase Pro (daily backups, no pausing) |
+| Vicky has write access to the private dev repo `gq-dev-private`, and dev keys sit in a file there | GitHub personal repos cannot invite a read-only collaborator (HTTP 422, loop 22 #02); the repo holds test copy values only, so the worst case is a changed test copy key file | At handover: move the repo to an org and give Vicky read access, or drop it when the test copy has its own secret store |
 | Invites by copied link, no email | No company domain for an email sender | When a domain exists: custom SMTP (e.g. Resend) |
 | Google OAuth client lives in the owner's own GCP project, not Vicky's Workspace org | Moving it now would block on her (loop 11, D2) | At handover: migrate the GCP project, see `docs/handover-migration.md` |
 | Prod migration and Vercel prod build run in parallel on merge | Migrations are additive by default (the guard enforces it), so old code keeps working until the new build lands | If a migration ever needs to land before or after the deploy: make `migrate-prod` gate the deploy or split the change into two PRs |

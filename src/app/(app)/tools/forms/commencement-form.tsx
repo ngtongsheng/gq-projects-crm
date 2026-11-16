@@ -19,7 +19,8 @@ export function CommencementForm({ mof }: { mof: FormMof | null }) {
   const types = flooringTypes(mof?.lines.map((line) => line.product) ?? []);
   const area = mof ? installationAreaSqft(mof.lines) : null;
   return (
-    <>
+    // The demo prints this form in its tight variant so the long legal text fits one A4.
+    <div className="[&_td]:py-0.5 [&_th]:py-0.5 [&>div:not(:first-child)]:leading-[1.3] [&>div.mt-3]:mt-2">
       <FormSection title="Project Details" />
       <FormPairs
         rows={[
@@ -139,6 +140,6 @@ export function CommencementForm({ mof }: { mof: FormMof | null }) {
         One copy for the client, one copy for GQ project file (filed under the
         MOF No.).
       </FormFootnote>
-    </>
+    </div>
   );
 }

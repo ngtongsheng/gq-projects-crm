@@ -21,8 +21,8 @@ the branch is merged to `main`.
 |---|---|---|---|---|
 | 01 | Seed access, migrate and seed test copy | done | - | economy |
 | 02 | Parity: loop 14 money and reports | done | 01 | standard |
-| 03 | Parity: loop 16 People, HR, Tools | in-progress | 01 | standard |
-| 04 | Parity: loop 17 Log work, Site Work | todo | 01 | standard |
+| 03 | Parity: loop 16 People, HR, Tools | done | 01 | standard |
+| 04 | Parity: loop 17 Log work, Site Work | in-progress | 01 | standard |
 | 05 | Parity: loop 18 Installation and DOs | todo | 01 | standard |
 | 06 | Parity: loop 18 Stock, Samples, Leftover | todo | 01 | standard |
 | 07 | Parity: loop 19 Claims | todo | 01 | standard |
@@ -49,3 +49,7 @@ the branch is merged to `main`.
 2026-11-16 · #02 · note · test copy changed: Oct reports for Vanisha and Vernice, VO2 on MOF-2026-009; re-seed resets
 2026-11-16 · #02 · done · check, typecheck, 2986 tests pass · next: #03
 2026-11-16 · #03 · in-progress · delegated (standard)
+2026-11-16 · #03 · decision · fixed Work commencement form A4 overflow, HR policy row and scheme summary wrap at 390; drift PE1-PE4, H1 to drift-after-sweep.md · UI-only fixes, bigger items for loop 22
+2026-11-16 · #03 · note · some cells structure-only (Tools for 8 personas at 1280, HR as Jany at 390); A4 forms measured, not printed; test copy re-seeded clean
+2026-11-16 · #03 · done · check, typecheck, 2986 tests pass · next: #04
+2026-11-16 · #04 · in-progress · delegated (standard)

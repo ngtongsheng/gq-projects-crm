@@ -47,7 +47,12 @@ function Rows({
         >
           <span className="mr-auto min-w-0">{row.text}</span>
           {row.value}
-          {row.status}
+          {/* The long "not checked yet" note must wrap on a phone instead of widening the page. */}
+          {row.status && (
+            <span className="min-w-0 max-w-full [&>*]:h-auto [&>*]:whitespace-normal [&>*]:text-left">
+              {row.status}
+            </span>
+          )}
         </li>
       ))}
     </ul>

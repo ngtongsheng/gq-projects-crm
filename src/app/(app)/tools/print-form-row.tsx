@@ -36,7 +36,7 @@ export function PrintFormRow({
   return (
     <li className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
       <FileText className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-      <div className="mr-auto min-w-0">
+      <div className="mr-auto min-w-0 flex-1 basis-60">
         <p className="font-medium">{t(info.title)}</p>
         <p className="text-sm text-muted-foreground">{t(info.summary)}</p>
       </div>

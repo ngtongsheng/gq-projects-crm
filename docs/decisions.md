@@ -478,3 +478,18 @@ seed is not the demo's example data; that is never drift. Larger gaps are in `do
 - Reports: the MD's second step reads "Give final approval", not "Approve (Vicky)" (roles, not names; loop 14 D6).
 - Site report: the schedule check is the sentence under the itinerary heading; the full planned-versus-done panel
   stays in Site Work.
+
+### People, HR, Tools (task 03)
+- Fixed in-loop: HR policy rows keep icon, title and buttons on one line; the scheme summary's long "not checked yet"
+  note wraps, so HR no longer scrolls sideways at 390 px; the Work commencement form uses the demo's tight variant and
+  now fits one A4 (it ran onto a second page); a form's MOF picker and Print stay beside its title.
+- People: left people stay in the main table ("Salesperson · Left") and their handover list is in their Settings
+  dialog, not in a separate "Left the company" table. Targets are set in Settings (this year or next).
+- HR copy says "the Managing Director and HR & Accounts", not the demo's names (roles, not names).
+- HR layout: the editable J1-M2 grade table sits on "Sales grades & bonus" (the Policies tab keeps a read-only copy in
+  the scheme summary); the demo edits it inline in the Policies tab. A policy's file is replaced through its Edit
+  dialog, not an "Attach file" button. Standard packages and outstation rules are headed sections, not one framed card.
+- Tools: same fields and same figures as the demo (wallpaper rolls, vinyl metres, welding rod). The app uses compact
+  segmented controls and its own number font. Drive form links are added by the `admin` role only (loop 16 D);
+  Jany (HR & Accounts) does not see "Add a form".
+- Sales Performance is missing from the sidebar of Eddie, Vanessa, Cavan and Jany on Tools and HR: same gap as [P1].

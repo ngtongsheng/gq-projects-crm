@@ -24,8 +24,8 @@ error pages, and sign-out closing impersonation. Every other finding is in `docs
 ## Tasks
 | # | Task | Status | Depends | Tier |
 |---|---|---|---|---|
-| 01 | Security headers and CSP (S1) | todo | | standard |
-| 02 | Log auth failures loudly (O1, O7, S3) | todo | | standard |
+| 01 | Security headers and CSP (S1) | done | | standard |
+| 02 | Log auth failures loudly (O1, O7, S3) | in-progress | | standard |
 | 03 | `logServerError` helper on money and HR paths (O4) | todo | | standard |
 | 04 | Audit trail for payout removals (O3) | todo | 03 | standard |
 | 05 | Order total floor at payments received (D1) | todo | | frontier |
@@ -47,3 +47,10 @@ error pages, and sign-out closing impersonation. Every other finding is in `docs
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-16 · plan · loop written from audit round 2 · next: /execute-loop docs/loops/24-audit-round-2
+2026-11-16 · plan · decision · worktree branched from local main, not origin/main · planning commit not yet pushed (owner action)
+2026-11-16 · plan · decision · skipped issue #50 and catch-up hook · they target Vicky's laptop, this is the owner's machine
+2026-11-16 · plan · planner tab w7:t14 answered YES; closed
+2026-11-16 · #01 · in-progress · delegated (standard)
+2026-11-16 · #01 · decision · Permissions-Policy camera=() (no screen uses camera); form-action adds accounts.google.com + Supabase origin for OAuth redirects; Supabase origins omitted when env missing so build works
+2026-11-16 · #01 · done · six headers on /sign-in; no CSP violations on sign-in, dashboard, claim + receipt (orchestrator, test sign-in); check/typecheck/test pass (3040)
+2026-11-16 · #02 · in-progress · delegated (standard)

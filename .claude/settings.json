@@ -19,6 +19,7 @@
       "Bash(pnpm copy-env)",
       "Bash(pnpm catch-up)",
       "Bash(pnpm catch-up *)",
+      "Bash(pnpm --silent catch-up)",
       "Bash(pnpm db:test-copy)",
       "Bash(pnpm reset:sign-ins)",
       "Bash(pnpm seed:example)",

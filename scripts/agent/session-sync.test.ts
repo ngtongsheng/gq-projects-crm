@@ -172,7 +172,7 @@ describe("formatSync", () => {
       catchUpDue: true,
     });
     expect(output.split("\n")[0]).toBe(
-      "Laptop update due: run `pnpm catch-up` before anything else.",
+      "Laptop update due: run `pnpm --silent catch-up` before anything else.",
     );
   });
 

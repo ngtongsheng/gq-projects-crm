@@ -8,7 +8,7 @@ The preview runs on her laptop. Talk in the `plain` style; every question is an 
 recommended option first.
 
 ## 1. Preview on her laptop
-1. Run `pnpm -s catch-up`. It installs, copies the test copy keys, applies new database changes and refreshes the
+1. Run `pnpm --silent catch-up`. It installs, copies the test copy keys, applies new database changes and refreshes the
    test sign-ins, only where something changed. Done when it exits 0. It prints nothing when all is current. Exit 1:
    fix the step it names using `docs/laptop.md`; if it could not get the keys, use the `connect-test-copy` skill.
 2. Clear old servers (Next runs one dev server per folder, and sign-in only works on port 3000): run

@@ -58,7 +58,7 @@ rather than copying it. Theme tokens only, never raw colours.
 - On her laptop, admin-only server features show a "can't be tried on your laptop" message; that is by design, not a bug.
 
 ## Start of session
-Before anything else, run `pnpm -s catch-up` in the main folder. It brings her laptop up to date and prints one line:
+Before anything else, run `pnpm --silent catch-up` in the main folder. It brings her laptop up to date and prints one line:
 relay it, and any "What's new", in plain words. It prints nothing when nothing changed. On exit 1, fix the step it
 names using `docs/laptop.md`.
 

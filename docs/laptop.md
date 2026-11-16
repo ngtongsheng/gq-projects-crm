@@ -11,7 +11,7 @@ For Vicky's agent. Find the row that matches what she says or what you see, do i
   relay them, the Sign in as panel needs none.
 - Prefer a fix you can do and report over a question. Two failed fixes on one problem: `get-help`.
 
-## What `pnpm -s catch-up` does
+## What `pnpm --silent catch-up` does
 Runs at session start. Each step runs only when its input changed since last time (stamp
 `<git-common-dir>/gq-catch-up.json`). Silent when nothing changed. Output of every command goes to
 `<git-common-dir>/gq-catch-up.log` (`git rev-parse --git-common-dir`); read it when a step fails.
@@ -25,7 +25,10 @@ Runs at session start. Each step runs only when its input changed since last tim
 | Archive old drafts | local branches from before the new app exist | "save your older drafts" |
 | What's new | `docs/whats-new.md` has a newer `version:` line | prints it once; relay 3 to 5 plain lines |
 
-Exit 1 means at least one step failed; the others still ran. To force every step again, delete
+Always `pnpm --silent catch-up`: pnpm 12 ignores `-s` and echoes the command, and before the first run it installs
+packages itself; `--silent` hides both. Exit 1 means at least one step failed; the others still ran. A non-zero exit
+with no line means pnpm failed before catch-up started (usually no network for that first install): run
+`pnpm install` to see why. To force every step again, delete
 `<git-common-dir>/gq-catch-up.json` and re-run.
 
 ## Situations
@@ -81,7 +84,7 @@ harmless to `main`; only the history is out of step.
 - Tell her: "The test copy had a change from another draft in it. I cleaned it up and put the example records back."
 
 ### 7. Sign-in panel empty, or it says the laptop needs setting up
-- Do: `pnpm -s catch-up`. If it prints nothing the keys are there but the people are missing: `pnpm seed:example`. No
+- Do: `pnpm --silent catch-up`. If it prints nothing the keys are there but the people are missing: `pnpm seed:example`. No
   keys at all: see 10.
 - Tell her: "Your laptop was missing its test sign-ins. They are set up now."
 
@@ -91,14 +94,15 @@ harmless to `main`; only the history is out of step.
 - Tell her: "I restarted the preview."
 
 ### 9. Errors about packages or missing modules after getting new changes
-- Do: `pnpm -s catch-up` (reinstalls when the lockfile changed). Still failing: delete `node_modules` and run
+- Do: `pnpm --silent catch-up` (reinstalls when the lockfile changed). Still failing: delete `node_modules` and run
   `pnpm install`.
 - Tell her: "I updated the tools this app needs."
 
 ### 10. The test copy rejects the keys, or catch-up could not fetch them
-- Do: rejected keys (the owner rotated them) are fetched again by `pnpm -s catch-up` automatically. "No access yet":
-  her GitHub account `vicky-gq` has a pending write invite to `ngtongsheng/gq-dev-private`; catch-up accepts it when
-  `gh` is signed in as her. Check `gh auth status`; if signed out, `get-help`. Still failing: the `connect-test-copy`
+- Do: rejected keys (the owner rotated them) are fetched again by `pnpm --silent catch-up` automatically. "could not get
+  the test copy keys": the reason is in `<git-common-dir>/gq-catch-up.log`. Usually no access yet: her GitHub account
+  `vicky-gq` has a pending write invite to `ngtongsheng/gq-dev-private`; catch-up accepts it when `gh` is signed in as
+  her. Check `gh auth status`; if signed out, `get-help`. Still failing: the `connect-test-copy`
   skill (she pastes two values), and `get-help` if that fails.
 - Tell her: "Your laptop could not connect to the test copy. I asked Tong Sheng to help."
 
@@ -125,7 +129,7 @@ Supabase Free pauses an idle project; `health.yml` (Mondays and Thursdays) keeps
 
 ### 14. Admin-only features (People, settings, adding people)
 - Do: they use the server secret key. With the keys in `.env.local` they work on the test copy; without them the app
-  says "Adding people works on the live app, or after Claude sets up your laptop." Run `pnpm -s catch-up`; if keys
+  says "Adding people works on the live app, or after Claude sets up your laptop." Run `pnpm --silent catch-up`; if keys
   still missing see 10. Only if she declines, tell her it will be tried on the live app right after going live
   (preview skill, step 5).
 - Tell her: "That part now works on your laptop."

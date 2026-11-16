@@ -230,9 +230,8 @@ export async function catchUp(cwd, deps) {
     const outcome = await refreshKeys();
     keysReady = outcome === "fetched";
     if (outcome === "failed") {
-      failed.push(
-        "get the test copy keys (this GitHub account has no access yet; Tong Sheng needs to send an invite)",
-      );
+      // The reason (no access, invite not accepted, file missing) is in the log; docs/laptop.md situation 10.
+      failed.push("get the test copy keys");
     }
   }
 

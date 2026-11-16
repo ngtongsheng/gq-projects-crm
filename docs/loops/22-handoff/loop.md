@@ -33,8 +33,8 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 | 06 | Laptop playbook | done | 05 | standard |
 | 07 | Google sign-in go-live | in-progress | 01 | standard |
 | 08 | Screenshots, README and docs | done | 05 | standard |
-| 09 | Rehearsal on a fresh clone | in-progress | 04,05,06 | frontier |
-| 10 | Hand-off: what's new, bootstrap issue, close #31, docs, merge | todo | 07,08,09 | standard |
+| 09 | Rehearsal on a fresh clone | done | 04,05,06 | frontier |
+| 10 | Hand-off: what’s new, bootstrap issue, close #31, docs, merge | in-progress | 07,08,09 | standard |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - After #02: run `node scripts/agent/upload-dev-keys.mjs` in the main checkout (reads your `.env.local`, pushes
@@ -85,3 +85,8 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 2026-11-16 · #08 · decision · 1512 px not 1280 (resize_window had no effect); sign-in shot and 9 stale detail shots + demo.gif dropped · stale images mislead
 2026-11-16 · #08 · note · sidebar: Claims and HR share the Dashboard icon (unrelated, not fixed)
 2026-11-16 · #09 · started (opus/medium)
+2026-11-16 · #09 · done: 4 scenarios pass on a mirror-origin clone (old state → catch-up 34 s; panel 15 people; silent rerun 0.13 s; missing-key path recovers). Report: reports/rehearsal.md · next: #10
+2026-11-16 · #09 · decision · `pnpm --silent catch-up` everywhere (pnpm 12 echoes the script line even with -s) + allow rule for it · her session must be quiet
+2026-11-16 · #09 · decision · key-failure line no longer blames a missing invite; reason stays in the log · invite already sent
+2026-11-16 · #09 · decision · bootstrap issue (assets/bootstrap-issue.md) tells her Claude to work in the main folder, no subagent/worktree/deploy · overrides the default issue flow once
+2026-11-16 · #09 · note · orchestrator's acceptance run of catch-up on the owner's machine archived owner worktrees chore/seed-fixed-password, loop/06-setup-rehearsal, claude/sign-in-button-size-6e9a35 (draft-saved as 61d6350); all tags on origin

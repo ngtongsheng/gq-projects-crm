@@ -146,7 +146,7 @@ describe("catchUp", () => {
     expect(result).toEqual({ output: "", ok: true });
   });
 
-  it("names missing access in one line and keeps going", async () => {
+  it("names the missing keys in one line and keeps going", async () => {
     const top = checkout();
     const { deps, runs } = stubs();
     deps.fetchKeys = () => {
@@ -157,7 +157,7 @@ describe("catchUp", () => {
     expect(runs).toEqual(["install", "free-port"]);
     expect(result.ok).toBe(false);
     expect(result.output.split("\n")[0]).toMatch(
-      /could not get the test copy keys .*no access yet.*Claude will sort it out\.$/,
+      /could not get the test copy keys, .*Claude will sort it out\.$/,
     );
   });
 

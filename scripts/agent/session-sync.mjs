@@ -132,7 +132,9 @@ export function formatSync({
 }) {
   const lines = [];
   if (catchUpDue) {
-    lines.push("Laptop update due: run `pnpm catch-up` before anything else.");
+    lines.push(
+      "Laptop update due: run `pnpm --silent catch-up` before anything else.",
+    );
   }
   if (rulesUpdated) {
     lines.push(

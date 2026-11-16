@@ -19,8 +19,8 @@ the branch is merged to `main`.
 ## Tasks
 | # | Task | Status | Depends | Tier |
 |---|---|---|---|---|
-| 01 | Seed access, migrate and seed test copy | in-progress | - | economy |
-| 02 | Parity: loop 14 money and reports | todo | 01 | standard |
+| 01 | Seed access, migrate and seed test copy | done | - | economy |
+| 02 | Parity: loop 14 money and reports | in-progress | 01 | standard |
 | 03 | Parity: loop 16 People, HR, Tools | todo | 01 | standard |
 | 04 | Parity: loop 17 Log work, Site Work | todo | 01 | standard |
 | 05 | Parity: loop 18 Installation and DOs | todo | 01 | standard |
@@ -38,3 +38,9 @@ the branch is merged to `main`.
 2026-11-16 · plan · loop written; loop 19 merged; parity sweep before Integration (now loop 22) · next: #01
 2026-11-16 · exec · worktree ../gq-projects-crm-loops/21-parity-sweep on loop/21-parity-sweep · next: #01
 2026-11-16 · #01 · in-progress · delegated (economy)
+2026-11-16 · #01 · decision · db:test-copy applied monthly_claims and monthly_claim_steps migrations (were pending) · expected after loop 19
+2026-11-16 · #01 · decision · seed cleanup now deletes installers by name_key (migration backfill left rows that broke re-seed); insert/upsert use defaultToNull:false so omitted columns take defaults; 4 files, regression test added · seed was not re-runnable on the test copy
+2026-11-16 · #01 · note · defaultToNull option not checked against postgrest-js docs (node_modules/@supabase read denied); typecheck and live seed pass
+2026-11-16 · #01 · note · subagent printed one run of test sign-in passwords; they rotate every seed, already stale
+2026-11-16 · #01 · done · check, typecheck, 2984 tests, db:test-copy up to date, seed:example exit 0 twice; Chrome sign-in left to #02 · next: #02
+2026-11-16 · #02 · in-progress · delegated (standard)

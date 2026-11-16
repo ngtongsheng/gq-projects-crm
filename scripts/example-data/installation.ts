@@ -8,9 +8,15 @@ const installerId = (key: string) => exampleId("installers", key);
 const jobId = (key: string) => exampleId("jobs", key);
 const orderId = (key: string) => exampleId("delivery_orders", key);
 
+/** Same rule as the `installers.name_key` column: names differing in case or spacing are one installer. */
+const installerNameKey = (name: string) =>
+  name.replace(/\s+/g, " ").toLowerCase();
+
 /**
  * The installer directory. Inserted before the jobs: a job that names an installer already in
  * the directory is linked to it, so "Apex Installers" on the older jobs does not add a second row.
+ * The reset deletes by name, not id: the database may already hold an installer of the same
+ * name (made from an old job's free-text installer) under another id.
  */
 export function buildInstallers(): ExampleTable {
   const seeds: Row[] = [
@@ -66,7 +72,12 @@ export function buildInstallers(): ExampleTable {
     active: true,
     ...row,
   }));
-  return { table: "installers", key: "id", rows };
+  return {
+    table: "installers",
+    key: "name_key",
+    rows,
+    cleanupKeys: rows.map((row) => installerNameKey(String(row.name))),
+  };
 }
 
 export type InstallationJobs = {

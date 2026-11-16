@@ -91,12 +91,16 @@ export async function insertExampleRows(
 ): Promise<Record<string, number>> {
   const counts: Record<string, number> = {};
   for (const spec of data.tables) {
+    // defaultToNull: false lets a column that some rows leave out take its database default, not null.
     for (const rows of chunks(spec.rows)) {
       const { error } = spec.onConflict
-        ? await supabase
+        ? await supabase.from(spec.table).upsert(rows, {
+            onConflict: spec.onConflict,
+            defaultToNull: false,
+          })
+        : await supabase
             .from(spec.table)
-            .upsert(rows, { onConflict: spec.onConflict })
-        : await supabase.from(spec.table).insert(rows);
+            .insert(rows, { defaultToNull: false });
       if (error) {
         throw new Error(`Could not add ${spec.table}: ${error.message}`);
       }

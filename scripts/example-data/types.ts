@@ -16,6 +16,7 @@ export type ExampleTable = {
   table: string;
   key:
     | "id"
+    | "name_key"
     | "mof_id"
     | "contact_id"
     | "profile_id"

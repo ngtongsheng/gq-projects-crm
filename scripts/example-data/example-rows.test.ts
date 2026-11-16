@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it } from "vitest";
 import type { ExampleData } from "./dataset.ts";
 import { removeExampleRows } from "./example-rows.ts";
+import { buildInstallers } from "./installation.ts";
 import { EXAMPLE_REFERENCES } from "./table-references.ts";
 import type { Row } from "./types.ts";
 
@@ -90,5 +91,25 @@ describe("removeExampleRows", () => {
       site_follow_ups: [],
       unrelated: [{ id: "keep" }],
     });
+  });
+
+  it("removes installers the database made from old job names, under other ids", async () => {
+    const store: Store = {
+      installers: [
+        { id: "made-by-migration", name_key: "apex installers" },
+        { id: "made-by-trigger", name_key: "delta floor crew" },
+        { id: "team-added", name_key: "someone else" },
+      ],
+    };
+    const data: ExampleData = {
+      tables: [buildInstallers()],
+      deliveriesToFinish: [],
+    };
+
+    await removeExampleRows(fakeClient(store), data);
+
+    expect(store.installers).toEqual([
+      { id: "team-added", name_key: "someone else" },
+    ]);
   });
 });

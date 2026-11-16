@@ -27,8 +27,8 @@ error pages, and sign-out closing impersonation. Every other finding is in `docs
 | 01 | Security headers and CSP (S1) | done | | standard |
 | 02 | Log auth failures loudly (O1, O7, S3) | done | | standard |
 | 03 | `logServerError` helper on money and HR paths (O4) | done | | standard |
-| 04 | Audit trail for payout removals (O3) | in-progress | 03 | standard |
-| 05 | Order total floor at payments received (D1) | todo | | frontier |
+| 04 | Audit trail for payout removals (O3) | done | 03 | standard |
+| 05 | Order total floor at payments received (D1) | in-progress | | frontier |
 | 06 | Link installer POs to the installer directory (D2) | todo | | frontier |
 | 07 | Storage and RLS hardening (S-DB1, S-DB2, S-DB3) | todo | | frontier |
 | 08 | Small data fixes: MYT defaults, receipt lock, archived mobile message (D6, D7, D4) | todo | | standard |
@@ -60,3 +60,6 @@ error pages, and sign-out closing impersonation. Every other finding is in `docs
 2026-11-16 · #03 · decision · helper copies only code/message/details; private fail/finish helpers take profile+record ids; hr mayChangeHr returns Profile|null; create-path failures log no record id
 2026-11-16 · #03 · done · 44 calls in 23 files moved; grep clean; check/typecheck/test pass (3048)
 2026-11-16 · #04 · in-progress · delegated (standard)
+2026-11-16 · #04 · decision · no FK on payout_id (row is gone), indexed instead; removed_by nullable so service-role deletes still record; actions.ts unchanged (already logs via #03)
+2026-11-16 · #04 · done · read policy matches payout delete roles (md, accounts); PGlite 4 tests; check/typecheck/test pass (3052)
+2026-11-16 · #05 · in-progress · delegated (frontier)

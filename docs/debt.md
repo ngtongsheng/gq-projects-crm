@@ -119,3 +119,9 @@
 - What: `docs/laptop.md` situation 6 gives her agent a `node -e` one-liner for `supabase migration repair` and `db reset` on the test copy; there is no script, so no guard checks the connection string is the test copy's.
 - Why: needed only when another draft's database change reaches the shared test copy; `.env.local` holds only the test copy's string, and a script was out of scope for the playbook.
 - When to fix: the first time situation 6 happens, or at the next change to `scripts/db-test-copy.ts`: add `pnpm db:repair-test-copy` reusing `assertDevDbUrl`.
+
+## Chinese and Malay dictionaries are far from matching (loop 23 #06)
+- What: 1315 phrases are translated in Chinese but not Malay, and 327 the other way round; `t()` shows English for them.
+  The exact lists are in `src/lib/i18n/key-parity-known-gaps.ts`, and `key-parity.test.ts` fails on any new gap.
+- Why: translations need a native-speaker pass; the loop adds none.
+- When to fix: next i18n sweep (audit Q1); shrink the lists as phrases are translated.

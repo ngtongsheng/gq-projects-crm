@@ -29,7 +29,7 @@ Merged to `main`. Starts after loop 17 merges.
 | 09 | Leftover migration + rules | done | - | opus/medium |
 | 10 | Leftover page | done | 09 | sonnet/high |
 | 11 | Chinese/BM strings + dev seed | done | 02, 03, 05, 06, 08, 10 | sonnet/medium |
-| 12 | Parity pass, docs, merge | in-progress | 01-11 | sonnet/medium |
+| 12 | Parity pass, docs, merge | done | 01-11 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Start only after loop 17 is merged: `/execute-loop docs/loops/18-installation-stock`.
@@ -75,3 +75,4 @@ Merged to `main`. Starts after loop 17 merges.
 2026-11-16 · #11 · done · verified: check, typecheck, guard:migrations pass; full vitest 257 files / 2834 tests pass with --maxWorkers=3 (default parallelism hits PGlite hook timeouts when machine load is 30-60; environmental)
 2026-11-16 · #11 · decision · wired t() into ~55 screen files (tasks 02-10 had not); BM only for site-visible screens; printed DO + pickup receipt stay English; seed DOs 9202/9203, voided 9204 (existing Zoho DO is 9201); no seeded "Back" returns; collected_by/received_by empty in seed · subagent deviations, sensible
 2026-11-16 · #12 · started
+2026-11-16 · #12 · done · docs written (features, decisions D1-D6, drift doc marked done + live-parity checklist, roadmap 4B-ii, debt.md); browser parity NOT run, awaiting live parity after go-live (same as loops 14-17); main unchanged since branch, no migration renames needed

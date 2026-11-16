@@ -1,3 +1,4 @@
+version: 2026-11-16
 # What's new for you (November 2026)
 
 - When you say the preview looks right, your change goes live. There is no second question.

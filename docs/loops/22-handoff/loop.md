@@ -27,7 +27,7 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 |---|---|---|---|---|
 | 01 | Allow rules | done | - | economy |
 | 02 | Private dev repo, key upload script, key fetch | done | 01 | standard |
-| 03 | `pnpm catch-up` | blocked: owner — run `node scripts/agent/upload-dev-keys.mjs` | 02 | frontier |
+| 03 | `pnpm catch-up` | done | 02 | frontier |
 | 04 | Archive pre-parity work | todo | 03 | standard |
 | 05 | Hook, CLAUDE.md, skills and laptop UI fixes | todo | 03 | standard |
 | 06 | Laptop playbook | todo | 05 | standard |
@@ -60,3 +60,10 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 2026-11-16 · #07 · started (sonnet/high)
 2026-11-16 · #07 · partial: /privacy page + public path, auth-config.yml run 43862716536 ok (dev+prod); checks pass · committed
 2026-11-16 · #07 · blocked: owner · Agent Chrome signed in as a day-job Google account (passkey challenge); agent stopped. GCP Branding (home, /privacy, domain) + Publish app remain; do after merge so /privacy is live. environments.md status waits on the result
+2026-11-16 · #03 · unparked (keys uploaded, 200); started (opus/medium)
+2026-11-16 · #02 · decision · owner sent vicky-gq a write invite (pending); catch-up accepts it · read-only impossible on personal repos
+2026-11-16 · #03 · done: 13 tests, worktree run 14 s exit 0, second run 0.11 s silent · next: #04
+2026-11-16 · #03 · decision · seed reruns on seed-file change or first run only, no per-run "test people missing" DB query · keeps the no-op under 2 s
+2026-11-16 · #03 · decision · invites checked only when keys must be fetched; free-port only after an install · no network on the no-op path
+2026-11-16 · #03 · decision · log in <git-common-dir>/gq-catch-up.log (mode 600) keeps seed output incl. test-copy sign-in passwords, no keys · dev-only values
+2026-11-16 · #03 · note · docs/whats-new.md still has the old November text; #10 rewrites it. Wire as `pnpm -s catch-up` in #05

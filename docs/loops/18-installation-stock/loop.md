@@ -76,3 +76,4 @@ Merged to `main`. Starts after loop 17 merges.
 2026-11-16 · #11 · decision · wired t() into ~55 screen files (tasks 02-10 had not); BM only for site-visible screens; printed DO + pickup receipt stay English; seed DOs 9202/9203, voided 9204 (existing Zoho DO is 9201); no seeded "Back" returns; collected_by/received_by empty in seed · subagent deviations, sensible
 2026-11-16 · #12 · started
 2026-11-16 · #12 · done · docs written (features, decisions D1-D6, drift doc marked done + live-parity checklist, roadmap 4B-ii, debt.md); browser parity NOT run, awaiting live parity after go-live (same as loops 14-17); main unchanged since branch, no migration renames needed
+2026-11-16 · #12 · fix · CI build failed: show-sold-out-toggle.tsx had "use client" after import (task 11 codemod); fixed, pnpm build passes locally; scanned all files, no other instance

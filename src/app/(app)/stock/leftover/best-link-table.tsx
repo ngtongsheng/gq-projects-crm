@@ -12,6 +12,7 @@ import {
 } from "@/lib/domain/leftover";
 import { formatDate, todayMyt } from "@/lib/format/date";
 import { formatQuantity } from "@/lib/format/quantity";
+import type { Translate } from "@/lib/i18n/translate";
 import type { Leftover } from "./leftover-data";
 import { daysSince, formatDay } from "./leftover-dates";
 import type { BestLinkFilters } from "./leftover-filters";
@@ -21,6 +22,7 @@ import { UseForProjectDialog } from "./use-for-project-dialog";
 
 /** GQ's own stock at Best Link (the demo's Leftover list): what is left, where it came from, what it was used for. */
 export function BestLinkTable({
+  t,
   items,
   filters,
   onTheWay,
@@ -29,6 +31,7 @@ export function BestLinkTable({
   projects,
   suppliers,
 }: {
+  t: Translate;
   items: Leftover[];
   filters: BestLinkFilters;
   onTheWay: number;
@@ -50,19 +53,20 @@ export function BestLinkTable({
         <Input
           name="q"
           type="search"
-          aria-label="Search leftover stock"
-          placeholder="Search item, colour or MOF"
+          aria-label={t("Search leftover stock")}
+          placeholder={t("Search item, colour or MOF")}
           defaultValue={filters.q}
           className="w-full sm:w-64"
         />
         <ShowSoldOutToggle checked={filters.soldOut} />
         <Button type="submit" variant="outline">
           <Search data-icon="inline-start" />
-          Search
+          {t("Search")}
         </Button>
         <span className="text-sm text-muted-foreground">
-          {items.length} items
-          {onTheWay > 0 && ` · ${onTheWay} more on the way (pending pickup)`}
+          {items.length} {t("items")}
+          {onTheWay > 0 &&
+            ` · ${onTheWay} ${t("more on the way (pending pickup)")}`}
         </span>
       </form>
       <DataTable
@@ -73,26 +77,28 @@ export function BestLinkTable({
             icon={Boxes}
             title={
               isFiltered
-                ? "No leftover stock matches"
-                : "No leftover stock at Best Link"
+                ? t("No leftover stock matches")
+                : t("No leftover stock at Best Link")
             }
-            description="Comes from items marked At Best Link (for resale) below, once purchasing has them."
+            description={t(
+              "Comes from items marked At Best Link (for resale) below, once purchasing has them.",
+            )}
           />
         }
         columns={[
           {
             key: "item",
-            header: "Item",
+            header: t("Item"),
             cell: (leftover) => (
               <div className="flex min-w-48 flex-col">
                 <span className="font-medium">{leftover.item}</span>
                 <span className="text-xs text-muted-foreground">
                   {[
                     leftover.keepReason
-                      ? LEFTOVER_KEEP_REASON_LABEL[leftover.keepReason]
+                      ? t(LEFTOVER_KEEP_REASON_LABEL[leftover.keepReason])
                       : null,
                     leftover.orderedWrongBy
-                      ? `ordered by ${nameOf.get(leftover.orderedWrongBy) ?? "Unnamed"}`
+                      ? `${t("ordered by")} ${nameOf.get(leftover.orderedWrongBy) ?? t("Unnamed")}`
                       : null,
                     leftover.note || null,
                   ]
@@ -104,7 +110,7 @@ export function BestLinkTable({
           },
           {
             key: "site",
-            header: "From job",
+            header: t("From job"),
             cell: (leftover) => (
               <Link
                 href={`/site-work/${leftover.mofId}`}
@@ -119,22 +125,22 @@ export function BestLinkTable({
           },
           {
             key: "condition",
-            header: "Condition",
-            cell: (leftover) => LEFTOVER_CONDITION_LABEL[leftover.condition],
+            header: t("Condition"),
+            cell: (leftover) => t(LEFTOVER_CONDITION_LABEL[leftover.condition]),
           },
           {
             key: "available",
-            header: "Available",
+            header: t("Available"),
             numeric: true,
             cell: (leftover) => (
               <div className="flex flex-col items-end">
                 <span>
                   <b>{formatQuantity(leftover.available)}</b>{" "}
-                  {LEFTOVER_UNIT_LABEL[leftover.unit]}
+                  {t(LEFTOVER_UNIT_LABEL[leftover.unit])}
                 </span>
                 {leftover.uses.length > 0 && (
                   <span className="text-xs text-muted-foreground">
-                    of {formatQuantity(leftover.qty)}
+                    {t("of")} {formatQuantity(leftover.qty)}
                   </span>
                 )}
               </div>
@@ -142,7 +148,7 @@ export function BestLinkTable({
           },
           {
             key: "since",
-            header: "At Best Link since",
+            header: t("At Best Link since"),
             className: "max-sm:hidden",
             cell: (leftover) => (
               <div className="flex flex-col">
@@ -150,14 +156,14 @@ export function BestLinkTable({
                   {formatDay(leftover.receivedAt)}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {daysSince(leftover.receivedAt, today)} days
+                  {daysSince(leftover.receivedAt, today)} {t("days")}
                 </span>
               </div>
             ),
           },
           {
             key: "used",
-            header: "Used for",
+            header: t("Used for"),
             cell: (leftover) =>
               leftover.uses.length === 0 ? (
                 "–"
@@ -169,9 +175,10 @@ export function BestLinkTable({
                       className="text-xs text-muted-foreground"
                     >
                       {formatDate(use.usedOn)} · {formatQuantity(use.qty)}{" "}
-                      {LEFTOVER_UNIT_LABEL[leftover.unit]} → {use.projectName}
+                      {t(LEFTOVER_UNIT_LABEL[leftover.unit])} →{" "}
+                      {use.projectName}
                       {use.salespersonId
-                        ? ` (${nameOf.get(use.salespersonId) ?? "Unnamed"})`
+                        ? ` (${nameOf.get(use.salespersonId) ?? t("Unnamed")})`
                         : ""}
                       {use.note ? ` · ${use.note}` : ""}
                     </span>

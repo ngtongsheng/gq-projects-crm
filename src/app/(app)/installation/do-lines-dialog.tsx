@@ -29,6 +29,7 @@ import {
   deliveredEarlierText,
   lineFromMofProduct,
 } from "@/lib/domain/delivery-order";
+import { useT } from "@/lib/i18n/language-context";
 import { saveDoLines } from "./do-actions";
 
 type Row = {
@@ -56,6 +57,7 @@ type DoLinesDialogProps = {
 
 /** The items on a delivery's DO: product, code, description, quantity, unit, what it covers, batch. */
 export function DoLinesDialog(props: DoLinesDialogProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const count = props.lines.length;
 
@@ -64,14 +66,15 @@ export function DoLinesDialog(props: DoLinesDialogProps) {
       <DialogTrigger asChild>
         <Button size="sm" variant="outline">
           <ListPlus data-icon="inline-start" />
-          DO items{count > 0 && ` (${count})`}
+          {t("DO items")}
+          {count > 0 && ` (${count})`}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader>
-          <DialogTitle>Items on this DO</DialogTitle>
+          <DialogTitle>{t("Items on this DO")}</DialogTitle>
           <DialogDescription>
-            Needed to print the DO. Any unit: boxes, pcs, rolls, m²...
+            {t("Needed to print the DO. Any unit: boxes, pcs, rolls, m²...")}
           </DialogDescription>
         </DialogHeader>
         <LinesForm {...props} onSaved={() => setOpen(false)} />
@@ -89,6 +92,7 @@ function LinesForm({
   earlier,
   onSaved,
 }: DoLinesDialogProps & { onSaved: () => void }) {
+  const t = useT();
   const nextKey = useRef(0);
   const blank = (): Row => ({
     key: nextKey.current++,
@@ -144,7 +148,7 @@ function LinesForm({
       );
       setError(result.error);
       if (!result.error) {
-        toast.success("DO items saved.");
+        toast.success(t("DO items saved."));
         onSaved();
       }
     });
@@ -158,12 +162,12 @@ function LinesForm({
           className="grid grid-cols-2 gap-2 rounded-lg border p-2 sm:grid-cols-12"
         >
           <div className="sm:col-span-2">
-            <FieldLabel className="text-xs">Product</FieldLabel>
+            <FieldLabel className="text-xs">{t("Product")}</FieldLabel>
             <Select
               value={row.product}
               onValueChange={(product) => change(row.key, { product })}
             >
-              <SelectTrigger aria-label="Product">
+              <SelectTrigger aria-label={t("Product")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -180,29 +184,29 @@ function LinesForm({
             </Select>
           </div>
           <div className="sm:col-span-2">
-            <FieldLabel className="text-xs">Item code</FieldLabel>
+            <FieldLabel className="text-xs">{t("Item code")}</FieldLabel>
             <Input
               value={row.code}
               onChange={(event) =>
                 change(row.key, { code: event.target.value })
               }
-              placeholder="e.g. CSC-01"
+              placeholder={t("e.g. CSC-01")}
               maxLength={40}
             />
           </div>
           <div className="col-span-2 sm:col-span-3">
-            <FieldLabel className="text-xs">Description</FieldLabel>
+            <FieldLabel className="text-xs">{t("Description")}</FieldLabel>
             <Input
               value={row.description}
               onChange={(event) =>
                 change(row.key, { description: event.target.value })
               }
-              placeholder="e.g. Grey 50x50"
+              placeholder={t("e.g. Grey 50x50")}
               maxLength={200}
             />
           </div>
           <div className="sm:col-span-1">
-            <FieldLabel className="text-xs">Qty</FieldLabel>
+            <FieldLabel className="text-xs">{t("Qty")}</FieldLabel>
             <Input
               type="number"
               min="0"
@@ -213,12 +217,12 @@ function LinesForm({
             />
           </div>
           <div className="sm:col-span-2">
-            <FieldLabel className="text-xs">Unit</FieldLabel>
+            <FieldLabel className="text-xs">{t("Unit")}</FieldLabel>
             <Select
               value={row.unit}
               onValueChange={(unit) => change(row.key, { unit })}
             >
-              <SelectTrigger aria-label="Unit">
+              <SelectTrigger aria-label={t("Unit")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -235,7 +239,7 @@ function LinesForm({
               type="button"
               size="icon-sm"
               variant="ghost"
-              aria-label="Remove line"
+              aria-label={t("Remove line")}
               onClick={() =>
                 setRows((current) =>
                   current.filter((other) => other.key !== row.key),
@@ -246,18 +250,22 @@ function LinesForm({
             </Button>
           </div>
           <div className="col-span-2 sm:col-span-6">
-            <FieldLabel className="text-xs">Covers (optional)</FieldLabel>
+            <FieldLabel className="text-xs">
+              {t("Covers (optional)")}
+            </FieldLabel>
             <Input
               value={row.covers}
               onChange={(event) =>
                 change(row.key, { covers: event.target.value })
               }
-              placeholder="e.g. 1550 sqft"
+              placeholder={t("e.g. 1550 sqft")}
               maxLength={60}
             />
           </div>
           <div className="col-span-2 sm:col-span-6">
-            <FieldLabel className="text-xs">Batch / lot (optional)</FieldLabel>
+            <FieldLabel className="text-xs">
+              {t("Batch / lot (optional)")}
+            </FieldLabel>
             <Input
               value={row.batch}
               onChange={(event) =>
@@ -276,31 +284,31 @@ function LinesForm({
           onClick={() => setRows((current) => [...current, blank()])}
         >
           <Plus data-icon="inline-start" />
-          Add line
+          {t("Add line")}
         </Button>
         {ordered.length > 0 && (
           <Button type="button" size="sm" variant="ghost" onClick={copyFromMof}>
-            Copy products from the MOF
+            {t("Copy products from the MOF")}
           </Button>
         )}
       </div>
       <p className="text-sm text-muted-foreground">
-        {mofNo} ordered:{" "}
+        {mofNo} {t("ordered:")}{" "}
         {ordered.length > 0
           ? ordered
               .map((item) => `${item.product} ${item.qty} ${item.unit}`)
               .join(" · ")
-          : "no products"}
+          : t("no products")}
         {earlier.length > 0 && (
           <>
             <br />
-            Delivered on earlier DOs: {deliveredEarlierText(earlier)}
+            {t("Delivered on earlier DOs:")} {deliveredEarlierText(earlier)}
           </>
         )}
       </p>
       {error && <FieldError>{error}</FieldError>}
       <Button type="button" onClick={save} disabled={pending}>
-        {pending ? "Saving..." : "Save items"}
+        {pending ? t("Saving...") : t("Save items")}
       </Button>
     </div>
   );

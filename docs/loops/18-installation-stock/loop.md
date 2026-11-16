@@ -28,8 +28,8 @@ Merged to `main`. Starts after loop 17 merges.
 | 08 | Samples page + pickup form print | done | 07 | sonnet/high |
 | 09 | Leftover migration + rules | done | - | opus/medium |
 | 10 | Leftover page | done | 09 | sonnet/high |
-| 11 | Chinese/BM strings + dev seed | in-progress | 02, 03, 05, 06, 08, 10 | sonnet/medium |
-| 12 | Parity pass, docs, merge | todo | 01-11 | sonnet/medium |
+| 11 | Chinese/BM strings + dev seed | done | 02, 03, 05, 06, 08, 10 | sonnet/medium |
+| 12 | Parity pass, docs, merge | in-progress | 01-11 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Start only after loop 17 is merged: `/execute-loop docs/loops/18-installation-stock`.
@@ -72,3 +72,6 @@ Merged to `main`. Starts after loop 17 merges.
 2026-11-16 · #10 · done · verified: check, typecheck, test (2824), guard:migrations pass (subagent saw one resignation-handover PGlite flake under load, reruns clean); parity deferred to #12 (verify leftovers `leftover_allocations(projects)` embed, count query, supervisor RLS update, allocation guard message, "Show sold out" auto-submit, dialogs at 390px)
 2026-11-16 · #10 · decision · two tables on /stock/leftover (Best Link list + Returns from site); free-text supplier with datalist; transport via LEFTOVER_TRANSPORTERS; supervisor Mark collected on Site Work MOF page; no transport banner · subagent deviations, sensible
 2026-11-16 · #11 · started
+2026-11-16 · #11 · done · verified: check, typecheck, guard:migrations pass; full vitest 257 files / 2834 tests pass with --maxWorkers=3 (default parallelism hits PGlite hook timeouts when machine load is 30-60; environmental)
+2026-11-16 · #11 · decision · wired t() into ~55 screen files (tasks 02-10 had not); BM only for site-visible screens; printed DO + pickup receipt stay English; seed DOs 9202/9203, voided 9204 (existing Zoho DO is 9201); no seeded "Back" returns; collected_by/received_by empty in seed · subagent deviations, sensible
+2026-11-16 · #12 · started

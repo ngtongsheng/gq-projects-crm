@@ -6,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { Translate } from "@/lib/i18n/translate";
 import type { CalendarView } from "../calendar/calendar-params";
 import { INSTALLATION_PATH } from "./installation-params";
 
@@ -14,6 +15,7 @@ const ALL = "all";
 type Choice = { id: string; name: string };
 
 type InstallationFiltersProps = {
+  t: Translate;
   view: CalendarView;
   date: string;
   installers: Choice[];
@@ -25,6 +27,7 @@ type InstallationFiltersProps = {
 
 /** Filter the calendar by installer and by site supervisor (demo: instFT, instFS). */
 export function InstallationFilters({
+  t,
   view,
   date,
   installers,
@@ -40,11 +43,11 @@ export function InstallationFilters({
       <input type="hidden" name="view" value={view} />
       <input type="hidden" name="date" value={date} />
       <Select name="installer" defaultValue={installerId ?? ALL}>
-        <SelectTrigger aria-label="Filter by installer" className="w-48">
+        <SelectTrigger aria-label={t("Filter by installer")} className="w-48">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value={ALL}>All installers</SelectItem>
+          <SelectItem value={ALL}>{t("All installers")}</SelectItem>
           {installers.map((installer) => (
             <SelectItem key={installer.id} value={installer.id}>
               {installer.name}
@@ -55,13 +58,13 @@ export function InstallationFilters({
       {supervisors && (
         <Select name="who" defaultValue={supervisorId ?? ALL}>
           <SelectTrigger
-            aria-label="Filter by site supervisor"
+            aria-label={t("Filter by site supervisor")}
             className="w-48"
           >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All site supervisors</SelectItem>
+            <SelectItem value={ALL}>{t("All site supervisors")}</SelectItem>
             {supervisors.map((supervisor) => (
               <SelectItem key={supervisor.id} value={supervisor.id}>
                 {supervisor.name}
@@ -71,7 +74,7 @@ export function InstallationFilters({
         </Select>
       )}
       <Button type="submit" variant="outline">
-        Show
+        {t("Show")}
       </Button>
     </form>
   );

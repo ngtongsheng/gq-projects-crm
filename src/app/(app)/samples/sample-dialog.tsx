@@ -33,6 +33,7 @@ import {
 } from "@/lib/domain/samples";
 import { isOneOf } from "@/lib/form/one-of";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
+import { useT } from "@/lib/i18n/language-context";
 import { deleteSample, saveSample } from "./sample-actions";
 import { describeMove } from "./sample-history";
 import type { SampleRow } from "./samples-data";
@@ -57,6 +58,7 @@ export function SampleDialog({
   defaultBrand,
   nameOf = new Map(),
 }: SampleDialogProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -78,7 +80,7 @@ export function SampleDialog({
       const result = await saveSample(formData);
       setError(result.error);
       if (!result.error) {
-        toast.success(sample ? "Sample saved." : "Sample added.");
+        toast.success(sample ? t("Sample saved.") : t("Sample added."));
         if (!sample) form.reset();
         setOpen(false);
       }
@@ -92,7 +94,7 @@ export function SampleDialog({
       setError(result.error);
       setAsking(false);
       if (!result.error) {
-        toast.success("Sample deleted.");
+        toast.success(t("Sample deleted."));
         setOpen(false);
       }
     });
@@ -103,12 +105,12 @@ export function SampleDialog({
       <DialogTrigger asChild>
         {sample ? (
           <Button size="sm" variant="ghost">
-            Edit
+            {t("Edit")}
           </Button>
         ) : (
           <Button variant="outline">
             <Plus data-icon="inline-start" />
-            Add sample
+            {t("Add sample")}
           </Button>
         )}
       </DialogTrigger>
@@ -116,11 +118,11 @@ export function SampleDialog({
         <DialogHeader>
           <DialogTitle>
             {sample
-              ? `Sample ${sample.sku || sample.name}`
-              : "Add sample at Best Link"}
+              ? `${t("Sample")} ${sample.sku || sample.name}`
+              : t("Add sample at Best Link")}
           </DialogTitle>
           <DialogDescription>
-            One line per SKU, with how many we keep: 1 pc, 1 box...
+            {t("One line per SKU, with how many we keep: 1 pc, 1 box...")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submitKeepingValues(save)}>
@@ -130,7 +132,7 @@ export function SampleDialog({
           <FieldGroup>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
-                <FieldLabel htmlFor="sampleProduct">Product</FieldLabel>
+                <FieldLabel htmlFor="sampleProduct">{t("Product")}</FieldLabel>
                 <Select value={product} onValueChange={setProduct}>
                   <SelectTrigger id="sampleProduct">
                     <SelectValue />
@@ -145,7 +147,7 @@ export function SampleDialog({
                 </Select>
               </Field>
               <Field>
-                <FieldLabel htmlFor="sampleBrand">Brand</FieldLabel>
+                <FieldLabel htmlFor="sampleBrand">{t("Brand")}</FieldLabel>
                 <Input
                   id="sampleBrand"
                   name="brand"
@@ -162,31 +164,33 @@ export function SampleDialog({
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
-                <FieldLabel htmlFor="sampleSku">SKU</FieldLabel>
+                <FieldLabel htmlFor="sampleSku">{t("SKU")}</FieldLabel>
                 <Input
                   id="sampleSku"
                   name="sku"
                   className="font-mono uppercase"
                   defaultValue={sample?.sku}
                   maxLength={60}
-                  placeholder="e.g. XCH-03"
+                  placeholder={t("e.g. XCH-03")}
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="sampleName">Product name</FieldLabel>
+                <FieldLabel htmlFor="sampleName">
+                  {t("Product name")}
+                </FieldLabel>
                 <Input
                   id="sampleName"
                   name="name"
                   defaultValue={sample?.name}
                   maxLength={200}
-                  placeholder="e.g. Dawn to Dust"
+                  placeholder={t("e.g. Dawn to Dust")}
                 />
               </Field>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
                 <FieldLabel htmlFor="sampleQty">
-                  Quantity at Best Link
+                  {t("Quantity at Best Link")}
                 </FieldLabel>
                 <Input
                   id="sampleQty"
@@ -201,7 +205,7 @@ export function SampleDialog({
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="sampleUnit">Unit</FieldLabel>
+                <FieldLabel htmlFor="sampleUnit">{t("Unit")}</FieldLabel>
                 <Select
                   value={unit}
                   onValueChange={(value) => {
@@ -224,31 +228,32 @@ export function SampleDialog({
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
                 <FieldLabel htmlFor="sampleSpec">
-                  Size / specification
+                  {t("Size / specification")}
                 </FieldLabel>
                 <Input
                   id="sampleSpec"
                   name="spec"
                   defaultValue={sample?.spec}
                   maxLength={120}
-                  placeholder="e.g. 25×100cm"
+                  placeholder={t("e.g. 25×100cm")}
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="sampleNotes">Notes</FieldLabel>
+                <FieldLabel htmlFor="sampleNotes">{t("Notes")}</FieldLabel>
                 <Input
                   id="sampleNotes"
                   name="notes"
                   defaultValue={sample?.notes}
                   maxLength={300}
-                  placeholder="e.g. Rack B2 · 1 box = 20 pcs"
+                  placeholder={t("e.g. Rack B2 · 1 box = 20 pcs")}
                 />
               </Field>
             </div>
             {sample && sample.moves.length > 0 && (
               <details>
                 <summary className="cursor-pointer text-sm font-medium">
-                  History ({sample.moves.length})
+                  {t("History (")}
+                  {sample.moves.length})
                 </summary>
                 <ul className="mt-2 flex flex-col gap-1 text-sm text-muted-foreground">
                   {sample.moves
@@ -268,12 +273,12 @@ export function SampleDialog({
             {error && <FieldError>{error}</FieldError>}
             <div className="flex flex-wrap items-center gap-2">
               <Button type="submit" disabled={pending}>
-                {pending ? "Saving..." : "Save"}
+                {pending ? t("Saving...") : t("Save")}
               </Button>
               {sample &&
                 (asking ? (
                   <span className="flex flex-wrap items-center gap-2 text-sm">
-                    Delete it and its history?
+                    {t("Delete it and its history?")}
                     <Button
                       type="button"
                       size="sm"
@@ -281,7 +286,7 @@ export function SampleDialog({
                       onClick={remove}
                       disabled={pending}
                     >
-                      Yes, delete
+                      {t("Yes, delete")}
                     </Button>
                     <Button
                       type="button"
@@ -289,7 +294,7 @@ export function SampleDialog({
                       variant="outline"
                       onClick={() => setAsking(false)}
                     >
-                      Keep
+                      {t("Keep")}
                     </Button>
                   </span>
                 ) : (
@@ -299,7 +304,7 @@ export function SampleDialog({
                     className="ml-auto text-bad"
                     onClick={() => setAsking(true)}
                   >
-                    Delete
+                    {t("Delete")}
                   </Button>
                 ))}
             </div>

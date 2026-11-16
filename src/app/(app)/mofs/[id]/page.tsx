@@ -21,6 +21,7 @@ import {
 } from "@/lib/domain/supplier-po";
 import { todayMyt } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
+import { getT } from "@/lib/i18n/server-t";
 import { createClient } from "@/lib/supabase/server";
 import { loadSiteSupervisors } from "../../installation/booking-data";
 import {
@@ -100,6 +101,7 @@ export default async function MofPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const me = await requirePage("mof");
+  const t = await getT(me.language);
   const { id } = await params;
   const canEdit = canEditRegister(me.jobRole);
   const showCost = await seesMofCost(me);
@@ -284,6 +286,7 @@ export default async function MofPage({
         supplierSuggestions={supplierSuggestions}
       />
       <DeliveryJobs
+        t={t}
         mofId={mof.id}
         mofNo={mof.mof_no}
         jobs={jobs}

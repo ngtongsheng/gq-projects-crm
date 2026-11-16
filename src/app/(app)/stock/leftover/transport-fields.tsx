@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { LEFTOVER_TRANSPORTERS } from "@/lib/domain/leftover";
+import { useT } from "@/lib/i18n/language-context";
 
 const NOT_ARRANGED = "not-arranged";
 
@@ -34,6 +35,7 @@ export function TransportFields({
   defaults: TransportDefaults;
   mustName: boolean;
 }) {
+  const t = useT();
   const [by, setBy] = useState(
     defaults.by || (mustName ? LEFTOVER_TRANSPORTERS[0] : NOT_ARRANGED),
   );
@@ -52,14 +54,16 @@ export function TransportFields({
       />
       <div className="grid gap-4 sm:grid-cols-2">
         <Field>
-          <FieldLabel htmlFor={`${idPrefix}-by`}>Transport</FieldLabel>
+          <FieldLabel htmlFor={`${idPrefix}-by`}>{t("Transport")}</FieldLabel>
           <Select value={by} onValueChange={setBy}>
             <SelectTrigger id={`${idPrefix}-by`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {!mustName && (
-                <SelectItem value={NOT_ARRANGED}>Still to arrange</SelectItem>
+                <SelectItem value={NOT_ARRANGED}>
+                  {t("Still to arrange")}
+                </SelectItem>
               )}
               {names.map((name) => (
                 <SelectItem key={name} value={name}>
@@ -70,7 +74,7 @@ export function TransportFields({
           </Select>
         </Field>
         <Field>
-          <FieldLabel htmlFor={`${idPrefix}-on`}>Pickup date</FieldLabel>
+          <FieldLabel htmlFor={`${idPrefix}-on`}>{t("Pickup date")}</FieldLabel>
           <Input
             id={`${idPrefix}-on`}
             name="transportOn"
@@ -80,18 +84,18 @@ export function TransportFields({
           />
         </Field>
         <Field>
-          <FieldLabel htmlFor={`${idPrefix}-to`}>Deliver to</FieldLabel>
+          <FieldLabel htmlFor={`${idPrefix}-to`}>{t("Deliver to")}</FieldLabel>
           <Input
             id={`${idPrefix}-to`}
             name="transportTo"
             defaultValue={defaults.to}
             maxLength={100}
-            placeholder="e.g. Best Link, Floor Place"
+            placeholder={t("e.g. Best Link, Floor Place")}
           />
         </Field>
         <Field>
           <FieldLabel htmlFor={`${idPrefix}-cost`}>
-            Cost (RM, optional)
+            {t("Cost (RM, optional)")}
           </FieldLabel>
           <Input
             id={`${idPrefix}-cost`}

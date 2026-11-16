@@ -33,6 +33,7 @@ import {
 } from "@/lib/domain/leftover";
 import { isOneOf } from "@/lib/form/one-of";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
+import { useT } from "@/lib/i18n/language-context";
 import { collectLeftover } from "./collect-actions";
 
 /**
@@ -52,6 +53,7 @@ export function CollectLeftoverDialog({
   whatsappSent: boolean;
   collected: boolean;
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +68,7 @@ export function CollectLeftoverDialog({
       setError(result.error);
       if (!result.error) {
         toast.success(
-          collected ? "Leftover stock updated." : "Marked as collected.",
+          collected ? t("Leftover stock updated.") : t("Marked as collected."),
         );
         setOpen(false);
       }
@@ -77,14 +79,16 @@ export function CollectLeftoverDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="xs" variant="outline">
-          {collected ? "Update" : "Mark collected"}
+          {collected ? t("Update") : t("Mark collected")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{item}</DialogTitle>
           <DialogDescription>
-            Say how it goes back and WhatsApp the office a photo of the stock.
+            {t(
+              "Say how it goes back and WhatsApp the office a photo of the stock.",
+            )}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submitKeepingValues(save)}>
@@ -94,7 +98,7 @@ export function CollectLeftoverDialog({
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor={`collect-method-${leftoverId}`}>
-                How is it going back?
+                {t("How is it going back?")}
               </FieldLabel>
               <Select
                 value={method}
@@ -103,19 +107,20 @@ export function CollectLeftoverDialog({
                 }}
               >
                 <SelectTrigger id={`collect-method-${leftoverId}`}>
-                  <SelectValue placeholder="Choose how" />
+                  <SelectValue placeholder={t("Choose how")} />
                 </SelectTrigger>
                 <SelectContent>
                   {LEFTOVER_RETURN_METHODS.map((value) => (
                     <SelectItem key={value} value={value}>
-                      {LEFTOVER_RETURN_METHOD_LABEL[value]}
+                      {t(LEFTOVER_RETURN_METHOD_LABEL[value])}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <FieldDescription>
-                Purchasing arranges Lalamove or the lorry when you choose
-                transport.
+                {t(
+                  "Purchasing arranges Lalamove or the lorry when you choose transport.",
+                )}
               </FieldDescription>
             </Field>
             <Field orientation="horizontal">
@@ -126,12 +131,12 @@ export function CollectLeftoverDialog({
                 onCheckedChange={(checked) => setSent(checked === true)}
               />
               <FieldLabel htmlFor={`collect-wa-${leftoverId}`}>
-                I sent the office the WhatsApp with a photo
+                {t("I sent the office the WhatsApp with a photo")}
               </FieldLabel>
             </Field>
             {error && <FieldError>{error}</FieldError>}
             <Button type="submit" disabled={pending}>
-              {pending ? "Saving..." : "Save"}
+              {pending ? t("Saving...") : t("Save")}
             </Button>
           </FieldGroup>
         </form>

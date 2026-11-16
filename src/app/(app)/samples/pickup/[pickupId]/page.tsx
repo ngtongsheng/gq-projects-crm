@@ -7,6 +7,7 @@ import { requirePage } from "@/lib/auth/require-page";
 import { pickupWhatsAppText, whatsAppLink } from "@/lib/domain/pickup-message";
 import { formatPickupNo } from "@/lib/domain/samples";
 import { formatDate, todayMyt } from "@/lib/format/date";
+import { getT } from "@/lib/i18n/server-t";
 import { loadPickupForm, loadPickupSettings } from "../../samples-data";
 import { PickupPrintActions } from "./pickup-print-actions";
 import { PickupReceiptSheet } from "./pickup-receipt-sheet";
@@ -20,6 +21,7 @@ export default async function PickupFormPage({
   params: Promise<{ pickupId: string }>;
 }) {
   const me = await requirePage("stock");
+  const t = await getT(me.language);
   const { pickupId } = await params;
   if (!z.uuid().safeParse(pickupId).success) notFound();
   const [form, settings] = await Promise.all([
@@ -48,11 +50,11 @@ export default async function PickupFormPage({
 
   return (
     <PrintLayout
-      title="V-GQ Signature Receipt"
-      toolbarTitle={`Pickup form ${number}`}
+      title={t("V-GQ Signature Receipt")}
+      toolbarTitle={`${t("Pickup form")} ${number}`}
       meta={[
-        { label: "Form no.", value: number },
-        { label: "Date", value: formDate },
+        { label: t("Form no."), value: number },
+        { label: t("Date"), value: formDate },
       ]}
       toolbarActions={
         <PickupPrintActions
@@ -69,18 +71,22 @@ export default async function PickupFormPage({
       }
       notice={
         <div className="rounded-lg border bg-card px-3 py-2 text-sm">
-          <b>On the phone:</b> Print / Save as PDF, then share it to WhatsApp
-          (Best Link) or Drive.
+          <b>{t("On the phone:")}</b>{" "}
+          {t(
+            "Print / Save as PDF, then share it to WhatsApp (Best Link) or Drive.",
+          )}
           <br />
-          <b>On the computer:</b> Print / Save as PDF, upload it to the Drive
-          folder and drag it into WhatsApp Web. WhatsApp Best Link sends the
-          Chinese message.
+          <b>{t("On the computer:")}</b>{" "}
+          {t(
+            "Print / Save as PDF, upload it to the Drive folder and drag it into WhatsApp Web. WhatsApp Best Link sends the Chinese message.",
+          )}
           {!settings.bestLinkWhatsapp && (
             <>
               {" "}
               <span className="text-warn">
-                No Best Link number is saved, so WhatsApp asks you to pick the
-                chat. Add it under Settings on the Samples page.
+                {t(
+                  "No Best Link number is saved, so WhatsApp asks you to pick the chat. Add it under Settings on the Samples page.",
+                )}
               </span>
             </>
           )}

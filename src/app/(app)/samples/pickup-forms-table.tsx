@@ -6,13 +6,16 @@ import { Button } from "@/components/ui/button";
 import { formatPickupNo, PICKUP_METHOD_LABEL } from "@/lib/domain/samples";
 import { formatDate, todayMyt } from "@/lib/format/date";
 import { formatQuantity } from "@/lib/format/quantity";
+import type { Translate } from "@/lib/i18n/translate";
 import type { PickupFormRow } from "./samples-data";
 
 /** The newest pickup forms, each opening its signature receipt for print or PDF. */
 export function PickupFormsTable({
+  t,
   forms,
   nameOf,
 }: {
+  t: Translate;
   forms: PickupFormRow[];
   nameOf: ReadonlyMap<string, string>;
 }) {
@@ -23,14 +26,14 @@ export function PickupFormsTable({
       empty={
         <EmptyState
           icon={FileText}
-          title="No pickup forms yet"
-          description="A form is numbered when it is saved."
+          title={t("No pickup forms yet")}
+          description={t("A form is numbered when it is saved.")}
         />
       }
       columns={[
         {
           key: "no",
-          header: "Form",
+          header: t("Form"),
           cell: (form) => (
             <span className="font-mono text-sm font-medium">
               {formatPickupNo(form.runningNo)}
@@ -39,7 +42,7 @@ export function PickupFormsTable({
         },
         {
           key: "date",
-          header: "Date",
+          header: t("Date"),
           cell: (form) => (
             <span className="font-mono text-sm whitespace-nowrap tabular-nums">
               {formatDate(form.appointmentOn)}
@@ -48,7 +51,7 @@ export function PickupFormsTable({
         },
         {
           key: "items",
-          header: "Items",
+          header: t("Items"),
           cell: (form) =>
             form.lines
               .map(
@@ -59,12 +62,12 @@ export function PickupFormsTable({
         },
         {
           key: "method",
-          header: "Method",
-          cell: (form) => PICKUP_METHOD_LABEL[form.method],
+          header: t("Method"),
+          cell: (form) => t(PICKUP_METHOD_LABEL[form.method]),
         },
         {
           key: "for",
-          header: "For",
+          header: t("For"),
           cell: (form) => (
             <div className="flex flex-col">
               <span>{form.personInCharge}</span>
@@ -78,7 +81,7 @@ export function PickupFormsTable({
         },
         {
           key: "by",
-          header: "By",
+          header: t("By"),
           cell: (form) =>
             form.createdBy ? (nameOf.get(form.createdBy) ?? "") : "",
         },
@@ -88,11 +91,13 @@ export function PickupFormsTable({
           cell: (form) => (
             <div className="flex flex-col items-start gap-0.5">
               <Button size="sm" variant="outline" asChild>
-                <Link href={`/samples/pickup/${form.id}`}>Open / PDF</Link>
+                <Link href={`/samples/pickup/${form.id}`}>
+                  {t("Open / PDF")}
+                </Link>
               </Button>
               {form.pdfSavedAt && (
                 <span className="text-xs text-muted-foreground">
-                  PDF {formatDate(todayMyt(new Date(form.pdfSavedAt)))}
+                  {t("PDF")} {formatDate(todayMyt(new Date(form.pdfSavedAt)))}
                 </span>
               )}
             </div>

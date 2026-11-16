@@ -47,6 +47,7 @@ import {
 } from "@/lib/domain/job-team";
 import { isOneOf } from "@/lib/form/one-of";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
+import { useT } from "@/lib/i18n/language-context";
 import { saveJob } from "./actions";
 
 export type JobRow = {
@@ -99,6 +100,7 @@ const NONE = "none";
 
 /** Schedules a job for an MOF, or edits one. Reused wherever jobs are scheduled. */
 export function JobDialog(props: JobDialogProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const { job } = props;
 
@@ -108,12 +110,12 @@ export function JobDialog(props: JobDialogProps) {
         {job ? (
           <Button size="sm" variant="outline">
             <Pencil data-icon="inline-start" />
-            Edit
+            {t("Edit")}
           </Button>
         ) : (
           <Button size="sm">
             <Plus data-icon="inline-start" />
-            Schedule job
+            {t("Schedule job")}
           </Button>
         )}
       </DialogTrigger>
@@ -121,12 +123,13 @@ export function JobDialog(props: JobDialogProps) {
         <DialogHeader>
           <DialogTitle>
             {job
-              ? `Edit ${JOB_TYPE_LABEL[job.jobType].toLowerCase()}`
-              : "Schedule job"}
+              ? `${t("Edit")} ${t(JOB_TYPE_LABEL[job.jobType]).toLowerCase()}`
+              : t("Schedule job")}
           </DialogTitle>
           <DialogDescription>
-            Key in the dates and who is going. A delivery also gets its DO no.
-            from here.
+            {t(
+              "Key in the dates and who is going. A delivery also gets its DO no. from here.",
+            )}
           </DialogDescription>
         </DialogHeader>
         <JobForm {...props} onSaved={() => setOpen(false)} />
@@ -147,6 +150,7 @@ export function JobForm({
   canCorrectDoNo = false,
   onSaved,
 }: JobDialogProps & { onSaved: () => void }) {
+  const t = useT();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [jobType, setJobType] = useState<JobType>(
@@ -181,7 +185,7 @@ export function JobForm({
       const result = await saveJob(formData);
       setError(result.error);
       if (!result.error) {
-        toast.success(job ? "Job saved." : "Job scheduled.");
+        toast.success(job ? t("Job saved.") : t("Job scheduled."));
         onSaved();
       }
     });
@@ -201,7 +205,7 @@ export function JobForm({
       <FieldGroup>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field>
-            <FieldLabel htmlFor="jobTypeSelect">Job type</FieldLabel>
+            <FieldLabel htmlFor="jobTypeSelect">{t("Job type")}</FieldLabel>
             <Select
               value={jobType}
               onValueChange={(value) => {
@@ -215,7 +219,7 @@ export function JobForm({
               <SelectContent>
                 {JOB_TYPES.map((type) => (
                   <SelectItem key={type} value={type}>
-                    {JOB_TYPE_LABEL[type]}
+                    {t(JOB_TYPE_LABEL[type])}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -223,7 +227,7 @@ export function JobForm({
           </Field>
           {job && (
             <Field>
-              <FieldLabel htmlFor="status">Status</FieldLabel>
+              <FieldLabel htmlFor="status">{t("Status")}</FieldLabel>
               <Select name="status" defaultValue={job.status}>
                 <SelectTrigger id="status">
                   <SelectValue />
@@ -231,7 +235,7 @@ export function JobForm({
                 <SelectContent>
                   {JOB_STATUSES.map((status) => (
                     <SelectItem key={status} value={status}>
-                      {JOB_STATUS_LABEL[status]}
+                      {t(JOB_STATUS_LABEL[status])}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -241,13 +245,13 @@ export function JobForm({
         </div>
         {jobType === "delivery" && missingChecks.length > 0 && (
           <FieldError>
-            Before delivery for {mofNo}: {missingChecks.join(" · ")}. Tick these
-            on the MOF first.
+            {t("Before delivery for")} {mofNo}: {missingChecks.join(" · ")}
+            {t(". Tick these on the MOF first.")}
           </FieldError>
         )}
         <div className="grid gap-4 sm:grid-cols-2">
           <Field>
-            <FieldLabel htmlFor="scheduledOn">Start date</FieldLabel>
+            <FieldLabel htmlFor="scheduledOn">{t("Start date")}</FieldLabel>
             <Input
               id="scheduledOn"
               name="scheduledOn"
@@ -263,7 +267,7 @@ export function JobForm({
             />
           </Field>
           <Field>
-            <FieldLabel htmlFor="endsOn">End date</FieldLabel>
+            <FieldLabel htmlFor="endsOn">{t("End date")}</FieldLabel>
             <Input
               id="endsOn"
               name="endsOn"
@@ -275,7 +279,7 @@ export function JobForm({
             />
           </Field>
           <Field>
-            <FieldLabel htmlFor="startTime">Time</FieldLabel>
+            <FieldLabel htmlFor="startTime">{t("Time")}</FieldLabel>
             <Input
               id="startTime"
               name="startTime"
@@ -287,41 +291,43 @@ export function JobForm({
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field>
-            <FieldLabel htmlFor="crewSelect">Team</FieldLabel>
+            <FieldLabel htmlFor="crewSelect">{t("Team")}</FieldLabel>
             <Select value={crew} onValueChange={setCrew}>
               <SelectTrigger id="crewSelect">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={NONE}>Not decided yet</SelectItem>
+                <SelectItem value={NONE}>{t("Not decided yet")}</SelectItem>
                 {crewChoices.map((installer) => (
                   <SelectItem key={installer.id} value={installer.id}>
                     {installer.name}
                   </SelectItem>
                 ))}
-                <SelectItem value={SUPERVISOR_ONLY}>Supervisor only</SelectItem>
+                <SelectItem value={SUPERVISOR_ONLY}>
+                  {t("Supervisor only")}
+                </SelectItem>
               </SelectContent>
             </Select>
           </Field>
           <Field>
             <FieldLabel htmlFor="supervisorSelect">
-              Supervisor in charge
+              {t("Supervisor in charge")}
             </FieldLabel>
             <Select value={supervisor} onValueChange={setSupervisor}>
               <SelectTrigger id="supervisorSelect">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={NONE}>No one in charge</SelectItem>
+                <SelectItem value={NONE}>{t("No one in charge")}</SelectItem>
                 <PersonGroup
-                  label="Site supervisors"
+                  label={t("Site supervisors")}
                   people={inCharge.supervisors}
                 />
                 <PersonGroup
-                  label="Salesperson in charge"
+                  label={t("Salesperson in charge")}
                   people={inCharge.salespeople}
                 />
-                <PersonGroup label="Others" people={inCharge.others} />
+                <PersonGroup label={t("Others")} people={inCharge.others} />
               </SelectContent>
             </Select>
           </Field>
@@ -333,7 +339,7 @@ export function JobForm({
                 <FieldLabel
                   htmlFor={order?.runningNo ? "runningNo" : "issueNo"}
                 >
-                  DO no.
+                  {t("DO no.")}
                 </FieldLabel>
                 {order?.runningNo ? (
                   <>
@@ -350,14 +356,14 @@ export function JobForm({
                           inputMode="numeric"
                           maxLength={4}
                           defaultValue={order.runningNo}
-                          aria-label="Correct the running no."
+                          aria-label={t("Correct the running no.")}
                         />
                       )}
                     </div>
                     <FieldDescription>
                       {canCorrectDoNo
-                        ? "Only you can correct the running no."
-                        : "Locked. Ask the MD to correct it."}
+                        ? t("Only you can correct the running no.")
+                        : t("Locked. Ask the MD to correct it.")}
                     </FieldDescription>
                   </>
                 ) : (
@@ -369,18 +375,22 @@ export function JobForm({
                         defaultChecked={!job}
                       />
                       <FieldLabel htmlFor="issueNo" className="font-normal">
-                        Issue DO no. now
+                        {t("Issue DO no. now")}
                       </FieldLabel>
                     </div>
                     <FieldDescription>
-                      The next running no. is added after {mofNo} when you save,
-                      so two people never get the same number.
+                      {t("The next running no. is added after")} {mofNo}{" "}
+                      {t(
+                        "when you save, so two people never get the same number.",
+                      )}
                     </FieldDescription>
                   </>
                 )}
               </Field>
               <Field>
-                <FieldLabel htmlFor="transporter">Transporter</FieldLabel>
+                <FieldLabel htmlFor="transporter">
+                  {t("Transporter")}
+                </FieldLabel>
                 <Input
                   id="transporter"
                   name="transporter"
@@ -397,7 +407,7 @@ export function JobForm({
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
-                <FieldLabel htmlFor="doDate">DO date</FieldLabel>
+                <FieldLabel htmlFor="doDate">{t("DO date")}</FieldLabel>
                 <Input
                   id="doDate"
                   name="doDate"
@@ -405,11 +415,13 @@ export function JobForm({
                   defaultValue={order?.doDate}
                 />
                 <FieldDescription>
-                  Left empty, the job's start date is printed.
+                  {t("Left empty, the job's start date is printed.")}
                 </FieldDescription>
               </Field>
               <Field>
-                <FieldLabel htmlFor="deliveredOn">Delivered on</FieldLabel>
+                <FieldLabel htmlFor="deliveredOn">
+                  {t("Delivered on")}
+                </FieldLabel>
                 <Input
                   id="deliveredOn"
                   name="deliveredOn"
@@ -425,7 +437,7 @@ export function JobForm({
                 defaultChecked={order?.isFinal}
               />
               <FieldLabel htmlFor="isFinal" className="font-normal">
-                Final delivery (all items delivered)
+                {t("Final delivery (all items delivered)")}
               </FieldLabel>
             </Field>
             <Field orientation="horizontal">
@@ -435,7 +447,9 @@ export function JobForm({
                 defaultChecked={order?.passedToSupplier}
               />
               <FieldLabel htmlFor="passedToSupplier" className="font-normal">
-                DO passed to supplier (supplier delivers straight to site)
+                {t(
+                  "DO passed to supplier (supplier delivers straight to site)",
+                )}
               </FieldLabel>
             </Field>
             <Field orientation="horizontal">
@@ -445,28 +459,29 @@ export function JobForm({
                 defaultChecked={order?.signedReturned}
               />
               <FieldLabel htmlFor="signedReturned" className="font-normal">
-                DO signed and returned
+                {t("DO signed and returned")}
               </FieldLabel>
             </Field>
             <p className="text-sm text-muted-foreground">
-              Items on the DO are added with DO items on the MOF, once the
-              delivery is saved.
+              {t(
+                "Items on the DO are added with DO items on the MOF, once the delivery is saved.",
+              )}
             </p>
           </>
         )}
         <Field>
-          <FieldLabel htmlFor="notes">Remarks</FieldLabel>
+          <FieldLabel htmlFor="notes">{t("Remarks")}</FieldLabel>
           <Input
             id="notes"
             name="notes"
-            placeholder="e.g. Night shift, loading bay B1"
+            placeholder={t("e.g. Night shift, loading bay B1")}
             defaultValue={job?.notes}
             maxLength={300}
           />
         </Field>
         {error && <FieldError>{error}</FieldError>}
         <Button type="submit" disabled={pending}>
-          {pending ? "Saving..." : "Save job"}
+          {pending ? t("Saving...") : t("Save job")}
         </Button>
       </FieldGroup>
     </form>

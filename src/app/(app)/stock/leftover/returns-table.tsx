@@ -11,6 +11,7 @@ import {
   leftoverTransportState,
 } from "@/lib/domain/leftover";
 import { formatQuantity } from "@/lib/format/quantity";
+import type { Translate } from "@/lib/i18n/translate";
 import { ArrangeTransportDialog } from "./arrange-transport-dialog";
 import { LeftoverBadges } from "./leftover-badges";
 import type { Leftover } from "./leftover-data";
@@ -20,11 +21,13 @@ import { UpdateLeftoverDialog } from "./update-leftover-dialog";
 
 /** Items still on their way back from site, and the ones already returned, kept or disposed of. */
 export function ReturnsTable({
+  t,
   items,
   canEdit,
   people,
   suppliers,
 }: {
+  t: Translate;
   items: Leftover[];
   canEdit: boolean;
   people: TeamMember[];
@@ -42,29 +45,31 @@ export function ReturnsTable({
       empty={
         <EmptyState
           icon={Boxes}
-          title="No returns to follow up"
-          description="A site supervisor records leftover items from the site's page under Site Work."
+          title={t("No returns to follow up")}
+          description={t(
+            "A site supervisor records leftover items from the site's page under Site Work.",
+          )}
         />
       }
       columns={[
         {
           key: "item",
-          header: "Item",
+          header: t("Item"),
           cell: (leftover) => (
             <div className="flex min-w-48 flex-col">
               <span className="font-medium">{leftover.item}</span>
               <span className="text-xs text-muted-foreground">
-                {LEFTOVER_CONDITION_LABEL[leftover.condition]} ·{" "}
-                {LEFTOVER_DESTINATION_LABEL[leftover.destination]}
+                {t(LEFTOVER_CONDITION_LABEL[leftover.condition])} ·{" "}
+                {t(LEFTOVER_DESTINATION_LABEL[leftover.destination])}
               </span>
               {(leftover.supplier || leftover.keepReason) && (
                 <span className="text-xs text-muted-foreground">
                   {leftover.supplier ??
                     (leftover.keepReason
-                      ? LEFTOVER_KEEP_REASON_LABEL[leftover.keepReason]
+                      ? t(LEFTOVER_KEEP_REASON_LABEL[leftover.keepReason])
                       : "")}
                   {leftover.orderedWrongBy
-                    ? ` · ordered by ${nameOf.get(leftover.orderedWrongBy) ?? "Unnamed"}`
+                    ? ` · ${t("ordered by")} ${nameOf.get(leftover.orderedWrongBy) ?? t("Unnamed")}`
                     : ""}
                 </span>
               )}
@@ -78,7 +83,7 @@ export function ReturnsTable({
         },
         {
           key: "site",
-          header: "From job",
+          header: t("From job"),
           cell: (leftover) => (
             <Link
               href={`/site-work/${leftover.mofId}`}
@@ -93,22 +98,22 @@ export function ReturnsTable({
         },
         {
           key: "qty",
-          header: "Qty",
+          header: t("Qty"),
           numeric: true,
           cell: (leftover) =>
             `${formatQuantity(leftover.qty)} ${LEFTOVER_UNIT_LABEL[leftover.unit]}`,
         },
         {
           key: "status",
-          header: "Status",
+          header: t("Status"),
           cell: (leftover) => {
             const sameSite = toArrange.filter(
               (other) => other.mofId === leftover.mofId,
             );
             return (
               <div className="flex min-w-48 flex-col gap-1">
-                <LeftoverBadges leftover={leftover} />
-                <LeftoverProgress leftover={leftover} nameOf={nameOf} />
+                <LeftoverBadges t={t} leftover={leftover} />
+                <LeftoverProgress t={t} leftover={leftover} nameOf={nameOf} />
                 {canEdit &&
                   leftoverTransportState(leftover) === "to_arrange" && (
                     <span>
@@ -134,7 +139,7 @@ export function ReturnsTable({
         },
         {
           key: "recorded",
-          header: "Recorded",
+          header: t("Recorded"),
           className: "max-sm:hidden",
           cell: (leftover) => (
             <div className="flex flex-col">
@@ -143,7 +148,7 @@ export function ReturnsTable({
               </span>
               <span className="text-xs text-muted-foreground">
                 {leftover.recordedBy
-                  ? (nameOf.get(leftover.recordedBy) ?? "Unnamed")
+                  ? (nameOf.get(leftover.recordedBy) ?? t("Unnamed"))
                   : ""}
               </span>
             </div>

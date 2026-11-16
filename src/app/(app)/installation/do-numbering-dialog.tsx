@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
+import { useT } from "@/lib/i18n/language-context";
 import { setNextDoNumber } from "./do-actions";
 
 /**
@@ -34,6 +35,7 @@ export function DoNumberingDialog({
   nextNo: string;
   triggerLabel?: string;
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +45,7 @@ export function DoNumberingDialog({
       const result = await setNextDoNumber(formData);
       setError(result.error);
       if (!result.error) {
-        toast.success("Next DO no. saved.");
+        toast.success(t("Next DO no. saved."));
         setOpen(false);
       }
     });
@@ -54,22 +56,23 @@ export function DoNumberingDialog({
       <DialogTrigger asChild>
         <Button size="sm" variant="outline">
           <Settings data-icon="inline-start" />
-          {triggerLabel}
+          {t(triggerLabel)}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Next DO running number</DialogTitle>
+          <DialogTitle>{t("Next DO running number")}</DialogTitle>
           <DialogDescription>
-            Use this once, to continue from your last manual DO. After that the
-            app counts up by itself.
+            {t(
+              "Use this once, to continue from your last manual DO. After that the app counts up by itself.",
+            )}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submitKeepingValues(save)}>
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="nextNo">
-                Next running no. (4 digits)
+                {t("Next running no. (4 digits)")}
               </FieldLabel>
               <Input
                 id="nextNo"
@@ -81,12 +84,12 @@ export function DoNumberingDialog({
                 required
               />
               <FieldDescription>
-                Must be higher than the last number used or cancelled.
+                {t("Must be higher than the last number used or cancelled.")}
               </FieldDescription>
             </Field>
             {error && <FieldError>{error}</FieldError>}
             <Button type="submit" disabled={pending}>
-              {pending ? "Saving..." : "Save"}
+              {pending ? t("Saving...") : t("Save")}
             </Button>
           </FieldGroup>
         </form>

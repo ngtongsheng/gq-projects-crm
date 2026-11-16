@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { FieldError, FieldGroup } from "@/components/ui/field";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
+import { useT } from "@/lib/i18n/language-context";
 import { arrangeLeftoverTransport } from "./transport-actions";
 import { TransportFields } from "./transport-fields";
 
@@ -27,6 +28,7 @@ export function ArrangeTransportDialog({
   summary: string;
   deliverTo: string;
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -38,8 +40,8 @@ export function ArrangeTransportDialog({
       if (!result.error) {
         toast.success(
           leftoverIds.length === 1
-            ? "Transport arranged."
-            : `Transport arranged for ${leftoverIds.length} items.`,
+            ? t("Transport arranged.")
+            : `${t("Transport arranged for")} ${leftoverIds.length} ${t("items.")}`,
         );
         setOpen(false);
       }
@@ -50,12 +52,12 @@ export function ArrangeTransportDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="xs" variant="outline">
-          Transport arranged
+          {t("Transport arranged")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Arrange transport</DialogTitle>
+          <DialogTitle>{t("Arrange transport")}</DialogTitle>
           <DialogDescription>{summary}</DialogDescription>
         </DialogHeader>
         <form onSubmit={submitKeepingValues(save)}>
@@ -70,7 +72,7 @@ export function ArrangeTransportDialog({
             />
             {error && <FieldError>{error}</FieldError>}
             <Button type="submit" disabled={pending}>
-              {pending ? "Saving..." : "Save"}
+              {pending ? t("Saving...") : t("Save")}
             </Button>
           </FieldGroup>
         </form>

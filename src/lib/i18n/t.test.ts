@@ -21,6 +21,18 @@ describe("t", () => {
     expect(t("bm", "Mon")).toBe("Isn");
   });
 
+  it("translates the Installation screens a Site Supervisor sees into Bahasa Malaysia", () => {
+    expect(t("bm", "Site supervisor bookings")).toBe("Tempahan penyelia tapak");
+    expect(t("bm", "Collected by supervisor")).toBe("Diambil oleh penyelia");
+  });
+
+  it("translates Installation, Stock, Samples and Leftover into Chinese", () => {
+    expect(t("zh", "Cancel DO no.")).toBe("取消 DO 编号");
+    expect(t("zh", "Pickup forms")).toBe("取货单");
+    expect(t("zh", "Collected by supervisor")).toBe("主管已取回");
+    expect(t("zh", "Use for project")).toBe("用于项目");
+  });
+
   it("translates the demo's Costing wording into Chinese", () => {
     expect(t("zh", "Save")).toBe("保存");
     expect(t("zh", "Create costing")).toBe("建立 costing");

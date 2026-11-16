@@ -30,6 +30,7 @@ import type { TeamMember } from "@/lib/auth/team-directory";
 import { formatSampleQty, movesStillOut } from "@/lib/domain/samples";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { formatDate } from "@/lib/format/date";
+import { useT } from "@/lib/i18n/language-context";
 import { returnSamples, takeOutSample } from "./sample-actions";
 import type { SampleRow } from "./samples-data";
 
@@ -46,6 +47,7 @@ export function TakeOutSampleDialog({
   team: readonly TeamMember[];
   meId: string;
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +68,9 @@ export function TakeOutSampleDialog({
       setError(result.error);
       if (!result.error) {
         toast.success(
-          clientKeeps ? "Sample given to the client." : "Sample taken out.",
+          clientKeeps
+            ? t("Sample given to the client.")
+            : t("Sample taken out."),
         );
         setOpen(false);
       }
@@ -77,14 +81,16 @@ export function TakeOutSampleDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" variant="outline">
-          Take out
+          {t("Take out")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Take out sample · {sampleTitle(sample)}</DialogTitle>
+          <DialogTitle>
+            {t("Take out sample ·")} {sampleTitle(sample)}
+          </DialogTitle>
           <DialogDescription>
-            At Best Link now: {formatSampleQty(sample.qty, sample.unit)}
+            {t("At Best Link now:")} {formatSampleQty(sample.qty, sample.unit)}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submitKeepingValues(save)}>
@@ -92,7 +98,8 @@ export function TakeOutSampleDialog({
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
                 <FieldLabel htmlFor="takeOutQty">
-                  Quantity ({sample.unit})
+                  {t("Quantity (")}
+                  {sample.unit})
                 </FieldLabel>
                 <Input
                   id="takeOutQty"
@@ -108,7 +115,7 @@ export function TakeOutSampleDialog({
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="takeOutBy">Taken by</FieldLabel>
+                <FieldLabel htmlFor="takeOutBy">{t("Taken by")}</FieldLabel>
                 <Select value={takenBy} onValueChange={setTakenBy}>
                   <SelectTrigger id="takeOutBy">
                     <SelectValue />
@@ -125,13 +132,13 @@ export function TakeOutSampleDialog({
             </div>
             <Field>
               <FieldLabel htmlFor="takeOutFor">
-                For (client / project / showroom)
+                {t("For (client / project / showroom)")}
               </FieldLabel>
               <Input
                 id="takeOutFor"
                 name="forWhom"
                 maxLength={200}
-                placeholder="e.g. SLA Architects – Alan"
+                placeholder={t("e.g. SLA Architects – Alan")}
               />
             </Field>
             <Field orientation="horizontal">
@@ -141,12 +148,12 @@ export function TakeOutSampleDialog({
                 onCheckedChange={(checked) => setClientKeeps(checked === true)}
               />
               <FieldLabel htmlFor="takeOutKeeps">
-                Client keeps it (not coming back)
+                {t("Client keeps it (not coming back)")}
               </FieldLabel>
             </Field>
             {error && <FieldError>{error}</FieldError>}
             <Button type="submit" disabled={pending}>
-              {pending ? "Saving..." : "Take out"}
+              {pending ? t("Saving...") : t("Take out")}
             </Button>
           </FieldGroup>
         </form>
@@ -163,6 +170,7 @@ export function SampleBackDialog({
   sample: SampleRow;
   nameOf: ReadonlyMap<string, string>;
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const out = movesStillOut(sample.moves);
   const [ticked, setTicked] = useState<string[]>(out.map((move) => move.id));
@@ -174,7 +182,7 @@ export function SampleBackDialog({
       const result = await returnSamples(sample.id, ticked);
       setError(result.error);
       if (!result.error) {
-        toast.success("Sample back at Best Link.");
+        toast.success(t("Sample back at Best Link."));
         setOpen(false);
       }
     });
@@ -190,13 +198,15 @@ export function SampleBackDialog({
     >
       <DialogTrigger asChild>
         <Button size="sm" variant="ghost">
-          Back
+          {t("Back")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Sample back · {sampleTitle(sample)}</DialogTitle>
-          <DialogDescription>Tick what came back.</DialogDescription>
+          <DialogTitle>
+            {t("Sample back ·")} {sampleTitle(sample)}
+          </DialogTitle>
+          <DialogDescription>{t("Tick what came back.")}</DialogDescription>
         </DialogHeader>
         <FieldGroup>
           {out.map((move) => (
@@ -215,16 +225,16 @@ export function SampleBackDialog({
               <FieldLabel htmlFor={`back-${move.id}`}>
                 {formatSampleQty(move.qty, sample.unit)} ·{" "}
                 {move.takenBy
-                  ? (nameOf.get(move.takenBy) ?? "Unnamed")
-                  : "Not set"}
-                {move.forWhom ? ` (${move.forWhom})` : ""} · out{" "}
+                  ? (nameOf.get(move.takenBy) ?? t("Unnamed"))
+                  : t("Not set")}
+                {move.forWhom ? ` (${move.forWhom})` : ""} {t("· out")}{" "}
                 {formatDate(move.movedOn)}
               </FieldLabel>
             </Field>
           ))}
           {error && <FieldError>{error}</FieldError>}
           <Button onClick={save} disabled={pending || ticked.length === 0}>
-            {pending ? "Saving..." : "Back at Best Link"}
+            {pending ? t("Saving...") : t("Back at Best Link")}
           </Button>
         </FieldGroup>
       </DialogContent>

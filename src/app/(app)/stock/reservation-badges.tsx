@@ -6,19 +6,22 @@ import {
   RESERVATION_STATUS_TONE,
   type ReservationStatus,
 } from "@/lib/domain/reservation";
+import type { Translate } from "@/lib/i18n/translate";
 
 /** The line's status, plus what to do about its hold when it needs attention. */
 export function ReservationBadges({
+  t,
   status,
   hold,
 }: {
+  t: Translate;
   status: ReservationStatus;
   hold: HoldState | null;
 }) {
   return (
     <div className="flex flex-wrap gap-1">
       <StatusBadge tone={RESERVATION_STATUS_TONE[status]}>
-        {RESERVATION_STATUS_LABEL[status]}
+        {t(RESERVATION_STATUS_LABEL[status])}
       </StatusBadge>
       {hold && (
         <StatusBadge
@@ -30,7 +33,7 @@ export function ReservationBadges({
                 : "info"
           }
         >
-          {holdLabel(hold)}
+          {t(holdLabel(hold))}
         </StatusBadge>
       )}
     </div>

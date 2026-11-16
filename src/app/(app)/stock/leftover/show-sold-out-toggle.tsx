@@ -1,7 +1,10 @@
-"use client";
+import { useT } from "@/lib/i18n/language-context";
+
+("use client");
 
 /** The demo's "Show sold out": changes the list as soon as it is ticked. */
 export function ShowSoldOutToggle({ checked }: { checked: boolean }) {
+  const t = useT();
   return (
     <label className="flex items-center gap-2 text-sm">
       <input
@@ -12,7 +15,7 @@ export function ShowSoldOutToggle({ checked }: { checked: boolean }) {
         className="size-4 accent-primary"
         onChange={(event) => event.currentTarget.form?.requestSubmit()}
       />
-      Show sold out
+      {t("Show sold out")}
     </label>
   );
 }

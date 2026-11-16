@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import type { JobPeople } from "@/lib/domain/job-team";
 import { formatDate } from "@/lib/format/date";
+import { useT } from "@/lib/i18n/language-context";
 import { JobForm } from "./job-form";
 
 export type MofOption = {
@@ -47,6 +48,7 @@ export function AddJobDialog({
   people,
   closeHref,
 }: AddJobDialogProps) {
+  const t = useT();
   const router = useRouter();
   const [mofId, setMofId] = useState("");
   const close = () => router.replace(closeHref);
@@ -56,16 +58,17 @@ export function AddJobDialog({
     <Dialog open onOpenChange={(open) => !open && close()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Schedule job</DialogTitle>
+          <DialogTitle>{t("Schedule job")}</DialogTitle>
           <DialogDescription>
-            Starting {formatDate(date)}. Pick the MOF, then key in the details.
+            {t("Starting")} {formatDate(date)}
+            {t(". Pick the MOF, then key in the details.")}
           </DialogDescription>
         </DialogHeader>
         <Field>
-          <FieldLabel htmlFor="mofSelect">MOF</FieldLabel>
+          <FieldLabel htmlFor="mofSelect">{t("MOF")}</FieldLabel>
           <Select value={mofId} onValueChange={setMofId}>
             <SelectTrigger id="mofSelect">
-              <SelectValue placeholder="Choose the MOF" />
+              <SelectValue placeholder={t("Choose the MOF")} />
             </SelectTrigger>
             <SelectContent>
               {mofs.map((option) => (

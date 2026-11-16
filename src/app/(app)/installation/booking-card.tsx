@@ -19,6 +19,7 @@ import {
   BOOKING_STATUS_LABEL,
   BOOKING_STATUS_TONE,
 } from "@/lib/domain/site-booking";
+import { useT } from "@/lib/i18n/language-context";
 import { cn } from "@/lib/utils";
 import { answerBooking } from "./booking-actions";
 import type { CalendarBooking } from "./booking-data";
@@ -38,6 +39,7 @@ export function BookingCard({
   requester,
   canAnswer,
 }: BookingCardProps) {
+  const t = useT();
   return (
     <div
       className={cn(
@@ -50,23 +52,25 @@ export function BookingCard({
           {booking.startTime}
         </span>
         <StatusBadge tone={BOOKING_STATUS_TONE[booking.status]}>
-          {BOOKING_STATUS_LABEL[booking.status]}
+          {t(BOOKING_STATUS_LABEL[booking.status])}
         </StatusBadge>
       </div>
       <div className="min-w-0">
         <p className="font-medium">
-          {BOOKING_PURPOSE_LABEL[booking.purpose]} · {supervisor}
+          {t(BOOKING_PURPOSE_LABEL[booking.purpose])} · {supervisor}
         </p>
         {booking.siteLabel && (
           <p className="text-muted-foreground">{booking.siteLabel}</p>
         )}
-        <p className="text-muted-foreground">Booked by {requester}</p>
+        <p className="text-muted-foreground">
+          {t("Booked by")} {requester}
+        </p>
         {booking.notes && (
           <p className="text-muted-foreground">{booking.notes}</p>
         )}
         {booking.declineReason && (
           <p className="text-muted-foreground">
-            Reason: {booking.declineReason}
+            {t("Reason:")} {booking.declineReason}
           </p>
         )}
       </div>
@@ -76,20 +80,21 @@ export function BookingCard({
 }
 
 export function AnswerButtons({ bookingId }: { bookingId: string }) {
+  const t = useT();
   const [pending, startTransition] = useTransition();
 
   function confirm() {
     startTransition(async () => {
       const result = await answerBooking(bookingId, "confirmed", "");
       if (result.error) toast.error(result.error);
-      else toast.success("Booking confirmed.");
+      else toast.success(t("Booking confirmed."));
     });
   }
 
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Button size="sm" onClick={confirm} disabled={pending}>
-        Confirm
+        {t("Confirm")}
       </Button>
       <DeclineDialog bookingId={bookingId} />
     </div>
@@ -97,6 +102,7 @@ export function AnswerButtons({ bookingId }: { bookingId: string }) {
 }
 
 function DeclineDialog({ bookingId }: { bookingId: string }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -107,7 +113,7 @@ function DeclineDialog({ bookingId }: { bookingId: string }) {
       const result = await answerBooking(bookingId, "declined", reason);
       setError(result.error);
       if (!result.error) {
-        toast.success("Booking declined.");
+        toast.success(t("Booking declined."));
         setOpen(false);
       }
     });
@@ -117,31 +123,31 @@ function DeclineDialog({ bookingId }: { bookingId: string }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" variant="outline">
-          Decline
+          {t("Decline")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Decline booking</DialogTitle>
+          <DialogTitle>{t("Decline booking")}</DialogTitle>
           <DialogDescription>
-            The person who booked you will see the reason.
+            {t("The person who booked you will see the reason.")}
           </DialogDescription>
         </DialogHeader>
         <Field>
           <FieldLabel htmlFor={`reason-${bookingId}`}>
-            Reason (optional)
+            {t("Reason (optional)")}
           </FieldLabel>
           <Input
             id={`reason-${bookingId}`}
             value={reason}
             onChange={(event) => setReason(event.target.value)}
-            placeholder="e.g. Can do 2pm instead"
+            placeholder={t("e.g. Can do 2pm instead")}
             maxLength={300}
           />
         </Field>
         {error && <FieldError>{error}</FieldError>}
         <Button variant="destructive" onClick={decline} disabled={pending}>
-          Decline booking
+          {t("Decline booking")}
         </Button>
       </DialogContent>
     </Dialog>

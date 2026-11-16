@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n/language-context";
 import { markPickupPdfSaved } from "../../pickup-actions";
 
 const link =
@@ -27,20 +28,21 @@ export function PickupPrintActions({
   pdfSavedOn: string | null;
   canEdit: boolean;
 }) {
+  const t = useT();
   const [pending, startTransition] = useTransition();
 
   function notePdfSaved() {
     startTransition(async () => {
       const result = await markPickupPdfSaved(pickupId);
       if (result.error) toast.error(result.error);
-      else toast.success("Noted: the PDF is saved.");
+      else toast.success(t("Noted: the PDF is saved."));
     });
   }
 
   return (
     <>
       <Link href="/samples" className={link}>
-        Back
+        {t("Back")}
       </Link>
       {driveFolderUrl && (
         <a
@@ -49,7 +51,7 @@ export function PickupPrintActions({
           rel="noopener noreferrer"
           className={link}
         >
-          Drive folder
+          {t("Drive folder")}
         </a>
       )}
       <a
@@ -58,7 +60,7 @@ export function PickupPrintActions({
         rel="noopener noreferrer"
         className={link}
       >
-        WhatsApp Best Link
+        {t("WhatsApp Best Link")}
       </a>
       {canEdit && (
         <Button
@@ -67,7 +69,9 @@ export function PickupPrintActions({
           onClick={notePdfSaved}
           disabled={pending}
         >
-          {pdfSavedOn ? `PDF saved ${pdfSavedOn}` : "I saved the PDF"}
+          {pdfSavedOn
+            ? `${t("PDF saved")} ${pdfSavedOn}`
+            : t("I saved the PDF")}
         </Button>
       )}
     </>

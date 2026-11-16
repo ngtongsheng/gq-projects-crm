@@ -5,7 +5,9 @@ import {
   buildProjects,
 } from "./customers.ts";
 import { buildHr } from "./hr.ts";
+import { buildInstallers } from "./installation.ts";
 import { buildLeave } from "./leave.ts";
+import { buildLeftoverAllocations, buildLeftovers } from "./leftovers.ts";
 import {
   buildInstallerClaims,
   buildMofs,
@@ -14,9 +16,9 @@ import {
 } from "./orders.ts";
 import { buildQuotes } from "./quotes.ts";
 import { buildMonthlyReports } from "./reports.ts";
+import { buildSamples } from "./samples.ts";
 import {
   buildJobs,
-  buildLeftovers,
   buildOtClaims,
   buildSiteBookings,
   buildSiteWork,
@@ -48,6 +50,7 @@ export function buildExampleData(context: BuildContext): ExampleData {
       ...buildMofs(context),
       buildSupplierPos(context),
       ...buildInstallerClaims(context),
+      buildInstallers(),
       ...jobs.tables,
       buildSiteBookings(context),
       ...buildSiteWork(context),
@@ -55,7 +58,9 @@ export function buildExampleData(context: BuildContext): ExampleData {
       buildSiteOff(context),
       buildShootRequests(context),
       buildOtClaims(context),
-      buildLeftovers(),
+      buildLeftovers(context),
+      buildLeftoverAllocations(context),
+      ...buildSamples(context),
       ...buildStock(context),
       ...buildMoney(context),
       buildMonthlyReports(context),

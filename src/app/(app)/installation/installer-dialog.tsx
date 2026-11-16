@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { INSTALLER_SKILLS } from "@/lib/domain/installer";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
+import { useT } from "@/lib/i18n/language-context";
 import { saveInstaller } from "./installer-actions";
 import type { InstallerRow } from "./installer-data";
 
@@ -37,6 +38,7 @@ type InstallerDialogProps = {
 
 /** Adds an installer to the directory, or edits one (demo: sheetInstaller). */
 export function InstallerDialog({ installer, children }: InstallerDialogProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +48,9 @@ export function InstallerDialog({ installer, children }: InstallerDialogProps) {
       const result = await saveInstaller(formData);
       setError(result.error);
       if (!result.error) {
-        toast.success(installer ? "Installer saved." : "Installer added.");
+        toast.success(
+          installer ? t("Installer saved.") : t("Installer added."),
+        );
         setOpen(false);
       }
     });
@@ -64,11 +68,12 @@ export function InstallerDialog({ installer, children }: InstallerDialogProps) {
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {installer ? "Edit installer" : "Add installer"}
+            {installer ? t("Edit installer") : t("Add installer")}
           </DialogTitle>
           <DialogDescription>
-            Name and phone are needed. The rest helps others pick the right
-            installer for a job.
+            {t(
+              "Name and phone are needed. The rest helps others pick the right installer for a job.",
+            )}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submitKeepingValues(save)}>
@@ -76,18 +81,20 @@ export function InstallerDialog({ installer, children }: InstallerDialogProps) {
           <FieldGroup>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
-                <FieldLabel htmlFor="installerName">Name *</FieldLabel>
+                <FieldLabel htmlFor="installerName">{t("Name *")}</FieldLabel>
                 <Input
                   id="installerName"
                   name="name"
                   defaultValue={installer?.name}
-                  placeholder="e.g. Ahmad"
+                  placeholder={t("e.g. Ahmad")}
                   maxLength={100}
                   required
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="installerCompany">Company</FieldLabel>
+                <FieldLabel htmlFor="installerCompany">
+                  {t("Company")}
+                </FieldLabel>
                 <Input
                   id="installerCompany"
                   name="company"
@@ -96,7 +103,7 @@ export function InstallerDialog({ installer, children }: InstallerDialogProps) {
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="installerPhone">Phone *</FieldLabel>
+                <FieldLabel htmlFor="installerPhone">{t("Phone *")}</FieldLabel>
                 <Input
                   id="installerPhone"
                   name="phone"
@@ -109,7 +116,9 @@ export function InstallerDialog({ installer, children }: InstallerDialogProps) {
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="installerPhone2">Phone 2</FieldLabel>
+                <FieldLabel htmlFor="installerPhone2">
+                  {t("Phone 2")}
+                </FieldLabel>
                 <Input
                   id="installerPhone2"
                   name="phone2"
@@ -121,7 +130,7 @@ export function InstallerDialog({ installer, children }: InstallerDialogProps) {
               </Field>
             </div>
             <FieldSet>
-              <FieldLegend variant="label">Skills</FieldLegend>
+              <FieldLegend variant="label">{t("Skills")}</FieldLegend>
               <div className="flex flex-wrap gap-x-4 gap-y-2">
                 {INSTALLER_SKILLS.map((skill) => (
                   <Field
@@ -147,35 +156,39 @@ export function InstallerDialog({ installer, children }: InstallerDialogProps) {
             </FieldSet>
             <Field>
               <FieldLabel htmlFor="installerDescription">
-                What they can do
+                {t("What they can do")}
               </FieldLabel>
               <Textarea
                 id="installerDescription"
                 name="description"
                 rows={3}
                 defaultValue={installer?.description}
-                placeholder="e.g. Carpet tile and vinyl for offices, can do night shift, own team of 6, good with stair nosing. Not for timber."
+                placeholder={t(
+                  "e.g. Carpet tile and vinyl for offices, can do night shift, own team of 6, good with stair nosing. Not for timber.",
+                )}
                 maxLength={500}
               />
             </Field>
             <Field>
-              <FieldLabel htmlFor="installerArea">Area covered</FieldLabel>
+              <FieldLabel htmlFor="installerArea">
+                {t("Area covered")}
+              </FieldLabel>
               <Input
                 id="installerArea"
                 name="area"
                 defaultValue={installer?.area}
-                placeholder="e.g. Klang Valley, Penang"
+                placeholder={t("e.g. Klang Valley, Penang")}
                 maxLength={100}
               />
             </Field>
             <Field>
-              <FieldLabel htmlFor="installerNotes">Notes</FieldLabel>
+              <FieldLabel htmlFor="installerNotes">{t("Notes")}</FieldLabel>
               <Textarea
                 id="installerNotes"
                 name="notes"
                 rows={3}
                 defaultValue={installer?.notes}
-                placeholder="Rate, availability, anything else"
+                placeholder={t("Rate, availability, anything else")}
                 maxLength={500}
               />
             </Field>
@@ -187,19 +200,24 @@ export function InstallerDialog({ installer, children }: InstallerDialogProps) {
                   defaultChecked={installer.active}
                 />
                 <FieldLabel htmlFor="installerActive" className="font-normal">
-                  Active (shows in installer lists)
+                  {t("Active (shows in installer lists)")}
                 </FieldLabel>
               </Field>
             )}
             {!installer && (
               <FieldDescription>
-                An installer is never deleted. One who stops working with GQ is
-                made inactive instead.
+                {t(
+                  "An installer is never deleted. One who stops working with GQ is made inactive instead.",
+                )}
               </FieldDescription>
             )}
             {error && <FieldError>{error}</FieldError>}
             <Button type="submit" disabled={pending}>
-              {pending ? "Saving..." : installer ? "Save" : "Add installer"}
+              {pending
+                ? t("Saving...")
+                : installer
+                  ? t("Save")
+                  : t("Add installer")}
             </Button>
           </FieldGroup>
         </form>

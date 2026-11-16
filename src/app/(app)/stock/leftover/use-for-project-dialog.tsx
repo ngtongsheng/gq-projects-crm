@@ -33,6 +33,7 @@ import {
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { todayMyt } from "@/lib/format/date";
 import { formatQuantity } from "@/lib/format/quantity";
+import { useT } from "@/lib/i18n/language-context";
 import { allocateLeftover } from "./allocation-actions";
 
 /** Gives some of the stock GQ keeps at Best Link to another project (the demo's "Use for project"). */
@@ -49,6 +50,7 @@ export function UseForProjectDialog({
   available: number;
   projects: { id: string; label: string }[];
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +67,7 @@ export function UseForProjectDialog({
       const result = await allocateLeftover(formData);
       setError(result.error);
       if (!result.error) {
-        toast.success("Leftover stock used for the project.");
+        toast.success(t("Leftover stock used for the project."));
         setOpen(false);
         setProjectId("");
       }
@@ -75,14 +77,14 @@ export function UseForProjectDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">Use for project</Button>
+        <Button size="sm">{t("Use for project")}</Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Use leftover stock</DialogTitle>
+          <DialogTitle>{t("Use leftover stock")}</DialogTitle>
           <DialogDescription>
-            {item} · {formatQuantity(available)} {LEFTOVER_UNIT_LABEL[unit]}{" "}
-            available at Best Link
+            {item} · {formatQuantity(available)} {t(LEFTOVER_UNIT_LABEL[unit])}{" "}
+            {t("available at Best Link")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submitKeepingValues(save)}>
@@ -91,11 +93,11 @@ export function UseForProjectDialog({
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor={`use-project-${leftoverId}`}>
-                For project
+                {t("For project")}
               </FieldLabel>
               <Select value={projectId} onValueChange={setProjectId}>
                 <SelectTrigger id={`use-project-${leftoverId}`}>
-                  <SelectValue placeholder="Choose the project" />
+                  <SelectValue placeholder={t("Choose the project")} />
                 </SelectTrigger>
                 <SelectContent>
                   {projects.map((project) => (
@@ -109,7 +111,8 @@ export function UseForProjectDialog({
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
                 <FieldLabel htmlFor={`use-qty-${leftoverId}`}>
-                  Quantity ({LEFTOVER_UNIT_LABEL[unit]})
+                  {t("Quantity (")}
+                  {t(LEFTOVER_UNIT_LABEL[unit])})
                 </FieldLabel>
                 <Input
                   id={`use-qty-${leftoverId}`}
@@ -124,7 +127,9 @@ export function UseForProjectDialog({
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor={`use-date-${leftoverId}`}>Date</FieldLabel>
+                <FieldLabel htmlFor={`use-date-${leftoverId}`}>
+                  {t("Date")}
+                </FieldLabel>
                 <Input
                   id={`use-date-${leftoverId}`}
                   name="usedOn"
@@ -135,17 +140,19 @@ export function UseForProjectDialog({
               </Field>
             </div>
             <Field>
-              <FieldLabel htmlFor={`use-note-${leftoverId}`}>Note</FieldLabel>
+              <FieldLabel htmlFor={`use-note-${leftoverId}`}>
+                {t("Note")}
+              </FieldLabel>
               <Input
                 id={`use-note-${leftoverId}`}
                 name="note"
                 maxLength={300}
-                placeholder="e.g. Sold at RM 18 per box, delivered with DO"
+                placeholder={t("e.g. Sold at RM 18 per box, delivered with DO")}
               />
             </Field>
             {error && <FieldError>{error}</FieldError>}
             <Button type="submit" disabled={pending}>
-              {pending ? "Saving..." : "Save"}
+              {pending ? t("Saving...") : t("Save")}
             </Button>
           </FieldGroup>
         </form>

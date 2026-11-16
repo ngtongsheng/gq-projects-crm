@@ -46,6 +46,7 @@ import {
 } from "@/lib/domain/leftover";
 import { isOneOf } from "@/lib/form/one-of";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
+import { useT } from "@/lib/i18n/language-context";
 import { updateLeftover } from "./actions";
 import type { Leftover } from "./leftover-data";
 import { TransportFields } from "./transport-fields";
@@ -66,6 +67,7 @@ export function UpdateLeftoverDialog({
   /** Supplier names already in use, offered while typing. */
   suppliers: string[];
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -91,7 +93,7 @@ export function UpdateLeftoverDialog({
       const result = await updateLeftover(formData);
       setError(result.error);
       if (!result.error) {
-        toast.success("Leftover stock updated.");
+        toast.success(t("Leftover stock updated."));
         setOpen(false);
       }
     });
@@ -101,7 +103,7 @@ export function UpdateLeftoverDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" variant="outline">
-          Update
+          {t("Update")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
@@ -129,7 +131,9 @@ export function UpdateLeftoverDialog({
           )}
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor={`status-${leftover.id}`}>Status</FieldLabel>
+              <FieldLabel htmlFor={`status-${leftover.id}`}>
+                {t("Status")}
+              </FieldLabel>
               <Select
                 value={status}
                 onValueChange={(value) => {
@@ -142,7 +146,7 @@ export function UpdateLeftoverDialog({
                 <SelectContent>
                   {LEFTOVER_STATUSES.map((value) => (
                     <SelectItem key={value} value={value}>
-                      {LEFTOVER_STATUS_LABEL[value]}
+                      {t(LEFTOVER_STATUS_LABEL[value])}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -150,7 +154,7 @@ export function UpdateLeftoverDialog({
             </Field>
             <Field>
               <FieldLabel htmlFor={`method-${leftover.id}`}>
-                How it goes back
+                {t("How it goes back")}
               </FieldLabel>
               <Select
                 value={returnMethod === "" ? NONE : returnMethod}
@@ -164,10 +168,10 @@ export function UpdateLeftoverDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NONE}>Not said yet</SelectItem>
+                  <SelectItem value={NONE}>{t("Not said yet")}</SelectItem>
                   {LEFTOVER_RETURN_METHODS.map((value) => (
                     <SelectItem key={value} value={value}>
-                      {LEFTOVER_RETURN_METHOD_LABEL[value]}
+                      {t(LEFTOVER_RETURN_METHOD_LABEL[value])}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -192,20 +196,20 @@ export function UpdateLeftoverDialog({
             {status === "collected_by_supervisor" && (
               <Field>
                 <FieldLabel htmlFor={`collected-to-${leftover.id}`}>
-                  Where the supervisor took it
+                  {t("Where the supervisor took it")}
                 </FieldLabel>
                 <Input
                   id={`collected-to-${leftover.id}`}
                   name="collectedTo"
                   defaultValue={leftover.collectedTo ?? ""}
                   maxLength={100}
-                  placeholder="e.g. Best Link, Floor Place"
+                  placeholder={t("e.g. Best Link, Floor Place")}
                 />
               </Field>
             )}
             <Field>
               <FieldLabel htmlFor={`destination-${leftover.id}`}>
-                Goes to
+                {t("Goes to")}
               </FieldLabel>
               <Select
                 value={destination}
@@ -220,7 +224,7 @@ export function UpdateLeftoverDialog({
                 <SelectContent>
                   {LEFTOVER_DESTINATIONS.map((value) => (
                     <SelectItem key={value} value={value}>
-                      {LEFTOVER_DESTINATION_LABEL[value]}
+                      {t(LEFTOVER_DESTINATION_LABEL[value])}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -229,7 +233,7 @@ export function UpdateLeftoverDialog({
             {destination === "supplier" && (
               <Field>
                 <FieldLabel htmlFor={`supplier-${leftover.id}`}>
-                  Supplier
+                  {t("Supplier")}
                 </FieldLabel>
                 <Input
                   id={`supplier-${leftover.id}`}
@@ -237,7 +241,7 @@ export function UpdateLeftoverDialog({
                   list={`suppliers-${leftover.id}`}
                   defaultValue={leftover.supplier ?? ""}
                   maxLength={100}
-                  placeholder="e.g. Floor Place"
+                  placeholder={t("e.g. Floor Place")}
                 />
                 <datalist id={`suppliers-${leftover.id}`}>
                   {suppliers.map((name) => (
@@ -250,7 +254,7 @@ export function UpdateLeftoverDialog({
               <>
                 <Field>
                   <FieldLabel htmlFor={`keep-${leftover.id}`}>
-                    Why GQ keeps it
+                    {t("Why GQ keeps it")}
                   </FieldLabel>
                   <Select
                     value={keepReason}
@@ -265,7 +269,7 @@ export function UpdateLeftoverDialog({
                     <SelectContent>
                       {LEFTOVER_KEEP_REASONS.map((value) => (
                         <SelectItem key={value} value={value}>
-                          {LEFTOVER_KEEP_REASON_LABEL[value]}
+                          {t(LEFTOVER_KEEP_REASON_LABEL[value])}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -274,7 +278,7 @@ export function UpdateLeftoverDialog({
                 {keepReason === "ordered_wrong" && (
                   <Field>
                     <FieldLabel htmlFor={`wrong-by-${leftover.id}`}>
-                      Ordered by (salesperson)
+                      {t("Ordered by (salesperson)")}
                     </FieldLabel>
                     <Select
                       value={orderedWrongBy === "" ? NONE : orderedWrongBy}
@@ -286,7 +290,7 @@ export function UpdateLeftoverDialog({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value={NONE}>Not said</SelectItem>
+                        <SelectItem value={NONE}>{t("Not said")}</SelectItem>
                         {people.map((member) => (
                           <SelectItem key={member.id} value={member.id}>
                             {member.name}
@@ -302,19 +306,19 @@ export function UpdateLeftoverDialog({
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field>
                   <FieldLabel htmlFor={`cn-${leftover.id}`}>
-                    Supplier credit note no.
+                    {t("Supplier credit note no.")}
                   </FieldLabel>
                   <Input
                     id={`cn-${leftover.id}`}
                     name="creditNoteNo"
                     defaultValue={leftover.creditNoteNo ?? ""}
                     maxLength={60}
-                    placeholder="e.g. CN-2026-0412"
+                    placeholder={t("e.g. CN-2026-0412")}
                   />
                 </Field>
                 <Field>
                   <FieldLabel htmlFor={`cn-amount-${leftover.id}`}>
-                    Credit note amount (RM)
+                    {t("Credit note amount (RM)")}
                   </FieldLabel>
                   <Input
                     id={`cn-amount-${leftover.id}`}
@@ -330,7 +334,7 @@ export function UpdateLeftoverDialog({
             )}
             <Field>
               <FieldLabel htmlFor={`condition-${leftover.id}`}>
-                Condition
+                {t("Condition")}
               </FieldLabel>
               <Select
                 value={condition}
@@ -344,14 +348,16 @@ export function UpdateLeftoverDialog({
                 <SelectContent>
                   {LEFTOVER_CONDITIONS.map((value) => (
                     <SelectItem key={value} value={value}>
-                      {LEFTOVER_CONDITION_LABEL[value]}
+                      {t(LEFTOVER_CONDITION_LABEL[value])}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </Field>
             <Field>
-              <FieldLabel htmlFor={`note-${leftover.id}`}>Note</FieldLabel>
+              <FieldLabel htmlFor={`note-${leftover.id}`}>
+                {t("Note")}
+              </FieldLabel>
               <Input
                 id={`note-${leftover.id}`}
                 name="note"
@@ -361,7 +367,7 @@ export function UpdateLeftoverDialog({
             </Field>
             {error && <FieldError>{error}</FieldError>}
             <Button type="submit" disabled={pending}>
-              {pending ? "Saving..." : "Save"}
+              {pending ? t("Saving...") : t("Save")}
             </Button>
           </FieldGroup>
         </form>

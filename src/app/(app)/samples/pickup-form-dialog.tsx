@@ -40,6 +40,7 @@ import {
   type SampleUnit,
 } from "@/lib/domain/samples";
 import { isOneOf } from "@/lib/form/one-of";
+import { useT } from "@/lib/i18n/language-context";
 import { savePickupForm } from "./pickup-actions";
 import { useSampleSelection } from "./sample-selection";
 
@@ -76,6 +77,7 @@ type PickupFormDialogProps = {
 
 /** The Best Link pickup form: numbered, printed as a signature receipt, and it takes the samples out of Best Link. */
 export function PickupFormDialog(props: PickupFormDialogProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const { ticked } = useSampleSelection();
 
@@ -86,21 +88,23 @@ export function PickupFormDialog(props: PickupFormDialogProps) {
         {props.placement === "header" ? (
           <Button>
             <FileText data-icon="inline-start" />
-            New pickup form
+            {t("New pickup form")}
           </Button>
         ) : (
           <Button size="sm">
             <FileText data-icon="inline-start" />
-            Pickup form with ticked ({ticked.length})
+            {t("Pickup form with ticked (")}
+            {ticked.length})
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader>
-          <DialogTitle>Best Link pickup form</DialogTitle>
+          <DialogTitle>{t("Best Link pickup form")}</DialogTitle>
           <DialogDescription>
-            Fill in and save. Then Print / Save as PDF and WhatsApp it to Best
-            Link. Saving takes the listed samples out of Best Link.
+            {t(
+              "Fill in and save. Then Print / Save as PDF and WhatsApp it to Best Link. Saving takes the listed samples out of Best Link.",
+            )}
           </DialogDescription>
         </DialogHeader>
         <PickupForm {...props} />
@@ -112,6 +116,7 @@ export function PickupFormDialog(props: PickupFormDialogProps) {
 const NOT_SET = "none";
 
 function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
+  const t = useT();
   const router = useRouter();
   const { ticked, clear } = useSampleSelection();
   const nextKey = useRef(0);
@@ -200,7 +205,7 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
     if (short) {
       const sample = samples.find((item) => item.id === short.sampleId);
       setError(
-        `Only ${formatSampleQty(short.atBestLink, sample?.unit ?? "pc")} of ${sample?.label ?? "this sample"} at Best Link.`,
+        `${t("Only")} ${formatSampleQty(short.atBestLink, sample?.unit ?? "pc")} ${t("of")} ${sample?.label ?? t("this sample")} ${t("at Best Link.")}`,
       );
       return;
     }
@@ -224,7 +229,7 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
       }
       setError(null);
       clear();
-      toast.success("Pickup form saved.");
+      toast.success(t("Pickup form saved."));
       router.push(`/samples/pickup/${result.pickupId}`);
     });
   }
@@ -233,7 +238,7 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
     <FieldGroup>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field>
-          <FieldLabel htmlFor="pickupPic">Person in charge</FieldLabel>
+          <FieldLabel htmlFor="pickupPic">{t("Person in charge")}</FieldLabel>
           <Input
             id="pickupPic"
             value={personInCharge}
@@ -243,7 +248,7 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
           />
         </Field>
         <Field>
-          <FieldLabel htmlFor="pickupContact">Contact</FieldLabel>
+          <FieldLabel htmlFor="pickupContact">{t("Contact")}</FieldLabel>
           <Input
             id="pickupContact"
             inputMode="tel"
@@ -255,7 +260,7 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
           />
         </Field>
         <Field>
-          <FieldLabel htmlFor="pickupMethod">Delivery method</FieldLabel>
+          <FieldLabel htmlFor="pickupMethod">{t("Delivery method")}</FieldLabel>
           <Select
             value={method}
             onValueChange={(value) => {
@@ -268,14 +273,14 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
             <SelectContent>
               {PICKUP_METHODS.map((value) => (
                 <SelectItem key={value} value={value}>
-                  {PICKUP_METHOD_LABEL[value]}
+                  {t(PICKUP_METHOD_LABEL[value])}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </Field>
         <Field>
-          <FieldLabel htmlFor="pickupDate">Appointment date</FieldLabel>
+          <FieldLabel htmlFor="pickupDate">{t("Appointment date")}</FieldLabel>
           <Input
             id="pickupDate"
             type="date"
@@ -285,29 +290,31 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
           />
         </Field>
         <Field>
-          <FieldLabel htmlFor="pickupDriver">Driver contact</FieldLabel>
+          <FieldLabel htmlFor="pickupDriver">{t("Driver contact")}</FieldLabel>
           <Input
             id="pickupDriver"
             inputMode="tel"
             value={driverContact}
             onChange={(event) => setDriverContact(event.target.value)}
             maxLength={60}
-            placeholder="Can fill later"
+            placeholder={t("Can fill later")}
           />
         </Field>
         <Field>
-          <FieldLabel htmlFor="pickupVehicle">Vehicle no.</FieldLabel>
+          <FieldLabel htmlFor="pickupVehicle">{t("Vehicle no.")}</FieldLabel>
           <Input
             id="pickupVehicle"
             value={vehicleNo}
             onChange={(event) => setVehicleNo(event.target.value)}
             maxLength={30}
-            placeholder="Can fill later"
+            placeholder={t("Can fill later")}
           />
         </Field>
       </div>
       <Field>
-        <FieldLabel htmlFor="pickupAddress">Address (optional)</FieldLabel>
+        <FieldLabel htmlFor="pickupAddress">
+          {t("Address (optional)")}
+        </FieldLabel>
         <Input
           id="pickupAddress"
           value={address}
@@ -317,7 +324,7 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
       </Field>
 
       <div className="flex flex-col gap-2">
-        <h3 className="font-heading text-sm font-semibold">Items</h3>
+        <h3 className="font-heading text-sm font-semibold">{t("Items")}</h3>
         {rows.map((row, index) => {
           const { sample, ambiguous } = matchOf(row);
           return (
@@ -325,30 +332,33 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-12">
                 <div className="col-span-2 sm:col-span-3">
                   <FieldLabel className="text-xs">
-                    {index + 1}. Product name
+                    {index + 1}
+                    {t(". Product name")}
                   </FieldLabel>
                   <Input
                     value={row.name}
                     list="pickupSampleLabels"
                     onChange={(event) => changeName(row, event.target.value)}
                     maxLength={120}
-                    placeholder="e.g. 37,PRI-04"
-                    aria-label={`Product name, row ${index + 1}`}
+                    placeholder={t("e.g. 37,PRI-04")}
+                    aria-label={`${t("Product name, row")} ${index + 1}`}
                   />
                 </div>
                 <div className="col-span-2 sm:col-span-3">
-                  <FieldLabel className="text-xs">Specification</FieldLabel>
+                  <FieldLabel className="text-xs">
+                    {t("Specification")}
+                  </FieldLabel>
                   <Input
                     value={row.spec}
                     onChange={(event) =>
                       change(row.key, { spec: event.target.value })
                     }
                     maxLength={120}
-                    placeholder="e.g. (37) 25×100cm"
+                    placeholder={t("e.g. (37) 25×100cm")}
                   />
                 </div>
                 <div className="sm:col-span-1">
-                  <FieldLabel className="text-xs">Qty</FieldLabel>
+                  <FieldLabel className="text-xs">{t("Qty")}</FieldLabel>
                   <Input
                     type="number"
                     min="0"
@@ -361,7 +371,7 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <FieldLabel className="text-xs">Unit</FieldLabel>
+                  <FieldLabel className="text-xs">{t("Unit")}</FieldLabel>
                   <Select
                     value={sample ? sample.unit : row.unit}
                     disabled={Boolean(sample)}
@@ -371,7 +381,7 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
                       }
                     }}
                   >
-                    <SelectTrigger aria-label="Unit">
+                    <SelectTrigger aria-label={t("Unit")}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -384,7 +394,7 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
                   </Select>
                 </div>
                 <div className="col-span-2 sm:col-span-2">
-                  <FieldLabel className="text-xs">Remarks</FieldLabel>
+                  <FieldLabel className="text-xs">{t("Remarks")}</FieldLabel>
                   <Input
                     value={row.remarks}
                     onChange={(event) =>
@@ -398,7 +408,7 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
                     type="button"
                     size="icon-sm"
                     variant="ghost"
-                    aria-label="Remove row"
+                    aria-label={t("Remove row")}
                     onClick={() =>
                       setRows((current) =>
                         current.length > 1
@@ -415,15 +425,16 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
                 <p
                   className={`mt-1 text-xs ${Number(row.qty) > sample.qty ? "text-bad" : "text-muted-foreground"}`}
                 >
-                  In sample list: {sample.name || sample.label}
-                  {sample.brand && ` · ${sample.brand}`} · at Best Link{" "}
+                  {t("In sample list:")} {sample.name || sample.label}
+                  {sample.brand && ` · ${sample.brand}`} {t("· at Best Link")}{" "}
                   {formatSampleQty(sample.qty, sample.unit)}
                 </p>
               )}
               {ambiguous && (
                 <p className="mt-1 text-xs text-warn">
-                  More than one sample has this SKU, so none is taken out of
-                  Best Link. Take it out from the list instead.
+                  {t(
+                    "More than one sample has this SKU, so none is taken out of Best Link. Take it out from the list instead.",
+                  )}
                 </p>
               )}
             </div>
@@ -445,11 +456,11 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
             onClick={() => setRows((current) => [...current, blank()])}
           >
             <Plus data-icon="inline-start" />
-            Add row
+            {t("Add row")}
           </Button>
           {rows.length >= PICKUP_MAX_LINES && (
             <span className="ml-2 text-xs text-muted-foreground">
-              The form takes {PICKUP_MAX_LINES} rows.
+              {t("The form takes")} {PICKUP_MAX_LINES} {t("rows.")}
             </span>
           )}
         </div>
@@ -457,17 +468,17 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
 
       <details className="rounded-lg border p-3">
         <summary className="cursor-pointer text-sm font-medium">
-          For our record (optional, not printed)
+          {t("For our record (optional, not printed)")}
         </summary>
         <div className="mt-3 grid gap-4 sm:grid-cols-2">
           <Field>
-            <FieldLabel htmlFor="pickupTakenBy">Taken by</FieldLabel>
+            <FieldLabel htmlFor="pickupTakenBy">{t("Taken by")}</FieldLabel>
             <Select value={takenBy} onValueChange={setTakenBy}>
               <SelectTrigger id="pickupTakenBy">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={NOT_SET}>Not set</SelectItem>
+                <SelectItem value={NOT_SET}>{t("Not set")}</SelectItem>
                 {team.map((member) => (
                   <SelectItem key={member.id} value={member.id}>
                     {member.name}
@@ -477,7 +488,9 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
             </Select>
           </Field>
           <Field>
-            <FieldLabel htmlFor="pickupFor">For (client / project)</FieldLabel>
+            <FieldLabel htmlFor="pickupFor">
+              {t("For (client / project)")}
+            </FieldLabel>
             <Input
               id="pickupFor"
               value={forWhom}
@@ -485,7 +498,7 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
               maxLength={200}
             />
             <FieldDescription>
-              Shown in each sample's history with the form number.
+              {t("Shown in each sample's history with the form number.")}
             </FieldDescription>
           </Field>
         </div>
@@ -493,7 +506,7 @@ function PickupForm({ samples, team, meName, today }: PickupFormDialogProps) {
 
       {error && <FieldError>{error}</FieldError>}
       <Button type="button" onClick={save} disabled={pending}>
-        {pending ? "Saving..." : "Save & open PDF form"}
+        {pending ? t("Saving...") : t("Save & open PDF form")}
       </Button>
     </FieldGroup>
   );

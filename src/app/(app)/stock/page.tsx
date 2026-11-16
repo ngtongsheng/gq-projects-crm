@@ -14,6 +14,7 @@ import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { availableQty, holdState, isLive } from "@/lib/domain/reservation";
 import { pendingNotices, supplierEmails } from "@/lib/domain/supplier-notice";
 import { todayMyt } from "@/lib/format/date";
+import { getT } from "@/lib/i18n/server-t";
 import { StatTile, TileGrid } from "../dashboard/dashboard-parts";
 import { importStockItems, previewStockImport } from "./import-actions";
 import {
@@ -44,6 +45,7 @@ export default async function StockPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const me = await requirePage("stock");
+  const t = await getT(me.language);
   const params = await searchParams;
   const view = params.view === "items" ? "items" : "reservations";
   const filter = parseFilter(params.filter);
@@ -81,12 +83,12 @@ export default async function StockPage({
     today,
   });
   const summary = [
-    expired > 0 && `${expired} expired`,
-    expiring > 0 && `${expiring} expiring soon`,
+    expired > 0 && `${expired} ${t("expired")}`,
+    expiring > 0 && `${expiring} ${t("expiring soon")}`,
     waiting > 0 &&
       (arranges
-        ? `${waiting} to confirm`
-        : `${waiting} waiting for confirmation`),
+        ? `${waiting} ${t("to confirm")}`
+        : `${waiting} ${t("waiting for confirmation")}`),
   ].filter(Boolean);
 
   const itemOptions = items
@@ -117,12 +119,14 @@ export default async function StockPage({
       )}
       {arranges && (
         <PasteImportDialog
-          title="Paste stock from sheet"
-          description="One row per SKU. A SKU already in stock keeps its unit; the columns you paste replace the saved ones."
+          title={t("Paste stock from sheet")}
+          description={t(
+            "One row per SKU. A SKU already in stock keeps its unit; the columns you paste replace the saved ones.",
+          )}
           kinds={[
             {
               value: "stock",
-              label: "Stock items",
+              label: t("Stock items"),
               columns: stockImportFields.map((field) => field.label),
             },
           ]}
@@ -145,11 +149,13 @@ export default async function StockPage({
 
   const header = (
     <PageHeader
-      title="Stock"
+      title={t("Stock")}
       description={
         summary.length > 0
           ? summary.join(" · ")
-          : "What is on hand and what is held for clients, so the same stock is not promised twice."
+          : t(
+              "What is on hand and what is held for clients, so the same stock is not promised twice.",
+            )
       }
       actions={actions}
     />
@@ -159,7 +165,7 @@ export default async function StockPage({
     return (
       <div className="flex flex-col gap-6">
         {header}
-        <StockTabs active="items" />
+        <StockTabs t={t} active="items" />
         <StockItemsTable
           items={items}
           reservations={reservations}
@@ -174,29 +180,29 @@ export default async function StockPage({
   return (
     <div className="flex flex-col gap-6">
       {header}
-      <StockTabs active="reservations" />
+      <StockTabs t={t} active="reservations" />
       <TileGrid className="lg:grid-cols-4">
         <StatTile
-          label="Active reservations"
+          label={t("Active reservations")}
           value={active}
-          note="Reserved, PO issued or requested"
+          note={t("Reserved, PO issued or requested")}
         />
         <StatTile
-          label="Expired - follow up"
+          label={t("Expired - follow up")}
           value={
             <span className={expired > 0 ? "text-bad" : undefined}>
               {expired}
             </span>
           }
-          note="Extend or release"
+          note={t("Extend or release")}
         />
         <StatTile
-          label="Expiring soon"
+          label={t("Expiring soon")}
           value={expiring}
-          note={`Within ${settings.warningDays} days`}
+          note={`${t("Within")} ${settings.warningDays} ${t("days")}`}
         />
         <StatTile
-          label="Supplier emails to send"
+          label={t("Supplier emails to send")}
           value={toEmail.length}
           note={
             arranges && toEmail.length > 0 ? (
@@ -206,7 +212,7 @@ export default async function StockPage({
                 trigger="link"
               />
             ) : (
-              "Reserve / extend / release"
+              t("Reserve / extend / release")
             )
           }
         />
@@ -226,12 +232,13 @@ export default async function StockPage({
                   : `/stock?filter=${option.key}`
               }
             >
-              {option.label}
+              {t(option.label)}
             </Link>
           </Button>
         ))}
       </div>
       <ReservationsTable
+        t={t}
         rows={shown}
         nameOf={nameOf}
         holdDays={settings.holdDays}

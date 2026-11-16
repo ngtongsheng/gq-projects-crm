@@ -6,10 +6,12 @@ import {
   BOOKING_STATUS_TONE,
 } from "@/lib/domain/site-booking";
 import { formatDate } from "@/lib/format/date";
+import type { Translate } from "@/lib/i18n/translate";
 import { AnswerButtons } from "./booking-card";
 import type { CalendarBooking } from "./booking-data";
 
 type SupervisorBookingTableProps = {
+  t: Translate;
   bookings: CalendarBooking[];
   /** Person id to name. */
   nameOf: Record<string, string>;
@@ -20,12 +22,13 @@ type SupervisorBookingTableProps = {
 
 /** The bookings coming up with their status and the supervisor's reply (demo: the bookings panel in supSchedule). */
 export function SupervisorBookingTable({
+  t,
   bookings,
   nameOf,
   meId,
   canAnswer,
 }: SupervisorBookingTableProps) {
-  const name = (id: string) => nameOf[id] ?? "Unnamed";
+  const name = (id: string) => nameOf[id] ?? t("Unnamed");
   return (
     <DataTable
       rows={bookings}
@@ -33,7 +36,7 @@ export function SupervisorBookingTable({
       columns={[
         {
           key: "date",
-          header: "Date",
+          header: t("Date"),
           cell: (row) => (
             <div className="flex flex-col font-mono tabular-nums">
               <span>{formatDate(row.visitOn)}</span>
@@ -45,16 +48,16 @@ export function SupervisorBookingTable({
         },
         {
           key: "supervisor",
-          header: "Supervisor",
+          header: t("Supervisor"),
           cell: (row) => name(row.supervisorId),
         },
         {
           key: "purpose",
-          header: "Purpose · site",
+          header: t("Purpose · site"),
           cell: (row) => (
             <div className="flex max-w-80 flex-col whitespace-normal">
               <span className="font-medium">
-                {BOOKING_PURPOSE_LABEL[row.purpose]}
+                {t(BOOKING_PURPOSE_LABEL[row.purpose])}
               </span>
               <span className="text-sm text-muted-foreground">
                 {[row.siteLabel, row.notes].filter(Boolean).join(" · ")}
@@ -64,21 +67,21 @@ export function SupervisorBookingTable({
         },
         {
           key: "by",
-          header: "Booked by",
+          header: t("Booked by"),
           className: "max-sm:hidden",
           cell: (row) => name(row.requestedBy),
         },
         {
           key: "status",
-          header: "Status",
+          header: t("Status"),
           cell: (row) => (
             <div className="flex max-w-64 flex-col items-start gap-1 whitespace-normal">
               <StatusBadge tone={BOOKING_STATUS_TONE[row.status]}>
-                {BOOKING_STATUS_LABEL[row.status]}
+                {t(BOOKING_STATUS_LABEL[row.status])}
               </StatusBadge>
               {row.declineReason && (
                 <span className="text-sm text-muted-foreground">
-                  Reply: {row.declineReason}
+                  {t("Reply:")} {row.declineReason}
                 </span>
               )}
               {canAnswer &&

@@ -24,6 +24,7 @@ import {
   weekDays,
 } from "@/lib/domain/calendar-grid";
 import { formatDate, todayMyt } from "@/lib/format/date";
+import { getT } from "@/lib/i18n/server-t";
 import { createClient } from "@/lib/supabase/server";
 import { parseCalendarParams, stepDate } from "../calendar/calendar-params";
 import { AddJobDialog } from "./add-job-dialog";
@@ -64,13 +65,16 @@ export default async function InstallationPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const me = await requirePage("inst");
+  const t = await getT(me.language);
   const query = await searchParams;
-  const title = pageLabel("inst", me);
+  const title = t(pageLabel("inst", me));
   if (parseInstallationTab(query.tab) === "contacts") {
-    return <InstallerContacts title={title} canEdit={canEditInstallers(me)} />;
+    return (
+      <InstallerContacts t={t} title={title} canEdit={canEditInstallers(me)} />
+    );
   }
   if (parseInstallationTab(query.tab) === "supervisors") {
-    return <SupervisorBookings me={me} query={query} title={title} />;
+    return <SupervisorBookings t={t} me={me} query={query} title={title} />;
   }
   const params = parseCalendarParams(query);
   const { view } = params;
@@ -135,7 +139,7 @@ export default async function InstallationPage({
     bookings,
     from,
     to,
-    supervisorName: (id) => nameOf.get(id) ?? "Unnamed",
+    supervisorName: (id) => nameOf.get(id) ?? t("Unnamed"),
     hrefFor: (day) => href({ ...keep, view: "week", date: day }),
   });
 
@@ -155,6 +159,7 @@ export default async function InstallationPage({
 
   const list = (
     <JobList
+      t={t}
       days={listDays}
       today={today}
       eventsByDay={eventsByDay}
@@ -167,7 +172,7 @@ export default async function InstallationPage({
       canOpenMof={await canOpen(me, "mof")}
       canAnswerBookings={answersBookings}
       addHref={view === "week" ? addHref : undefined}
-      emptyText="No jobs."
+      emptyText={t("No jobs.")}
     />
   );
 
@@ -175,24 +180,26 @@ export default async function InstallationPage({
     <div className="flex flex-col gap-4">
       <PageHeader
         title={title}
-        description={`${jobs.length} ${jobs.length === 1 ? "job" : "jobs"} · ${inProgress} in progress this ${weeks ? "month" : "week"}${me.jobRole === "site" ? " · yours" : ""}`}
+        description={`${jobs.length} ${t(jobs.length === 1 ? "job" : "jobs")} · ${inProgress} ${t(weeks ? "in progress this month" : "in progress this week")}${me.jobRole === "site" ? ` · ${t("yours")}` : ""}`}
         actions={
           <>
-            <InstallationTabs active="installers" />
+            <InstallationTabs t={t} active="installers" />
             <div className="inline-flex gap-1">
               <Button
                 asChild
                 size="sm"
                 variant={view === "month" ? "default" : "outline"}
               >
-                <Link href={href({ ...here, view: "month" })}>Month</Link>
+                <Link href={href({ ...here, view: "month" })}>
+                  {t("Month")}
+                </Link>
               </Button>
               <Button
                 asChild
                 size="sm"
                 variant={view === "week" ? "default" : "outline"}
               >
-                <Link href={href({ ...here, view: "week" })}>Week</Link>
+                <Link href={href({ ...here, view: "week" })}>{t("Week")}</Link>
               </Button>
             </div>
             {canBook && supervisors.length > 0 && (
@@ -207,7 +214,7 @@ export default async function InstallationPage({
               <Button asChild size="sm">
                 <Link href={addHref(today)}>
                   <Plus data-icon="inline-start" />
-                  Schedule job
+                  {t("Schedule job")}
                 </Link>
               </Button>
             )}
@@ -217,12 +224,13 @@ export default async function InstallationPage({
       {pendingDays[0] && (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-warn-bg px-3 py-2 text-sm text-warn">
           <span className="font-medium">
-            {pendingDays.length} booking{" "}
-            {pendingDays.length === 1 ? "request" : "requests"} waiting for you
+            {pendingDays.length} {t("booking")}{" "}
+            {pendingDays.length === 1 ? t("request") : t("requests")}{" "}
+            {t("waiting for you")}
           </span>
           <Button asChild size="sm" variant="outline">
             <Link href={href({ view: "week", date: pendingDays[0] })}>
-              Review
+              {t("Review")}
             </Link>
           </Button>
         </div>
@@ -231,7 +239,9 @@ export default async function InstallationPage({
         <Button asChild size="icon-sm" variant="outline">
           <Link
             href={href({ ...keep, date: stepDate(view, params.date, -1) })}
-            aria-label={view === "month" ? "Previous month" : "Previous week"}
+            aria-label={
+              view === "month" ? t("Previous month") : t("Previous week")
+            }
           >
             <ChevronLeft />
           </Link>
@@ -239,7 +249,7 @@ export default async function InstallationPage({
         <Button asChild size="icon-sm" variant="outline">
           <Link
             href={href({ ...keep, date: stepDate(view, params.date, 1) })}
-            aria-label={view === "month" ? "Next month" : "Next week"}
+            aria-label={view === "month" ? t("Next month") : t("Next week")}
           >
             <ChevronRight />
           </Link>
@@ -248,10 +258,11 @@ export default async function InstallationPage({
           {periodTitle}
         </h2>
         <Button asChild size="sm" variant="ghost">
-          <Link href={href(keep)}>Today</Link>
+          <Link href={href(keep)}>{t("Today")}</Link>
         </Button>
         <div className="ml-auto">
           <InstallationFilters
+            t={t}
             view={view}
             date={params.date}
             installers={installers}
@@ -280,11 +291,11 @@ export default async function InstallationPage({
             ) : (
               <div className="rounded-lg border bg-card">
                 <EmptyState
-                  title="No jobs this month"
+                  title={t("No jobs this month")}
                   description={
                     canSchedule
-                      ? "Use Schedule job to add one."
-                      : "Nothing is assigned to you yet."
+                      ? t("Use Schedule job to add one.")
+                      : t("Nothing is assigned to you yet.")
                   }
                 />
               </div>
@@ -294,11 +305,11 @@ export default async function InstallationPage({
       ) : (
         list
       )}
-      <UnsignedDosPanel dos={unsignedDos} today={today} />
+      <UnsignedDosPanel t={t} dos={unsignedDos} today={today} />
       <p className="text-sm text-muted-foreground">
-        Jobs: green = done · amber = in progress · blue = scheduled · grey =
-        postponed. Site supervisor bookings: amber = waiting for an answer ·
-        green = confirmed · grey = declined.
+        {t(
+          "Jobs: green = done · amber = in progress · blue = scheduled · grey = postponed. Site supervisor bookings: amber = waiting for an answer · green = confirmed · grey = declined.",
+        )}
       </p>
       {params.add && mofs && (
         <AddJobDialog

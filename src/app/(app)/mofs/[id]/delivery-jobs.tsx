@@ -15,6 +15,7 @@ import {
 } from "@/lib/domain/delivery-status";
 import type { JobPeople } from "@/lib/domain/job-team";
 import { formatDate } from "@/lib/format/date";
+import type { Translate } from "@/lib/i18n/translate";
 import { CancelDoButton } from "../../installation/cancel-do-button";
 import {
   DoLinesDialog,
@@ -23,6 +24,7 @@ import {
 import { JobDialog, type JobRow } from "../../installation/job-form";
 
 type DeliveryJobsProps = {
+  t: Translate;
   mofId: string;
   mofNo: string;
   jobs: JobRow[];
@@ -43,6 +45,7 @@ type DeliveryJobsProps = {
 
 /** The MOF's delivery, installation and measurement jobs, with where delivery stands. */
 export function DeliveryJobs({
+  t,
   mofId,
   mofNo,
   jobs,
@@ -83,11 +86,11 @@ export function DeliveryJobs({
       <CardHeader className="flex-row items-center justify-between gap-2">
         <div className="flex flex-col gap-1">
           <CardTitle className="font-heading">
-            Delivery &amp; installation
+            {t("Delivery & installation")}
           </CardTitle>
           <div>
             <StatusBadge tone={DELIVERY_STATUS_TONE[delivery.state]}>
-              {delivery.label}
+              {t(delivery.label)}
             </StatusBadge>
           </div>
         </div>
@@ -99,19 +102,21 @@ export function DeliveryJobs({
           getRowKey={(row) => row.id}
           empty={
             <EmptyState
-              title="Nothing scheduled"
-              description="Schedule deliveries, installations and site measurements here."
+              title={t("Nothing scheduled")}
+              description={t(
+                "Schedule deliveries, installations and site measurements here.",
+              )}
             />
           }
           columns={[
             {
               key: "type",
-              header: "Job",
-              cell: (row) => JOB_TYPE_LABEL[row.jobType],
+              header: t("Job"),
+              cell: (row) => t(JOB_TYPE_LABEL[row.jobType]),
             },
             {
               key: "dates",
-              header: "Dates",
+              header: t("Dates"),
               numeric: true,
               cell: (row) => (
                 <span className="whitespace-normal">
@@ -124,17 +129,17 @@ export function DeliveryJobs({
             },
             {
               key: "who",
-              header: "Team",
+              header: t("Team"),
               cell: (row) => (
                 <div className="flex flex-col">
                   <span>
                     {row.supervisorOnly
-                      ? "Supervisor only"
+                      ? t("Supervisor only")
                       : row.installer || "–"}
                   </span>
                   {row.siteSupervisorId && (
                     <span className="text-sm text-muted-foreground">
-                      {nameOf.get(row.siteSupervisorId) ?? "Unnamed"}
+                      {nameOf.get(row.siteSupervisorId) ?? t("Unnamed")}
                     </span>
                   )}
                 </div>
@@ -142,22 +147,22 @@ export function DeliveryJobs({
             },
             {
               key: "order",
-              header: "DO",
+              header: t("DO"),
               cell: (row) => {
                 if (!row.order) return "–";
                 const number = deliveryOrderNumber(mofNo, row.order.runningNo);
                 return (
                   <div className="flex max-w-72 flex-col whitespace-normal">
                     <span className="font-mono font-medium">
-                      {number ?? "Not issued"}
+                      {number ?? t("Not issued")}
                     </span>
                     <span className="text-sm text-muted-foreground">
                       {[
                         row.order.transporter,
-                        row.order.isFinal ? "Final" : "Partial",
+                        row.order.isFinal ? t("Final") : t("Partial"),
                         row.order.signedReturned
-                          ? "signed and returned"
-                          : "not yet returned",
+                          ? t("signed and returned")
+                          : t("not yet returned"),
                       ]
                         .filter(Boolean)
                         .join(" · ")}
@@ -171,7 +176,7 @@ export function DeliveryJobs({
                       {number && (
                         <Button asChild size="sm" variant="outline">
                           <Link href={`/installation/do/${row.id}`}>
-                            Print DO
+                            {t("Print DO")}
                           </Link>
                         </Button>
                       )}
@@ -199,16 +204,16 @@ export function DeliveryJobs({
             },
             {
               key: "status",
-              header: "Status",
+              header: t("Status"),
               cell: (row) => (
                 <StatusBadge tone={JOB_STATUS_TONE[row.status]}>
-                  {JOB_STATUS_LABEL[row.status]}
+                  {t(JOB_STATUS_LABEL[row.status])}
                 </StatusBadge>
               ),
             },
             {
               key: "notes",
-              header: "Remarks",
+              header: t("Remarks"),
               cell: (row) => (
                 <span className="block max-w-56 whitespace-normal">
                   {row.notes || "–"}

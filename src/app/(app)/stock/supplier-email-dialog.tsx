@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import type { SupplierEmail } from "@/lib/domain/supplier-notice";
+import { useT } from "@/lib/i18n/language-context";
 import { markSupplierNoticesSent } from "./supplier-notice-actions";
 
 /** One draft per supplier to open in the email app, then mark as sent. Nothing is sent from here. */
@@ -26,6 +27,7 @@ export function SupplierEmailDialog({
   pendingCount: number;
   trigger: "button" | "link";
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
@@ -33,7 +35,7 @@ export function SupplierEmailDialog({
     startTransition(async () => {
       const result = await markSupplierNoticesSent(email.lines);
       if (result.error) toast.error(result.error);
-      else toast.success(`Marked ${email.supplier} as told.`);
+      else toast.success(`${t("Marked")} ${email.supplier} ${t("as told.")}`);
     });
   }
 
@@ -43,25 +45,27 @@ export function SupplierEmailDialog({
         {trigger === "button" ? (
           <Button size="sm" variant="outline">
             <Mail data-icon="inline-start" />
-            Email suppliers ({pendingCount})
+            {t("Email suppliers (")}
+            {pendingCount})
           </Button>
         ) : (
           <Button size="sm" variant="link" className="h-auto justify-start p-0">
-            Send now
+            {t("Send now")}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Email suppliers</DialogTitle>
+          <DialogTitle>{t("Email suppliers")}</DialogTitle>
           <DialogDescription>
-            One email per supplier with every line to reserve, extend or
-            release. Open it in your email app, send it, then tap Mark as sent.
+            {t(
+              "One email per supplier with every line to reserve, extend or release. Open it in your email app, send it, then tap Mark as sent.",
+            )}
           </DialogDescription>
         </DialogHeader>
         {emails.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Nothing to send. Every supplier has been told.
+            {t("Nothing to send. Every supplier has been told.")}
           </p>
         ) : (
           <ul className="flex flex-col gap-3">
@@ -74,13 +78,13 @@ export function SupplierEmailDialog({
                   <b className="flex-1">{email.supplier}</b>
                   <span className="text-xs text-muted-foreground">
                     {email.lines.length}{" "}
-                    {email.lines.length === 1 ? "line" : "lines"}
+                    {email.lines.length === 1 ? t("line") : t("lines")}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Subject: {email.subject}
+                  {t("Subject:")} {email.subject}
                   <br />
-                  Add the supplier's address in your email app.
+                  {t("Add the supplier's address in your email app.")}
                 </p>
                 <Textarea
                   readOnly
@@ -90,14 +94,14 @@ export function SupplierEmailDialog({
                 />
                 <div className="flex flex-wrap gap-2">
                   <Button size="sm" variant="outline" asChild>
-                    <a href={email.mailto}>Open in email app</a>
+                    <a href={email.mailto}>{t("Open in email app")}</a>
                   </Button>
                   <Button
                     size="sm"
                     disabled={pending}
                     onClick={() => markSent(email)}
                   >
-                    Mark as sent
+                    {t("Mark as sent")}
                   </Button>
                 </div>
               </li>
@@ -105,7 +109,7 @@ export function SupplierEmailDialog({
           </ul>
         )}
         <Button variant="outline" onClick={() => setOpen(false)}>
-          Close
+          {t("Close")}
         </Button>
       </DialogContent>
     </Dialog>

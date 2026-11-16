@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import { filterInstallers, whatsAppChatLink } from "@/lib/domain/installer";
 import { formatDate } from "@/lib/format/date";
+import { useT } from "@/lib/i18n/language-context";
 import { cn } from "@/lib/utils";
 import type { InstallerRow } from "./installer-data";
 import { InstallerDialog } from "./installer-dialog";
@@ -34,6 +35,7 @@ export function InstallerDirectory({
   installers,
   canEdit,
 }: InstallerDirectoryProps) {
+  const t = useT();
   const [search, setSearch] = useState("");
   const [showInactive, setShowInactive] = useState(false);
   const rows = filterInstallers(installers, search, showInactive);
@@ -43,8 +45,8 @@ export function InstallerDirectory({
       <div className="flex flex-wrap items-center gap-3">
         <Input
           type="search"
-          aria-label="Search installers"
-          placeholder="Search name, phone, skill, area"
+          aria-label={t("Search installers")}
+          placeholder={t("Search name, phone, skill, area")}
           className="max-w-xs"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
@@ -56,33 +58,35 @@ export function InstallerDirectory({
             onCheckedChange={(checked) => setShowInactive(checked === true)}
           />
           <Label htmlFor="showInactiveInstallers" className="font-normal">
-            Show inactive
+            {t("Show inactive")}
           </Label>
         </div>
       </div>
       {rows.length === 0 ? (
         <div className="rounded-xl border bg-card">
-          <EmptyState title="No installer found." />
+          <EmptyState title={t("No installer found.")} />
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border bg-card">
           <Table>
             <TableHeader className="bg-sunk">
               <TableRow className="hover:bg-transparent">
-                <TableHead className={HEAD}>Installer</TableHead>
-                <TableHead className={HEAD}>Phone</TableHead>
+                <TableHead className={HEAD}>{t("Installer")}</TableHead>
+                <TableHead className={HEAD}>{t("Phone")}</TableHead>
                 <TableHead className={cn(HEAD, "max-sm:hidden")}>
-                  What they can do
+                  {t("What they can do")}
                 </TableHead>
                 <TableHead className={cn(HEAD, "max-sm:hidden")}>
-                  Area
+                  {t("Area")}
                 </TableHead>
                 <TableHead className={cn(HEAD, "max-sm:hidden")}>
-                  Notes
+                  {t("Notes")}
                 </TableHead>
-                <TableHead className={cn(HEAD, "text-right")}>Jobs</TableHead>
+                <TableHead className={cn(HEAD, "text-right")}>
+                  {t("Jobs")}
+                </TableHead>
                 <TableHead className={cn(HEAD, "max-sm:hidden")}>
-                  Last job
+                  {t("Last job")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -114,7 +118,7 @@ export function InstallerDirectory({
                       </p>
                     )}
                     {!installer.active && (
-                      <StatusBadge tone="neutral">Inactive</StatusBadge>
+                      <StatusBadge tone="neutral">{t("Inactive")}</StatusBadge>
                     )}
                   </TableCell>
                   <TableCell className="px-3.5 py-2.5">
@@ -156,6 +160,7 @@ export function InstallerDirectory({
 
 /** Each number as a call link, with a WhatsApp link when it is a Malaysian number. */
 function PhoneLines({ phones }: { phones: string[] }) {
+  const t = useT();
   const shown = phones.filter(Boolean);
   if (shown.length === 0) {
     return <span className="text-muted-foreground">–</span>;
@@ -175,10 +180,10 @@ function PhoneLines({ phones }: { phones: string[] }) {
             href={chat}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={`WhatsApp ${phone}`}
+            aria-label={`${t("WhatsApp")} ${phone}`}
             className="text-xs font-medium text-good hover:underline"
           >
-            WhatsApp
+            {t("WhatsApp")}
           </a>
         )}
       </div>

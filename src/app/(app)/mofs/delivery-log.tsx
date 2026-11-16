@@ -8,11 +8,13 @@ import {
   JOB_STATUS_LABEL,
 } from "@/lib/domain/delivery-status";
 import { formatDate, formatDateTime } from "@/lib/format/date";
+import type { Translate } from "@/lib/i18n/translate";
 import { DoNumberingDialog } from "../installation/do-numbering-dialog";
 import type { CancelledDoNumber, DeliveryLogRow } from "./delivery-log-data";
 import { JobScopeLabel } from "./schemas";
 
 type DeliveryLogProps = {
+  t: Translate;
   rows: DeliveryLogRow[];
   cancelled: CancelledDoNumber[];
   nextNo: string;
@@ -23,6 +25,7 @@ type DeliveryLogProps = {
 
 /** One line per DO on the MOF register (demo: Delivery log, 14 columns). */
 export function DeliveryLog({
+  t,
   rows,
   cancelled,
   nextNo,
@@ -37,10 +40,13 @@ export function DeliveryLog({
   return (
     <section className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h2 className="font-heading text-base font-medium">Delivery log</h2>
+        <h2 className="font-heading text-base font-medium">
+          {t("Delivery log")}
+        </h2>
         <span className="font-mono text-sm tabular-nums text-muted-foreground">
-          {rows.length} DOs · {notSigned} delivered, not yet signed · next
-          running no. <b className="text-foreground">{nextNo}</b>
+          {rows.length} {t("DOs ·")} {notSigned}{" "}
+          {t("delivered, not yet signed · next running no.")}{" "}
+          <b className="text-foreground">{nextNo}</b>
         </span>
         <div className="ml-auto flex flex-wrap gap-2">
           {canSetNextNo && (
@@ -48,7 +54,9 @@ export function DeliveryLog({
           )}
           {canSchedule && (
             <Button asChild size="sm">
-              <Link href={`/installation?add=${today}`}>Schedule delivery</Link>
+              <Link href={`/installation?add=${today}`}>
+                {t("Schedule delivery")}
+              </Link>
             </Button>
           )}
         </div>
@@ -58,14 +66,14 @@ export function DeliveryLog({
         getRowKey={(row) => row.jobId}
         empty={
           <EmptyState
-            title="No deliveries yet"
-            description="A delivery appears here once it is scheduled."
+            title={t("No deliveries yet")}
+            description={t("A delivery appears here once it is scheduled.")}
           />
         }
         columns={[
           {
             key: "doNo",
-            header: "DO no.",
+            header: t("DO no."),
             cell: (row) =>
               row.doNo ? (
                 <div className="flex flex-col">
@@ -75,12 +83,14 @@ export function DeliveryLog({
                   </span>
                 </div>
               ) : (
-                <span className="text-muted-foreground">No DO no. yet</span>
+                <span className="text-muted-foreground">
+                  {t("No DO no. yet")}
+                </span>
               ),
           },
           {
             key: "mofNo",
-            header: "MOF no.",
+            header: t("MOF no."),
             cell: (row) => (
               <div className="flex flex-col">
                 <Link
@@ -97,18 +107,26 @@ export function DeliveryLog({
               </div>
             ),
           },
-          { key: "company", header: "Company", cell: (row) => row.companyName },
-          { key: "project", header: "Project", cell: (row) => row.projectName },
+          {
+            key: "company",
+            header: t("Company"),
+            cell: (row) => row.companyName,
+          },
+          {
+            key: "project",
+            header: t("Project"),
+            cell: (row) => row.projectName,
+          },
           {
             key: "doDate",
-            header: "DO date",
+            header: t("DO date"),
             numeric: true,
             cell: (row) => (
               <div className="flex flex-col items-end gap-1">
                 <span>{formatDate(row.doDate)}</span>
                 {row.jobStatus !== "done" && (
                   <StatusBadge tone="info">
-                    {JOB_STATUS_LABEL[row.jobStatus]}
+                    {t(JOB_STATUS_LABEL[row.jobStatus])}
                   </StatusBadge>
                 )}
               </div>
@@ -116,35 +134,35 @@ export function DeliveryLog({
           },
           {
             key: "transporter",
-            header: "Transporter",
+            header: t("Transporter"),
             cell: (row) => row.transporter || "–",
           },
           {
             key: "scope",
-            header: "Job scope",
+            header: t("Job scope"),
             cell: (row) => JobScopeLabel[row.scope],
           },
           {
             key: "final",
-            header: "Partial / full",
+            header: t("Partial / full"),
             cell: (row) => (
               <StatusBadge tone={row.isFinal ? "good" : "warn"}>
-                {row.isFinal ? "Full / final" : "Partial"}
+                {row.isFinal ? t("Full / final") : t("Partial")}
               </StatusBadge>
             ),
           },
           {
             key: "supplier",
-            header: "DO passed to supplier",
-            cell: (row) => (row.passedToSupplier ? "Yes" : "No"),
+            header: t("DO passed to supplier"),
+            cell: (row) => (row.passedToSupplier ? t("Yes") : t("No")),
           },
           {
             key: "signed",
-            header: "DO signed & returned",
+            header: t("DO signed & returned"),
             cell: (row) => {
-              if (row.signedReturned) return "Yes";
+              if (row.signedReturned) return t("Yes");
               return row.jobStatus === "done" ? (
-                <StatusBadge tone="bad">No</StatusBadge>
+                <StatusBadge tone="bad">{t("No")}</StatusBadge>
               ) : (
                 "–"
               );
@@ -152,7 +170,7 @@ export function DeliveryLog({
           },
           {
             key: "items",
-            header: "Items",
+            header: t("Items"),
             cell: (row) => (
               <span className="block max-w-56 whitespace-normal">
                 {row.items || "–"}
@@ -161,7 +179,7 @@ export function DeliveryLog({
           },
           {
             key: "remarks",
-            header: "Remarks",
+            header: t("Remarks"),
             cell: (row) => (
               <span className="block max-w-48 whitespace-normal">
                 {row.remarks}
@@ -170,10 +188,10 @@ export function DeliveryLog({
           },
           {
             key: "delivered",
-            header: "Project delivered?",
+            header: t("Project delivered?"),
             cell: (row) => (
               <StatusBadge tone={DELIVERY_STATUS_TONE[row.delivery.state]}>
-                {row.delivery.label}
+                {t(row.delivery.label)}
               </StatusBadge>
             ),
           },
@@ -183,7 +201,9 @@ export function DeliveryLog({
             cell: (row) =>
               row.doNo ? (
                 <Button asChild size="sm" variant="outline">
-                  <Link href={`/installation/do/${row.jobId}`}>Print DO</Link>
+                  <Link href={`/installation/do/${row.jobId}`}>
+                    {t("Print DO")}
+                  </Link>
                 </Button>
               ) : null,
           },
@@ -191,8 +211,8 @@ export function DeliveryLog({
       />
       {cancelled.length > 0 && (
         <p className="text-sm text-muted-foreground">
-          <b className="text-foreground">Cancelled DO numbers</b> (never
-          reused):{" "}
+          <b className="text-foreground">{t("Cancelled DO numbers")}</b>{" "}
+          {t("(never reused):")}{" "}
           {cancelled
             .map(
               (number) =>
@@ -202,12 +222,9 @@ export function DeliveryLog({
         </p>
       )}
       <p className="text-sm text-muted-foreground">
-        One line per DO. Each delivery gets the next running number when you
-        tick Issue DO no. now; it is shown in full as the MOF no. and the
-        running no. Mark each DO Partial or Full / final: Project delivered?
-        turns to Fully delivered once a final DO is delivered. Cancelling a DO
-        that has a number postpones the delivery and the number is never used
-        again.
+        {t(
+          "One line per DO. Each delivery gets the next running number when you tick Issue DO no. now; it is shown in full as the MOF no. and the running no. Mark each DO Partial or Full / final: Project delivered? turns to Fully delivered once a final DO is delivered. Cancelling a DO that has a number postpones the delivery and the number is never used again.",
+        )}
       </p>
     </section>
   );

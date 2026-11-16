@@ -17,6 +17,7 @@ import {
 import type { TeamMember } from "@/lib/auth/team-directory";
 import { formatSampleQty, movesStillOut } from "@/lib/domain/samples";
 import { formatDate, todayMyt } from "@/lib/format/date";
+import { useT } from "@/lib/i18n/language-context";
 import { SampleDialog } from "./sample-dialog";
 import { ALL, filterSamples } from "./sample-filters";
 import { SampleBackDialog, TakeOutSampleDialog } from "./sample-move-dialogs";
@@ -40,6 +41,7 @@ export function SamplesList({
   canEdit,
   pickupButton,
 }: SamplesListProps) {
+  const t = useT();
   const [query, setQuery] = useState("");
   const [product, setProduct] = useState(ALL);
   const [brand, setBrand] = useState(ALL);
@@ -59,16 +61,16 @@ export function SamplesList({
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search SKU or name, e.g. XCH-03 or Dawn"
-          aria-label="Search samples"
+          placeholder={t("Search SKU or name, e.g. XCH-03 or Dawn")}
+          aria-label={t("Search samples")}
           className="w-full sm:w-72"
         />
         <Select value={product} onValueChange={setProduct}>
-          <SelectTrigger aria-label="Product" className="w-44">
+          <SelectTrigger aria-label={t("Product")} className="w-44">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All products</SelectItem>
+            <SelectItem value={ALL}>{t("All products")}</SelectItem>
             {products.map((value) => (
               <SelectItem key={value} value={value}>
                 {value}
@@ -77,11 +79,11 @@ export function SamplesList({
           </SelectContent>
         </Select>
         <Select value={brand} onValueChange={setBrand}>
-          <SelectTrigger aria-label="Brand" className="w-44">
+          <SelectTrigger aria-label={t("Brand")} className="w-44">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All brands</SelectItem>
+            <SelectItem value={ALL}>{t("All brands")}</SelectItem>
             {brands.map((value) => (
               <SelectItem key={value} value={value}>
                 {value}
@@ -90,15 +92,16 @@ export function SamplesList({
           </SelectContent>
         </Select>
         <span className="text-sm text-muted-foreground">
-          {shown.length} SKUs
+          {shown.length} {t("SKUs")}
         </span>
         {canEdit && pickupButton}
       </div>
       {canEdit && (
         <p className="text-sm text-muted-foreground">
-          To collect from Best Link: <b>New pickup form</b>, fill in, Print /
-          Save as PDF, WhatsApp the PDF to Best Link. Or tick samples below
-          first to fill them in for you.
+          {t("To collect from Best Link:")} <b>{t("New pickup form")}</b>
+          {t(
+            ", fill in, Print / Save as PDF, WhatsApp the PDF to Best Link. Or tick samples below first to fill them in for you.",
+          )}
         </p>
       )}
       <DataTable
@@ -107,11 +110,11 @@ export function SamplesList({
         empty={
           <EmptyState
             icon={Boxes}
-            title="No samples recorded yet"
+            title={t("No samples recorded yet")}
             description={
               canEdit
-                ? "Click Add sample or Paste from sheet."
-                : "Nothing matches. Clear the search or the filters."
+                ? t("Click Add sample or Paste from sheet.")
+                : t("Nothing matches. Clear the search or the filters.")
             }
           />
         }
@@ -125,7 +128,7 @@ export function SamplesList({
                   cell: (sample: SampleRow) =>
                     sample.qty > 0 ? (
                       <Checkbox
-                        aria-label={`Select ${sample.sku || sample.name} for pickup form`}
+                        aria-label={`${t("Select")} ${sample.sku || sample.name} ${t("for pickup form")}`}
                         checked={ticked.includes(sample.id)}
                         onCheckedChange={() => toggle(sample.id)}
                       />
@@ -135,17 +138,17 @@ export function SamplesList({
             : []),
           {
             key: "product",
-            header: "Product",
+            header: t("Product"),
             cell: (sample) => sample.product,
           },
           {
             key: "brand",
-            header: "Brand",
+            header: t("Brand"),
             cell: (sample) => sample.brand,
           },
           {
             key: "sku",
-            header: "SKU",
+            header: t("SKU"),
             cell: (sample) => (
               <span className="font-mono text-sm font-medium whitespace-nowrap">
                 {sample.sku || "–"}
@@ -154,14 +157,14 @@ export function SamplesList({
           },
           {
             key: "name",
-            header: "Product name",
+            header: t("Product name"),
             cell: (sample) => (
               <span className="font-medium">{sample.name}</span>
             ),
           },
           {
             key: "spec",
-            header: "Size / spec",
+            header: t("Size / spec"),
             className: "max-sm:hidden",
             cell: (sample) => (
               <span className="text-muted-foreground">{sample.spec}</span>
@@ -169,7 +172,7 @@ export function SamplesList({
           },
           {
             key: "qty",
-            header: "Qty at Best Link",
+            header: t("Qty at Best Link"),
             numeric: true,
             cell: (sample) => {
               const out = movesStillOut(sample.moves);
@@ -178,17 +181,17 @@ export function SamplesList({
                   {sample.qty > 0 ? (
                     formatSampleQty(sample.qty, sample.unit)
                   ) : (
-                    <StatusBadge tone="bad">None left</StatusBadge>
+                    <StatusBadge tone="bad">{t("None left")}</StatusBadge>
                   )}
                   {out.map((move) => (
                     <span
                       key={move.id}
                       className="font-sans text-xs font-normal whitespace-normal text-muted-foreground"
                     >
-                      {move.qty} out ·{" "}
+                      {move.qty} {t("out ·")}{" "}
                       {move.takenBy
-                        ? (nameOf.get(move.takenBy) ?? "Unnamed")
-                        : "Not set"}
+                        ? (nameOf.get(move.takenBy) ?? t("Unnamed"))
+                        : t("Not set")}
                       {move.forWhom && ` (${move.forWhom})`}
                     </span>
                   ))}
@@ -198,7 +201,7 @@ export function SamplesList({
           },
           {
             key: "notes",
-            header: "Notes",
+            header: t("Notes"),
             className: "max-sm:hidden",
             cell: (sample) => (
               <span className="text-muted-foreground">{sample.notes}</span>
@@ -206,7 +209,7 @@ export function SamplesList({
           },
           {
             key: "updated",
-            header: "Updated",
+            header: t("Updated"),
             cell: (sample) => (
               <div className="flex flex-col">
                 <span className="font-mono text-sm whitespace-nowrap tabular-nums">

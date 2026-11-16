@@ -26,6 +26,7 @@ import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { isFinalStage, MOF_STAGE_TONE } from "@/lib/domain/mof-stages";
 import { formatDate, todayMyt } from "@/lib/format/date";
 import { formatRm, sumRm } from "@/lib/format/money";
+import { getT } from "@/lib/i18n/server-t";
 import { DeliveryLog } from "./delivery-log";
 import { loadDeliveryLog } from "./delivery-log-data";
 import { importMofs, previewMofImport } from "./import-actions";
@@ -45,6 +46,7 @@ export default async function MofRegisterPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const me = await requirePage("mof");
+  const t = await getT(me.language);
   const seesCost = await seesMofCost(me);
   const filters = parseMofFilters(await searchParams);
   const ownOnly = seesOnlyOwnMofs(me.jobRole);
@@ -244,6 +246,7 @@ export default async function MofRegisterPage({
         ]}
       />
       <DeliveryLog
+        t={t}
         rows={deliveries.rows.filter((row) => loggedMofIds.has(row.mofId))}
         cancelled={deliveries.cancelled}
         nextNo={deliveries.nextNo}

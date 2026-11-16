@@ -14,6 +14,7 @@ import { canOpen } from "@/lib/auth/page-access";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { weekDays } from "@/lib/domain/calendar-grid";
 import { addDays, formatDate, todayMyt } from "@/lib/format/date";
+import type { Translate } from "@/lib/i18n/translate";
 import { parseCalendarParams, stepDate } from "../calendar/calendar-params";
 import { SegmentLinks } from "../site-work/segment-links";
 import {
@@ -34,6 +35,7 @@ import { SupervisorBookingTable } from "./supervisor-booking-table";
 const WHO_ALL = "all";
 
 type SupervisorBookingsProps = {
+  t: Translate;
   me: Profile;
   query: Record<string, string | string[] | undefined>;
   title: string;
@@ -45,6 +47,7 @@ type SupervisorBookingsProps = {
  * and answers their own.
  */
 export async function SupervisorBookings({
+  t,
   me,
   query,
   title,
@@ -95,7 +98,7 @@ export async function SupervisorBookings({
     bookings: weekBookings.filter((booking) => booking.status !== "declined"),
     from,
     to,
-    supervisorName: (id) => nameOf.get(id) ?? "Unnamed",
+    supervisorName: (id) => nameOf.get(id) ?? t("Unnamed"),
     hrefFor: href,
   });
   const waiting = comingUp.filter((booking) => booking.status === "requested");
@@ -104,10 +107,10 @@ export async function SupervisorBookings({
     <div className="flex flex-col gap-4">
       <PageHeader
         title={title}
-        description={`${comingUp.length} ${comingUp.length === 1 ? "booking" : "bookings"} coming up · ${waiting.length} waiting for an answer${ownOnly ? " · yours" : ""}`}
+        description={`${comingUp.length} ${t(comingUp.length === 1 ? "booking" : "bookings")} ${t("coming up")} · ${waiting.length} ${t("waiting for an answer")}${ownOnly ? ` · ${t("yours")}` : ""}`}
         actions={
           <>
-            <InstallationTabs active="supervisors" />
+            <InstallationTabs t={t} active="supervisors" />
             {canBook && supervisors.length > 0 && (
               <BookingDialog
                 supervisors={supervisors}
@@ -122,7 +125,7 @@ export async function SupervisorBookings({
         <Button asChild size="icon-sm" variant="outline">
           <Link
             href={href(stepDate("week", params.date, -1))}
-            aria-label="Previous week"
+            aria-label={t("Previous week")}
           >
             <ChevronLeft />
           </Link>
@@ -130,7 +133,7 @@ export async function SupervisorBookings({
         <Button asChild size="icon-sm" variant="outline">
           <Link
             href={href(stepDate("week", params.date, 1))}
-            aria-label="Next week"
+            aria-label={t("Next week")}
           >
             <ChevronRight />
           </Link>
@@ -139,17 +142,17 @@ export async function SupervisorBookings({
           {formatDate(from)} – {formatDate(to)}
         </h2>
         <Button asChild size="sm" variant="ghost">
-          <Link href={installationHref(keep)}>This week</Link>
+          <Link href={installationHref(keep)}>{t("This week")}</Link>
         </Button>
         {!ownOnly && supervisors.length > 0 && (
           <div className="ml-auto">
             <SegmentLinks
-              label="Site supervisor"
+              label={t("Site supervisor")}
               active={params.who ?? WHO_ALL}
               items={[
                 {
                   key: WHO_ALL,
-                  label: "Everyone",
+                  label: t("Everyone"),
                   href: installationHref({
                     date: params.date,
                     tab: "supervisors",
@@ -170,6 +173,7 @@ export async function SupervisorBookings({
         )}
       </div>
       <JobList
+        t={t}
         days={days}
         today={today}
         eventsByDay={eventsByDay}
@@ -183,14 +187,15 @@ export async function SupervisorBookings({
         canUpdateStatus={canUpdateJobStatus(me.jobRole)}
         canOpenMof={canOpenMof}
         canAnswerBookings={false}
-        emptyText="No supervisor jobs or bookings."
+        emptyText={t("No supervisor jobs or bookings.")}
       />
       <section className="flex flex-col gap-2">
         <h2 className="font-heading text-base font-medium">
-          Site supervisor bookings
+          {t("Site supervisor bookings")}
         </h2>
         {comingUp.length > 0 ? (
           <SupervisorBookingTable
+            t={t}
             bookings={comingUp}
             nameOf={Object.fromEntries(nameOf)}
             meId={me.id}
@@ -199,20 +204,20 @@ export async function SupervisorBookings({
         ) : (
           <div className="rounded-xl border bg-card">
             <EmptyState
-              title="No bookings coming up"
+              title={t("No bookings coming up")}
               description={
                 canBook
-                  ? "Use Book a site supervisor to ask for a visit."
-                  : "Nothing is booked yet."
+                  ? t("Use Book a site supervisor to ask for a visit.")
+                  : t("Nothing is booked yet.")
               }
             />
           </div>
         )}
       </section>
       <p className="text-sm text-muted-foreground">
-        Bookings: amber = waiting for an answer · green = confirmed · grey =
-        declined (shown in the list only). The supervisor answers; a decline
-        carries a reply.
+        {t(
+          "Bookings: amber = waiting for an answer · green = confirmed · grey = declined (shown in the list only). The supervisor answers; a decline carries a reply.",
+        )}
       </p>
     </div>
   );

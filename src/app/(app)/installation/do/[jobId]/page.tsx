@@ -8,6 +8,7 @@ import { requirePage } from "@/lib/auth/require-page";
 import { doPrintNotices } from "@/lib/domain/delivery-order";
 import { deliveryOrderNumber } from "@/lib/domain/delivery-status";
 import { formatDate } from "@/lib/format/date";
+import { getT } from "@/lib/i18n/server-t";
 import { DeliveryOrderSheet } from "./delivery-order-sheet";
 import { loadPrintableDo } from "./print-data";
 
@@ -26,6 +27,7 @@ export default async function DeliveryOrderPage({
   params: Promise<{ jobId: string }>;
 }) {
   const me = await requirePage("inst");
+  const t = await getT(me.language);
   const { jobId } = await params;
   if (!z.uuid().safeParse(jobId).success) notFound();
   const order = await loadPrintableDo(jobId);
@@ -45,16 +47,16 @@ export default async function DeliveryOrderPage({
 
   return (
     <PrintLayout
-      title="Delivery order"
-      toolbarTitle={`DO ${number ?? "not issued"}`}
+      title={t("Delivery order")}
+      toolbarTitle={`${t("DO")} ${number ?? t("not issued")}`}
       meta={[
-        { label: "DO no.", value: number ?? "Not issued" },
-        { label: "Date", value: date },
-        { label: "Page", value: "1 of 1" },
+        { label: t("DO no."), value: number ?? t("Not issued") },
+        { label: t("Date"), value: date },
+        { label: t("Page"), value: `1 ${t("of")} 1` },
       ]}
       toolbarActions={
         <Link href={backHref} className={link}>
-          Back
+          {t("Back")}
         </Link>
       }
       notice={
@@ -63,10 +65,10 @@ export default async function DeliveryOrderPage({
             role="alert"
             className="rounded-lg border bg-warn-bg px-3 py-2 text-sm text-warn"
           >
-            <strong>Check before printing</strong>
+            <strong>{t("Check before printing")}</strong>
             <ul className="list-disc pl-5">
               {notices.map((notice) => (
-                <li key={notice}>{notice}</li>
+                <li key={notice}>{t(notice)}</li>
               ))}
             </ul>
           </div>

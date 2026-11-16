@@ -10,6 +10,7 @@ import {
   creditNoteState,
   leftoverTransportState,
 } from "@/lib/domain/leftover";
+import { getT } from "@/lib/i18n/server-t";
 import { loadReservableProjects, loadStockItems } from "../stock-data";
 import { StockTabs } from "../stock-tabs";
 import { BestLinkTable } from "./best-link-table";
@@ -32,6 +33,7 @@ export default async function LeftoverPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const me = await requirePage("stock");
+  const t = await getT(me.language);
   const filters = parseBestLinkFilters(await searchParams);
   const canEdit = canEditStock(me);
   const [leftovers, team, projects, stockItems] = await Promise.all([
@@ -60,29 +62,33 @@ export default async function LeftoverPage({
     (leftover) => creditNoteState(leftover)?.kind === "pending",
   ).length;
   const summary = [
-    waitingForPickup > 0 && `${waitingForPickup} waiting for pickup`,
-    needTransport > 0 && `${needTransport} need transport`,
+    waitingForPickup > 0 && `${waitingForPickup} ${t("waiting for pickup")}`,
+    needTransport > 0 && `${needTransport} ${t("need transport")}`,
     waitingForCreditNote > 0 &&
-      `${waitingForCreditNote} waiting for a supplier credit note`,
+      `${waitingForCreditNote} ${t("waiting for a supplier credit note")}`,
   ].filter(Boolean);
 
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Leftover stock"
-        description="GQ's own stock at Best Link: items that cannot go back to the supplier (custom made, indent from China, GQ own stock, or stock ordered wrongly). Salespeople can sell them to another project. WhatsApp purchasing to use an item; they record it here."
+        title={t("Leftover stock")}
+        description={t(
+          "GQ's own stock at Best Link: items that cannot go back to the supplier (custom made, indent from China, GQ own stock, or stock ordered wrongly). Salespeople can sell them to another project. WhatsApp purchasing to use an item; they record it here.",
+        )}
         actions={
           <>
             <DownloadCsvButton path="/stock/leftover/export" />
             {canRecordLeftover(me) && (
               <PasteImportDialog
-                title="Paste leftover stock from sheet"
-                description="One row per item left over at a site. Each lands as waiting for pickup. Items already recorded are skipped."
+                title={t("Paste leftover stock from sheet")}
+                description={t(
+                  "One row per item left over at a site. Each lands as waiting for pickup. Items already recorded are skipped.",
+                )}
                 canUpdate={false}
                 kinds={[
                   {
                     value: "leftover",
-                    label: "Leftover stock",
+                    label: t("Leftover stock"),
                     columns: leftoverImportFields.map((field) => field.label),
                   },
                 ]}
@@ -93,8 +99,9 @@ export default async function LeftoverPage({
           </>
         }
       />
-      <StockTabs active="leftover" />
+      <StockTabs t={t} active="leftover" />
       <BestLinkTable
+        t={t}
         items={selectBestLinkItems(leftovers, filters)}
         filters={filters}
         onTheWay={countOnTheWay(leftovers)}
@@ -106,15 +113,16 @@ export default async function LeftoverPage({
       <section className="flex flex-col gap-3">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <h2 className="font-heading text-lg font-semibold">
-            Returns from site
+            {t("Returns from site")}
           </h2>
           <span className="text-sm text-muted-foreground">
             {summary.length > 0
               ? summary.join(" · ")
-              : "From pickup to the supplier's credit note."}
+              : t("From pickup to the supplier's credit note.")}
           </span>
         </div>
         <ReturnsTable
+          t={t}
           items={returns}
           canEdit={canEdit}
           people={team}

@@ -12,6 +12,7 @@ import {
 } from "@/lib/domain/supplier-notice";
 import { formatDate, todayMyt } from "@/lib/format/date";
 import { formatQuantity } from "@/lib/format/quantity";
+import type { Translate } from "@/lib/i18n/translate";
 import { ReservationActions } from "./reservation-actions";
 import { ReservationBadges } from "./reservation-badges";
 import { type HeldReservation, reservedOnLabel } from "./reservation-filters";
@@ -19,12 +20,14 @@ import type { Reservation } from "./stock-data";
 
 /** The reservation lines the filter shows, with the hold actions for those who arrange stock. */
 export function ReservationsTable({
+  t,
   rows,
   nameOf,
   holdDays,
   arranges,
   canRequest,
 }: {
+  t: Translate;
   rows: HeldReservation[];
   nameOf: ReadonlyMap<string, string>;
   holdDays: number;
@@ -38,18 +41,18 @@ export function ReservationsTable({
       empty={
         <EmptyState
           icon={Boxes}
-          title="No reservations in this view"
+          title={t("No reservations in this view")}
           description={
             canRequest
-              ? "Use the button above to hold stock for a project."
-              : "Salespeople request a hold on stock for their projects."
+              ? t("Use the button above to hold stock for a project.")
+              : t("Salespeople request a hold on stock for their projects.")
           }
         />
       }
       columns={[
         {
           key: "when",
-          header: "Reserved",
+          header: t("Reserved"),
           numeric: true,
           cell: ({ line }) => (
             <span className="whitespace-normal">{reservedOnLabel(line)}</span>
@@ -57,12 +60,12 @@ export function ReservationsTable({
         },
         {
           key: "who",
-          header: "Salesperson",
-          cell: ({ line }) => nameOf.get(line.reservedBy) ?? "Unnamed",
+          header: t("Salesperson"),
+          cell: ({ line }) => nameOf.get(line.reservedBy) ?? t("Unnamed"),
         },
         {
           key: "project",
-          header: "Client · project",
+          header: t("Client · project"),
           cell: ({ line }) => (
             <div className="flex max-w-52 min-w-40 flex-col whitespace-normal">
               <span className="font-medium">{line.companyName}</span>
@@ -75,7 +78,7 @@ export function ReservationsTable({
         },
         {
           key: "sku",
-          header: "SKU",
+          header: t("SKU"),
           cell: ({ line }) => (
             <div className="flex max-w-48 min-w-36 flex-col whitespace-normal">
               <span className="font-mono text-sm font-medium">{line.sku}</span>
@@ -92,24 +95,24 @@ export function ReservationsTable({
         },
         {
           key: "qty",
-          header: "Qty",
+          header: t("Qty"),
           numeric: true,
           cell: ({ line }) =>
             `${formatQuantity(line.qty)} ${STOCK_UNIT_LABEL[line.unit]}`,
         },
         {
           key: "status",
-          header: "Status",
+          header: t("Status"),
           cell: ({ line, hold }) => (
             <div className="flex flex-col items-start gap-1">
-              <ReservationBadges status={line.status} hold={hold} />
-              <SupplierNoticeNote line={line} />
+              <ReservationBadges t={t} status={line.status} hold={hold} />
+              <SupplierNoticeNote t={t} line={line} />
             </div>
           ),
         },
         {
           key: "until",
-          header: "Hold until",
+          header: t("Hold until"),
           numeric: true,
           cell: ({ line }) =>
             line.expiresOn && isLive(line.status)
@@ -135,16 +138,20 @@ export function ReservationsTable({
 }
 
 /** Whether the supplier still has to be emailed about this line, or was told and when. */
-function SupplierNoticeNote({ line }: { line: Reservation }) {
+function SupplierNoticeNote({ t, line }: { t: Translate; line: Reservation }) {
   if (!line.supplierNotice) return null;
-  const label = SUPPLIER_NOTICE_LABEL[line.supplierNotice];
+  const label = t(SUPPLIER_NOTICE_LABEL[line.supplierNotice]);
   if (pendingNotices([line]).length > 0) {
-    return <span className="text-xs text-warn">Email supplier: {label}</span>;
+    return (
+      <span className="text-xs text-warn">
+        {t("Email supplier:")} {label}
+      </span>
+    );
   }
   if (!line.supplierNotifiedAt) return null;
   return (
     <span className="text-xs text-muted-foreground">
-      Supplier told ({label}){" "}
+      {t("Supplier told")} ({label}){" "}
       {formatDate(todayMyt(new Date(line.supplierNotifiedAt)))}
     </span>
   );

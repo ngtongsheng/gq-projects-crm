@@ -4,6 +4,7 @@ import {
   leftoverTransportState,
 } from "@/lib/domain/leftover";
 import { formatDate } from "@/lib/format/date";
+import type { Translate } from "@/lib/i18n/translate";
 import type { Leftover } from "./leftover-data";
 import { formatDay } from "./leftover-dates";
 
@@ -14,15 +15,17 @@ const MOVING = new Set(["pending_pickup", "collected_by_supervisor"]);
  * WhatsApp, who collected it and who received it (the demo's status cell).
  */
 export function LeftoverProgress({
+  t,
   leftover,
   nameOf,
 }: {
+  t: Translate;
   leftover: Leftover;
   nameOf: ReadonlyMap<string, string>;
 }) {
   const transport = leftoverTransportState(leftover);
   const person = (id: string | null) =>
-    id ? (nameOf.get(id) ?? "Unnamed") : "";
+    id ? (nameOf.get(id) ?? t("Unnamed")) : "";
   const moving = MOVING.has(leftover.status);
   const lines: string[] = [];
 
@@ -30,13 +33,13 @@ export function LeftoverProgress({
     const label = LEFTOVER_RETURN_METHOD_LABEL[leftover.returnMethod];
     lines.push(
       transport === "arranged" && leftover.transportOn
-        ? `${leftover.transportBy} ${formatDate(leftover.transportOn)}${leftover.transportTo ? ` to ${leftover.transportTo}` : ""}`
-        : label,
+        ? `${leftover.transportBy} ${formatDate(leftover.transportOn)}${leftover.transportTo ? ` ${t("to")} ${leftover.transportTo}` : ""}`
+        : t(label),
     );
   }
   if (leftover.collectedBy && leftover.collectedAt) {
     lines.push(
-      `${person(leftover.collectedBy)} collected ${formatDay(leftover.collectedAt)}${leftover.collectedTo ? ` · ${leftover.collectedTo}` : ""}`,
+      `${person(leftover.collectedBy)} ${t("collected")} ${formatDay(leftover.collectedAt)}${leftover.collectedTo ? ` · ${leftover.collectedTo}` : ""}`,
     );
   }
   if (
@@ -45,7 +48,7 @@ export function LeftoverProgress({
       leftover.status === "at_best_link")
   ) {
     lines.push(
-      `Received by ${person(leftover.receivedBy)} ${formatDay(leftover.receivedAt)}`,
+      `${t("Received by")} ${person(leftover.receivedBy)} ${formatDay(leftover.receivedAt)}`,
     );
   }
 
@@ -53,7 +56,7 @@ export function LeftoverProgress({
     <div className="flex flex-col gap-1">
       {transport === "to_arrange" && (
         <span>
-          <StatusBadge tone="bad">Transport to arrange</StatusBadge>
+          <StatusBadge tone="bad">{t("Transport to arrange")}</StatusBadge>
         </span>
       )}
       {lines.map((line) => (
@@ -65,7 +68,7 @@ export function LeftoverProgress({
         !leftover.collectedTo &&
         leftover.status === "collected_by_supervisor" && (
           <span className="text-xs font-medium text-warn">
-            Purchasing to record where it went
+            {t("Purchasing to record where it went")}
           </span>
         )}
       {moving && leftover.returnMethod && (
@@ -77,8 +80,8 @@ export function LeftoverProgress({
           }
         >
           {leftover.whatsappSentAt
-            ? "Office WhatsApped"
-            : "Office not WhatsApped yet"}
+            ? t("Office WhatsApped")
+            : t("Office not WhatsApped yet")}
         </span>
       )}
     </div>

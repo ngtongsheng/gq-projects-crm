@@ -56,12 +56,12 @@ Supabase refuses anyone nobody added. Branding: home page `https://gq-projects-c
 
 ## Seeding the first admins
 
-Admins are created once per environment by `scripts/seed-admin.ts`, never by a migration (no personal data in git). New users always start as `staff`; the script promotes them.
+Admins are created once per environment by `scripts/seed-admin.ts`, never by a migration (no personal data in git). New users always start as `staff` with job role `sales`; the script makes them `admin` and Managing Director (`md`).
 
 1. Put the project's secret key in a throwaway `.env.seed` (gitignored by `.env*`): `SUPABASE_SERVICE_ROLE_KEY=...`. For prod, also set `NEXT_PUBLIC_SUPABASE_URL` there to the prod URL and drop the `.env.development` flag below.
 2. Run per person:
    `node --env-file=.env.development --env-file=.env.seed scripts/seed-admin.ts --email someone@example.com --name "Full Name"`
-3. It prints a temporary password once. Send it privately; there is no password change screen yet.
+3. She signs in with Google using that email; the generated password is never used.
 4. Delete `.env.seed`.
 
 ## Example data on the test copy

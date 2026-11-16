@@ -1,4 +1,4 @@
-// One-off: creates an admin user (the owner, Vicky). Not a migration, so no
+// One-off: creates the owner (Vicky) as admin and Managing Director. Not a migration, so no
 // personal data lands in git. See docs/environments.md for usage.
 //
 // Usage: node --env-file=.env.development --env-file=.env.seed \
@@ -38,13 +38,16 @@ const { data, error } = await supabase.auth.admin.createUser({
 });
 if (error) throw new Error(`Could not create user: ${error.message}`);
 
-// The trigger created the profile as staff; promote it.
+// The trigger created the profile as staff with the default job role; the owner
+// is the Managing Director, which decides the pages she sees.
 const { error: roleError } = await supabase
   .from("profiles")
-  .update({ role: "admin" })
+  .update({ role: "admin", job_role: "md" })
   .eq("id", data.user.id);
 if (roleError)
   throw new Error(`User created but not promoted: ${roleError.message}`);
 
 console.log(`Admin created: ${values.email}`);
-console.log(`Temporary password (share privately, shown once): ${password}`);
+console.log(
+  "She signs in with Google; the generated password is never needed.",
+);

@@ -18,7 +18,7 @@ Parity per `docs/office-parity/parity.md`. Merged to `main`. Starts after loops 
 ## Tasks
 | # | Task | Status | Depends | Model/Effort |
 |---|---|---|---|---|
-| 01 | Claims migration | todo | - | opus/medium |
+| 01 | Claims migration | done | - | opus/medium |
 | 02 | Claim maths + flags | todo | 01 | opus/medium |
 | 03 | Claim flow + gates | todo | 01 | opus/medium |
 | 04 | My claim: sections A-C | todo | 02, 03 | sonnet/high |
@@ -34,3 +34,10 @@ Parity per `docs/office-parity/parity.md`. Merged to `main`. Starts after loops 
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-15 · plan · loop written from drift-money-reports.md (Claims) · next: wait for loops 14 + 16, then #01
+2026-11-16 · exec · worktree ../gq-projects-crm-loops/19-claims on loop/19-claims; 14 and 16 merged (PR #46, #47) · next: #01
+2026-11-16 · #01 · in-progress · delegated opus/medium
+2026-11-16 · #01 · done · check, typecheck, test, guard pass · next: #02, #03
+2026-11-16 · #01 · decision · OT approvers (D3) policy on ot_claims changed in this migration (md/director/accounts); #06 needs only app code · no migration slot in #06
+2026-11-16 · #01 · decision · pending = submitted/checked/approved; paid frees the commission line, so #03 must write commission_payouts at approve · avoids double pay
+2026-11-16 · #01 · decision · late1/late2 settings stay in `commission` key (accounts cannot write it); claim settings key `claims` · no duplication
+2026-11-16 · #01 · decision · approver/checker and times live in monthly_claim_log only; claimant `note` field added · demo says appeals go in note

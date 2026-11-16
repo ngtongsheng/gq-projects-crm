@@ -21,7 +21,7 @@ No behaviour change for the team. All other audit findings are logged in `docs/d
 ## Tasks
 | # | Task | Status | Depends | Tier |
 |---|---|---|---|---|
-| 01 | Layout: run independent awaits in parallel (P1) | todo | | standard |
+| 01 | Layout: run independent awaits in parallel (P1) | done | | standard |
 | 02 | Cache `getLastCompletedDays` per request (P2) | todo | | standard |
 | 03 | MOF detail: parallelise post-load queries (P4) | todo | | standard |
 | 04 | Leave entitlement: handle the concurrent insert (B1) | todo | | standard |
@@ -36,3 +36,6 @@ None.
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-16 · plan · loop written after verifying the audit · next: /execute-loop docs/loops/23-audit-quick-wins
+2026-11-16 · planner · YES, tab w7:t12 closed · worktree ready, deps installed
+2026-11-16 · #01 · in-progress · delegated (standard)
+2026-11-16 · #01 · done · check/typecheck/test pass (3034 tests) · next: #02

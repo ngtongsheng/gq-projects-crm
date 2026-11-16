@@ -17,20 +17,21 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
 
   // Open ownership requests wait on the Dashboard badge; the list opens from the dashboard's
   // attention panel. More badges (invitations, leave, tasks) join here as their pages are built.
-  const pendingRequests = canDecideOwnership(profile.jobRole)
-    ? await countPendingOwnershipRequests()
-    : 0;
+  const [pendingRequests, language, overrides, viewing] = await Promise.all([
+    canDecideOwnership(profile.jobRole) ? countPendingOwnershipRequests() : 0,
+    resolveLanguage(profile.language),
+    loadAccessOverrides(),
+    isViewingAs(),
+  ]);
 
-  const language = await resolveLanguage(profile.language);
   const nav = sidebarItemsFor({
     viewer: profile,
     isAdmin: profile.role === "admin",
-    overrides: await loadAccessOverrides(),
+    overrides,
     language,
     badges: { dash: pendingRequests },
   });
 
-  const viewing = await isViewingAs();
   const impersonation = viewing ? await readImpersonation() : null;
 
   return (

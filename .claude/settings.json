@@ -17,6 +17,8 @@
       "Bash(pnpm test *)",
       "Bash(pnpm guard:migrations *)",
       "Bash(pnpm copy-env)",
+      "Bash(pnpm catch-up)",
+      "Bash(pnpm catch-up *)",
       "Bash(pnpm db:test-copy)",
       "Bash(pnpm reset:sign-ins)",
       "Bash(pnpm seed:example)",

@@ -25,8 +25,8 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 ## Tasks
 | # | Task | Status | Depends | Tier |
 |---|---|---|---|---|
-| 01 | Allow rules | todo | - | economy |
-| 02 | Private dev repo, key upload script, key fetch | todo | 01 | standard |
+| 01 | Allow rules | done | - | economy |
+| 02 | Private dev repo, key upload script, key fetch | in-progress | 01 | standard |
 | 03 | `pnpm catch-up` | todo | 02 | frontier |
 | 04 | Archive pre-parity work | todo | 03 | standard |
 | 05 | Hook, CLAUDE.md, skills and laptop UI fixes | todo | 03 | standard |
@@ -50,3 +50,6 @@ first admin. README and docs show current screenshots. Accounts stay the owner's
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-16 · plan · loop written; Integration renumbered to loop 23 · next: #01
+2026-11-16 · #01 · started (haiku/low) · planner tab closed (YES)
+2026-11-16 · #01 · done; global auth-config.yml rule added per D13 · next: #02
+2026-11-16 · #02 · started (sonnet/high)

@@ -30,8 +30,8 @@ error pages, and sign-out closing impersonation. Every other finding is in `docs
 | 04 | Audit trail for payout removals (O3) | done | 03 | standard |
 | 05 | Order total floor at payments received (D1) | done | | frontier |
 | 06 | Link installer POs to the installer directory (D2) | done | | frontier |
-| 07 | Storage and RLS hardening (S-DB1, S-DB2, S-DB3) | in-progress | | frontier |
-| 08 | Small data fixes: MYT defaults, receipt lock, archived mobile message (D6, D7, D4) | todo | | standard |
+| 07 | Storage and RLS hardening (S-DB1, S-DB2, S-DB3) | done | | frontier |
+| 08 | Small data fixes: MYT defaults, receipt lock, archived mobile message (D6, D7, D4) | in-progress | | standard |
 | 09 | Error pages and upload failures (O5, O6) | todo | | standard |
 | 10 | Sign-out closes the impersonation log row (S4) | todo | | standard |
 | 11 | Log deferred findings in debt.md and the audit | todo | 01-10 | economy |
@@ -70,3 +70,6 @@ error pages, and sign-out closing impersonation. Every other finding is in `docs
 2026-11-16 · #06 · decision · example data gains "Steady Hands Flooring" installer; fixtures and two DB tests insert installer_id
 2026-11-16 · #06 · done · PGlite tests pass; check/typecheck/test pass (3072). Open check: PO picker in pnpm dev only after CI applies the migration to the test copy
 2026-11-16 · #07 · in-progress · delegated (frontier)
+2026-11-16 · #07 · decision · alter policy instead of drop/recreate (migration guard refuses drop policy); can_attach follows each area's table rule; hr-policies md/accounts only since the row is saved after upload
+2026-11-16 · #07 · done · upload order verified (leave applies then uploads; claims/tasks existing records); check/typecheck/test pass (3087). Out of scope: commission_appeals, mof_changes lack "left people" policy → #11 debt
+2026-11-16 · #08 · in-progress · delegated (standard)

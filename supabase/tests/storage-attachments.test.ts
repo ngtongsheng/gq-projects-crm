@@ -7,7 +7,8 @@ import { createTestDatabase, type TestDatabase } from "./harness";
 let t: TestDatabase;
 
 const RECORD = "3f2a9c1e-5b7d-4e8a-9c3b-1a2b3c4d5e6f";
-const OK_PATH = `leave/${RECORD}/abc-mc-slip.jpg`;
+// Set in beforeAll: a folder of the salesperson's own leave request.
+let OK_PATH: string;
 
 function addObject(ownerId: string, name: string, bucket = "attachments") {
   return t.db.query(
@@ -22,6 +23,12 @@ beforeAll(async () => {
   await t.db.exec(
     "insert into storage.buckets (id, name) values ('public-files', 'public-files')",
   );
+  await t.actAs("sales");
+  const { rows } = await t.db.query<{ id: string }>(
+    `insert into public.leave_requests (leave_type, starts_on, ends_on)
+     values ('mc', '2027-01-04', '2027-01-04') returning id`,
+  );
+  OK_PATH = `leave/${rows[0].id}/abc-mc-slip.jpg`;
 });
 
 afterAll(() => t.close());

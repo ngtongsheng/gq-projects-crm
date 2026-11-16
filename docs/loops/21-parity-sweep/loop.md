@@ -70,6 +70,6 @@ the branch is merged to `main`.
 2026-11-16 · #07 · note · stock settings and site reminders share the app_settings upsert but were not re-run in browser; CL1-CL4 drift; CL2 appeal/decide dialogs and CL3 BM/Chinese labels not run (no example data / no language switch)
 2026-11-16 · #07 · done · check, typecheck, 2997 tests, guard:migrations pass; test copy re-seeded · next: #08
 2026-11-16 · #08 · in-progress · delegated (standard)
-2026-11-16 · #08 · done · drift list ranked (S10 M21 L11), parity notes, roadmap (Integration is loop 22), features; check, typecheck, 2997 tests, guard:migrations pass; merge done by executor, no PR (rule 26)
+2026-11-16 · #08 · done · drift list ranked (S10 M21 L11), parity notes, roadmap (Integration is loop 22), features; check, typecheck, 2997 tests, guard:migrations pass
 2026-11-16 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-16-loop-21-parity-sweep.md
-2026-11-16 · merged to main
+2026-11-16 · merge · blocked: owner · push to main denied by permission rule; loop branch pushed, worktree kept

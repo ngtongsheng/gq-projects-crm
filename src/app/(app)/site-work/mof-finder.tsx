@@ -75,7 +75,7 @@ export function MofFinder({ rows }: { rows: readonly MofFinderRow[] }) {
                   href={`/site-work/${row.id}`}
                   className="flex items-start gap-3 px-3 py-2.5 hover:bg-sunk"
                 >
-                  <span className="font-mono text-sm font-semibold">
+                  <span className="shrink-0 font-mono text-sm font-semibold whitespace-nowrap">
                     {row.mofNo}
                   </span>
                   <span className="flex min-w-0 flex-col">

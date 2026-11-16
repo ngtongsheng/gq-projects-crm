@@ -59,7 +59,7 @@ export default async function SiteWorkPage({
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Site Work"
+        title="Site work"
         description={t(
           me.jobRole === "site"
             ? "Log every site visit here. It fills your monthly report automatically."

@@ -85,6 +85,7 @@ export function ShootRequestsTable({
         {
           key: "site",
           header: t("MOF · Project"),
+          className: "max-w-72 whitespace-normal",
           cell: (request) => (
             <>
               <Link

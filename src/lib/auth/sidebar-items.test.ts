@@ -110,8 +110,9 @@ describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide",
     });
   });
 
-  // The demo's site supervisor with BM selected: tr() turns Log work, My schedule, Site Work and My
-  // Report into Bahasa Malaysia, and loop 19 adds My claims; the other labels stay English.
+  // The demo's site supervisor with BM selected: tr() turns Log work, My schedule, Site Work, My
+  // Report, Tasks and Leave into Bahasa Malaysia, and loop 19 adds My claims; Guide and Tools & Forms
+  // stay English.
   it("site in Bahasa Malaysia", () => {
     expect(outline("site", false, "bm")).toEqual({
       main: [
@@ -121,7 +122,7 @@ describe("sidebarItemsFor: matches the demo's sidebar order, divider and Guide",
         "Laporan saya",
         "Tuntutan saya",
       ],
-      after: ["Guide", "Tasks", "Tools & Forms", "Leave"],
+      after: ["Guide", "Tugasan", "Tools & Forms", "Cuti"],
     });
   });
 

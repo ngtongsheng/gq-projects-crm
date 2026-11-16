@@ -22,8 +22,8 @@ the branch is merged to `main`.
 | 01 | Seed access, migrate and seed test copy | done | - | economy |
 | 02 | Parity: loop 14 money and reports | done | 01 | standard |
 | 03 | Parity: loop 16 People, HR, Tools | done | 01 | standard |
-| 04 | Parity: loop 17 Log work, Site Work | in-progress | 01 | standard |
-| 05 | Parity: loop 18 Installation and DOs | todo | 01 | standard |
+| 04 | Parity: loop 17 Log work, Site Work | done | 01 | standard |
+| 05 | Parity: loop 18 Installation and DOs | in-progress | 01 | standard |
 | 06 | Parity: loop 18 Stock, Samples, Leftover | todo | 01 | standard |
 | 07 | Parity: loop 19 Claims | todo | 01 | standard |
 | 08 | Drift list, docs, merge | todo | 02-07 | standard |
@@ -53,3 +53,7 @@ the branch is merged to `main`.
 2026-11-16 · #03 · note · some cells structure-only (Tools for 8 personas at 1280, HR as Jany at 390); A4 forms measured, not printed; test copy re-seeded clean
 2026-11-16 · #03 · done · check, typecheck, 2986 tests pass · next: #04
 2026-11-16 · #04 · in-progress · delegated (standard)
+2026-11-16 · #04 · decision · fixed Log work wizard crash in Chrome 157 (useEffect returned a Promise), 7 UI fixes, 25 BM strings aligned to demo; drift LW1-2, SW1-5 · bug plus UI-only drift
+2026-11-16 · #04 · note · Marketing persona unreachable (only a vacant Marketing Exec); 390 px not run for Akmal, Jess, Wai Mun, Vanessa; wizard steps 3-4 at 390 overflow-only · coverage gaps in report
+2026-11-16 · #04 · done · check, typecheck, 2986 tests pass; test copy re-seeded · next: #05
+2026-11-16 · #05 · in-progress · delegated (standard)

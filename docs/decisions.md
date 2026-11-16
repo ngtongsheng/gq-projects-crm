@@ -493,3 +493,29 @@ seed is not the demo's example data; that is never drift. Larger gaps are in `do
   segmented controls and its own number font. Drive form links are added by the `admin` role only (loop 16 D);
   Jany (HR & Accounts) does not see "Add a form".
 - Sales Performance is missing from the sidebar of Eddie, Vanessa, Cavan and Jany on Tools and HR: same gap as [P1].
+
+### Log work and Site Work (task 04)
+- Fixed in-loop: the Log work wizard crashed on step 1 in current Chrome (the page scroll effect returned the Promise
+  that `scrollTo` now gives back, which React rejects); it is a plain function body now. Choice buttons are centred and
+  the picked one is tinted teal with a teal border, as in the demo; activities sit four across on wide screens; "Another
+  site today" is the dark button on the saved step. Site Work: the heading reads "Site work"; stage counts are tiles
+  (number over label); tables wrap long text so Jobs, Site log and Shooting wanted no longer scroll sideways at 1280 px;
+  the Site log shows three supervisor tiles across; the MOF number in the MOF summary finder stays on one line; the
+  new-MOF banner puts its button under the text on a phone.
+- Fixed in-loop, BM: 25 Log work strings now use the demo's wording (they had been rewritten in loop 17 on the belief
+  that the demo had no entry); Tasks and Leave read "Tugasan" and "Cuti" in the sidebar, as in the demo.
+- Follow-up owner "Client" reads "Client / main contractor", as in the demo's filters.
+- Log work: Leave, MC and office days go through the two-step "Away from site" dialog (loop 17 D2), not the demo's one
+  sheet of five chips. The follow-up banner lists every open follow-up with "Done" and "Still waiting" (the demo shows
+  two and "Show all"; "Done – solved"). The planned-but-not-recorded banner is extra. Icons are line icons, not emoji.
+  The new-site salesperson is a select over the whole team directory (the demo shows chips without Vicky).
+- Log work wizard: the job list shows MOF number, project, client and percent installed on three lines (the demo has one
+  line with the salesperson); unanswered questions have an amber outline; yes/no buttons are two equal halves; Back and
+  Save sit at the end of the page on a wide screen (sticky bar on a phone, as in the demo). The 390 px "Record a site"
+  bar is full width, the demo's floats with a shadow.
+- Site Work: the Stock returns tab has no count in its label (see [SW1]). The Site log opens on the current month with
+  previous/next arrows and supervisor chips, not the demo's month and supervisor selects. Reminder settings, the
+  "Installer claims to verify" panel (loop 14) and the Daily log's "missing" summary are extra.
+- Not reachable in the browser: the Marketing role (Photos & videos and Site log only). The only marketing person is the
+  vacant "Marketing Exec" who has left, in the seed and in the demo; the two-tab rule is covered by the `siteViewsFor`
+  unit tests.

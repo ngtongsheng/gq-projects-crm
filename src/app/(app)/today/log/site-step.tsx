@@ -34,7 +34,11 @@ function MofCard({
 }) {
   const t = useT();
   return (
-    <ChoiceButton on={on} onClick={onPick} className="w-full">
+    <ChoiceButton
+      on={on}
+      onClick={onPick}
+      className="w-full items-start text-left"
+    >
       <span className="font-mono text-base font-semibold tabular-nums">
         {mof.mofNo}
       </span>

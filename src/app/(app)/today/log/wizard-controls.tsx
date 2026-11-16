@@ -21,12 +21,13 @@ export function ChoiceButton({
   return (
     <Button
       type="button"
-      variant={on ? "default" : "outline"}
+      variant="outline"
       aria-pressed={on}
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "h-auto min-h-12 flex-col items-start justify-center gap-0.5 px-3 py-2 text-left text-base whitespace-normal",
+        "h-auto min-h-12 flex-col items-center justify-center gap-0.5 border-2 px-3 py-2 text-center text-base whitespace-normal",
+        on && "border-ring bg-accent-soft hover:bg-accent-soft",
         className,
       )}
     >

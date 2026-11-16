@@ -198,7 +198,7 @@ export async function SiteLogTab({
   return (
     <div className="flex flex-col gap-4">
       {tiled.length > 0 && (
-        <TileGrid className="lg:grid-cols-2">
+        <TileGrid className="lg:grid-cols-2 xl:grid-cols-3">
           {tiled.map((person) => {
             const tally = monthTally(logs, person.id, month);
             const open = logs
@@ -329,16 +329,19 @@ export async function SiteLogTab({
           {
             key: "activity",
             header: t("Activity"),
+            className: "max-w-64 whitespace-normal",
             cell: (log) => <ActivityCell log={log} nameOf={nameOf} t={t} />,
           },
           {
             key: "details",
             header: t("Details"),
+            className: "max-w-64 whitespace-normal",
             cell: (log) => log.details,
           },
           {
             key: "action",
             header: t("Action needed"),
+            className: "max-w-64 whitespace-normal",
             cell: (log) =>
               log.followUps.length === 0
                 ? "–"

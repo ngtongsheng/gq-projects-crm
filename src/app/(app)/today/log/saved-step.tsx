@@ -67,16 +67,11 @@ export function SavedStep({
           </Button>
         </section>
       )}
-      <Button
-        type="button"
-        variant="outline"
-        className="h-12 text-base"
-        onClick={onAnother}
-      >
+      <Button type="button" className="h-12 text-base" onClick={onAnother}>
         <Plus data-icon="inline-start" />
         {t("Another site today")}
       </Button>
-      <Button asChild variant="ghost" className="h-12 text-base">
+      <Button asChild variant="outline" className="h-12 text-base">
         <Link href={doneHref}>{t("Done")}</Link>
       </Button>
     </div>

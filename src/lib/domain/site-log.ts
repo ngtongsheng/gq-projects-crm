@@ -211,7 +211,7 @@ export const FOLLOW_UP_OWNER_LABEL: Record<FollowUpOwner, string> = {
   installation_team: "Installation team",
   site_supervisor: "Site supervisor",
   accounts: "Accounts",
-  client: "Client",
+  client: "Client / main contractor",
 };
 
 /**

@@ -26,7 +26,7 @@ export function ActivityStep({
       <p className="text-sm text-muted-foreground">
         {t("Tick all that you did at this site.")}
       </p>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {WIZARD_ACTIVITIES.map((activity) => {
           const Icon = ACTIVITY_ICON[activity];
           const blocked = needsMof(activity) && !hasMof;

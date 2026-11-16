@@ -9,6 +9,8 @@ export const bm: Dictionary = {
   "My schedule": "Jadual saya",
   "My Report": "Laporan saya",
   "Site Work": "Kerja tapak",
+  Tasks: "Tugasan",
+  Leave: "Cuti",
   "Log today's work": "Rekod kerja hari ini",
   "Additional work": "Kerja tambahan",
   "Job set back to": "Kerja dibuka semula pada",

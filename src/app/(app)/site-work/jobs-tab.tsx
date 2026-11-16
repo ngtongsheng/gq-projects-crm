@@ -100,12 +100,12 @@ export function JobsTab({
         {SITE_STAGES.map((stage) => (
           <li
             key={stage}
-            className="flex items-baseline gap-2 rounded-full border bg-card px-3 py-1.5 text-sm"
+            className="flex min-w-24 flex-col gap-0.5 rounded-xl border bg-card px-4 py-2.5"
           >
-            <span className="font-mono font-semibold tabular-nums">
+            <span className="font-mono text-lg font-semibold tabular-nums">
               {jobs.filter((job) => job.siteStage === stage).length}
             </span>
-            <span className="text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {t(SITE_STAGE_LABEL[stage])}
             </span>
           </li>
@@ -148,6 +148,7 @@ export function JobsTab({
           {
             key: "project",
             header: t("Project"),
+            className: "max-w-56 whitespace-normal",
             cell: (job) => (
               <>
                 <span className="font-medium">{job.projectName}</span>
@@ -174,6 +175,7 @@ export function JobsTab({
           {
             key: "status",
             header: t("Status"),
+            className: "max-w-36 whitespace-normal",
             cell: (job) => (
               <>
                 <StatusBadge tone={stageTone(job.siteStage)}>
@@ -191,7 +193,7 @@ export function JobsTab({
           {
             key: "last",
             header: t("Last update"),
-            className: "max-sm:hidden",
+            className: "max-w-56 whitespace-normal max-sm:hidden",
             cell: (job) =>
               job.lastVisit ? (
                 <>
@@ -208,7 +210,7 @@ export function JobsTab({
           {
             key: "next",
             header: t("Next on site"),
-            className: "max-sm:hidden",
+            className: "max-w-48 whitespace-normal max-sm:hidden",
             cell: (job) =>
               job.next ? (
                 <>

@@ -64,9 +64,12 @@ export function LogWorkWizard(props: LogWorkWizardProps) {
   const [logged, setLogged] = useState(props.monthLogs);
   const [pending, startTransition] = useTransition();
 
-  // A new step opens at the top, not wherever the last one was scrolled to.
+  // A new step opens at the top, not wherever the last one was scrolled to. Block body: newer Chrome
+  // returns a Promise from scrollTo, and React rejects a Promise as an effect's result.
   // biome-ignore lint/correctness/useExhaustiveDependencies: runs when the step changes
-  useEffect(() => window.scrollTo(0, 0), [step]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
 
   const mof = mofs.find((choice) => choice.id === draft.mofId) ?? null;
   const siteLabel = mof ? `${mof.mofNo} · ${mof.projectName}` : draft.siteName;

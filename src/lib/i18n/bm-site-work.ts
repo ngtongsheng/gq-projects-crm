@@ -13,7 +13,7 @@ export const bmSiteWork: Dictionary = {
   "MOF no.": "No. MOF",
   Project: "Projek",
   New: "Baru",
-  Salesperson: "Jurujual",
+  Salesperson: "Salesperson",
   Status: "Status",
   Progress: "Kemajuan",
   "Last update": "Kemas kini terakhir",
@@ -38,7 +38,7 @@ export const bmSiteWork: Dictionary = {
   Measurements: "Ukur",
   "Photos & videos": "Gambar & video",
   "Actions needed": "Tindakan diperlukan",
-  "Stock returns": "Pulangan stok",
+  "Stock returns": "Pulang stok",
   "Daily log & reminders": "Log harian & peringatan",
   "MOF summary": "Ringkasan MOF",
   "Key in the MOF number or project name to see everything about that job in one page.":
@@ -77,7 +77,7 @@ export const bmSiteWork: Dictionary = {
   Inspection: "Pemeriksaan",
   Shooting: "Shooting",
   "Touch Up": "Touch up / baiki",
-  "Stock return": "Pulangan stok",
+  "Stock return": "Pulang stok",
   Others: "Lain-lain",
   Office: "Pejabat",
   Other: "Lain",
@@ -130,7 +130,7 @@ export const bmSiteWork: Dictionary = {
   "No handovers logged yet.": "Belum ada handover direkod.",
   "No shootings yet.": "Belum ada shooting.",
   Shot: "Sudah shoot",
-  "Posted now": "Sudah dihantar",
+  "Posted now": "Sudah hantar",
   "Saved to Drive.": "Sudah disimpan ke Drive.",
   "Change link": "Tukar pautan",
   "Saved to Drive": "Sudah simpan ke Drive",
@@ -189,7 +189,7 @@ export const bmSiteWork: Dictionary = {
   Everyone: "Semua orang",
   "Nothing completed yet.": "Belum ada yang selesai.",
   "No open actions.": "Tiada tindakan terbuka.",
-  Purchasing: "Pembelian",
+  Purchasing: "Purchasing",
   "Installation team": "Pasukan pemasangan",
   Accounts: "Akaun",
   "We will remind you again on": "Kami akan ingatkan anda lagi pada",
@@ -272,9 +272,9 @@ export const bmSiteWork: Dictionary = {
   "Not logged": "Belum direkod",
 
   // Log work: home
-  "You have not recorded your work for": "Anda belum merekod kerja untuk",
+  "You have not recorded your work for": "Anda belum rekod kerja untuk",
   "Record now": "Rekod sekarang",
-  "Planned jobs not recorded": "Kerja dirancang yang belum direkod",
+  "Planned jobs not recorded": "Kerja dijadualkan belum direkod",
   "Before you go home, record today's work.":
     "Sebelum balik, rekod kerja hari ini.",
   "Other day": "Hari lain",
@@ -296,45 +296,45 @@ export const bmSiteWork: Dictionary = {
   "e.g. Menara ABC Level 12": "cth. Menara ABC Tingkat 12",
   "New site, no MOF yet": "Tapak baru, belum ada MOF",
   "Lower than last time. Check again.":
-    "Lebih rendah daripada kali lepas. Semak semula.",
+    "Lebih rendah dari kali terakhir. Sila semak semula.",
   "Photos / video posted in the job site WhatsApp group?":
-    "Gambar / video sudah dihantar dalam kumpulan WhatsApp tapak?",
+    "Gambar / video sudah dihantar ke group WhatsApp tapak?",
   "Take many photos. Sales support saves them to Google Drive.":
-    "Ambil banyak gambar. Sales support simpan ke Google Drive.",
+    "Ambil banyak gambar. Sales support akan simpan ke Google Drive.",
   "At least 4 completed photos posted in the job site WhatsApp group?":
-    "Sekurang-kurangnya 4 gambar siap sudah dihantar dalam kumpulan WhatsApp tapak?",
+    "Sekurang-kurangnya 4 gambar siap sudah dihantar ke group WhatsApp tapak?",
   "Clean site, lights on, phone landscape: 2 wide shots, 1 close-up, 1 detail (edging / skirting).":
-    "Tapak bersih, lampu dipasang, telefon landscape: 2 gambar luas, 1 dekat, 1 butiran (edging / skirting).",
+    "Tapak bersih, lampu buka, telefon melintang: 2 gambar luas, 1 dekat, 1 butiran (edging / skirting).",
   "e.g. Level 3 done, Level 4 tomorrow": "cth. Tingkat 3 siap, Tingkat 4 esok",
   "e.g. 3 boxes missing": "cth. 3 kotak tiada",
   "Site stage is now": "Peringkat tapak sekarang",
   "Now WhatsApp purchasing about the stock return.":
-    "Sekarang WhatsApp pembelian tentang pulangan stok.",
+    "Sekarang WhatsApp purchasing tentang pulang stok.",
   "Now WhatsApp the office about the balance stock.":
-    "Sekarang WhatsApp pejabat tentang stok baki.",
+    "Sekarang WhatsApp pejabat tentang baki stok.",
   "Send a photo of the stock with this message.":
     "Hantar gambar stok bersama mesej ini.",
-  "Send on WhatsApp": "Hantar melalui WhatsApp",
+  "Send on WhatsApp": "Hantar di WhatsApp",
   "Another site today": "Tapak lain hari ini",
-  "No balance stock": "Tiada stok baki",
+  "No balance stock": "Tiada baki stok",
   "Another item": "Barang lain",
-  "How will it go back?": "Bagaimana ia akan dipulangkan?",
+  "How will it go back?": "Bagaimana stok dihantar balik?",
   "After saving, WhatsApp the office with a photo of the balance stock.":
-    "Selepas simpan, WhatsApp pejabat dengan gambar stok baki.",
+    "Selepas simpan, WhatsApp pejabat dengan gambar baki stok.",
   "e.g. Carpet tile Grey 50×50": "cth. Carpet tile Grey 50×50",
   Qty: "Kuantiti",
   Unit: "Unit",
-  Remove: "Buang",
+  Remove: "Padam",
   "Which balance stock did you send back today?":
-    "Stok baki mana yang anda pulangkan hari ini?",
+    "Baki stok mana yang dihantar balik hari ini?",
   "Any balance stock left on site to return?":
-    "Ada stok baki di tapak yang perlu dipulangkan?",
+    "Ada baki stok di tapak untuk dipulangkan?",
   "Key in each item. Purchasing decides where it goes.":
     "Masukkan setiap barang. Pembelian tentukan ke mana ia pergi.",
   "Job finishing: count all balance stock before you leave.":
-    "Kerja hampir siap: kira semua stok baki sebelum anda balik.",
+    "Kerja hampir siap: kira semua baki stok sebelum balik.",
   "Leftover boxes, rolls or offcuts that must go back.":
-    "Kotak, gulung atau sisa potongan yang perlu dipulangkan.",
+    "Baki kotak, roll atau potongan yang perlu dipulangkan.",
   "Installer brings back": "Pemasang bawa balik",
   "Need transport, office to arrange (Lalamove / lorry)":
     "Perlu pengangkutan, pejabat aturkan (Lalamove / lori)",
@@ -356,11 +356,11 @@ export const bmSiteWork: Dictionary = {
   "Say whether there is balance stock left on site.":
     "Nyatakan sama ada ada stok baki di tapak.",
   "Key in each balance stock item and quantity.":
-    "Masukkan setiap barang stok baki dan kuantiti.",
+    "Isi nama barang dan kuantiti untuk setiap baki stok.",
   "Keep each balance stock item name short.":
     "Pendekkan nama setiap barang stok baki.",
   "Choose how the balance stock will go back.":
-    "Pilih bagaimana stok baki akan dipulangkan.",
+    "Pilih cara baki stok dihantar balik.",
   "The balance stock list is too long. Keep the main items.":
     "Senarai stok baki terlalu panjang. Simpan barang utama sahaja.",
   "Say whether there is a problem.": "Nyatakan sama ada ada masalah.",

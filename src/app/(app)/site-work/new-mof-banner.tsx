@@ -23,7 +23,7 @@ export function NewMofBanner({
   if (!first) return null;
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-xl border bg-warn-bg p-4 text-sm text-warn">
-      <p className="min-w-0 flex-1">
+      <p className="min-w-64 flex-1">
         <b>
           {jobs.length}{" "}
           {t(jobs.length === 1 ? "new MOF needs" : "new MOFs need")}{" "}

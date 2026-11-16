@@ -221,15 +221,15 @@ export default async function MofPage({
   const cost = costRow.parse(costResult.data);
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
   const showInstallers = canSeeInstallerClaims(me.jobRole);
-  const installerPos = showInstallers
-    ? await loadInstallerPos(supabase, mof.id, nameOf)
-    : [];
   const changes = mofChangeRows.parse(changesResult.data);
   const canSchedule = canScheduleJobs(me.jobRole);
-  const doLines = await loadMofDoLines(supabase, mof.id);
-  const earlierByJob = new Map(
+  const [installerPos, doLines, earlierEntries] = await Promise.all([
+    showInstallers
+      ? loadInstallerPos(supabase, mof.id, nameOf)
+      : Promise.resolve([]),
+    loadMofDoLines(supabase, mof.id),
     canSchedule
-      ? await Promise.all(
+      ? Promise.all(
           jobs
             .filter((job) => job.jobType === "delivery")
             .map(
@@ -240,8 +240,9 @@ export default async function MofPage({
                 ] as const,
             ),
         )
-      : [],
-  );
+      : Promise.resolve([]),
+  ]);
+  const earlierByJob = new Map(earlierEntries);
 
   return (
     <div className="flex flex-col gap-4">

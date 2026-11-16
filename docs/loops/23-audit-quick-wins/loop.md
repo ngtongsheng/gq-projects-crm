@@ -27,7 +27,7 @@ No behaviour change for the team. All other audit findings are logged in `docs/d
 | 04 | Leave entitlement: handle the concurrent insert (B1) | done | | standard |
 | 05 | Cleanup: dead skeleton, dead export, `shadcn` to devDependencies (B3, Q3, Q4) | done | | economy |
 | 06 | zh/bm key-parity test (R6) | done | | standard |
-| 07 | Log deferred findings, add verification notes to the audit | todo | | economy |
+| 07 | Log deferred findings, add verification notes to the audit | done | | economy |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 
 ## Owner actions
@@ -52,3 +52,5 @@ None.
 2026-11-16 · #06 · in-progress · delegated (standard)
 2026-11-16 · #06 · decision · known-gap lists live in key-parity-known-gaps.ts, not inline · ~1640 strings
 2026-11-16 · #06 · done · 3035 tests pass · next: #07
+2026-11-16 · #07 · in-progress · delegated (economy)
+2026-11-16 · #07 · done · 9 debt entries + audit verification section · all tasks done

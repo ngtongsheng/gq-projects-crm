@@ -125,3 +125,48 @@
   The exact lists are in `src/lib/i18n/key-parity-known-gaps.ts`, and `key-parity.test.ts` fails on any new gap.
 - Why: translations need a native-speaker pass; the loop adds none.
 - When to fix: next i18n sweep (audit Q1); shrink the lists as phrases are translated.
+
+## Dashboard query fan-out (audit P3, P5)
+- What: `loadSalesStats` runs per salesperson, about 24 queries per MD dashboard view. Company detail loads a contact's full activity history and slices it to 10 in JS.
+- Why: not broken today; the fix touches the report snapshot and its tests, and the audit rates it medium.
+- When to fix: when the team grows or the dashboard feels slow: fetch team-wide stats once, and limit the contact history in SQL.
+
+## Unpaginated lists and a missing index (audit P6, P8)
+- What: the MOF register, Tasks and Collection orders load every row and filter in JS. `mof_variation_orders(confirmed_on)` has no index.
+- Why: row counts are low; PostgREST also cuts reads at 1000 rows silently (see "Unpaged lists", loop 18).
+- When to fix: when a list takes about 1 s to load or reaches about 2,000 rows: page it and add the index in a new migration.
+
+## Yearly target refresh runs on read (audit P7)
+- What: `refresh_yearly_targets()` runs before reads on the sales dashboard, `/people` and `/performance`. It writes to every profile row on each view.
+- Why: the refresh keeps the profile copy right on each view, so 1 January is the only known risk today (see "Yearly target copy on profiles", loop 16).
+- When to fix: if contention shows up on 1 January, or move the refresh to a scheduled job.
+
+## Repeated dialog, data-layer and test-mock code (audit R1, R3, Q2)
+- What: about 99 files re-declare the dialog `useState` and `useTransition` block. The data layer has no shared helpers. The Supabase test mock is copied across about 53 test files.
+- Why: each copy works on its own; extracting shared code is a wide change with little payoff per file. `FormDialog` and `useSubmit` in `installer-forms.tsx` are the starting point.
+- When to fix: during the next change that touches many dialogs or tests: promote `FormDialog`/`useSubmit` to a shared file and add a shared Supabase fake under `src/lib/supabase/`.
+
+## Commission rules are written twice (audit R2)
+- What: `calculateCommission` in TypeScript and `commission_payable_now` / `commission_basis` in SQL both implement the margin tiers, late cuts, splits and rounding. They must be kept in step by hand.
+- Why: the app and the database both need the figure; picking one authority is a design change.
+- When to fix: at the next commission rule change: pick one authority and have the other read from it.
+
+## Small consistency items (audit R4, R5, C1, C2, Q5, Q6)
+- What: 9 raw money formats bypass `lib/format/money.ts`. Two components import route code. Five files are over 500 lines: `mof-form.tsx`, `pickup-form-dialog.tsx`, `job-form.tsx`, `quote-view.ts`, `report-data.ts`. 47 `jobRole ===` checks sit outside `lib/auth`. `noUncheckedIndexedAccess` is off, and `src/components/ui` is excluded from Biome. One backfill migration has no rollback note.
+- Why: each is small and none is broken; fixing them is cosmetic for the team.
+- When to fix: when the file or area is next changed. Enable `noUncheckedIndexedAccess` in one pass with its fixes.
+
+## Raw English in component files (audit Q1)
+- What: component files render English without `t()`, so a Chinese or Malay user sees English on those screens. The audit's count (about 36 of 229 UI files) was not reproduced in verification.
+- Why: the sweep needs a grep-based inventory first; the dictionary gaps are a separate item (see "Chinese and Malay dictionaries are far from matching", loop 23 #06).
+- When to fix: next i18n sweep: start with `grep` for JSX text without `t()`, then translate the screens Chinese or Malay users reach.
+
+## Monthly "late" is judged by today's due time (audit B2)
+- What: `isLate` reads the current `app_settings.dueTime`. Changing the setting flips the late flag on past monthly reports. Weekly reports store `late` at submit; monthly reports do not.
+- Why: a stored due time at submit needs a migration and a business-rule decision from Vicky.
+- When to fix: when she changes the due time or asks for a stable late record: store the due time at submit.
+
+## Minor: ActivityForm clock state and view-as allowlist (audit B4, B5)
+- What: `ActivityForm` sets its planned/completed default from the clock on first render. It is safe only because it mounts on the client; the audit did not reproduce a bad case. A new read-only RPC that is not in `READ_ONLY_FUNCTIONS` (`src/lib/supabase/view-only-fetch.ts`) shows "View only – not saved." in view-as.
+- Why: both are latent; no current screen triggers them.
+- When to fix: B5 when adding a read-only RPC: add it to `READ_ONLY_FUNCTIONS`. B4 if the default is ever computed on the server.

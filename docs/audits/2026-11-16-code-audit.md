@@ -73,3 +73,16 @@ Done well: suppression-free — 0 `as any`, 0 `@ts-ignore`, 0 `console.log`, 0 T
 ## If you act on anything
 
 Ranked by payoff: **P1** (one `Promise.all` in the layout), **R1** (promote the file-private `FormDialog`/`useSubmit`), **Q1/R6** (i18n sweep + a zh/bm key-parity test), **P2/P3** (dashboard query consolidation), **R2** (pick an authoritative commission engine). Nothing here blocks the loop 22 handoff.
+
+## Verification (2026-11-16)
+
+Checked against `main` at `ffc1ee0` when loop 23 was planned (loop.md D2). Corrections to the text above:
+
+- Q3 holds for `effectiveSalesTarget` only. `sqftToM2`, `landedPerM2`, `lineAreaM2` and `totalAreaM2` have production callers.
+- Q4: the `cn` wrapper claim is wrong. UI files import the `cn` package directly.
+- P7 runs on the sales dashboard, `/people` and `/performance`, not on every dashboard.
+- Q1: the count of about 36 files was not reproduced; start with a `grep` before sweeping.
+
+Fixed in loop 23: P1, P2, P4, B1, B3, Q3, Q4, R6.
+
+Every other finding is logged in `docs/debt.md` (loop 23 #07 entries: P3, P5, P6, P7, P8, R1, R2, R3, R4, R5, C1, C2, Q1, Q2, Q5, Q6, B2, B4, B5). Q1 links to the dictionary-gap entry from loop 23 #06.

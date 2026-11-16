@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { closeImpersonationLog } from "@/lib/auth/close-impersonation-log";
 import {
   IMPERSONATION_COOKIE,
   IMPERSONATION_COOKIE_MAX_AGE_SECONDS,
@@ -153,9 +154,6 @@ export async function endViewAs(): Promise<void> {
     redirect("/sign-in");
   }
 
-  await admin
-    .from("impersonation_log")
-    .update({ ended_at: new Date().toISOString() })
-    .eq("id", impersonation.logId);
+  await closeImpersonationLog(admin, impersonation);
   redirect("/people");
 }

@@ -409,6 +409,36 @@ Checked Vicky (md), Cavan (sales), Jany (accounts), Affifa (designer), Akmal (si
 - Browser parity was not run in this loop: the eight new migrations were not on the test copy. Run the checklist in
   `docs/office-parity/drift-site-stock.md` after go-live. After go-live, tell Vicky to set the next DO number once.
 
+## Loop 19 (claims), decided 2026-11-16
+- D1: one claim per person per month, cut-off day setting (default 25). Flow Draft, Submitted, Checked (`accounts`),
+  Approved (`accounts` or `md`), Paid (`accounts` only); Returned from Submitted or Checked. Rules use roles, never names.
+  Approver, checker and times live only in `monthly_claim_log`; the claimant has a `note` field (appeals go there).
+  "Pending" means submitted, checked or approved; paid frees the commission line.
+- D2: commission lines come from the existing commission data at 90% paid, late cut shown. A line in a pending claim
+  cannot be claimed again (database constraint). Approving is one function (`approve_monthly_claim`) that also writes
+  `commission_payouts`, so an approved claim never lacks payouts. Pay uses the claim month's report; submit uses last
+  month's.
+- D3: OT stays in its tables. The OT policy on `ot_claims` now lets md, director and accounts decide. `/overtime` stays
+  as a deep link (it was never in the nav); Claims has an "Overtime to decide" section, because directors have no manager
+  view. The attention link points to `/claims`.
+- D7: the Appeals tab moved into Claims; the old `/commission?tab=appeals` is not redirected (nothing links to it).
+- Settings: claim settings are the `claims` key in `app_settings`. The late1/late2 settings stay in the `commission`
+  key because accounts cannot write it, so they are edited on `/commission/settings` (md only).
+- Deviations from the demo: the monthly cap is petrol + toll + parking and excludes mileage (D5 and the HR package label
+  win over the demo's cap types). Cap 0 means no cap; the cap uses the package on the cut-off date and the hotel budget
+  the line's date. A flagged claim needs a remark from both accounts and md (the demo asks only accounts). Adjustments are
+  allowed only while Submitted or Checked, and lock after approval, because payouts are written at approval. Waiving a
+  late cut raises the line to original plus cut and needs an approved appeal.
+- Claimant page: caps and meal rates are read with the service role for that one person, because packages are readable
+  only by md and accounts; salary never reaches the page (debt).
+- Commission lines start unticked (a tick is a database row). An expense edit cannot cross claim months: delete and re-add.
+- Print omits the invoice date (not stored), a meals column (nights only) and the OT approver name; the signature heading
+  is "Approved by".
+- BM and Chinese wording is the agent's own (the demo has no text for it); Vicky has not reviewed it.
+- Browser parity was not run in this loop (the two migrations are not on the test copy). Run the checklist in
+  `docs/office-parity/drift-money-reports.md` after go-live. Migrations: `20261119100000_monthly_claims.sql`,
+  `20261119110000_monthly_claim_steps.sql`.
+
 ## Loop 20 (browser control in opencode), decided 2026-11-15
 - opencode cannot load Claude in Chrome: those tools exist only inside a Claude session. Control instead comes from
   `chrome-devtools-mcp@1.13.0` with `--autoConnect`, which drives her real Chrome, so her profile and sign-ins are

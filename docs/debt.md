@@ -90,3 +90,26 @@
   an issued number.
 - Why: the void rule has to cover every change of `running_no`; there is no separate cancel function.
 - When to fix: if numbers are burned often: add a confirm step before changing an issued number.
+
+## Claimant page reads HR packages with the service role (loop 19 #04)
+- What: the My claim page reads the person's caps and meal rates with `createAdminClient`, because packages are readable
+  only by md and accounts. Salary is not sent to the page.
+- Why: avoided a new migration.
+- When to fix: add a `security definer` RPC that returns only the caps and rates for the signed-in person, then drop the
+  service-role read (it also fails on a laptop without the service key).
+
+## Claims BM and Chinese wording unreviewed (loop 19 #08)
+- What: the translations are the agent's own; the demo has no text for them.
+- Why: no source text.
+- When to fix: before staff use BM or Chinese: Vicky or a native reader reviews `src/lib/i18n` claims strings.
+
+## Late-collection cut settings are md-only (loop 19 #05)
+- What: late1/late2 stay in the `commission` settings key and are edited on `/commission/settings`, so accounts cannot
+  change them from Claims settings (the demo lets them).
+- Why: `app_settings` policy for that key is md only; no migration in the loop.
+- When to fix: if accounts need it: move the two values to the `claims` key or widen the policy.
+
+## Old appeals link not redirected (loop 19 #06)
+- What: `/commission?tab=appeals` is not redirected to Claims.
+- Why: nothing links to it.
+- When to fix: if a bookmark or WhatsApp link breaks, add a redirect.

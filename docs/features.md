@@ -22,6 +22,7 @@ Job roles: MD, Sales Director, Marketing Director, Salesperson, HR & Accounts, S
 - [MOF detail](#mof-detail)
 - [Site Work](#site-work)
 - [Site Work detail](#site-work-detail)
+- [Claims](#claims)
 - [Overtime](#overtime)
 - [Stock](#stock)
 - [Samples](#samples)
@@ -251,9 +252,40 @@ Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Site Supervisor,
 
 ![Site detail with site stage, leftover stock and site visit log](screenshots/site-work-detail.jpg)
 
+## Claims
+One monthly claim per person, for commission and travelling costs. The sidebar says **My claims** for staff and
+**Claims** for managers. A claim runs: Draft, Submitted, Checked (HR & Accounts), Approved (HR & Accounts or the MD),
+Paid (HR & Accounts only). A claim can be Returned from Submitted or Checked, and the person fixes it and sends it again.
+Expenses dated after the cut-off day (25 by default, MD can change it) go to next month's claim.
+
+**Your claim** has three sections.
+- **A. Commission.** Orders that are 90% or more paid. Tick the ones to claim and the late-collection cut is shown. A line
+  in a claim that is waiting or approved cannot be claimed again; it is free again once the claim is paid.
+- **B. Travelling.** Petrol, Toll, Parking, Outstation meals, Hotel, Mileage (per km), Grab and Others. Each line gets a
+  receipt number (R1, R2...) and a photo, except Mileage. The screen warns, but never blocks, when there is no visit
+  logged that day, the hotel is over budget, meals are claimed twice, a day is over 150 km, or petrol, toll and parking
+  pass the monthly limit in the person's HR package. Mileage does not count toward that monthly limit.
+- **C. Overtime.** The month's approved overtime and replacement leave are added up for you.
+
+You can only send the claim after last month's report is submitted. The checker and the approver see the warnings and
+must write a remark when a claim has any. After a claim is Submitted, the checker and approver can adjust a line with a
+reason; adjustments lock once it is Approved. The claim shows the original amount next to the final amount. When
+approving, the app writes the commission payout in the same step, so an approved claim never lacks its payouts.
+The checker can also tick "original receipts received" and, for a late-collection cut, waive it only when an approved
+appeal exists.
+
+**Managers** also get an **All claims** tab (who has not submitted, open and approve), an **Appeals** tab (moved here from
+Commission, which keeps a link), an **Overtime to decide** list, and **Settings** (cut-off day, mileage rate, km per day
+limit, travel limit, the report-first rule). The late-collection cut percentages stay on Commission settings (MD only).
+
+**Print.** A4 monthly claim form with sections A to C, signatures for Claimed, Checked and Approved by, and the
+original-versus-final box. It leaves out the invoice date, a meals column and the overtime approver's name.
+
+Used by: everyone with a job role for their own claim; MD and HR & Accounts to check and approve.
+
 ## Overtime
-Night and weekend work claims. Staff add a claim with the time and the job; the MD or Sales Director approves
-it as paid overtime or as replacement leave, or rejects it.
+Night and weekend work claims. The page is no longer in the sidebar: staff open the form from **Claims**. Staff add a claim with the time and the job; the MD or Sales Director approves
+it as paid overtime or as replacement leave, or rejects it. HR & Accounts can decide too.
 
 Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Site Supervisor, Purchasing.
 
@@ -330,7 +362,7 @@ row per MOF, with the rate and status.
 Money still unpaid after 90 days loses 25% of the commission and after 180 days loses 50% (this was 120 days).
 The new 180 days applies to all commission not yet paid out; commission already paid is never changed. A salesperson
 can appeal a late cut on their own line with a written reason (at least 10 characters). The MD
-or HR & Accounts approves or rejects it on the **Appeals** tab, and cannot decide their own. An approved appeal
+or HR & Accounts approves or rejects it on the **Appeals** tab (now under **Claims**), and cannot decide their own. An approved appeal
 sets that late cut to zero and the row shows "Special approval by" the decider. A rejected appeal is kept, and a
 new appeal can be made.
 

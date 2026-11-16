@@ -26,7 +26,7 @@ Parity per `docs/office-parity/parity.md`. Merged to `main`. Starts after loops 
 | 06 | Appeals tab move + OT fold-in | done | 04 | sonnet/high |
 | 07 | Claim print | done | 04 | sonnet/medium |
 | 08 | Strings + dev seed | done | 04, 05, 06, 07 | sonnet/medium |
-| 09 | Parity pass, docs, merge | in-progress | 01-08 | sonnet/medium |
+| 09 | Parity pass, docs, merge | done | 01-08 | sonnet/medium |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - Start only after loops 14 and 16 are merged: `/execute-loop docs/loops/19-claims`.
@@ -73,3 +73,6 @@ Parity per `docs/office-parity/parity.md`. Merged to `main`. Starts after loops 
 2026-11-16 · #08 · done · check, typecheck, test (2739) pass; BM/ZH wording is the agent's own (no demo text), review by Vicky; seed not run on a real DB, PGlite test covers it · next: #09
 2026-11-16 · merge · main (loop 18) merged; migrations renamed to 20261119100000/110000 (after main's newest 20261118170000); i18n conflicts kept both sides
 2026-11-16 · #09 · in-progress · parity cannot run (migrations not on test copy, no browser env); recorded as awaiting live parity like loops 12/14/16/17; delegating docs (sonnet/medium)
+2026-11-16 · #09 · done · docs updated (features, decisions, debt, drift-money-reports, roadmap 4A); live parity checklist recorded, to run after go-live
+2026-11-16 · vault · /Users/tongshengng/work/vault/sessions/gq-projects-crm/2026-11-16-loop-19-claims.md
+2026-11-16 · merged to main

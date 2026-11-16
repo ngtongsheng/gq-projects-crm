@@ -7,7 +7,7 @@ with final approval, report print and BD retitle, restructured site report (itin
 (Loop 14).
 Not done:
 - WhatsApp reminders, the weekly digest additions and the VO notice to site supervisors: Integration loop.
-- Claims (`vClaims`) and the Appeals tab move: Claims loop (4A).
+- Claims (`vClaims`) and the Appeals tab move: done in loop 19 (below).
 - Frozen `otHours` kept (the site dashboard reads it); only the report screen and print dropped the OT table.
 - Marketing Director cannot open Team Reports, so cannot review team reports yet (`docs/debt.md`).
 - Per-year targets: People & HR loop. Dark-mode chart tokens: `docs/debt.md`.
@@ -40,7 +40,17 @@ demo on most of this scope; the work is the deltas below. All lists are team-fil
 - Late-collection appeal (`p.lateWaive[who]`): Pending / Approved / Rejected, reason (10+ chars), by, decision, reply.
   Approved sets the late cut to 0. Favour pill on the row; appeal and decide dialogs; "Appeals" tab under Claims.
 
-## Claims (`vClaims` ~4240): missing, L
+## Claims (`vClaims` ~4240): DONE (loop 19; browser parity after go-live)
+Built: monthly claim with sections A to C, the full flow, flags, adjustments, All claims, Appeals tab (moved), Settings,
+OT folded in, print, BM and Chinese strings. Deviations from the demo:
+- Monthly cap is petrol + toll + parking; mileage is excluded.
+- A flagged claim needs a remark from md as well as accounts.
+- Adjustments are locked after approval.
+- Waiving a late cut works only through an approved appeal.
+- Print omits the invoice date, meals column and OT approver name.
+- The claimant page reads caps with the service role (debt).
+- late1/late2 are edited on `/commission/settings` (md only), not in Claims settings.
+Original drift, kept for reference:
 - One monthly claim per person (`mclaims`: who, month, status, exp[], comm[], otAmt, log). Cut-off day setting
   (default 25): dates after it roll to next month.
 - Flow: Draft → Submitted → Checked (Jany) → Approved (Jany or Vicky) → Paid; Returned possible. Original vs final
@@ -74,3 +84,20 @@ demo on most of this scope; the work is the deltas below. All lists are team-fil
 - Monthly report reminder (`monMsg`, EN or BM): last working day 10:00 and 08:00 on the due day (first Monday, `dueT`).
   Per-person number and on/off. Weekly digest adds "claim not submitted, cut-off within 10 days" and "N claims to
   approve" for Jany and Vicky. VO additional-work notice to site supervisors.
+
+## Browser parity still to run, loop 19 (after go-live)
+Not run in loop 19: migrations `20261119100000_monthly_claims.sql` and `20261119110000_monthly_claim_steps.sql` were not on
+the test copy, so nothing was proven against real Supabase, only in PGlite. Run `parity.md` in Chrome profile "Agent",
+desktop and 390px, for each role that sees Claims (staff, md, accounts, director) and the Commission link. Check first:
+- [ ] Embedded `profiles(...)` selects in `all-claims-data` and `claim-review-data`.
+- [ ] The `key:mof_id` and `key:id` aliases in `claim-review-actions`.
+- [ ] md and accounts can read other people's activities and site logs (the "no visit logged" flag).
+- [ ] A checker's expense update passes the guard triggers.
+- [ ] The `checker:profiles!changed_by` embed on the print page, and staff can read checker names.
+- [ ] Accounts can decide OT (policy on `ot_claims`); a director sees "Overtime to decide".
+- [ ] A claimant's caps read works without the service key on a laptop (shows the laptop message, not a crash).
+- [ ] Flow end to end: submit gate, check, approve (payouts written), pay (accounts only), return.
+- [ ] A commission line cannot be claimed twice; paid frees it.
+- [ ] Appeals tab decides, and Commission's link opens it.
+- [ ] Print preview fits one A4; sections A to C and signatures.
+- [ ] BM and Chinese labels fit at 390px; Vicky reviews the wording.

@@ -55,4 +55,19 @@ describe("getCurrentProfile", () => {
     signedInWith({ ...row, active: false });
     await expect(getCurrentProfile()).rejects.toThrow("redirect:/left");
   });
+
+  it("logs a failed session check and treats the person as signed out", async () => {
+    const logged = vi.spyOn(console, "error").mockImplementation(() => {});
+    const authError = { message: "auth is down" };
+    vi.mocked(createClient).mockResolvedValue({
+      auth: { getClaims: async () => ({ data: null, error: authError }) },
+    } as unknown as Awaited<ReturnType<typeof createClient>>);
+
+    await expect(getCurrentProfile()).resolves.toBeNull();
+    expect(logged).toHaveBeenCalledWith(
+      "Could not check the sign-in session",
+      authError,
+    );
+    logged.mockRestore();
+  });
 });

@@ -168,6 +168,22 @@ describe("viewAs", () => {
     );
   });
 
+  it("fails loudly, touching nothing, when the signing secret is missing", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile());
+    const { insertedRows, generateLink } = fakeAdmin();
+    const { verifyOtp } = fakeSession(MD_ID);
+    vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "");
+
+    await expect(viewAs(DANIEL_ID)).rejects.toThrow(
+      /Missing env var SUPABASE_SERVICE_ROLE_KEY/,
+    );
+
+    expect(insertedRows).toEqual([]);
+    expect(generateLink).not.toHaveBeenCalled();
+    expect(verifyOtp).not.toHaveBeenCalled();
+    expect(cookieStore.has(IMPERSONATION_COOKIE)).toBe(false);
+  });
+
   it("records the view, opens it as the person and remembers the MD", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile());
     const { insertedRows, generateLink } = fakeAdmin();

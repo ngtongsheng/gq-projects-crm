@@ -39,7 +39,15 @@ export async function updateSession(request: NextRequest) {
   });
 
   // Nothing may run between client creation and this call, or sessions can drop.
-  const { data } = await supabase.auth.getClaims();
+  const { data, error } = await supabase.auth.getClaims();
+  // No session is normal and comes back without an error; an error means Supabase could not be
+  // checked, and the person is sent to sign in as if signed out.
+  if (error) {
+    console.error("Could not check the sign-in session", {
+      path: request.nextUrl.pathname,
+      error,
+    });
+  }
   if (PUBLIC_PATHS.has(request.nextUrl.pathname)) return response;
 
   const signedIn = Boolean(data?.claims);

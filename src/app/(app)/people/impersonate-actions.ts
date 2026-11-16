@@ -38,6 +38,11 @@ export async function viewAs(userId: string): Promise<ViewAsResult> {
 
   const admin = createAdminClient();
   if (!admin) return { error: ADMIN_UNAVAILABLE_MESSAGE };
+  // Checked before anything is written or switched; an empty secret would sign a forgeable cookie.
+  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!secret) {
+    throw new Error("Missing env var SUPABASE_SERVICE_ROLE_KEY");
+  }
 
   const { data: found, error: findError } = await admin.auth.admin.getUserById(
     parsed.data.userId,
@@ -80,7 +85,6 @@ export async function viewAs(userId: string): Promise<ViewAsResult> {
     return { error: TRY_AGAIN };
   }
 
-  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
   (await cookies()).set(
     IMPERSONATION_COOKIE,
     signImpersonation(

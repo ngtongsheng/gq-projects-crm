@@ -48,7 +48,10 @@ export type Profile = z.infer<typeof profileRow>["profile"];
  */
 export const getCurrentProfile = cache(async (): Promise<Profile | null> => {
   const supabase = await createClient();
-  const { data: auth } = await supabase.auth.getClaims();
+  const { data: auth, error: claimsError } = await supabase.auth.getClaims();
+  if (claimsError) {
+    console.error("Could not check the sign-in session", claimsError);
+  }
   const userId = auth?.claims.sub;
   if (!userId) return null;
 

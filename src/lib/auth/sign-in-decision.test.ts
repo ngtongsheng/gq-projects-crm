@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   decideSignIn,
+  describeRefusal,
   isSignInRefusal,
   parseAllowedDomains,
 } from "./sign-in-decision";
@@ -81,6 +82,38 @@ describe("decideSignIn", () => {
         profile: here,
       }),
     ).toBeNull();
+  });
+});
+
+describe("describeRefusal", () => {
+  it("calls a missing ALLOWED_EMAIL_DOMAINS a configuration problem", () => {
+    const line = describeRefusal({
+      refusal: "domain",
+      email: "mei@gqprojects.com.my",
+      allowedDomains: parseAllowedDomains(undefined),
+    });
+    expect(line).toMatch(/ALLOWED_EMAIL_DOMAINS is missing or empty/);
+    expect(line).not.toMatch(/mei/);
+  });
+
+  it("names the domain and reason but never the full email", () => {
+    const line = describeRefusal({
+      refusal: "domain",
+      email: "Mei@Gmail.com",
+      allowedDomains: company,
+    });
+    expect(line).toBe("Sign-in refused (domain) for email domain gmail.com");
+    expect(line).not.toMatch(/mei/i);
+  });
+
+  it("copes with a missing email", () => {
+    expect(
+      describeRefusal({
+        refusal: "domain",
+        email: undefined,
+        allowedDomains: company,
+      }),
+    ).toBe("Sign-in refused (domain) for email domain (none)");
   });
 });
 

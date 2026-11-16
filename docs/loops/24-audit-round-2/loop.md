@@ -25,8 +25,8 @@ error pages, and sign-out closing impersonation. Every other finding is in `docs
 | # | Task | Status | Depends | Tier |
 |---|---|---|---|---|
 | 01 | Security headers and CSP (S1) | done | | standard |
-| 02 | Log auth failures loudly (O1, O7, S3) | in-progress | | standard |
-| 03 | `logServerError` helper on money and HR paths (O4) | todo | | standard |
+| 02 | Log auth failures loudly (O1, O7, S3) | done | | standard |
+| 03 | `logServerError` helper on money and HR paths (O4) | in-progress | | standard |
 | 04 | Audit trail for payout removals (O3) | todo | 03 | standard |
 | 05 | Order total floor at payments received (D1) | todo | | frontier |
 | 06 | Link installer POs to the installer directory (D2) | todo | | frontier |
@@ -54,3 +54,6 @@ error pages, and sign-out closing impersonation. Every other finding is in `docs
 2026-11-16 · #01 · decision · Permissions-Policy camera=() (no screen uses camera); form-action adds accounts.google.com + Supabase origin for OAuth redirects; Supabase origins omitted when env missing so build works
 2026-11-16 · #01 · done · six headers on /sign-in; no CSP violations on sign-in, dashboard, claim + receipt (orchestrator, test sign-in); check/typecheck/test pass (3040)
 2026-11-16 · #02 · in-progress · delegated (standard)
+2026-11-16 · #02 · decision · secret check placed before log insert/verifyOtp (not old line 83) so a throw never leaves a half-switched session; refusal log covers every reason, domain only, never the address
+2026-11-16 · #02 · done · check/typecheck/test pass (3045); getClaims no-session returns error null (auth-js source), so signed-out requests don't log
+2026-11-16 · #03 · in-progress · delegated (standard)

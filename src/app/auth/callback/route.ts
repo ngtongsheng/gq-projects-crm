@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import type { NextRequest } from "next/server";
 import {
   decideSignIn,
+  describeRefusal,
   parseAllowedDomains,
   type SignInRefusal,
 } from "@/lib/auth/sign-in-decision";
@@ -45,14 +46,20 @@ export async function GET(request: NextRequest) {
     console.error("Could not load the profile at sign-in", profileError);
   }
 
+  const allowedDomains = parseAllowedDomains(process.env.ALLOWED_EMAIL_DOMAINS);
   const refusal = profileError
     ? "failed"
-    : decideSignIn({
-        email: data.user.email,
-        allowedDomains: parseAllowedDomains(process.env.ALLOWED_EMAIL_DOMAINS),
-        profile,
-      });
+    : decideSignIn({ email: data.user.email, allowedDomains, profile });
   if (refusal) {
+    if (!profileError) {
+      console.error(
+        describeRefusal({
+          refusal,
+          email: data.user.email,
+          allowedDomains,
+        }),
+      );
+    }
     const { error: signOutError } = await supabase.auth.signOut();
     if (signOutError)
       console.error("Sign-out did not reach Supabase", signOutError);

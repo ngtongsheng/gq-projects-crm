@@ -23,6 +23,28 @@ export function parseAllowedDomains(raw: string | undefined): string[] {
 }
 
 /**
+ * The server log line for a refused sign-in. Names the email's domain only, never the address.
+ * An empty allowed list is a setup mistake, not a person to blame, so it says so.
+ */
+export function describeRefusal({
+  refusal,
+  email,
+  allowedDomains,
+}: {
+  refusal: SignInRefusal;
+  email: string | undefined;
+  allowedDomains: string[];
+}): string {
+  if (allowedDomains.length === 0) {
+    return "Sign-in refused: ALLOWED_EMAIL_DOMAINS is missing or empty, so everyone is refused";
+  }
+  const domain = email?.includes("@")
+    ? email.toLowerCase().split("@").at(-1)
+    : "(none)";
+  return `Sign-in refused (${refusal}) for email domain ${domain}`;
+}
+
+/**
  * Who may stay signed in after Google: an email on an allowed domain whose person is in People
  * and still works here. No allowed domains configured refuses everyone.
  */

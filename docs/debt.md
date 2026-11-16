@@ -113,3 +113,8 @@
 - What: `/commission?tab=appeals` is not redirected to Claims.
 - Why: nothing links to it.
 - When to fix: if a bookmark or WhatsApp link breaks, add a redirect.
+
+## No helper to repair the test copy's migration history (loop 22 #06)
+- What: `docs/laptop.md` situation 6 gives her agent a `node -e` one-liner for `supabase migration repair` and `db reset` on the test copy; there is no script, so no guard checks the connection string is the test copy's.
+- Why: needed only when another draft's database change reaches the shared test copy; `.env.local` holds only the test copy's string, and a script was out of scope for the playbook.
+- When to fix: the first time situation 6 happens, or at the next change to `scripts/db-test-copy.ts`: add `pnpm db:repair-test-copy` reusing `assertDevDbUrl`.

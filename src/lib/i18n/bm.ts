@@ -1,4 +1,5 @@
 import { bmClaims } from "./bm-claims";
+import { bmInstallation } from "./bm-installation";
 import { bmSiteWork } from "./bm-site-work";
 import type { Dictionary } from "./dictionary";
 
@@ -126,4 +127,5 @@ export const bm: Dictionary = {
   "No MOF": "Tiada MOF",
   ...bmSiteWork,
   ...bmClaims,
+  ...bmInstallation,
 };

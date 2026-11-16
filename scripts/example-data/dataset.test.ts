@@ -77,7 +77,9 @@ describe("example data", () => {
         (t) =>
           t.rows.length === 0 &&
           t.table !== "mof_total_changes" &&
-          t.table !== "mof_changes",
+          t.table !== "mof_changes" &&
+          // Only a clean-up list for the numbers the database files when a form is deleted.
+          t.table !== "cancelled_sample_pickup_numbers",
       )
       .map((t) => t.table);
     expect(empty).toEqual([]);
@@ -355,6 +357,168 @@ describe("site work", () => {
       expect(r.status === "done").toBe(r.done_at !== undefined);
       expect(r.done_at === undefined).toBe(r.done_by === undefined);
     }
+  });
+});
+
+describe("installation, samples and leftover", () => {
+  it("lists installers, one of them inactive, each job pointing at one in the list", () => {
+    const installers = table("installers").rows;
+    expect(installers.some((i) => i.active === false)).toBe(true);
+    const names = installers.map((i) => String(i.name).toLowerCase());
+    expect(new Set(names).size).toBe(names.length);
+    const ids = new Set(installers.map((i) => i.id));
+    for (const job of table("jobs").rows) {
+      if (job.installer_id !== undefined)
+        expect(ids.has(job.installer_id)).toBe(true);
+      // Older jobs name their installer in text; the database links it to the directory.
+      if (typeof job.installer === "string") {
+        expect(names).toContain(job.installer.toLowerCase());
+      }
+      if (job.supervisor_only === true) {
+        expect(job.installer ?? null).toBeNull();
+        expect(job.installer_id ?? null).toBeNull();
+      }
+    }
+    expect(table("jobs").rows.some((j) => j.supervisor_only === true)).toBe(
+      true,
+    );
+  });
+
+  it("numbers DOs the way the app does: on from the highest number, voided ones never reused", () => {
+    const orders = table("delivery_orders").rows;
+    const issued = orders.filter((r) => r.issued_at);
+    expect(issued.length).toBeGreaterThan(0);
+    // Keyed in from Zoho, before the app took over the numbering.
+    const keyedIn = orders
+      .filter((r) => !r.issued_at && r.running_no)
+      .map((r) => Number(r.running_no));
+    const first = Math.max(...keyedIn) + 1;
+    const voided = table("cancelled_delivery_order_numbers").rows;
+    expect(voided.length).toBeGreaterThan(0);
+    const all = [
+      ...issued.map((r) => Number(r.running_no)),
+      ...voided.map((r) => Number(r.running_no)),
+    ].sort();
+    expect(all).toEqual(
+      Array.from({ length: all.length }, (_, i) => first + i),
+    );
+    const used = new Set(orders.map((r) => r.running_no));
+    for (const v of voided) {
+      expect(used.has(v.running_no)).toBe(false);
+      const job = table("jobs").rows.find((j) => j.id === v.job_id);
+      expect(job?.status).toBe("postponed");
+    }
+    for (const r of issued) expect(r.issued_by).toBeTruthy();
+  });
+
+  it("gives DO items to DOs that exist, at most one row per position", () => {
+    const orders = new Set(table("delivery_orders").rows.map((r) => r.id));
+    const seen = new Set<string>();
+    for (const line of table("delivery_order_lines").rows) {
+      expect(orders.has(line.delivery_order_id)).toBe(true);
+      const at = `${line.delivery_order_id}:${line.position}`;
+      expect(seen.has(at)).toBe(false);
+      seen.add(at);
+    }
+    expect(seen.size).toBeGreaterThan(0);
+  });
+
+  it("takes samples out only down to none left, and a pickup form moves what it lists", () => {
+    const left = new Map(
+      table("samples").rows.map((r) => [r.id, Number(r.qty)]),
+    );
+    for (const move of table("sample_moves").rows) {
+      const after = (left.get(move.sample_id) ?? 0) - Number(move.qty);
+      expect(after).toBeGreaterThanOrEqual(0);
+      left.set(move.sample_id, after);
+    }
+    expect([...left.values()]).toContain(0);
+
+    const pickups = new Set(table("sample_pickups").rows.map((r) => r.id));
+    expect(pickups.size).toBeGreaterThan(0);
+    const lines = table("sample_pickup_lines").rows;
+    const moves = table("sample_moves").rows;
+    for (const line of lines) {
+      expect(pickups.has(line.pickup_id)).toBe(true);
+      const matching = moves.filter(
+        (m) =>
+          m.pickup_id === line.pickup_id &&
+          m.sample_id === line.sample_id &&
+          Number(m.qty) === Number(line.qty),
+      );
+      expect(matching.length, String(line.product_name)).toBe(
+        line.sample_id === null ? 0 : 1,
+      );
+    }
+    for (const move of moves) {
+      if (move.pickup_id !== undefined && move.pickup_id !== null) {
+        expect(move.kind).toBe("out");
+      }
+    }
+  });
+
+  it("numbers pickup forms from 1 with no gaps", () => {
+    const numbers = table("sample_pickups")
+      .rows.map((r) => Number(r.running_no))
+      .sort();
+    expect(numbers).toEqual(numbers.map((_, i) => i + 1));
+  });
+
+  it("has leftovers in every status, with only the fields each status allows", () => {
+    const leftovers = table("leftovers").rows;
+    expect(new Set(leftovers.map((l) => l.status))).toEqual(
+      new Set([
+        "pending_pickup",
+        "collected_by_supervisor",
+        "returned_to_supplier",
+        "at_best_link",
+        "left_with_client",
+        "disposed",
+      ]),
+    );
+    for (const l of leftovers) {
+      const id = String(l.id);
+      if (l.status === "at_best_link") expect(l.destination, id).toBe("gq");
+      if (l.status === "returned_to_supplier") {
+        expect(l.destination, id).toBe("supplier");
+      }
+      if (l.supplier !== undefined) expect(l.destination, id).toBe("supplier");
+      if (l.keep_reason !== undefined) expect(l.destination, id).toBe("gq");
+      if (l.ordered_wrong_by !== undefined) {
+        expect(l.keep_reason, id).toBe("ordered_wrong");
+      }
+      if (l.transport_by !== undefined) {
+        expect(l.return_method, id).toBe("transport");
+        expect(l.transport_on, id).toBeDefined();
+      }
+    }
+    // One asks for transport that nobody has arranged yet.
+    expect(
+      leftovers.some(
+        (l) => l.return_method === "transport" && l.transport_by === undefined,
+      ),
+    ).toBe(true);
+  });
+
+  it("allocates leftover stock at Best Link only up to what is there", () => {
+    const leftovers = new Map(table("leftovers").rows.map((l) => [l.id, l]));
+    const used = new Map<unknown, number>();
+    for (const a of table("leftover_allocations").rows) {
+      expect(leftovers.get(a.leftover_id)?.status).toBe("at_best_link");
+      used.set(a.leftover_id, (used.get(a.leftover_id) ?? 0) + Number(a.qty));
+    }
+    for (const [id, total] of used) {
+      expect(total).toBeLessThanOrEqual(Number(leftovers.get(id)?.qty));
+    }
+    // One item is used up and one still has some left.
+    const spent = [...used].filter(
+      ([id, total]) => total === Number(leftovers.get(id)?.qty),
+    );
+    const partly = [...used].filter(
+      ([id, total]) => total < Number(leftovers.get(id)?.qty),
+    );
+    expect(spent.length).toBeGreaterThan(0);
+    expect(partly.length).toBeGreaterThan(0);
   });
 });
 

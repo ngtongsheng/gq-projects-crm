@@ -24,6 +24,7 @@ Job roles: MD, Sales Director, Marketing Director, Salesperson, HR & Accounts, S
 - [Site Work detail](#site-work-detail)
 - [Overtime](#overtime)
 - [Stock](#stock)
+- [Samples](#samples)
 - [Leftover stock](#leftover-stock)
 - [Collection](#collection)
 - [Commission](#commission)
@@ -104,9 +105,34 @@ BM labels cover the page, the wizard and Site Work. Messages shown after saving 
 Used by: Site Supervisor (lands here), and any role the MD gives the page to.
 
 ## Installation
-Delivery, site measurement, handover and installation jobs on a calendar. Schedule a job, or book a site
-supervisor when one is free. Site supervisors see it as the Installation Calendar, Purchasing as Delivery &
-Installation.
+Delivery, site measurement, handover and installation jobs, in three views: **Installers** (the calendar),
+**Site supervisors** and **Installer contacts**. Site supervisors see it as the Installation Calendar, Purchasing as
+Delivery & Installation.
+- **Installers**: the month calendar. Filter by installer and by site supervisor. A panel lists **DOs not yet signed &
+  returned**. Schedule a job, or book a site supervisor when one is free.
+- **Installer contacts**: the directory of installers: name, company, two phones (each with a WhatsApp link), what they
+  can do, area, notes, how many jobs and the last job. Search by name, phone, skill or area; inactive installers are
+  hidden until you tick **Show inactive**. MD, Sales Director, Site Supervisor, Purchasing and stock arrangers can add
+  and edit.
+- **Site supervisors**: a week list of each supervisor's jobs and bookings, and the bookings coming up. A booking is
+  Requested, Confirmed or Declined. Sales, BD, MD and the Director book; only the supervisor answers their own, and a
+  reason is saved when they decline.
+- **Job form**: pick the installer from the directory, choose the team (a Site Supervisor, or **Supervisor only**),
+  the salesperson in charge and remarks. Old jobs keep the installer name they were saved with.
+- **DO numbers**: the app issues them. Tick **Issue DO no. now** on a delivery job and it gets the next number, shown as
+  the MOF no plus four digits (for example P15915547). A job cannot be marked Done until it has a DO number. A cancelled
+  or deleted DO number goes on a void list and is never used again. MD, Purchasing and HR & Accounts set the next
+  number once, in **Next DO running number**, and it must be higher than the last one used or cancelled. Only the MD
+  can correct a number after it is issued.
+- **DO items**: product, item code, description, batch, unit, quantity and what it covers, with what was already
+  delivered on earlier DOs shown beside each product. **Copy products from the MOF** fills the list.
+- **Print DO**: an A4 Delivery Order with bill-to, deliver-to, client PO, salesperson, site contact, office contact,
+  the items, Partial or Final, and the signature block. It warns, but does not stop you, when the MOF payment check or
+  the DO pre-approval box is not ticked.
+- **Delivery log**: on the MOF Register, one row per DO with the DO no, MOF, company, project, date, transporter, job
+  scope, partial or full, passed to supplier, signed and returned, items, remarks and project delivered. It also lists
+  the cancelled DO numbers.
+- **Not built**: the Coming up table and a Team size on the calendar.
 
 Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Site Supervisor, Purchasing.
 
@@ -234,19 +260,58 @@ Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Site Supervisor,
 ![Overtime screen with pending claims and approve or reject buttons](screenshots/overtime.jpg)
 
 ## Stock
-Three tabs. Reservations show stock held for a client or project, with the hold date and the next step
-(confirm, PO issued, delivered, release, extend, email the supplier). Stock items is the catalogue. Both can be
-pasted from a sheet or downloaded as CSV.
+Four tabs: **Reserved for clients**, **Stock items**, **Leftover stock at Best Link (N)** and **Samples at Best Link
+(N)**. Four tiles on top: Active reservations, Expired - follow up, Expiring soon and Supplier emails to send.
+Reservations show stock held for a client or project, with the hold date and the next step (confirm, PO issued,
+delivered, release, extend). Stock items is the catalogue. Both can be pasted from a sheet or downloaded as CSV.
+- **Supplier emails**: a change to a reservation (reserve, extend, release) flags the supplier to be told.
+  **Email suppliers (N)** shows one draft per supplier, with the subject and the lines. **Open in email app** opens a
+  draft in your own email program (the address is empty: add it there), and **Mark as sent** clears the flag. Nothing
+  is sent by the app, and supplier addresses are not stored.
 
-Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Purchasing.
+Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Purchasing, Marketing.
 
 ![Stock reservations tab with status and hold-until columns](screenshots/stock.jpg)
 
-## Leftover stock
-Offcuts and spare stock from finished jobs: condition, whether it returns to the supplier or stays at the
-warehouse, and where it has got to (pending pickup, returned with credit note, disposed).
+## Samples
+The samples GQ keeps at the Best Link warehouse (carpet tile, vinyl tile and so on), one line per SKU: product,
+brand, SKU, name, size, quantity at Best Link, who has some out, notes and when it was updated. Search, and filter by
+product and brand. Three tiles: Sample SKUs, Taken out not back, None left. Paste from a sheet adds or updates lines;
+existing lines are skipped unless you choose otherwise.
+- **Take out** records who took a sample and for whom (client, project or showroom); tick "client keeps it" when it will
+  not come back. **Back** ticks what has come back. The quantity changes only through these records.
+- **Pickup forms**: select samples and click **New pickup form** to collect them from Best Link. The form is numbered
+  SR-0001, SR-0002 and so on when it is saved, and saving takes the samples out of stock. A line over what is in stock
+  is refused, and its unit must be the sample's own unit. It holds the person in charge, contact, method (Lalamove,
+  Self pick-up or Transporter), date, driver, vehicle, address, up to 10 lines, signature, IC and received date.
+- **Print**: a bilingual (Chinese and English) V-GQ Signature Receipt on one A4. **I saved the PDF** marks the date it
+  was saved. **WhatsApp Best Link** opens WhatsApp with the Chinese pickup text.
+- **Settings**: the Best Link WhatsApp number, the Drive folder link where pickup forms are kept, and the next form
+  number.
+- Who can edit: MD, Sales Director, Purchasing, stock arrangers, HR & Accounts and Marketing. Everyone else reads.
+- **Not built**: deleting a pickup form from the screen (the database allows it).
 
-Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Purchasing.
+Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Purchasing, Marketing.
+
+## Leftover stock
+Offcuts and spare stock from finished jobs, on two tables.
+- **Leftover stock at Best Link**: what is at the warehouse. Item, from job, condition, available (after what has been
+  used), how many days it has been there and what it was used for. Search by item, colour or MOF; **Show sold out**
+  shows the used-up lines. **Use for project** gives some to another project with a quantity, date and note, and it
+  cannot take more than is available. Uses are added only; they cannot be edited or deleted.
+- **Returns from site**: items on their way back, from pickup to the supplier's credit note. The status is Pending
+  pickup, Collected by supervisor, Returned to supplier, At Best Link (for resale), Left with client or Disposed.
+  **Update** sets how it goes back (installer, transport or supervisor), the transport (Lalamove, GQ lorry or another
+  transporter, with date, cost and where it goes), the supplier, why GQ keeps it (Custom made, Indent from China, GQ own
+  stock, Salesperson ordered wrong stock and who, or Others), the credit note number and amount, and the condition.
+  The status cell shows the transport, whether the office has the WhatsApp, who collected it and who received it.
+- A site supervisor opens the job in Site Work and taps **Mark collected**, saying how it is going back and where they
+  took it.
+- Tiles count what waits for pickup, needs transport or waits for a credit note.
+- **Not built**: adding leftover stock without a MOF.
+
+Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Purchasing, Marketing. A Site Supervisor marks
+collection from Site Work.
 
 ![Leftover stock table with status and credit note details](screenshots/stock-leftover.jpg)
 

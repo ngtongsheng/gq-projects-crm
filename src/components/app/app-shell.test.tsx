@@ -11,6 +11,7 @@ const nav: SidebarItems = {
     { key: "dash", label: "Dashboard", href: "/", badge: 2 },
     { key: "rep", label: "Team Reports", href: "/reports/team" },
     { key: "srep", label: "My Report", href: "/reports" },
+    { key: "stock", label: "Stock", href: "/stock" },
   ],
   after: [{ key: "guide", label: "Guide", href: "/guide" }],
 };
@@ -41,6 +42,15 @@ describe("AppShell", () => {
       .filter((link) => link.includes('aria-current="page"'))
       .map((link) => link.match(/title="([^"]+)"/)?.[1]);
     expect(current).toEqual(["Team Reports"]);
+  });
+
+  it("keeps Stock current on the Samples page", () => {
+    const html = render("/samples/pickup/abc");
+    const current = html
+      .split("<a ")
+      .filter((link) => link.includes('aria-current="page"'))
+      .map((link) => link.match(/title="([^"]+)"/)?.[1]);
+    expect(current).toEqual(["Stock"]);
   });
 
   it("shows the badge count and the signed-in person", () => {

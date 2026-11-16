@@ -21,9 +21,16 @@ import {
 } from "@/lib/domain/supplier-po";
 import { todayMyt } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
+import { getT } from "@/lib/i18n/server-t";
 import { createClient } from "@/lib/supabase/server";
 import { loadSiteSupervisors } from "../../installation/booking-data";
+import {
+  loadDeliveredEarlier,
+  loadMofDoLines,
+} from "../../installation/do-data";
+import { loadJobPeople } from "../../installation/job-people-data";
 import { type MofDraft, MofForm } from "../mof-form";
+import { LineUnitLabel } from "../schemas";
 import { loadAwardedProjects } from "./awarded-projects";
 import {
   ChangeHistory,
@@ -94,6 +101,7 @@ export default async function MofPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const me = await requirePage("mof");
+  const t = await getT(me.language);
   const { id } = await params;
   const canEdit = canEditRegister(me.jobRole);
   const showCost = await seesMofCost(me);
@@ -145,6 +153,7 @@ export default async function MofPage({
     jobs,
     variationOrders,
     supervisors,
+    jobPeople,
   ] = await Promise.all([
     supabase
       .from("mofs")
@@ -171,6 +180,7 @@ export default async function MofPage({
     loadJobs(supabase, id),
     loadVariationOrders(supabase, id, showCost),
     loadSiteSupervisors(),
+    canScheduleJobs(me.jobRole) ? loadJobPeople() : Promise.resolve(undefined),
   ]);
   if (mofResult.error) {
     throw new Error(`Could not load MOF: ${mofResult.error.message}`);
@@ -215,6 +225,23 @@ export default async function MofPage({
     ? await loadInstallerPos(supabase, mof.id, nameOf)
     : [];
   const changes = mofChangeRows.parse(changesResult.data);
+  const canSchedule = canScheduleJobs(me.jobRole);
+  const doLines = await loadMofDoLines(supabase, mof.id);
+  const earlierByJob = new Map(
+    canSchedule
+      ? await Promise.all(
+          jobs
+            .filter((job) => job.jobType === "delivery")
+            .map(
+              async (job) =>
+                [
+                  job.id,
+                  await loadDeliveredEarlier(supabase, mof.id, job.id),
+                ] as const,
+            ),
+        )
+      : [],
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -259,16 +286,26 @@ export default async function MofPage({
         supplierSuggestions={supplierSuggestions}
       />
       <DeliveryJobs
+        t={t}
         mofId={mof.id}
         mofNo={mof.mof_no}
         jobs={jobs}
         team={team}
+        people={jobPeople}
         defaultInstaller={blankIfNull(mof.installer_name)}
         missingChecks={missingDeliveryChecks({
           paymentChecked: mof.payment_checked,
           dosPreApproved: mof.dos_pre_approved,
         })}
-        canSchedule={canScheduleJobs(me.jobRole)}
+        canSchedule={canSchedule}
+        canCorrectDoNo={me.jobRole === "md"}
+        doLines={doLines}
+        earlierByJob={earlierByJob}
+        ordered={mof.mof_lines.map((line) => ({
+          product: line.product,
+          qty: line.qty,
+          unit: LineUnitLabel[line.unit],
+        }))}
       />
       {showInstallers && (
         <InstallerClaims

@@ -23,9 +23,12 @@ import {
 } from "@/lib/domain/site-log";
 import { formatDate, formatDateTime, todayMyt } from "@/lib/format/date";
 import { formatQuantity } from "@/lib/format/quantity";
+import { getT } from "@/lib/i18n/server-t";
 import { cn } from "@/lib/utils";
+import { CollectLeftoverDialog } from "../../stock/leftover/collect-leftover-dialog";
 import { LeftoverBadges } from "../../stock/leftover/leftover-badges";
 import { loadLeftovers } from "../../stock/leftover/leftover-data";
+import { LeftoverProgress } from "../../stock/leftover/leftover-progress";
 import { RecordLeftoverDialog } from "../../stock/leftover/record-leftover-dialog";
 import { recordHref } from "../../today/record-link";
 import {
@@ -132,6 +135,7 @@ export default async function SiteDetailPage({
   params: Promise<{ mofId: string }>;
 }) {
   const me = await requirePage("site");
+  const t = await getT(me.language);
   const { mofId } = await params;
   if (!z.uuid().safeParse(mofId).success) notFound();
 
@@ -220,7 +224,27 @@ export default async function SiteDetailPage({
                         {LEFTOVER_UNIT_LABEL[leftover.unit]}
                       </span>
                     </div>
-                    <LeftoverBadges leftover={leftover} />
+                    <LeftoverBadges t={t} leftover={leftover} />
+                    <LeftoverProgress
+                      t={t}
+                      leftover={leftover}
+                      nameOf={nameOf}
+                    />
+                    {me.jobRole === "site" &&
+                      (leftover.status === "pending_pickup" ||
+                        leftover.status === "collected_by_supervisor") && (
+                        <div>
+                          <CollectLeftoverDialog
+                            leftoverId={leftover.id}
+                            item={leftover.item}
+                            returnMethod={leftover.returnMethod}
+                            whatsappSent={leftover.whatsappSentAt !== null}
+                            collected={
+                              leftover.status === "collected_by_supervisor"
+                            }
+                          />
+                        </div>
+                      )}
                   </li>
                 ))}
               </ul>

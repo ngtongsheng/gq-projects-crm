@@ -188,7 +188,113 @@ describe("updateLeftover", () => {
       note: null,
       credit_note_no: "CN-2026-0412",
       credit_note_amount: 1234.5,
+      return_method: null,
+      supplier: null,
+      keep_reason: null,
+      ordered_wrong_by: null,
+      collected_to: null,
+      transport_by: null,
+      transport_on: null,
+      transport_to: null,
+      transport_cost: null,
     });
+  });
+
+  it("drops the supplier and keeps the keep-why when the item stays with GQ", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("support"));
+    const calls = fakeSupabase({
+      data: [{ id: LEFTOVER, mof_id: MOF }],
+      error: null,
+    });
+
+    const result = await updateLeftover(
+      updateFields({
+        destination: "gq",
+        status: "at_best_link",
+        creditNoteNo: "",
+        creditNoteAmount: "",
+        supplier: "Floor Place",
+        keepReason: "ordered_wrong",
+        orderedWrongBy: ME,
+      }),
+    );
+
+    expect(result).toEqual({ error: null });
+    expect(calls[0]?.payload).toMatchObject({
+      supplier: null,
+      keep_reason: "ordered_wrong",
+      ordered_wrong_by: ME,
+    });
+  });
+
+  it("drops the keep-why when the item goes back to the supplier", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("support"));
+    const calls = fakeSupabase({
+      data: [{ id: LEFTOVER, mof_id: MOF }],
+      error: null,
+    });
+
+    await updateLeftover(
+      updateFields({
+        supplier: "Floor Place",
+        keepReason: "ordered_wrong",
+        orderedWrongBy: ME,
+      }),
+    );
+
+    expect(calls[0]?.payload).toMatchObject({
+      supplier: "Floor Place",
+      keep_reason: null,
+      ordered_wrong_by: null,
+    });
+  });
+
+  it("saves transport only for an item going back by transport", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("support"));
+    const calls = fakeSupabase(
+      { data: [{ id: LEFTOVER, mof_id: MOF }], error: null },
+      { data: [{ id: LEFTOVER, mof_id: MOF }], error: null },
+    );
+    const transport = {
+      transportBy: "Lalamove",
+      transportOn: "2026-11-20",
+      transportTo: "Best Link",
+      transportCost: "45",
+    };
+
+    await updateLeftover(
+      updateFields({ returnMethod: "transport", ...transport }),
+    );
+    await updateLeftover(
+      updateFields({ returnMethod: "installer", ...transport }),
+    );
+
+    expect(calls[0]?.payload).toMatchObject({
+      return_method: "transport",
+      transport_by: "Lalamove",
+      transport_on: "2026-11-20",
+      transport_to: "Best Link",
+      transport_cost: 45,
+    });
+    expect(calls[1]?.payload).toMatchObject({
+      return_method: "installer",
+      transport_by: null,
+      transport_on: null,
+      transport_to: null,
+      transport_cost: null,
+    });
+  });
+
+  it("needs the pickup date once transport is named", async () => {
+    vi.mocked(getCurrentProfile).mockResolvedValue(profile("support"));
+    const calls = fakeSupabase();
+
+    const result = await updateLeftover(
+      updateFields({ returnMethod: "transport", transportBy: "Lalamove" }),
+    );
+
+    expect(result.error).toMatch(/pickup date/);
+    expect(calls).toHaveLength(0);
   });
 
   it("does not need the credit note to mark an item returned", async () => {

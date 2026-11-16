@@ -107,6 +107,14 @@ export const canBookSiteSupervisor = (jobRole: JobRole) =>
 /** Only a Site Supervisor answers a booking, and only their own, which the database checks. */
 export const canAnswerBookings = (jobRole: JobRole) => jobRole === "site";
 
+/** Adds and edits installers in the directory (SQL: the insert and update policies on installers). */
+export const canEditInstallers = (person: {
+  jobRole: JobRole;
+  arrangesStock: boolean;
+}) =>
+  person.arrangesStock ||
+  has(person.jobRole, ["md", "director", "site", "support"]);
+
 /** Approves or rejects overtime (SQL: the update policy on ot_claims, which also bars deciding your own). */
 export const canDecideOvertime = (jobRole: JobRole) =>
   has(jobRole, ["md", "director", "accounts"]);
@@ -134,6 +142,16 @@ export const canRequestStock = (person: {
   arrangesStock: boolean;
 }) => canEditStock(person) || has(person.jobRole, ["bd", "sales"]);
 
+/** Adds, takes out and returns samples and saves pickup forms (SQL: public.can_edit_samples()). */
+export const canEditSamples = (person: {
+  jobRole: JobRole;
+  arrangesStock: boolean;
+}) => canEditStock(person) || has(person.jobRole, ["accounts", "marketing"]);
+
 /** Changes the commission rules and stock hold settings (SQL: the write policies on app_settings). */
 export const canChangeSettings = (person: { role: Role; jobRole: JobRole }) =>
   person.role === "admin" || person.jobRole === "md";
+
+/** Sets the next DO running no. (SQL: set_next_do_number). */
+export const canSetNextDoNumber = (jobRole: JobRole) =>
+  has(jobRole, ["md", "support", "accounts"]);

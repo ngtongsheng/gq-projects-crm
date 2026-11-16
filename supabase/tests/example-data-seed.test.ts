@@ -223,4 +223,54 @@ describe("example dataset", () => {
     expect(await Promise.all(quoteTables.map(count))).toEqual(first);
     expect(first.every((n) => n > 0)).toBe(true);
   });
+  it("leaves the installation, sample and leftover rows as the database rules work them out", async () => {
+    // Runs on what the previous test seeded.
+    const query = async <T>(sql: string) => (await t.db.query<T>(sql)).rows;
+
+    const [{ n: installers }] = await query<{ n: number }>(
+      "select count(*)::int as n from public.installers",
+    );
+    // A job naming "Apex Installers" is linked to the directory entry, not added as a second one.
+    expect(installers).toBe(4);
+    const [{ n: unlinked }] = await query<{ n: number }>(
+      "select count(*)::int as n from public.jobs where installer is not null and installer_id is null",
+    );
+    expect(unlinked).toBe(0);
+
+    const [{ no }] = await query<{ no: string }>(
+      "select public.next_do_number() as no",
+    );
+    expect(no).toBe("9205");
+    const [{ n: voided }] = await query<{ n: number }>(
+      "select count(*)::int as n from public.cancelled_delivery_order_numbers where running_no = '9204'",
+    );
+    expect(voided).toBe(1);
+
+    const qty = await query<{ sku: string; qty: string }>(
+      "select sku, qty::text from public.samples order by sku",
+    );
+    expect(Object.fromEntries(qty.map((r) => [r.sku, Number(r.qty)]))).toEqual({
+      "HCM-TILE-SLATE": 4,
+      "ORB-CAT-2026": 2,
+      "ORB-VPL-ASH": 0,
+      "UNJ-CT-37": 8,
+      "XCH-03": 17,
+    });
+    const [{ next }] = await query<{ next: number }>(
+      "select public.next_sample_pickup_number() as next",
+    );
+    expect(next).toBe(3);
+
+    const statuses = await query<{ status: string }>(
+      "select distinct status from public.leftovers order by status",
+    );
+    expect(statuses.map((r) => r.status)).toEqual([
+      "at_best_link",
+      "collected_by_supervisor",
+      "disposed",
+      "left_with_client",
+      "pending_pickup",
+      "returned_to_supplier",
+    ]);
+  });
 });

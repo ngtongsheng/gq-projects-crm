@@ -1,9 +1,5 @@
-import { Boxes } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
-import { DataTable } from "@/components/app/data-table";
 import { DownloadCsvButton } from "@/components/app/download-csv-button";
-import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { PasteImportDialog } from "@/components/app/paste-import-dialog";
 import { canEditStock } from "@/lib/auth/job-role";
@@ -12,63 +8,87 @@ import { getTeamDirectory } from "@/lib/auth/team-directory";
 import {
   canRecordLeftover,
   creditNoteState,
-  LEFTOVER_CONDITION_LABEL,
-  LEFTOVER_DESTINATION_LABEL,
-  LEFTOVER_UNIT_LABEL,
+  leftoverTransportState,
 } from "@/lib/domain/leftover";
-import { formatDateTime } from "@/lib/format/date";
-import { formatQuantity } from "@/lib/format/quantity";
+import { getT } from "@/lib/i18n/server-t";
+import { loadReservableProjects, loadStockItems } from "../stock-data";
 import { StockTabs } from "../stock-tabs";
+import { BestLinkTable } from "./best-link-table";
 import { importLeftovers, previewLeftoverImport } from "./import-actions";
-import { LeftoverBadges } from "./leftover-badges";
 import { loadLeftovers } from "./leftover-data";
+import {
+  countOnTheWay,
+  parseBestLinkFilters,
+  returnsInProgress,
+  selectBestLinkItems,
+} from "./leftover-filters";
 import { leftoverImportFields } from "./leftover-import";
-import { UpdateLeftoverDialog } from "./update-leftover-dialog";
+import { ReturnsTable } from "./returns-table";
 
 export const metadata: Metadata = { title: "Leftover stock" };
 
-export default async function LeftoverPage() {
+export default async function LeftoverPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const me = await requirePage("stock");
-  const [leftovers, team] = await Promise.all([
+  const t = await getT(me.language);
+  const filters = parseBestLinkFilters(await searchParams);
+  const canEdit = canEditStock(me);
+  const [leftovers, team, projects, stockItems] = await Promise.all([
     loadLeftovers(),
     getTeamDirectory(),
+    canEdit ? loadReservableProjects(me.id, true) : Promise.resolve([]),
+    canEdit ? loadStockItems() : Promise.resolve([]),
   ]);
-  const canEdit = canEditStock(me);
-  const nameOf = new Map(team.map((member) => [member.id, member.name]));
 
-  const waitingForPickup = leftovers.filter(
+  const suppliers = [
+    ...new Set([
+      ...stockItems.map((item) => item.supplier),
+      ...leftovers.flatMap((leftover) =>
+        leftover.supplier ? [leftover.supplier] : [],
+      ),
+    ]),
+  ].sort((a, b) => a.localeCompare(b));
+  const returns = returnsInProgress(leftovers);
+  const waitingForPickup = returns.filter(
     (leftover) => leftover.status === "pending_pickup",
   ).length;
-  const waitingForCreditNote = leftovers.filter(
+  const needTransport = returns.filter(
+    (leftover) => leftoverTransportState(leftover) === "to_arrange",
+  ).length;
+  const waitingForCreditNote = returns.filter(
     (leftover) => creditNoteState(leftover)?.kind === "pending",
   ).length;
   const summary = [
-    waitingForPickup > 0 && `${waitingForPickup} waiting for pickup`,
+    waitingForPickup > 0 && `${waitingForPickup} ${t("waiting for pickup")}`,
+    needTransport > 0 && `${needTransport} ${t("need transport")}`,
     waitingForCreditNote > 0 &&
-      `${waitingForCreditNote} waiting for a supplier credit note`,
+      `${waitingForCreditNote} ${t("waiting for a supplier credit note")}`,
   ].filter(Boolean);
 
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Leftover stock"
-        description={
-          summary.length > 0
-            ? summary.join(" · ")
-            : "Stock left over at sites, from pickup to the supplier's credit note."
-        }
+        title={t("Leftover stock")}
+        description={t(
+          "GQ's own stock at Best Link: items that cannot go back to the supplier (custom made, indent from China, GQ own stock, or stock ordered wrongly). Salespeople can sell them to another project. WhatsApp purchasing to use an item; they record it here.",
+        )}
         actions={
           <>
             <DownloadCsvButton path="/stock/leftover/export" />
             {canRecordLeftover(me) && (
               <PasteImportDialog
-                title="Paste leftover stock from sheet"
-                description="One row per item left over at a site. Each lands as waiting for pickup. Items already recorded are skipped."
+                title={t("Paste leftover stock from sheet")}
+                description={t(
+                  "One row per item left over at a site. Each lands as waiting for pickup. Items already recorded are skipped.",
+                )}
                 canUpdate={false}
                 kinds={[
                   {
                     value: "leftover",
-                    label: "Leftover stock",
+                    label: t("Leftover stock"),
                     columns: leftoverImportFields.map((field) => field.label),
                   },
                 ]}
@@ -79,87 +99,36 @@ export default async function LeftoverPage() {
           </>
         }
       />
-      <StockTabs active="leftover" />
-      <DataTable
-        rows={leftovers}
-        getRowKey={(leftover) => leftover.id}
-        empty={
-          <EmptyState
-            icon={Boxes}
-            title="No leftover stock yet"
-            description="A site supervisor records it from the site's page under Site Work."
-          />
-        }
-        columns={[
-          {
-            key: "item",
-            header: "Item",
-            cell: (leftover) => (
-              <div className="flex min-w-48 flex-col">
-                <span className="font-medium">{leftover.item}</span>
-                <span className="text-xs text-muted-foreground">
-                  {LEFTOVER_CONDITION_LABEL[leftover.condition]} ·{" "}
-                  {LEFTOVER_DESTINATION_LABEL[leftover.destination]}
-                </span>
-                {leftover.note && (
-                  <span className="text-xs text-muted-foreground">
-                    {leftover.note}
-                  </span>
-                )}
-              </div>
-            ),
-          },
-          {
-            key: "site",
-            header: "From job",
-            cell: (leftover) => (
-              <Link
-                href={`/site-work/${leftover.mofId}`}
-                className="flex flex-col hover:underline"
-              >
-                <span className="font-mono text-sm">{leftover.mofNo}</span>
-                <span className="text-xs text-muted-foreground">
-                  {leftover.projectName}
-                </span>
-              </Link>
-            ),
-          },
-          {
-            key: "qty",
-            header: "Qty",
-            numeric: true,
-            cell: (leftover) =>
-              `${formatQuantity(leftover.qty)} ${LEFTOVER_UNIT_LABEL[leftover.unit]}`,
-          },
-          {
-            key: "status",
-            header: "Status",
-            cell: (leftover) => <LeftoverBadges leftover={leftover} />,
-          },
-          {
-            key: "recorded",
-            header: "Recorded",
-            cell: (leftover) => (
-              <div className="flex flex-col">
-                <span className="font-mono text-sm tabular-nums">
-                  {formatDateTime(leftover.recordedOn)}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {leftover.recordedBy
-                    ? (nameOf.get(leftover.recordedBy) ?? "Unnamed")
-                    : ""}
-                </span>
-              </div>
-            ),
-          },
-          {
-            key: "actions",
-            header: "",
-            cell: (leftover) =>
-              canEdit ? <UpdateLeftoverDialog leftover={leftover} /> : null,
-          },
-        ]}
+      <StockTabs t={t} active="leftover" />
+      <BestLinkTable
+        t={t}
+        items={selectBestLinkItems(leftovers, filters)}
+        filters={filters}
+        onTheWay={countOnTheWay(leftovers)}
+        canEdit={canEdit}
+        people={team}
+        projects={projects}
+        suppliers={suppliers}
       />
+      <section className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h2 className="font-heading text-lg font-semibold">
+            {t("Returns from site")}
+          </h2>
+          <span className="text-sm text-muted-foreground">
+            {summary.length > 0
+              ? summary.join(" · ")
+              : t("From pickup to the supplier's credit note.")}
+          </span>
+        </div>
+        <ReturnsTable
+          t={t}
+          items={returns}
+          canEdit={canEdit}
+          people={team}
+          suppliers={suppliers}
+        />
+      </section>
     </div>
   );
 }

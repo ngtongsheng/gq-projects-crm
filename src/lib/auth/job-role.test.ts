@@ -4,7 +4,9 @@ import {
   canBookSiteSupervisor,
   canChangeSettings,
   canDecideOvertime,
+  canEditInstallers,
   canEditRegister,
+  canEditSamples,
   canEditSite,
   canEditStock,
   canEnterPayments,
@@ -13,6 +15,7 @@ import {
   canRequestStock,
   canScheduleJobs,
   canSeeHr,
+  canSetNextDoNumber,
   canUpdateJobStatus,
   isManager,
   isReadOnly,
@@ -143,6 +146,19 @@ describe("job role capabilities", () => {
   });
 });
 
+describe("samples", () => {
+  it("are edited by stock arrangers, HR & Accounts and Marketing", () => {
+    expect(
+      JobRole.options.filter((jobRole) =>
+        canEditSamples({ jobRole, arrangesStock: false }),
+      ),
+    ).toEqual(["md", "director", "accounts", "support", "marketing"]);
+    expect(canEditSamples({ jobRole: "sales", arrangesStock: true })).toBe(
+      true,
+    );
+  });
+});
+
 describe("teams", () => {
   it("lets only the Sales Director and Marketing Director lead a team", () => {
     expect(JobRole.options.filter(canLeadTeam)).toEqual(["director", "bd"]);
@@ -165,6 +181,25 @@ describe("job scheduling", () => {
       "site",
       "support",
     ]);
+  });
+});
+
+describe("installer directory", () => {
+  it("lets the MD, Sales Director, Site Supervisors and Purchasing edit it", () => {
+    const edits = (jobRole: JobRole) =>
+      canEditInstallers({ jobRole, arrangesStock: false });
+    expect(JobRole.options.filter(edits)).toEqual([
+      "md",
+      "director",
+      "site",
+      "support",
+    ]);
+  });
+
+  it("also lets whoever arranges stock edit it", () => {
+    expect(canEditInstallers({ jobRole: "sales", arrangesStock: true })).toBe(
+      true,
+    );
   });
 });
 
@@ -213,5 +248,15 @@ describe("stock holds and settings", () => {
     expect(canChangeSettings({ role: "staff", jobRole: "director" })).toBe(
       false,
     );
+  });
+});
+
+describe("the next DO number", () => {
+  it("is set by the MD, Purchasing and HR & Accounts only", () => {
+    expect(JobRole.options.filter(canSetNextDoNumber)).toEqual([
+      "md",
+      "accounts",
+      "support",
+    ]);
   });
 });

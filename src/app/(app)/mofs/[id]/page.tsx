@@ -28,6 +28,7 @@ import {
   loadDeliveredEarlier,
   loadMofDoLines,
 } from "../../installation/do-data";
+import { loadInstallerChoices } from "../../installation/installer-data";
 import { loadJobPeople } from "../../installation/job-people-data";
 import { type MofDraft, MofForm } from "../mof-form";
 import { LineUnitLabel } from "../schemas";
@@ -223,25 +224,27 @@ export default async function MofPage({
   const showInstallers = canSeeInstallerClaims(me.jobRole);
   const changes = mofChangeRows.parse(changesResult.data);
   const canSchedule = canScheduleJobs(me.jobRole);
-  const [installerPos, doLines, earlierEntries] = await Promise.all([
-    showInstallers
-      ? loadInstallerPos(supabase, mof.id, nameOf)
-      : Promise.resolve([]),
-    loadMofDoLines(supabase, mof.id),
-    canSchedule
-      ? Promise.all(
-          jobs
-            .filter((job) => job.jobType === "delivery")
-            .map(
-              async (job) =>
-                [
-                  job.id,
-                  await loadDeliveredEarlier(supabase, mof.id, job.id),
-                ] as const,
-            ),
-        )
-      : Promise.resolve([]),
-  ]);
+  const [installerPos, installerChoices, doLines, earlierEntries] =
+    await Promise.all([
+      showInstallers
+        ? loadInstallerPos(supabase, mof.id, nameOf)
+        : Promise.resolve([]),
+      showInstallers && canEdit ? loadInstallerChoices() : Promise.resolve([]),
+      loadMofDoLines(supabase, mof.id),
+      canSchedule
+        ? Promise.all(
+            jobs
+              .filter((job) => job.jobType === "delivery")
+              .map(
+                async (job) =>
+                  [
+                    job.id,
+                    await loadDeliveredEarlier(supabase, mof.id, job.id),
+                  ] as const,
+              ),
+          )
+        : Promise.resolve([]),
+    ]);
   const earlierByJob = new Map(earlierEntries);
 
   return (
@@ -313,6 +316,7 @@ export default async function MofPage({
           mofId={mof.id}
           pos={installerPos}
           mofInstaller={blankIfNull(mof.installer_name)}
+          installers={installerChoices}
           canEdit={canEdit}
           canVerify={canEditSite(me.jobRole)}
           canPay={canEnterPayments(me.jobRole)}

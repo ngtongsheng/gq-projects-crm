@@ -9,6 +9,7 @@ const installerPoRows = z.array(
     po_no: z.string(),
     po_date: z.string(),
     installer: z.string(),
+    installer_id: z.string(),
     amount: z.number(),
     scope: z.string().nullable(),
     retention_pct: z.number(),
@@ -37,7 +38,7 @@ export async function loadInstallerPos(
   const { data, error } = await supabase
     .from("installer_pos")
     .select(
-      "id, po_no, po_date, installer, amount, scope, retention_pct, installer_claims(id, claim_type, claim_no, amount, claimed_on, verified_by, verified_at, paid_on, paid_amount)",
+      "id, po_no, po_date, installer, installer_id, amount, scope, retention_pct, installer_claims(id, claim_type, claim_no, amount, claimed_on, verified_by, verified_at, paid_on, paid_amount)",
     )
     .eq("mof_id", mofId)
     .order("po_date");
@@ -50,6 +51,7 @@ export async function loadInstallerPos(
     poNo: po.po_no,
     poDate: po.po_date,
     installer: po.installer,
+    installerId: po.installer_id,
     amount: po.amount,
     scope: po.scope ?? "",
     retentionPct: po.retention_pct,

@@ -401,10 +401,10 @@ export function buildInstallerClaims({ today }: BuildContext): ExampleTable[] {
   const poSeeds: Array<
     [string, string, string, string, number, number, number]
   > = [
-    // key, mof, po no, installer, amount, retention, days ago
-    ["ip1", "m1", "IPO-0141", "Apex Installers", 28000, 5, 45],
-    ["ip2", "m4", "IPO-0092", "Apex Installers", 9000, 5, 90],
-    ["ip3", "m2", "IPO-0160", "Steady Hands Flooring", 15000, 10, 5],
+    // key, mof, po no, installer (directory key), amount, retention, days ago
+    ["ip1", "m1", "IPO-0141", "apex", 28000, 5, 45],
+    ["ip2", "m4", "IPO-0092", "apex", 9000, 5, 90],
+    ["ip3", "m2", "IPO-0160", "steady", 15000, 10, 5],
   ];
   const pos: Row[] = poSeeds.map(
     ([key, mof, poNo, installer, amount, retention, ago]) => ({
@@ -412,7 +412,8 @@ export function buildInstallerClaims({ today }: BuildContext): ExampleTable[] {
       mof_id: mofId(mof),
       po_no: poNo,
       po_date: addDays(today, -ago),
-      installer,
+      // The database writes the installer's name from the directory.
+      installer_id: exampleId("installers", installer),
       amount,
       scope: "Supply and lay, including skirting",
       retention_pct: retention,

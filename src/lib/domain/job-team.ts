@@ -39,6 +39,16 @@ export function installerIdByName(
   )?.id;
 }
 
+/** The installers a form offers; `current` stays pickable after they are made inactive. */
+export function installerChoices(
+  installers: readonly Person[],
+  current: Person | null,
+): Person[] {
+  return current && !installers.some((installer) => installer.id === current.id)
+    ? [...installers, current]
+    : [...installers];
+}
+
 export type InChargeGroups = {
   supervisors: Person[];
   salespeople: Person[];

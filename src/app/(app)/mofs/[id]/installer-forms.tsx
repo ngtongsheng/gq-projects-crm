@@ -32,6 +32,11 @@ import {
   INSTALLER_CLAIM_TYPES,
   summariseInstallerPo,
 } from "@/lib/domain/installer-claim";
+import {
+  installerChoices,
+  installerIdByName,
+  type Person,
+} from "@/lib/domain/job-team";
 import { submitKeepingValues } from "@/lib/form/submit-keeping-values";
 import { formatRm } from "@/lib/format/money";
 import {
@@ -87,15 +92,17 @@ function useSubmit(
   return { pending, error, submit };
 }
 
-export function InstallerPoDialog({
-  mofId,
-  po,
-  defaultInstaller,
-}: {
+type InstallerPoFormProps = {
   mofId: string;
   po?: InstallerPoRow;
+  /** The active installers in the directory. */
+  installers: Person[];
+  /** The installer named on the MOF, picked when it matches one in the directory. */
   defaultInstaller: string;
-}) {
+};
+
+export function InstallerPoDialog(props: InstallerPoFormProps) {
+  const { po } = props;
   return (
     <FormDialog
       trigger={
@@ -114,14 +121,7 @@ export function InstallerPoDialog({
       title={po ? `Update PO ${po.poNo}` : "Add installer PO"}
       description="The PO issued to the installer for this MOF. Retention is held back from what the installer claims."
     >
-      {(done) => (
-        <InstallerPoForm
-          mofId={mofId}
-          po={po}
-          defaultInstaller={defaultInstaller}
-          onSaved={done}
-        />
-      )}
+      {(done) => <InstallerPoForm {...props} onSaved={done} />}
     </FormDialog>
   );
 }
@@ -129,14 +129,14 @@ export function InstallerPoDialog({
 function InstallerPoForm({
   mofId,
   po,
+  installers,
   defaultInstaller,
   onSaved,
-}: {
-  mofId: string;
-  po?: InstallerPoRow;
-  defaultInstaller: string;
-  onSaved: () => void;
-}) {
+}: InstallerPoFormProps & { onSaved: () => void }) {
+  const choices = installerChoices(
+    installers,
+    po ? { id: po.installerId, name: po.installer } : null,
+  );
   const { pending, error, submit } = useSubmit(
     saveInstallerPo,
     po ? "Installer PO saved." : "Installer PO added.",
@@ -149,14 +149,26 @@ function InstallerPoForm({
       <FieldGroup>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field>
-            <FieldLabel htmlFor="installer">Installer</FieldLabel>
-            <Input
-              id="installer"
-              name="installer"
-              defaultValue={po?.installer ?? defaultInstaller}
-              maxLength={100}
+            <FieldLabel htmlFor="installerId">Installer</FieldLabel>
+            <Select
+              name="installerId"
+              defaultValue={
+                po?.installerId ??
+                installerIdByName(installers, defaultInstaller)
+              }
               required
-            />
+            >
+              <SelectTrigger id="installerId">
+                <SelectValue placeholder="Choose from the directory" />
+              </SelectTrigger>
+              <SelectContent>
+                {choices.map((installer) => (
+                  <SelectItem key={installer.id} value={installer.id}>
+                    {installer.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
           <Field>
             <FieldLabel htmlFor="poNo">Installer PO no.</FieldLabel>

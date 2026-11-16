@@ -25,6 +25,8 @@ const NOT_VERIFIER = "Only a Site Supervisor can verify installer work.";
 const NOT_PAYER = "Only the MD or HR & Accounts can record a payment.";
 const NOT_FOUND_PO = "Could not find that installer PO. Reload the page.";
 const NOT_FOUND_CLAIM = "Could not find that claim. Reload the page.";
+const NOT_FOUND_INSTALLER =
+  "Could not find that installer in the directory. Reload the page.";
 
 const amountField = (message: string) =>
   z
@@ -37,7 +39,7 @@ const installerPoForm = z.object({
   mofId: mofIdSchema,
   poNo: z.string().trim().min(1, "Enter the installer PO no.").max(50),
   poDate: z.iso.date("Choose the PO date."),
-  installer: z.string().trim().min(1, "Enter the installer.").max(100),
+  installerId: z.uuid({ error: "Choose the installer." }),
   amount: amountField("Enter the PO amount, more than RM 0."),
   scope: optionalText(200, "Keep the scope under 200 characters."),
   retentionPct: z
@@ -65,7 +67,7 @@ export async function saveInstallerPo(
     mofId: textField(formData, "mofId"),
     poNo: textField(formData, "poNo"),
     poDate: textField(formData, "poDate"),
-    installer: textField(formData, "installer"),
+    installerId: textField(formData, "installerId"),
     amount: textField(formData, "amount"),
     scope: textField(formData, "scope"),
     retentionPct: textField(formData, "retentionPct"),
@@ -73,12 +75,12 @@ export async function saveInstallerPo(
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Check the details." };
   }
-  const { mofId, poNo, poDate, installer, amount, scope, retentionPct } =
+  const { mofId, poNo, poDate, installerId, amount, scope, retentionPct } =
     parsed.data;
   const columns = {
     po_no: poNo,
     po_date: poDate,
-    installer,
+    installer_id: installerId,
     amount,
     scope,
     retention_pct: retentionPct,
@@ -102,9 +104,11 @@ export async function saveInstallerPo(
     if (error.code === "42501") return { error: NOT_EDITOR };
     if (error.code === "23505") {
       return {
-        error: `${installer} already has an installer PO on this MOF. Edit that one instead.`,
+        error:
+          "This installer already has an installer PO on this MOF. Edit that one instead.",
       };
     }
+    if (error.code === "23503") return { error: NOT_FOUND_INSTALLER };
     console.error("Could not save installer PO", error);
     return { error: "Could not save the installer PO. Try again." };
   }

@@ -231,7 +231,7 @@ describe("example dataset", () => {
       "select count(*)::int as n from public.installers",
     );
     // A job naming "Apex Installers" is linked to the directory entry, not added as a second one.
-    expect(installers).toBe(4);
+    expect(installers).toBe(5);
     const [{ n: unlinked }] = await query<{ n: number }>(
       "select count(*)::int as n from public.jobs where installer is not null and installer_id is null",
     );

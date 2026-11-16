@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   inChargeGroups,
+  installerChoices,
   installerIdByName,
   parseTeamChoice,
   SUPERVISOR_ONLY,
@@ -29,6 +30,23 @@ describe("parseTeamChoice", () => {
 
   it("refuses anything else", () => {
     expect(parseTeamChoice("Leong")).toBeNull();
+  });
+});
+
+describe("installerChoices", () => {
+  const installers = [{ id: ID, name: "Leong" }];
+
+  it("keeps an installer made inactive since on the record that has them", () => {
+    expect(installerChoices(installers, { id: "b", name: "Old Hand" })).toEqual(
+      [...installers, { id: "b", name: "Old Hand" }],
+    );
+  });
+
+  it("lists an active installer once", () => {
+    expect(installerChoices(installers, { id: ID, name: "Leong" })).toEqual(
+      installers,
+    );
+    expect(installerChoices(installers, null)).toEqual(installers);
   });
 });
 

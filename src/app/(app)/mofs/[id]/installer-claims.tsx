@@ -16,6 +16,7 @@ import {
   type InstallerClaimType,
   summariseInstallerPo,
 } from "@/lib/domain/installer-claim";
+import type { Person } from "@/lib/domain/job-team";
 import { formatDate } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
 import { verifyInstallerClaim } from "../installer-actions";
@@ -42,6 +43,7 @@ export type InstallerPoRow = {
   poNo: string;
   poDate: string;
   installer: string;
+  installerId: string;
   amount: number;
   scope: string;
   retentionPct: number;
@@ -53,6 +55,8 @@ type InstallerClaimsProps = {
   pos: InstallerPoRow[];
   /** The installer named on the MOF, offered when adding the first PO. */
   mofInstaller: string;
+  /** The active installers in the directory a PO can be issued to; loaded for editors. */
+  installers: Person[];
   /** MD, Purchasing and HR & Accounts keep POs and claim details. */
   canEdit: boolean;
   canVerify: boolean;
@@ -92,6 +96,7 @@ export function InstallerClaims({
   mofId,
   pos,
   mofInstaller,
+  installers,
   canEdit,
   canVerify,
   canPay,
@@ -119,7 +124,11 @@ export function InstallerClaims({
         </div>
         {canEdit && (
           <div className="flex flex-wrap gap-2">
-            <InstallerPoDialog mofId={mofId} defaultInstaller={mofInstaller} />
+            <InstallerPoDialog
+              mofId={mofId}
+              installers={installers}
+              defaultInstaller={mofInstaller}
+            />
             {pos.length > 0 && (
               <InstallerClaimDialog mofId={mofId} pos={pos} today={today} />
             )}
@@ -214,6 +223,7 @@ export function InstallerClaims({
                       <InstallerPoDialog
                         mofId={mofId}
                         po={po}
+                        installers={installers}
                         defaultInstaller={mofInstaller}
                       />
                     ),

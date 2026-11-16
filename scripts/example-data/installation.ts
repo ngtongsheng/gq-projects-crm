@@ -13,7 +13,7 @@ const installerNameKey = (name: string) =>
   name.replace(/\s+/g, " ").toLowerCase();
 
 /**
- * The installer directory. Inserted before the jobs: a job that names an installer already in
+ * The installer directory. Inserted before the installer POs, which point at it, and the jobs: a job that names an installer already in
  * the directory is linked to it, so "Apex Installers" on the older jobs does not add a second row.
  * The reset deletes by name, not id: the database may already hold an installer of the same
  * name (made from an old job's free-text installer) under another id.
@@ -52,6 +52,17 @@ export function buildInstallers(): ExampleTable {
       skills: ["Timber", "Sports flooring", "Epoxy / screeding"],
       description: null,
       area: "Johor Bahru, Melaka",
+      notes: null,
+    },
+    {
+      key: "steady",
+      name: "Steady Hands Flooring",
+      company: null,
+      phone: "017-6655443",
+      phone2: null,
+      skills: ["Carpet tile", "Vinyl tile / sheet"],
+      description: null,
+      area: "Klang Valley",
       notes: null,
     },
     {

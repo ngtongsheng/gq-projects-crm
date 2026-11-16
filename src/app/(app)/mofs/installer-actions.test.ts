@@ -24,6 +24,7 @@ const ME = "11111111-1111-4111-8111-111111111111";
 const MOF = "33333333-3333-4333-8333-333333333333";
 const PO = "66666666-6666-4666-8666-666666666666";
 const CLAIM = "77777777-7777-4777-8777-777777777777";
+const INSTALLER = "88888888-8888-4888-8888-888888888888";
 
 const profile = (jobRole: Profile["jobRole"]): Profile => ({
   id: ME,
@@ -81,7 +82,7 @@ const poForm = (fields: Record<string, string> = {}) =>
     mofId: MOF,
     poNo: "IPO-0398",
     poDate: "2026-11-02",
-    installer: " Ilham ",
+    installerId: INSTALLER,
     amount: "RM 45,000",
     scope: "",
     retentionPct: "5",
@@ -130,7 +131,7 @@ describe("saveInstallerPo", () => {
       mof_id: MOF,
       po_no: "IPO-0398",
       po_date: "2026-11-02",
-      installer: "Ilham",
+      installer_id: INSTALLER,
       amount: 45000,
       scope: null,
       retention_pct: 5,
@@ -173,7 +174,24 @@ describe("saveInstallerPo", () => {
 
     const result = await saveInstallerPo(poForm());
 
-    expect(result.error).toMatch(/Ilham already has an installer PO/);
+    expect(result.error).toMatch(/already has an installer PO on this MOF/);
+  });
+
+  it("asks for an installer picked from the directory", async () => {
+    const calls = fakeSupabase(saved);
+
+    const result = await saveInstallerPo(poForm({ installerId: "Ilham" }));
+
+    expect(result.error).toBe("Choose the installer.");
+    expect(calls).toHaveLength(0);
+  });
+
+  it("reports an installer no longer in the directory", async () => {
+    fakeSupabase({ data: null, error: { code: "23503" } });
+
+    const result = await saveInstallerPo(poForm());
+
+    expect(result.error).toMatch(/Could not find that installer/);
   });
 });
 

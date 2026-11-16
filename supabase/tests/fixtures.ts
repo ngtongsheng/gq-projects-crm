@@ -26,6 +26,15 @@ export function addMof(t: TestDatabase, contractSum = 1000) {
   );
 }
 
+/** An installer in the directory, under a name of its own. */
+export function addInstaller(t: TestDatabase) {
+  return insertId(
+    t,
+    "insert into public.installers (name) values ($1) returning id",
+    [`Fixture Installer ${next()}`],
+  );
+}
+
 /** A customer contact, in a company of its own. */
 export async function addContact(t: TestDatabase) {
   const companyId = await insertId(

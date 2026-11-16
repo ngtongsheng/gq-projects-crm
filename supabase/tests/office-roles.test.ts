@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { JobRole } from "@/lib/auth/job-role";
-import { addMof, addProject } from "./fixtures";
+import { addInstaller, addMof, addProject } from "./fixtures";
 import { createTestDatabase, type TestDatabase } from "./harness";
 
 // Loop 11 task 03: the three new job roles read what their demo pages show, a person who has
@@ -57,10 +57,11 @@ beforeAll(async () => {
   await asServiceRole(
     "insert into public.stock_items (sku, supplier, qty, unit) values ('SKU-1', 'Supplier', 5, 'box')",
   );
+  const installerId = await addInstaller(t);
   await asServiceRole(
-    `insert into public.installer_pos (mof_id, po_no, po_date, installer, amount)
-     values ($1, 'IPO-1', current_date, 'Installer', 100)`,
-    [mofId],
+    `insert into public.installer_pos (mof_id, po_no, po_date, installer_id, amount)
+     values ($1, 'IPO-1', current_date, $2, 100)`,
+    [mofId, installerId],
   );
   await asServiceRole(
     `insert into public.payments (mof_id, received_on, amount)

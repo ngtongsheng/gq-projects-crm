@@ -41,6 +41,7 @@ import {
 } from "@/lib/domain/delivery-status";
 import {
   inChargeGroups,
+  installerChoices,
   installerIdByName,
   type JobPeople,
   SUPERVISOR_ONLY,
@@ -168,12 +169,10 @@ export function JobForm({
         : job.installerId || NONE
       : (installerIdByName(people.installers, defaultInstaller) ?? NONE),
   );
-  // An installer made inactive since stays pickable on the jobs they already have.
-  const crewChoices =
-    job?.installerId &&
-    !people.installers.some((installer) => installer.id === job.installerId)
-      ? [...people.installers, { id: job.installerId, name: job.installer }]
-      : people.installers;
+  const crewChoices = installerChoices(
+    people.installers,
+    job?.installerId ? { id: job.installerId, name: job.installer } : null,
+  );
   const inCharge = inChargeGroups(
     people,
     team.find((member) => member.id === job?.siteSupervisorId) ?? null,

@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { addMof } from "./fixtures";
+import { addInstaller, addMof } from "./fixtures";
 import { createTestDatabase, type TestDatabase } from "./harness";
 
 // Loop 05 audit: progress and final claims together cannot pass the installer PO amount.
@@ -9,7 +9,6 @@ const overPo =
   "These claims add up to more than the installer PO. If there is extra work, increase the PO amount first.";
 
 let t: TestDatabase;
-let installerCounter = 0;
 
 beforeAll(async () => {
   t = await createTestDatabase();
@@ -22,11 +21,12 @@ afterAll(async () => {
 /** A PO of 1000 on its own order, so each test starts with nothing claimed. */
 async function addPo() {
   const mofId = await addMof(t);
+  const installerId = await addInstaller(t);
   await t.actAs("md");
   const { rows } = await t.db.query<{ id: string }>(
-    `insert into public.installer_pos (mof_id, po_no, po_date, installer, amount)
+    `insert into public.installer_pos (mof_id, po_no, po_date, installer_id, amount)
      values ($1, 'PO-1', current_date, $2, 1000) returning id`,
-    [mofId, `Installer ${++installerCounter}`],
+    [mofId, installerId],
   );
   return rows[0].id;
 }

@@ -29,8 +29,8 @@ error pages, and sign-out closing impersonation. Every other finding is in `docs
 | 03 | `logServerError` helper on money and HR paths (O4) | done | | standard |
 | 04 | Audit trail for payout removals (O3) | done | 03 | standard |
 | 05 | Order total floor at payments received (D1) | done | | frontier |
-| 06 | Link installer POs to the installer directory (D2) | in-progress | | frontier |
-| 07 | Storage and RLS hardening (S-DB1, S-DB2, S-DB3) | todo | | frontier |
+| 06 | Link installer POs to the installer directory (D2) | done | | frontier |
+| 07 | Storage and RLS hardening (S-DB1, S-DB2, S-DB3) | in-progress | | frontier |
 | 08 | Small data fixes: MYT defaults, receipt lock, archived mobile message (D6, D7, D4) | todo | | standard |
 | 09 | Error pages and upload failures (O5, O6) | todo | | standard |
 | 10 | Sign-out closes the impersonation log row (S4) | todo | | standard |
@@ -66,3 +66,7 @@ error pages, and sign-out closing impersonation. Every other finding is in `docs
 2026-11-16 · #05 · decision · trigger refuses only a lowering, so orders already below payments can still be raised; no i18n entries (MOF/VO screens show raw error, same as cap_payments); commission-parity test disables trigger around its deliberate below-payments setup
 2026-11-16 · #05 · done · PGlite 7 tests + 2 app tests; check/typecheck/test pass (3061)
 2026-11-16 · #06 · in-progress · delegated (frontier)
+2026-11-16 · #06 · decision · migration adds PO-only installer names to the directory (most-used spelling), keeps typed text; installer text now set by trigger from the directory, app write on it revoked; old unique (mof_id, installer) kept until the text column is dropped
+2026-11-16 · #06 · decision · example data gains "Steady Hands Flooring" installer; fixtures and two DB tests insert installer_id
+2026-11-16 · #06 · done · PGlite tests pass; check/typecheck/test pass (3072). Open check: PO picker in pnpm dev only after CI applies the migration to the test copy
+2026-11-16 · #07 · in-progress · delegated (frontier)

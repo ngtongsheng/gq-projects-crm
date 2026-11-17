@@ -46,7 +46,7 @@ export type YearSummary = {
 
 /** The years offered in the year picker: every year with spend plus this one, newest first. */
 export function dashboardYears(
-  expenses: readonly MarketingExpense[],
+  expenses: readonly Pick<MarketingExpense, "spentOn">[],
   today: string,
 ): string[] {
   return [

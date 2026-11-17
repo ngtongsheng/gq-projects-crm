@@ -9,14 +9,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useT } from "@/lib/i18n/language-context";
+import type { MarketingView } from "./marketing-views";
 
-/** The dashboard's year (demo #mkY). The year is in the address so a reload keeps it. */
+/** The year shared by the dashboard and Vendors (demo #mkY). The year is in the address so a reload keeps it. */
 export function MarketingYearSelect({
   years,
   year,
+  view = "dashboard",
 }: {
   years: readonly string[];
   year: string;
+  view?: MarketingView;
 }) {
   const t = useT();
   const router = useRouter();
@@ -24,7 +27,7 @@ export function MarketingYearSelect({
     <Select
       value={year}
       onValueChange={(next) =>
-        router.push(`/marketing?view=dashboard&year=${next}`)
+        router.push(`/marketing?view=${view}&year=${next}`)
       }
     >
       <SelectTrigger aria-label={t("Year")} className="w-28">

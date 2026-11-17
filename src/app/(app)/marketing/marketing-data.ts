@@ -1,11 +1,18 @@
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { CURRENCIES, PAYMENT_METHODS } from "./marketing-options";
+import {
+  CURRENCIES,
+  PAYMENT_METHODS,
+  VENDOR_KINDS,
+  VENDOR_SKILLS,
+  VENDOR_SUPPLIES,
+} from "./marketing-options";
 import type {
   MarketingCategory,
   MarketingEventCost,
   MarketingEventOption,
   MarketingExpense,
+  MarketingVendor,
 } from "./marketing-types";
 
 const categoryRows = z.array(
@@ -132,5 +139,56 @@ export async function loadEventCosts(): Promise<MarketingEventCost[]> {
     eventId: row.event_id,
     eventName: row.marketing_events.name,
     total: row.total,
+  }));
+}
+
+const vendorQueryRows = z.array(
+  z.object({
+    id: z.uuid(),
+    kind: z.enum(VENDOR_KINDS),
+    name: z.string(),
+    supplies: z.enum(VENDOR_SUPPLIES).nullable(),
+    contact_person: z.string().nullable(),
+    skills: z.array(z.enum(VENDOR_SKILLS)),
+    rate: z.string().nullable(),
+    portfolio_url: z.string().nullable(),
+    phone: z.string().nullable(),
+    email: z.string().nullable(),
+    notes: z.string().nullable(),
+    marketing_expenses: z.array(
+      z.object({ spent_on: z.iso.date(), amount_rm: z.number() }),
+    ),
+    marketing_prepaid_entries: z.array(z.object({ count: z.number() })),
+  }),
+);
+
+/** Every vendor with what was paid to them; the year totals are worked out in the browser. */
+export async function loadMarketingVendors(): Promise<MarketingVendor[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("marketing_vendors")
+    .select(
+      "id, kind, name, supplies, contact_person, skills, rate, portfolio_url, phone, email, notes, marketing_expenses(spent_on, amount_rm), marketing_prepaid_entries(count)",
+    );
+  if (error) {
+    throw new Error(`Could not load marketing vendors: ${error.message}`);
+  }
+  return vendorQueryRows.parse(data).map((row) => ({
+    id: row.id,
+    kind: row.kind,
+    name: row.name,
+    supplies: row.supplies,
+    contactPerson: row.contact_person,
+    skills: row.skills,
+    rate: row.rate,
+    portfolioUrl: row.portfolio_url,
+    phone: row.phone,
+    email: row.email,
+    notes: row.notes,
+    payments: row.marketing_expenses.map((payment) => ({
+      spentOn: payment.spent_on,
+      amountRm: payment.amount_rm,
+    })),
+    prepaidEntries: row.marketing_prepaid_entries[0]?.count ?? 0,
   }));
 }

@@ -108,4 +108,81 @@ export const bmMarketing: Dictionary = {
   Year: "Tahun",
   "Tap a vendor to see all their invoices.":
     "Ketik vendor untuk melihat semua invois mereka.",
+  "Add part-timer": "Tambah pekerja sambilan",
+  "Add vendor": "Tambah vendor",
+  "A to Z": "A hingga Z",
+  "Highest spend": "Perbelanjaan tertinggi",
+  Companies: "Syarikat",
+  "Part-timers": "Pekerja sambilan",
+  "Part-timer": "Pekerja sambilan",
+  "Vendor kind": "Jenis vendor",
+  "Search name, type, contact, note, email, skill":
+    "Cari nama, jenis, orang untuk dihubungi, nota, emel, kemahiran",
+  "Search vendors": "Cari vendor",
+  "No vendor here": "Tiada vendor di sini",
+  "A vendor is added when you use a new name on an expense.":
+    "Vendor ditambah apabila anda guna nama baharu pada perbelanjaan.",
+  "Nothing matches. Clear the search or the tab.":
+    "Tiada padanan. Kosongkan carian atau tab.",
+  "Supplies / skills": "Bekalan / kemahiran",
+  "Contact details": "Maklumat perhubungan",
+  "Last paid": "Bayaran terakhir",
+  Portfolio: "Portfolio",
+  "Vendor added": "Vendor ditambah",
+  "Vendor deleted.": "Vendor dipadam.",
+  "Edit vendor": "Ubah vendor",
+  "Pay a part-timer by adding an expense with their name as the vendor.":
+    "Bayar pekerja sambilan dengan menambah perbelanjaan dan letak nama mereka sebagai vendor.",
+  "What they supply": "Apa yang dibekalkan",
+  "— Not set —": "— Belum ditetapkan —",
+  "Contact person": "Orang untuk dihubungi",
+  "Pay rate": "Kadar bayaran",
+  "Portfolio link": "Pautan portfolio",
+  "Phone / WhatsApp": "Telefon / WhatsApp",
+  "A part-timer needs a phone number or an email.":
+    "Pekerja sambilan perlu nombor telefon atau emel.",
+  "See payments": "Lihat bayaran",
+  "In use, so it can't be deleted.":
+    "Sedang digunakan, jadi tidak boleh dipadam.",
+  "Delete this vendor?": "Padam vendor ini?",
+  "Samples & catalogues": "Sampel & katalog",
+  "Folders & sample boards": "Folder & papan sampel",
+  Printing: "Percetakan",
+  "Design & branding": "Reka bentuk & penjenamaan",
+  "Digital marketing": "Pemasaran digital",
+  "Courier & logistics": "Kurier & logistik",
+  Merchandise: "Barangan",
+  "Graphic design": "Reka bentuk grafik",
+  "Video shooting": "Rakaman video",
+  "Video editing": "Suntingan video",
+  Photography: "Fotografi",
+  "Social media": "Media sosial",
+  Copywriting: "Penulisan iklan",
+  "Fill in the name.": "Isikan nama.",
+  "The email is not valid.": "Emel tidak sah.",
+  "The portfolio link is not a web address.":
+    "Pautan portfolio bukan alamat web.",
+  "A vendor with that name already exists.":
+    "Vendor dengan nama itu sudah wujud.",
+  "This vendor has expenses or prepaid entries, so it can't be deleted.":
+    "Vendor ini ada perbelanjaan atau catatan prabayar, jadi tidak boleh dipadam.",
+  "Could not find that vendor. Reload the page.":
+    "Vendor itu tidak dijumpai. Muat semula halaman.",
+  "Keep the name under 200 characters.":
+    "Nama mesti kurang daripada 200 aksara.",
+  "Keep the contact person under 200 characters.":
+    "Nama orang untuk dihubungi mesti kurang daripada 200 aksara.",
+  "Keep the rate under 200 characters.":
+    "Kadar mesti kurang daripada 200 aksara.",
+  "Keep the link under 500 characters.":
+    "Pautan mesti kurang daripada 500 aksara.",
+  "Keep the phone number under 40 characters.":
+    "Nombor telefon mesti kurang daripada 40 aksara.",
+  "Keep the email under 200 characters.":
+    "Emel mesti kurang daripada 200 aksara.",
+  "Keep the notes under 1000 characters.":
+    "Nota mesti kurang daripada 1000 aksara.",
+  Company: "Syarikat",
+  Skills: "Kemahiran",
+  Sort: "Susun",
 };

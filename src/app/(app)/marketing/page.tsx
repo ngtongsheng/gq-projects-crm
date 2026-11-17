@@ -17,6 +17,7 @@ import {
   loadEventOptions,
   loadMarketingCategories,
   loadMarketingExpenses,
+  loadMarketingVendors,
   loadVendorNames,
 } from "./marketing-data";
 import {
@@ -25,6 +26,7 @@ import {
 } from "./marketing-expense-filters";
 import { MarketingExpenseLog } from "./marketing-expense-log";
 import type { MarketingCategory } from "./marketing-types";
+import { MarketingVendorsView } from "./marketing-vendors-view";
 import { MARKETING_VIEW_LABEL, MARKETING_VIEWS } from "./marketing-views";
 
 export const metadata: Metadata = { title: "Marketing expense" };
@@ -75,6 +77,8 @@ export default async function MarketingPage({
             new Set(categories.map((category) => category.id)),
           )}
         />
+      ) : view === "vendors" ? (
+        <VendorsView params={params} canEdit={canEdit} />
       ) : (
         <EmptyState
           icon={Wallet}
@@ -111,6 +115,24 @@ async function DashboardView({
       showAllVendors={params.vendors === "all"}
       today={today}
       t={t}
+    />
+  );
+}
+
+async function VendorsView({
+  params,
+  canEdit,
+}: {
+  params: Record<string, string | string[] | undefined>;
+  canEdit: boolean;
+}) {
+  const today = todayMyt();
+  return (
+    <MarketingVendorsView
+      vendors={await loadMarketingVendors()}
+      year={yearParam.catch(today.slice(0, 4)).parse(params.year)}
+      today={today}
+      canEdit={canEdit}
     />
   );
 }

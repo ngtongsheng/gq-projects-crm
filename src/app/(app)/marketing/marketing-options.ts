@@ -29,3 +29,54 @@ export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> = {
   petty_cash: "Petty cash",
   others: "Others",
 };
+
+export const VENDOR_KINDS = ["company", "part_timer"] as const;
+export type VendorKind = (typeof VENDOR_KINDS)[number];
+
+// What a company supplies (demo MK_VTYPE).
+export const VENDOR_SUPPLIES = [
+  "samples_catalogues",
+  "folders_sample_boards",
+  "printing",
+  "design_branding",
+  "digital_marketing",
+  "courier_logistics",
+  "events",
+  "merchandise",
+  "others",
+] as const;
+export type VendorSupply = (typeof VENDOR_SUPPLIES)[number];
+
+export const VENDOR_SUPPLY_LABEL: Record<VendorSupply, string> = {
+  samples_catalogues: "Samples & catalogues",
+  folders_sample_boards: "Folders & sample boards",
+  printing: "Printing",
+  design_branding: "Design & branding",
+  digital_marketing: "Digital marketing",
+  courier_logistics: "Courier & logistics",
+  events: "Events",
+  merchandise: "Merchandise",
+  others: "Others",
+};
+
+// A part-timer's skills (demo MK_SKILL).
+export const VENDOR_SKILLS = [
+  "graphic_design",
+  "video_shooting",
+  "video_editing",
+  "photography",
+  "social_media",
+  "copywriting",
+  "others",
+] as const;
+export type VendorSkill = (typeof VENDOR_SKILLS)[number];
+
+export const VENDOR_SKILL_LABEL: Record<VendorSkill, string> = {
+  graphic_design: "Graphic design",
+  video_shooting: "Video shooting",
+  video_editing: "Video editing",
+  photography: "Photography",
+  social_media: "Social media",
+  copywriting: "Copywriting",
+  others: "Others",
+};

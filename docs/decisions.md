@@ -741,3 +741,17 @@ Goal: Vicky opens Claude and the laptop brings itself up to date; Google sign-in
   total. A row opens the Events tab; the event sheet itself comes with the Events task. The low-balance banners come
   with the prepaid task.
 - Edit categories stays in the page header on every tab, not inside the dashboard table heading.
+
+### Marketing vendors and part-timers (task 12)
+- Companies are "auto-added" by the expense form: a new vendor name typed there becomes a company vendor in the same
+  save (task 10). The prepaid task will do the same for its vendor field. Nothing else syncs names, because records link
+  by id.
+- Year totals and "Invoices" match by vendor id, not by the demo's case-insensitive name. The year picker is shared with
+  the Dashboard (`year` in the address); "Last paid" looks at every year.
+- Rename needs no cascade (id link). Delete: the form hides Delete and says "In use" when the vendor has an expense or
+  a prepaid entry; the database refuses it anyway. "See payments" opens the Expense log searching the name.
+- The part-timer's portfolio link may be typed without https://; it is saved with it. A company drops skills, rate and
+  portfolio on save, a part-timer drops what-they-supply and contact person, so the form's hidden half never lingers.
+- The "Rate" label of a part-timer reads "Pay rate" because "Rate" is already the exchange rate in Chinese. The
+  Contact column reads "Contact details" for the same reason.
+- The TOTAL row sums the vendors shown under the tab and search.

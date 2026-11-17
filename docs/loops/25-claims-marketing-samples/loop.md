@@ -39,8 +39,8 @@ pushed; owner pushes to `main`.
 | 09 | Marketing expense schema and RLS | done | 01 | frontier |
 | 10 | Expense log and categories editor | done | 09 | standard |
 | 11 | Marketing dashboard and chart | done | 10 | standard |
-| 12 | Vendors and part-timers | in-progress | 10 | standard |
-| 13 | Events: costs, budget vs actual, print | todo | 10 | standard |
+| 12 | Vendors and part-timers | done | 10 | standard |
+| 13 | Events: costs, budget vs actual, print | in-progress | 10 | standard |
 | 14 | Prepaid accounts and sample give-away | todo | 12 | standard |
 | 15 | Excel import and export | todo | 11, 12, 13, 14 | standard |
 | 16 | Dashboard reminders | todo | 04, 08, 14 | standard |
@@ -100,3 +100,6 @@ pushed; owner pushes to `main`.
 2026-11-17 · #11 · decision · 5 theme chart colours reused at 60%/35% opacity for categories 6+; dashboard cells link to the log via `?view=expenses&month=&category=&q=`; year and "show all vendors" kept in the URL; events panel sums all years and opens the Events tab
 2026-11-17 · #11 · done · check, typecheck, 3183 tests pass · next: #12
 2026-11-17 · #12 · started · standard
+2026-11-17 · #12 · decision · vendor totals match by id (not name); company/part-timer drop the other kind's fields on save; labels "Pay rate", "Contact details" (zh clash); delete hidden when in use, DB refusal mapped; TOTAL sums visible rows
+2026-11-17 · #12 · done · check, typecheck, 3208 tests pass (DB suite included) · next: #13
+2026-11-17 · #13 · started · standard

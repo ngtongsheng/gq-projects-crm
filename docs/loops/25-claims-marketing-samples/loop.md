@@ -38,8 +38,8 @@ pushed; owner pushes to `main`.
 | 08 | Custom samples return, give away, overdue remind, settings | done | 07 | standard |
 | 09 | Marketing expense schema and RLS | done | 01 | frontier |
 | 10 | Expense log and categories editor | done | 09 | standard |
-| 11 | Marketing dashboard and chart | in-progress | 10 | standard |
-| 12 | Vendors and part-timers | todo | 10 | standard |
+| 11 | Marketing dashboard and chart | done | 10 | standard |
+| 12 | Vendors and part-timers | in-progress | 10 | standard |
 | 13 | Events: costs, budget vs actual, print | todo | 10 | standard |
 | 14 | Prepaid accounts and sample give-away | todo | 12 | standard |
 | 15 | Excel import and export | todo | 11, 12, 13, 14 | standard |
@@ -97,3 +97,6 @@ pushed; owner pushes to `main`.
 2026-11-17 · #10 · decision · page opens on Dashboard (placeholder until #11); Edit categories in the header for editors; categories show "N used" instead of delete; expense delete asks to confirm; tabs reuse `SegmentLinks`; a new vendor stays if the expense insert fails
 2026-11-17 · #10 · done · check, typecheck, 3170 tests pass · next: #11
 2026-11-17 · #11 · started · standard
+2026-11-17 · #11 · decision · 5 theme chart colours reused at 60%/35% opacity for categories 6+; dashboard cells link to the log via `?view=expenses&month=&category=&q=`; year and "show all vendors" kept in the URL; events panel sums all years and opens the Events tab
+2026-11-17 · #11 · done · check, typecheck, 3183 tests pass · next: #12
+2026-11-17 · #12 · started · standard

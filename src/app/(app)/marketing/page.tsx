@@ -4,16 +4,25 @@ import { z } from "zod";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { requirePage } from "@/lib/auth/require-page";
+import { todayMyt } from "@/lib/format/date";
 import { getT } from "@/lib/i18n/server-t";
+import type { Translate } from "@/lib/i18n/translate";
 import { SegmentLinks } from "../site-work/segment-links";
 import { editsMarketing } from "./marketing-access";
 import { MarketingCategoriesDialog } from "./marketing-categories-dialog";
+import { eventCostRows } from "./marketing-dashboard";
+import { MarketingDashboardView } from "./marketing-dashboard-view";
 import {
+  loadEventCosts,
   loadEventOptions,
   loadMarketingCategories,
   loadMarketingExpenses,
   loadVendorNames,
 } from "./marketing-data";
+import {
+  type ExpenseFilters,
+  expenseFiltersFromParams,
+} from "./marketing-expense-filters";
 import { MarketingExpenseLog } from "./marketing-expense-log";
 import type { MarketingCategory } from "./marketing-types";
 import { MARKETING_VIEW_LABEL, MARKETING_VIEWS } from "./marketing-views";
@@ -30,7 +39,8 @@ export default async function MarketingPage({
 }) {
   const me = await requirePage("mkt");
   const t = await getT(me.language);
-  const view = viewParam.parse((await searchParams).view);
+  const params = await searchParams;
+  const view = viewParam.parse(params.view);
   const canEdit = editsMarketing(me.jobRole);
   const categories = await loadMarketingCategories();
 
@@ -54,8 +64,17 @@ export default async function MarketingPage({
           href: `/marketing?view=${key}`,
         }))}
       />
-      {view === "expenses" ? (
-        <ExpenseLogView categories={categories} canEdit={canEdit} />
+      {view === "dashboard" ? (
+        <DashboardView params={params} categories={categories} t={t} />
+      ) : view === "expenses" ? (
+        <ExpenseLogView
+          categories={categories}
+          canEdit={canEdit}
+          filters={expenseFiltersFromParams(
+            params,
+            new Set(categories.map((category) => category.id)),
+          )}
+        />
       ) : (
         <EmptyState
           icon={Wallet}
@@ -67,12 +86,43 @@ export default async function MarketingPage({
   );
 }
 
+const yearParam = z.string().regex(/^\d{4}$/);
+
+async function DashboardView({
+  params,
+  categories,
+  t,
+}: {
+  params: Record<string, string | string[] | undefined>;
+  categories: MarketingCategory[];
+  t: Translate;
+}) {
+  const today = todayMyt();
+  const [expenses, eventCosts] = await Promise.all([
+    loadMarketingExpenses(),
+    loadEventCosts(),
+  ]);
+  return (
+    <MarketingDashboardView
+      expenses={expenses}
+      categories={categories}
+      eventCosts={eventCostRows(eventCosts)}
+      year={yearParam.catch(today.slice(0, 4)).parse(params.year)}
+      showAllVendors={params.vendors === "all"}
+      today={today}
+      t={t}
+    />
+  );
+}
+
 async function ExpenseLogView({
   categories,
   canEdit,
+  filters,
 }: {
   categories: MarketingCategory[];
   canEdit: boolean;
+  filters: ExpenseFilters;
 }) {
   const [expenses, events, vendors] = await Promise.all([
     loadMarketingExpenses(),
@@ -81,6 +131,9 @@ async function ExpenseLogView({
   ]);
   return (
     <MarketingExpenseLog
+      // A new link from the dashboard starts the log again with its filters.
+      key={`${filters.month}|${filters.categoryId}|${filters.query}`}
+      initialFilters={filters}
       expenses={expenses}
       categories={categories}
       events={events}

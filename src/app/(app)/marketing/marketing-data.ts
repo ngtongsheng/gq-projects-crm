@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CURRENCIES, PAYMENT_METHODS } from "./marketing-options";
 import type {
   MarketingCategory,
+  MarketingEventCost,
   MarketingEventOption,
   MarketingExpense,
 } from "./marketing-types";
@@ -107,5 +108,29 @@ export async function loadMarketingExpenses(): Promise<MarketingExpense[]> {
     paymentMethod: row.payment_method,
     remarks: row.remarks,
     createdAt: row.created_at,
+  }));
+}
+
+const eventCostQueryRows = z.array(
+  z.object({
+    event_id: z.uuid(),
+    total: z.number(),
+    marketing_events: z.object({ name: z.string() }),
+  }),
+);
+
+/** The lines of every event's cost sheet, for the dashboard's events panel. */
+export async function loadEventCosts(): Promise<MarketingEventCost[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("marketing_event_costs")
+    .select("event_id, total, marketing_events(name)");
+  if (error) {
+    throw new Error(`Could not load event costs: ${error.message}`);
+  }
+  return eventCostQueryRows.parse(data).map((row) => ({
+    eventId: row.event_id,
+    eventName: row.marketing_events.name,
+    total: row.total,
   }));
 }

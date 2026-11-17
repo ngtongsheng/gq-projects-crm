@@ -28,3 +28,10 @@ export type MarketingExpense = {
 };
 
 export type MarketingEventOption = { id: string; name: string };
+
+/** One line of an event's own cost sheet, with the event it belongs to (table marketing_event_costs). */
+export type MarketingEventCost = {
+  eventId: string;
+  eventName: string;
+  total: number;
+};

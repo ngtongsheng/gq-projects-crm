@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  expenseFiltersFromParams,
+  expenseLogHref,
   expenseMonths,
   filterExpenses,
   totalRm,
@@ -87,5 +89,31 @@ describe("totalRm", () => {
     expect(totalRm([line({ amountRm: 0.1 }), line({ amountRm: 0.2 })])).toBe(
       0.3,
     );
+  });
+});
+
+describe("expenseLogHref and expenseFiltersFromParams", () => {
+  it("round-trips the filters a dashboard link sets", () => {
+    const href = expenseLogHref({
+      month: "2026-03",
+      categoryId: "cat-folder",
+      query: "Mega Print & Co",
+    });
+    const params = Object.fromEntries(new URL(href, "http://x").searchParams);
+    expect(params.view).toBe("expenses");
+    expect(expenseFiltersFromParams(params, new Set(["cat-folder"]))).toEqual({
+      month: "2026-03",
+      categoryId: "cat-folder",
+      query: "Mega Print & Co",
+    });
+  });
+
+  it("drops a month that is not a month and a category that does not exist", () => {
+    expect(
+      expenseFiltersFromParams(
+        { month: "march", category: "gone" },
+        new Set(["cat-folder"]),
+      ),
+    ).toEqual(everything);
   });
 });

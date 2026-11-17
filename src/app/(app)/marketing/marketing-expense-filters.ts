@@ -50,3 +50,30 @@ export function filterExpenses(
 
 export const totalRm = (expenses: readonly MarketingExpense[]) =>
   sumRm(expenses.map((expense) => expense.amountRm));
+
+/** The address of the expense log with these filters already set, for links from the dashboard. */
+export function expenseLogHref(filters: Partial<ExpenseFilters>): string {
+  const params = new URLSearchParams({ view: "expenses" });
+  if (filters.month) params.set("month", filters.month);
+  if (filters.categoryId) params.set("category", filters.categoryId);
+  if (filters.query) params.set("q", filters.query);
+  return `/marketing?${params}`;
+}
+
+/** The filters an address asks for. A category that no longer exists is dropped. */
+export function expenseFiltersFromParams(
+  params: Record<string, string | string[] | undefined>,
+  categoryIds: ReadonlySet<string>,
+): ExpenseFilters {
+  const one = (key: string) => {
+    const value = params[key];
+    return typeof value === "string" ? value : "";
+  };
+  const month = one("month");
+  const category = one("category");
+  return {
+    month: /^\d{4}-\d{2}$/.test(month) ? month : "",
+    categoryId: categoryIds.has(category) ? category : "",
+    query: one("q"),
+  };
+}

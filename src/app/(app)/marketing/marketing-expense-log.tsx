@@ -18,6 +18,7 @@ import { formatRm } from "@/lib/format/money";
 import { useT } from "@/lib/i18n/language-context";
 import { MarketingExpenseDialog } from "./marketing-expense-dialog";
 import {
+  type ExpenseFilters,
   expenseMonths,
   filterExpenses,
   totalRm,
@@ -38,6 +39,8 @@ type MarketingExpenseLogProps = {
   events: readonly MarketingEventOption[];
   vendors: readonly string[];
   canEdit: boolean;
+  /** Where the log starts: empty from the tab, set when a dashboard number or vendor was clicked. */
+  initialFilters: ExpenseFilters;
 };
 
 /** The expense log (demo mkExpView): month, category and search filters over every line. A line opens to edit. */
@@ -47,11 +50,14 @@ export function MarketingExpenseLog({
   events,
   vendors,
   canEdit,
+  initialFilters,
 }: MarketingExpenseLogProps) {
   const t = useT();
-  const [month, setMonth] = useState(ALL);
-  const [categoryId, setCategoryId] = useState(ALL);
-  const [query, setQuery] = useState("");
+  const [month, setMonth] = useState(initialFilters.month || ALL);
+  const [categoryId, setCategoryId] = useState(
+    initialFilters.categoryId || ALL,
+  );
+  const [query, setQuery] = useState(initialFilters.query);
   // null: closed; "new": adding; otherwise the id of the line being edited.
   const [dialog, setDialog] = useState<string | null>(null);
 

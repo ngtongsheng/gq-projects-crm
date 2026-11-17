@@ -727,3 +727,17 @@ Goal: Vicky opens Claude and the laptop brings itself up to date; Google sign-in
 - Delete asks "Delete this expense?" first (the demo does not ask). Only editors see the Add expense button and can open
   a line; HR & Accounts sees the log read-only.
 - Server messages are shown through the dictionaries (`t(error)`), unlike the earlier pages that show them in English.
+
+### Marketing dashboard (task 11)
+- The chart is plain CSS bars (decision D9). The theme has five chart colours, so categories six and up reuse them
+  paler (60%, then 35%) instead of the demo's 11 fixed colours. The legend and the hover text name every segment.
+- A dashboard number or vendor opens the Expense log through the address (`month`, `category`, `q`). The log starts
+  from those filters and, unlike the demo, clears any earlier search text. The vendor link searches the vendor's name,
+  so a line whose description mentions that name also shows.
+- The year, and "Show all vendors", are in the address, so a reload keeps them. The vendors panel says "Show all
+  vendors" without the count (the heading already shows it).
+- "Change vs previous month" shows nothing for January (no month before it in the year), like the demo.
+- The events panel adds each event's cost-sheet lines (all years, like the demo) and its last row adds the year's log
+  total. A row opens the Events tab; the event sheet itself comes with the Events task. The low-balance banners come
+  with the prepaid task.
+- Edit categories stays in the page header on every tab, not inside the dashboard table heading.

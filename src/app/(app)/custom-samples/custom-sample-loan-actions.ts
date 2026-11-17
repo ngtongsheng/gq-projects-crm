@@ -75,16 +75,19 @@ async function stepReturn(
 }
 
 /** The borrower's "I've returned it": the office has yet to confirm, but overdue stops counting. */
-export const markCustomSampleReturned = (id: string) =>
-  stepReturn(id, "mark", "Only the borrower marks the sample returned.");
+export async function markCustomSampleReturned(id: string) {
+  return stepReturn(id, "mark", "Only the borrower marks the sample returned.");
+}
 
 /** "Received back": the sample is available again. Also the office's one-step return. */
-export const confirmCustomSampleBack = (id: string) =>
-  stepReturn(id, "confirm", NOT_KEEPER);
+export async function confirmCustomSampleBack(id: string) {
+  return stepReturn(id, "confirm", NOT_KEEPER);
+}
 
 /** "Not received": back to On loan, and the database notes it. */
-export const rejectCustomSampleReturn = (id: string) =>
-  stepReturn(id, "reject", NOT_KEEPER);
+export async function rejectCustomSampleReturn(id: string) {
+  return stepReturn(id, "reject", NOT_KEEPER);
+}
 
 /** Gives a sample away for good: to whom and why. The office, or the current borrower, may. */
 export async function giveAwayCustomSample(

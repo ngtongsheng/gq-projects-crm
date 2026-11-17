@@ -42,8 +42,8 @@ pushed; owner pushes to `main`.
 | 12 | Vendors and part-timers | done | 10 | standard |
 | 13 | Events: costs, budget vs actual, print | done | 10 | standard |
 | 14 | Prepaid accounts and sample give-away | done | 12 | standard |
-| 15 | Excel import and export | in-progress | 11, 12, 13, 14 | standard |
-| 16 | Dashboard reminders | todo | 04, 08, 14 | standard |
+| 15 | Excel import and export | done | 11, 12, 13, 14 | standard |
+| 16 | Dashboard reminders | in-progress | 04, 08, 14 | standard |
 | 17 | Docs: decisions, features, what's new, debt, roadmap | todo | 01-16 | economy |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 
@@ -109,3 +109,8 @@ pushed; owner pushes to `main`.
 2026-11-17 · #14 · decision · tiles and banners read the `marketing_prepaid_balances` view, statement running balance computed client-side; deletes ask to confirm; give-away qty whole number; banner opens `?view=prepaid&vendor=<id>`; Home "prepaid low" item left to #16
 2026-11-17 · #14 · done · check, typecheck, 3291 tests pass · next: #15
 2026-11-17 · #15 · started · standard
+2026-11-18 · #15 · resumed · agent hit the 5-hour usage limit mid-task; resumed after reset
+2026-11-18 · #15 · decision · .xlsx only, under 1 MB (server action body limit); one bad row stops the import (lists first 10); replace clears only the sheet kinds in the file, inserts before deleting; event sheets carry a details block and a Categories sheet is added for round trip; vendors sheet export-only
+2026-11-18 · exec · fix · first `pnpm build` of the loop failed: #08's three return actions in `custom-sample-loan-actions.ts` were non-async arrow exports in a "use server" file; made them async functions; build passes (exceljs bundles without config) · acceptance now includes `pnpm build`
+2026-11-18 · #15 · done · check, typecheck, 3306 tests, build pass · next: #16
+2026-11-18 · #16 · started · standard

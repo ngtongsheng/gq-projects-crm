@@ -789,3 +789,25 @@ Goal: Vicky opens Claude and the laptop brings itself up to date; Google sign-in
 - The entry's kind is fixed when it is added (top-up or deduction); editing never changes it.
 - Give-away: quantity is a whole number (database integer; the demo allowed decimals). "Given to" suggestions are all
   company names; supplier suggestions are earlier give-away suppliers. The register is not part of the dashboard totals.
+
+### Marketing Excel import and export (task 15)
+- Both live on the Expense log tab: "Download Excel" for everyone who sees the page (Accounts too), "Import Excel" for
+  the people who can edit. Export is a route (`/marketing/export`), import a server action; both use `exceljs` (D4)
+  on the server, so no internet is needed (the demo loaded SheetJS from a CDN).
+- Import takes `.xlsx` only (exceljs cannot read the old `.xls`) and files under 1 MB (the server action limit).
+- The whole file is checked first, row by row, with the same input schemas as the forms. One bad row stops the import
+  and nothing is saved; the dialog lists the first ten with sheet and row number. The demo skipped or half-imported.
+- Replace only clears the kinds of sheet the file brings (expenses, event cost sheets, prepaid, give-aways); the demo
+  overwrote all four even when the file had one. New lines go in before the old ones are removed, so a failure leaves
+  the old data (the new lines are taken out again). Vendors, event details and categories are never cleared.
+- Names the file uses that the app lacks are added: category (at the end of the list), vendor (company), event (name
+  only). A blank category becomes "Others". An unknown payment method becomes "Others"; an unknown currency "Others".
+- A prepaid line with both a top-up and a used amount is refused (the demo made it a top-up). Event and give-away lines
+  with only a total work the rate or unit cost out from the quantity.
+- Export goes beyond the demo so a round trip loses nothing: each event sheet starts with its own details (event name,
+  venue, start, end, budget, notes) above the cost table; a Categories sheet keeps the order; prepaid lines carry
+  Foreign currency and Foreign amount columns. Import reads them back; a demo file without them still imports, and an
+  existing event's details are changed only when the sheet has the block.
+- Event sheet names are cut to 31 characters and stripped of characters Excel refuses, with a number added when two
+  would clash; the full name is in the sheet's details block. The Vendors sheet is written but never imported (demo).
+- Alerts (`low_balance_alert`) are not exported or imported; they belong to the vendor's account, not the file.

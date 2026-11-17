@@ -341,4 +341,32 @@ export const bmMarketing: Dictionary = {
   statement: "penyata",
   "top up soon": "sila tambah nilai tidak lama lagi",
   "– low, top up soon": "– rendah, sila tambah nilai tidak lama lagi",
+  "A line is either a top-up or used, not both.":
+    "Satu baris sama ada tambah nilai atau digunakan, bukan kedua-duanya.",
+  "Check the event.": "Semak acara itu.",
+  "Check the row.": "Semak baris itu.",
+  "Choose the Excel file to import.": "Pilih fail Excel untuk diimport.",
+  "Could not import the file. Try again.":
+    "Tidak dapat mengimport fail. Cuba lagi.",
+  "Could not read that file. Save it as an Excel .xlsx file.":
+    "Tidak dapat membaca fail itu. Simpan sebagai fail Excel .xlsx.",
+  "Download Excel": "Muat turun Excel",
+  "Excel file": "Fail Excel",
+  Import: "Import",
+  "Import Excel": "Import Excel",
+  Imported: "Diimport",
+  "Importing...": "Mengimport...",
+  "No expense, event, prepaid or give-away sheet found in that file.":
+    "Tiada helaian perbelanjaan, acara, prabayar atau pemberian sampel dalam fail itu.",
+  "Nothing was imported. Fix these rows and try again.":
+    "Tiada apa diimport. Betulkan baris ini dan cuba lagi.",
+  "Pick an Excel (.xlsx) file with the expense log, event cost sheets, prepaid accounts or sample give-aways. The whole file is checked first; if a row is wrong, nothing is imported.":
+    "Pilih fail Excel (.xlsx) yang mengandungi log perbelanjaan, helaian kos acara, akaun prabayar atau pemberian sampel. Seluruh fail disemak dahulu; jika ada baris yang salah, tiada apa diimport.",
+  "Replace what is in the app now (untick to add on top)":
+    "Gantikan apa yang ada dalam aplikasi sekarang (nyahtanda untuk menambah di atasnya)",
+  "That file is too big. Keep it under 1 MB.":
+    "Fail terlalu besar. Kekalkan di bawah 1 MB.",
+  and: "dan",
+  more: "lagi",
+  row: "baris",
 };

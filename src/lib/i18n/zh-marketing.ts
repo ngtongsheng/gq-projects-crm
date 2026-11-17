@@ -300,4 +300,30 @@ export const zhMarketing: Dictionary = {
   statement: "对账单",
   "top up soon": "请尽快充值",
   "– low, top up soon": "– 余额偏低,请尽快充值",
+  "A line is either a top-up or used, not both.":
+    "一行只能是充值或已用，不能两者都有。",
+  "Check the event.": "请检查活动。",
+  "Check the row.": "请检查这一行。",
+  "Choose the Excel file to import.": "请选择要导入的 Excel 文件。",
+  "Could not import the file. Try again.": "无法导入文件。请再试一次。",
+  "Could not read that file. Save it as an Excel .xlsx file.":
+    "无法读取这个文件。请另存为 Excel .xlsx 文件。",
+  "Download Excel": "下载 Excel",
+  "Excel file": "Excel 文件",
+  Import: "导入",
+  "Import Excel": "导入 Excel",
+  Imported: "已导入",
+  "Importing...": "导入中...",
+  "No expense, event, prepaid or give-away sheet found in that file.":
+    "这个文件里找不到开销、活动、预付或赠送样品的工作表。",
+  "Nothing was imported. Fix these rows and try again.":
+    "没有导入任何内容。请修改这些行后再试。",
+  "Pick an Excel (.xlsx) file with the expense log, event cost sheets, prepaid accounts or sample give-aways. The whole file is checked first; if a row is wrong, nothing is imported.":
+    "请选择包含开销记录、活动成本表、预付账户或赠送样品的 Excel (.xlsx) 文件。会先检查整个文件；只要有一行不对，就不会导入任何内容。",
+  "Replace what is in the app now (untick to add on top)":
+    "取代应用里现有的内容（取消勾选则在现有内容上添加）",
+  "That file is too big. Keep it under 1 MB.": "文件太大。请控制在 1 MB 以内。",
+  and: "还有",
+  more: "行",
+  row: "行",
 };

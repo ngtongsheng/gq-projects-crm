@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Receipt } from "lucide-react";
+import { Download, Plus, Receipt } from "lucide-react";
 import { useState } from "react";
 import { DataTable } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
@@ -16,6 +16,7 @@ import {
 import { formatDate, formatMonth } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
 import { useT } from "@/lib/i18n/language-context";
+import { MarketingExcelImportDialog } from "./marketing-excel-import-dialog";
 import { MarketingExpenseDialog } from "./marketing-expense-dialog";
 import {
   type ExpenseFilters,
@@ -109,12 +110,23 @@ export function MarketingExpenseLog({
         <span className="font-mono text-sm tabular-nums text-muted-foreground">
           {shown.length} {t("lines")} · {formatRm(totalRm(shown))}
         </span>
-        {canEdit && (
-          <Button className="ml-auto" onClick={() => setDialog("new")}>
-            <Plus data-icon="inline-start" />
-            {t("Add expense")}
+        <div className="ml-auto flex flex-wrap gap-2">
+          <Button asChild variant="outline">
+            <a href="/marketing/export" download>
+              <Download data-icon="inline-start" />
+              {t("Download Excel")}
+            </a>
           </Button>
-        )}
+          {canEdit && (
+            <>
+              <MarketingExcelImportDialog />
+              <Button onClick={() => setDialog("new")}>
+                <Plus data-icon="inline-start" />
+                {t("Add expense")}
+              </Button>
+            </>
+          )}
+        </div>
       </div>
       <DataTable
         rows={shown}

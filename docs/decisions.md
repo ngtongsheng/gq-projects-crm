@@ -699,3 +699,17 @@ Goal: Vicky opens Claude and the laptop brings itself up to date; Google sign-in
 - The MD's salesperson picker lists active Salespeople, Marketing Directors and Sales Directors (from `task_people()`).
   A person in another job role who has the Sells flag borrows for themselves but is not offered to the MD.
 - Delete asks "Delete this sample?" first, like the other delete buttons in the app (the demo does not ask).
+
+### Custom samples return, give away, remind, settings (task 08)
+- The Remind button uses the borrower's WhatsApp number from People settings (`profiles.whatsapp`), not the site
+  Reminders setting: that setting only holds Site Supervisors, and borrowers are salespeople. Staff cannot read other
+  profiles, so the page reads the numbers with the service key, for the office only; without the key (a laptop) the
+  button opens WhatsApp with the text and no number, and says to add it in People.
+- The demo counts each reminder (`reminded`, `remAt`) but never shows it; nothing is stored.
+- "Not received" toast reads "Not received – <who> still has it, please follow up" (the demo's wording needs a
+  possessive that does not translate by phrase).
+- Edit is hidden on a given-away sample (the database refuses it anyway). Give away is offered to the office and to the
+  current borrower; the database decides, and a sample already given away answers "already given away".
+- Return, give away and loan-period saves are server actions with the database's own refusals passed through
+  (`custom-sample-refusal.ts`); the settings dialog saves `app_settings.customSamples` through the keepers' policies
+  from task 06.

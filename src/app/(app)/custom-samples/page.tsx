@@ -9,7 +9,9 @@ import {
   isCustomSampleSeller,
   keepsCustomSamples,
 } from "./custom-sample-access";
+import { CustomSampleSettingsDialog } from "./custom-sample-settings-dialog";
 import {
+  loadBorrowerWhatsApp,
   loadCustomerNames,
   loadCustomSamples,
   loadLoanDays,
@@ -36,6 +38,7 @@ export default async function CustomSamplesPage() {
     canBorrow ? loadCustomerNames() : [],
     picksSeller ? loadSellers() : null,
   ]);
+  const whatsapp = canKeep ? await loadBorrowerWhatsApp(samples) : {};
   const suppliers = [
     ...new Set(samples.flatMap((sample) => sample.supplier ?? [])),
   ].sort();
@@ -45,7 +48,14 @@ export default async function CustomSamplesPage() {
       <PageHeader
         title={t("Custom samples")}
         description={`${t("Hand-tufted strike-off samples. The designer records each sample when it arrives from the supplier.")} ${t("Salespeople can borrow one for a client, then bring it back. Giving a sample away needs a reason.")} ${t("Loan period")}: ${loanDays} ${t("days")}.`}
-        actions={canKeep && <RecordSampleDialog suppliers={suppliers} />}
+        actions={
+          canKeep && (
+            <>
+              <CustomSampleSettingsDialog loanDays={loanDays} />
+              <RecordSampleDialog suppliers={suppliers} />
+            </>
+          )
+        }
       />
       <CustomSamplesList
         samples={samples}
@@ -60,6 +70,7 @@ export default async function CustomSamplesPage() {
         canBorrow={canBorrow}
         sellers={sellers}
         customers={customers}
+        whatsapp={whatsapp}
       />
     </div>
   );

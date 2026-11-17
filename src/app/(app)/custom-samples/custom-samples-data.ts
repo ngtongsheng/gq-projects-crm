@@ -3,6 +3,7 @@ import { createReadLink } from "@/lib/storage/signed-url";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { loadTaskPeople } from "../tasks/task-data";
+import { openLoan } from "./custom-sample-status";
 import type { CustomSample } from "./custom-sample-types";
 
 const date = z.iso.date();
@@ -131,4 +132,35 @@ export async function loadSellers(): Promise<{ id: string; name: string }[]> {
   return people
     .filter((person) => ["sales", "bd", "director"].includes(person.jobRole))
     .map(({ id, name }) => ({ id, name }));
+}
+
+/**
+ * WhatsApp numbers (People settings) of the people holding a sample now, for the office's
+ * Remind button. Staff cannot read other profiles, so this uses the service key and is only
+ * called for the office; without the key (a laptop) nobody has a number and the button opens
+ * WhatsApp without one.
+ */
+export async function loadBorrowerWhatsApp(
+  samples: readonly CustomSample[],
+): Promise<Record<string, string>> {
+  const admin = createAdminClient();
+  const borrowers = [
+    ...new Set(
+      samples.flatMap((sample) => openLoan(sample)?.salespersonId ?? []),
+    ),
+  ];
+  if (!admin || borrowers.length === 0) return {};
+
+  const { data, error } = await admin
+    .from("profiles")
+    .select("id, whatsapp")
+    .in("id", borrowers);
+  if (error)
+    throw new Error(`Could not load WhatsApp numbers: ${error.message}`);
+  return Object.fromEntries(
+    z
+      .array(z.object({ id: z.uuid(), whatsapp: z.string().nullable() }))
+      .parse(data)
+      .flatMap((row) => (row.whatsapp ? [[row.id, row.whatsapp]] : [])),
+  );
 }

@@ -14,6 +14,7 @@ import {
   keepsCustomSamples,
 } from "./custom-sample-access";
 import { borrowSampleSchema, recordSampleSchema } from "./custom-sample-input";
+import { plainRefusal } from "./custom-sample-refusal";
 
 export type CustomSampleResult = { error: string | null };
 export type BorrowResult = { error: string } | { error: null; dueOn: string };
@@ -28,15 +29,6 @@ const NOT_FOUND = "Could not find that sample. Reload the page.";
 const TRY_AGAIN = "Could not save. Try again.";
 
 const sampleId = z.uuid({ error: NOT_FOUND });
-
-/** The database words its own refusals ("This sample was given away."); a bare policy refusal says nothing useful. */
-function plainRefusal(error: { code?: string; message?: string }) {
-  return error.code === "42501" &&
-    error.message &&
-    !/row-level security/i.test(error.message)
-    ? error.message
-    : null;
-}
 
 /**
  * Step one of a photo upload: hand back a one-file upload token for custom-samples/<sample id>/.

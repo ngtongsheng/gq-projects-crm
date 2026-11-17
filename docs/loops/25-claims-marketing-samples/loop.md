@@ -35,8 +35,8 @@ pushed; owner pushes to `main`.
 | 05 | Remove the old monthly claim (migration + code) | done | 04 | frontier |
 | 06 | Custom samples schema, photo storage, loan-days setting | done | 01 | frontier |
 | 07 | Custom samples list, record/edit, borrow, detail | done | 06 | standard |
-| 08 | Custom samples return, give away, overdue remind, settings | in-progress | 07 | standard |
-| 09 | Marketing expense schema and RLS | todo | 01 | frontier |
+| 08 | Custom samples return, give away, overdue remind, settings | done | 07 | standard |
+| 09 | Marketing expense schema and RLS | in-progress | 01 | frontier |
 | 10 | Expense log and categories editor | todo | 09 | standard |
 | 11 | Marketing dashboard and chart | todo | 10 | standard |
 | 12 | Vendors and part-timers | todo | 10 | standard |
@@ -88,3 +88,6 @@ pushed; owner pushes to `main`.
 2026-11-17 · #07 · decision · sample opens from its code button; delete asks to confirm; customer suggestions list all companies; MD's borrow picker uses `task_people()` (sales/bd/director only; other `sells` people can self-borrow but are not offered) · #17 logs the picker gap in debt.md
 2026-11-17 · #07 · done · check, typecheck, 3094 tests pass · next: #08
 2026-11-17 · #08 · started · standard
+2026-11-17 · #08 · decision · Remind uses `profiles.whatsapp` (not `site_reminders`), read server-side with the service key for keepers only, borrowers only; no reminder counter stored; sheet stays open after return/give away
+2026-11-17 · #08 · done · check, typecheck, 3115 tests pass · next: #09
+2026-11-17 · #09 · started · frontier

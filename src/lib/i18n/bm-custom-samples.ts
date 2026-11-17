@@ -81,4 +81,29 @@ export const bmCustomSamples: Dictionary = {
   "with reason": "dengan sebab",
   "with salespeople": "bersama jurujual",
   "with you": "bersama anda",
+  "received back – available again": "diterima semula, boleh dipinjam lagi",
+  "Received back": "Diterima semula",
+  "Not received": "Tidak diterima",
+  "still has it, please follow up": "masih memegangnya, sila ikut up",
+  "Waiting for designer to confirm": "Menunggu pereka mengesahkan",
+  "Thanks – the designer will confirm once received":
+    "Terima kasih – pereka akan mengesahkan apabila diterima",
+  "I've returned it": "Saya sudah pulangkan",
+  "No WhatsApp number for": "Tiada nombor WhatsApp untuk",
+  "add it in People": "tambah di People",
+  Remind: "Ingatkan",
+  "Give away…": "Berikan…",
+  "Give away": "Berikan",
+  "recorded as given away": "direkodkan sebagai diberikan",
+  "the sample will not come back to the office.":
+    "sampel tidak akan kembali ke pejabat.",
+  "Given to (customer)": "Diberikan kepada (pelanggan)",
+  "e.g. client confirmed order P1555, keeps sample for site reference":
+    "cth. pelanggan sahkan pesanan P1555, simpan sampel untuk rujukan tapak",
+  "Custom samples settings": "Tetapan sampel tersuai",
+  "How long a salesperson may keep a borrowed sample.":
+    "Berapa lama jurujual boleh menyimpan sampel yang dipinjam.",
+  "Loan period (days)": "Tempoh pinjaman (hari)",
+  "Loans already out keep their return-by date.":
+    "Pinjaman yang sudah keluar kekal dengan tarikh pulang asal.",
 };

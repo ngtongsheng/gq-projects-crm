@@ -24,6 +24,7 @@ import {
   filterCustomSamples,
 } from "./custom-sample-filters";
 import { CustomSampleThumb } from "./custom-sample-photo";
+import { CustomSampleReturnButtons } from "./custom-sample-return-buttons";
 import { CustomSampleSheet } from "./custom-sample-sheet";
 import {
   customSampleStatus,
@@ -33,7 +34,9 @@ import {
 import { CustomSampleStatusBadge } from "./custom-sample-status-badge";
 import { CustomSampleTilesRow } from "./custom-sample-tiles";
 import type { CustomSample } from "./custom-sample-types";
+import { GiveAwaySampleDialog } from "./give-away-sample-dialog";
 import { RecordSampleDialog } from "./record-sample-dialog";
+import { RemindBorrowerButton } from "./remind-borrower-button";
 
 type CustomSamplesListProps = {
   samples: readonly CustomSample[];
@@ -48,6 +51,8 @@ type CustomSamplesListProps = {
   /** The salespeople the MD lends to; null when the person borrows for themselves. */
   sellers: readonly { id: string; name: string }[] | null;
   customers: readonly string[];
+  /** WhatsApp number by person id, for the office's Remind button; empty for everyone else. */
+  whatsapp: Readonly<Record<string, string>>;
 };
 
 /** Tiles, search, filter and the list of custom samples; a sample opens in a sheet. */
@@ -62,6 +67,7 @@ export function CustomSamplesList({
   canBorrow,
   sellers,
   customers,
+  whatsapp,
 }: CustomSamplesListProps) {
   const t = useT();
   const [query, setQuery] = useState("");
@@ -90,6 +96,36 @@ export function CustomSamplesList({
         meName={meName}
       />
     ) : null;
+
+  const returnButtons = (sample: CustomSample) => {
+    const loan = openLoan(sample);
+    return (
+      <CustomSampleReturnButtons
+        sample={sample}
+        meId={meId}
+        canKeep={canKeep}
+        borrowerName={loan ? (names[loan.salespersonId] ?? t("Unnamed")) : ""}
+      />
+    );
+  };
+
+  const remindButton = (sample: CustomSample, withName = false) => {
+    const loan = openLoan(sample);
+    return canKeep && loan && daysOverdue(sample, today) > 0 ? (
+      <RemindBorrowerButton
+        sample={sample}
+        loan={loan}
+        borrowerName={names[loan.salespersonId] ?? t("Unnamed")}
+        borrowerWhatsApp={whatsapp[loan.salespersonId] ?? null}
+        withName={withName}
+      />
+    ) : null;
+  };
+
+  // A given-away sample is final; only the office or the current borrower may give one away.
+  const canGiveAway = (sample: CustomSample) =>
+    sample.givenOn === null &&
+    (canKeep || openLoan(sample)?.salespersonId === meId);
 
   return (
     <div className="flex flex-col gap-4">
@@ -263,7 +299,13 @@ export function CustomSamplesList({
           {
             key: "actions",
             header: "",
-            cell: borrowButton,
+            cell: (sample) => (
+              <span className="flex flex-wrap items-center gap-1.5">
+                {borrowButton(sample)}
+                {returnButtons(sample)}
+                {remindButton(sample)}
+              </span>
+            ),
           },
         ]}
       />
@@ -276,9 +318,17 @@ export function CustomSamplesList({
           onClose={() => setOpenId(null)}
           actions={
             <>
-              {canKeep && (
+              {canKeep && opened.givenOn === null && (
                 <RecordSampleDialog sample={opened} suppliers={suppliers} />
               )}
+              {canGiveAway(opened) && (
+                <GiveAwaySampleDialog
+                  sample={opened}
+                  loanCustomer={openLoan(opened)?.customer ?? null}
+                />
+              )}
+              {remindButton(opened, true)}
+              {returnButtons(opened)}
               {borrowButton(opened)}
             </>
           }

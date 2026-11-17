@@ -70,4 +70,28 @@ export const zhCustomSamples: Dictionary = {
   "with reason": "附原因",
   "with salespeople": "在销售员手上",
   "with you": "在你手上",
+  "received back – available again": "已收回，可再借用",
+  "Received back": "已收回",
+  "Not received": "未收到",
+  "still has it, please follow up": "仍持有，请跟进",
+  "Waiting for designer to confirm": "等设计师确认",
+  "Thanks – the designer will confirm once received":
+    "谢谢，设计师收到后会确认",
+  "I've returned it": "我已归还",
+  "No WhatsApp number for": "没有 WhatsApp 号码：",
+  "add it in People": "请在“人员”里加上",
+  Remind: "提醒",
+  "Give away…": "送出…",
+  "Give away": "送出",
+  "recorded as given away": "已记录为送出",
+  "the sample will not come back to the office.": "样板不会再回到办公室。",
+  "Given to (customer)": "送给 (客户)",
+  "e.g. client confirmed order P1555, keeps sample for site reference":
+    "例如：客户已确认订单 P1555，留着样板做现场参考",
+  "Custom samples settings": "定制样板设置",
+  "How long a salesperson may keep a borrowed sample.":
+    "销售员借用样板最长可留多久。",
+  "Loan period (days)": "借用期限 (天)",
+  "Loans already out keep their return-by date.":
+    "已借出的样板保持原来的归还日期。",
 };

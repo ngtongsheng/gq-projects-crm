@@ -25,6 +25,8 @@ type DataTableProps<Row> = {
   getRowKey: (row: Row) => string;
   /** Shown instead of the table when there are no rows, usually an EmptyState. */
   empty?: ReactNode;
+  /** Extra classes for one row, e.g. a tint for a row that needs attention. */
+  rowClassName?: (row: Row) => string | undefined;
 };
 
 export function DataTable<Row>({
@@ -32,6 +34,7 @@ export function DataTable<Row>({
   rows,
   getRowKey,
   empty,
+  rowClassName,
 }: DataTableProps<Row>) {
   if (rows.length === 0 && empty) {
     return <div className="rounded-xl border bg-card">{empty}</div>;
@@ -58,7 +61,10 @@ export function DataTable<Row>({
         </TableHeader>
         <TableBody>
           {rows.map((row) => (
-            <TableRow key={getRowKey(row)} className="hover:bg-sunk">
+            <TableRow
+              key={getRowKey(row)}
+              className={cn("hover:bg-sunk", rowClassName?.(row))}
+            >
               {columns.map((column) => (
                 <TableCell
                   key={column.key}

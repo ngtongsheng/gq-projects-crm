@@ -126,8 +126,7 @@ const PAGES: Record<PageKey, Page> = {
     label: fixed("Custom samples"),
     href: fixed("/custom-samples"),
     group: "main",
-    // Task 07 builds the page.
-    built: false,
+    built: true,
   },
   mkt: {
     key: "mkt",

@@ -34,8 +34,8 @@ pushed; owner pushes to `main`.
 | 04 | All claims list and check/release sheet | done | 03 | standard |
 | 05 | Remove the old monthly claim (migration + code) | done | 04 | frontier |
 | 06 | Custom samples schema, photo storage, loan-days setting | done | 01 | frontier |
-| 07 | Custom samples list, record/edit, borrow, detail | in-progress | 06 | standard |
-| 08 | Custom samples return, give away, overdue remind, settings | todo | 07 | standard |
+| 07 | Custom samples list, record/edit, borrow, detail | done | 06 | standard |
+| 08 | Custom samples return, give away, overdue remind, settings | in-progress | 07 | standard |
 | 09 | Marketing expense schema and RLS | todo | 01 | frontier |
 | 10 | Expense log and categories editor | todo | 09 | standard |
 | 11 | Marketing dashboard and chart | todo | 10 | standard |
@@ -85,3 +85,6 @@ pushed; owner pushes to `main`.
 2026-11-17 · #06 · decision · read access fixed to everyone but site; "not received" kept as `not_received_on date[]` on the loan; customer/project are free text; photo id chosen before upload; settings key `customSamples`; due date set by the database; details in docs/decisions.md
 2026-11-17 · #06 · done · 43 PGlite tests; check, typecheck, 3065 tests pass · next: #07
 2026-11-17 · #07 · started · standard
+2026-11-17 · #07 · decision · sample opens from its code button; delete asks to confirm; customer suggestions list all companies; MD's borrow picker uses `task_people()` (sales/bd/director only; other `sells` people can self-borrow but are not offered) · #17 logs the picker gap in debt.md
+2026-11-17 · #07 · done · check, typecheck, 3094 tests pass · next: #08
+2026-11-17 · #08 · started · standard

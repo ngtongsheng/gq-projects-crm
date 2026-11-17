@@ -36,6 +36,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "mof",
       "site",
       "stock",
+      "tuft",
       "coll",
       "comm",
       "claims",
@@ -58,6 +59,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "cost",
       "site",
       "stock",
+      "tuft",
       "coll",
       "comm",
       "claims",
@@ -80,6 +82,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "mof",
       "site",
       "stock",
+      "tuft",
       "coll",
       "comm",
       "claims",
@@ -100,6 +103,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "cost",
       "site",
       "stock",
+      "tuft",
       "coll",
       "comm",
       "claims",
@@ -120,6 +124,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "cost",
       "site",
       "stock",
+      "tuft",
       "coll",
       "comm",
       "claims",
@@ -141,6 +146,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "mof",
       "site",
       "stock",
+      "tuft",
       "coll",
       "comm",
       "claims",
@@ -184,15 +190,15 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
   },
   ssup: {
     person: viewer("ssup"),
-    keys: ["dash", "inst", "site", "stock", "tasks", "tools", "leave"],
+    keys: ["dash", "inst", "site", "stock", "tuft", "tasks", "tools", "leave"],
   },
   designer: {
     person: viewer("designer"),
-    keys: ["dash", "tasks", "tools", "leave"],
+    keys: ["dash", "tuft", "tasks", "tools", "leave"],
   },
   marketing: {
     person: viewer("marketing"),
-    keys: ["dash", "tasks", "site", "stock", "tools", "leave"],
+    keys: ["dash", "tasks", "site", "stock", "tuft", "tools", "leave"],
   },
   support: {
     person: viewer("support"),
@@ -203,6 +209,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "inst",
       "site",
       "stock",
+      "tuft",
       "tasks",
       "tools",
       "leave",
@@ -237,6 +244,7 @@ describe("navPagesFor: defaults", () => {
       "Delivery & Installation",
       "Site Work",
       "Stock",
+      "Custom samples",
       "Tasks",
       "Tools & Forms",
       "Leave",
@@ -369,14 +377,22 @@ describe("Custom samples and Marketing expense", () => {
     ]);
   });
 
-  it("stays hidden from every sidebar until the pages are built", () => {
+  it("lists Custom samples in the sidebar of every role that has it", () => {
     for (const role of roles) {
       const person = viewer(role === "arrange" ? "sales" : role, {
         arrangesStock: role === "arrange",
       });
-      expect(navKeys(person)).not.toContain("tuft");
+      expect(navKeys(person).includes("tuft")).toBe(role !== "site");
+      expect(canOpenPage(person, "tuft", {})).toBe(role !== "site");
+    }
+  });
+
+  it("keeps Marketing expense hidden from every sidebar until it is built", () => {
+    for (const role of roles) {
+      const person = viewer(role === "arrange" ? "sales" : role, {
+        arrangesStock: role === "arrange",
+      });
       expect(navKeys(person)).not.toContain("mkt");
-      expect(canOpenPage(person, "tuft", {})).toBe(false);
       expect(canOpenPage(person, "mkt", {})).toBe(false);
     }
   });

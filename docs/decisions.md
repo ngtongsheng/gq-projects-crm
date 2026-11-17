@@ -688,3 +688,14 @@ Goal: Vicky opens Claude and the laptop brings itself up to date; Google sign-in
   `photo_path` must end in .jpg, .jpeg, .png or .webp.
 - Due date is set by the database from `app_settings.customSamples.loanDays` when the loan is added; a later change
   leaves existing loans alone.
+
+### Custom samples page (task 07)
+- Photos show through short-lived signed links (service key), so on a laptop without the key the list shows grey
+  blocks and the detail sheet says photos open on the live app. The detail sheet asks for a fresh link when it opens
+  because the page's link lasts minutes.
+- A sample opens from its code (a button) rather than the whole row; the shared table has no row click.
+- The borrow customer list is every company name (companies are readable by everyone), not only own and unowned
+  contacts as in the demo; the field stays free text.
+- The MD's salesperson picker lists active Salespeople, Marketing Directors and Sales Directors (from `task_people()`).
+  A person in another job role who has the Sells flag borrows for themselves but is not offered to the MD.
+- Delete asks "Delete this sample?" first, like the other delete buttons in the app (the demo does not ask).

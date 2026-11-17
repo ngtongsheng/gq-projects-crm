@@ -42,8 +42,15 @@ const sampleRows = z.array(
   }),
 );
 
-/** Every custom sample with its loans, oldest loan first. Photos get a short-lived link where the service key exists. */
-export async function loadCustomSamples(): Promise<CustomSample[]> {
+/**
+ * Every custom sample with its loans, oldest loan first. Photos get a short-lived link where the
+ * service key exists; pass `withPhotos: false` when only the loans matter.
+ */
+export async function loadCustomSamples({
+  withPhotos = true,
+}: {
+  withPhotos?: boolean;
+} = {}): Promise<CustomSample[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("custom_samples")
@@ -54,7 +61,7 @@ export async function loadCustomSamples(): Promise<CustomSample[]> {
     throw new Error(`Could not load custom samples: ${error.message}`);
   }
 
-  const admin = createAdminClient();
+  const admin = withPhotos ? createAdminClient() : null;
   return Promise.all(
     sampleRows.parse(data).map(async (row) => {
       const link =

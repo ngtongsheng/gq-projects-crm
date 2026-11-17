@@ -14,6 +14,7 @@ import {
 import { formatDate, todayMyt } from "@/lib/format/date";
 import { loadWorkCalendar } from "@/lib/work-calendar";
 import { ManagerDashboard } from "./dashboard/manager-dashboard";
+import { ReminderPanel } from "./dashboard/reminder-panel";
 import { SalesDashboard } from "./dashboard/sales-dashboard";
 import { SupportDashboard } from "./dashboard/support-dashboard";
 
@@ -92,6 +93,7 @@ export default async function Home({
           ) : undefined
         }
       />
+      <ReminderPanel me={me} />
       {view === "mof" || me.jobRole === "support" || me.jobRole === "ssup" ? (
         <SupportDashboard me={me} />
       ) : ["sales", "bd", "marketing", "designer"].includes(me.jobRole) ? (

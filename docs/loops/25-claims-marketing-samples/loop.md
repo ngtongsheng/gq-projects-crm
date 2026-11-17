@@ -43,8 +43,8 @@ pushed; owner pushes to `main`.
 | 13 | Events: costs, budget vs actual, print | done | 10 | standard |
 | 14 | Prepaid accounts and sample give-away | done | 12 | standard |
 | 15 | Excel import and export | done | 11, 12, 13, 14 | standard |
-| 16 | Dashboard reminders | in-progress | 04, 08, 14 | standard |
-| 17 | Docs: decisions, features, what's new, debt, roadmap | todo | 01-16 | economy |
+| 16 | Dashboard reminders | done | 04, 08, 14 | standard |
+| 17 | Docs: decisions, features, what's new, debt, roadmap | in-progress | 01-16 | economy |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 
 ## Owner actions
@@ -114,3 +114,6 @@ pushed; owner pushes to `main`.
 2026-11-18 · exec · fix · first `pnpm build` of the loop failed: #08's three return actions in `custom-sample-loan-actions.ts` were non-async arrow exports in a "use server" file; made them async functions; build passes (exceljs bundles without config) · acceptance now includes `pnpm build`
 2026-11-18 · #15 · done · check, typecheck, 3306 tests, build pass · next: #16
 2026-11-18 · #16 · started · standard
+2026-11-18 · #16 · decision · reminders in a new "Reminders" panel above each dashboard (and on `/today` for site); md also sees "ready to release"; release count spans all months, active people only; no old claim reminder existed to replace; overtime item in "Needs attention" kept
+2026-11-18 · #16 · done · check, typecheck, 3327 tests, build pass · next: #17
+2026-11-18 · #17 · started · economy

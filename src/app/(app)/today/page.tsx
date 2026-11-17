@@ -24,6 +24,7 @@ import { addDays, formatDate, todayMyt } from "@/lib/format/date";
 import { resolveLanguage } from "@/lib/i18n/current-language";
 import { getT } from "@/lib/i18n/server-t";
 import { loadWorkCalendar } from "@/lib/work-calendar";
+import { ReminderPanel } from "../dashboard/reminder-panel";
 import { loadCalendarJobs } from "../installation/calendar-jobs";
 import {
   loadLeavePeople,
@@ -206,6 +207,7 @@ export default async function LogWorkPage({
           by: alert.createdBy ? nameOf(alert.createdBy) : "–",
         }))}
       />
+      <ReminderPanel me={me} />
       <FollowUpBanner followUps={chased} today={today} t={t} />
       <PlannedNotRecordedBanner jobs={plannedMissed} t={t} />
       <MissedDaysBanner days={missedDays} leave={leave} t={t} />

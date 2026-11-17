@@ -174,6 +174,27 @@ describe("travel claims", () => {
     ).rejects.toThrow("Monthly report not submitted yet.");
   });
 
+  it("a Sales Director files no monthly report, so nothing holds the release", async () => {
+    const claim = await startClaim("director");
+    expect(await update("accounts", claim.id, "status = 'released'")).toEqual([
+      { status: "released" },
+    ]);
+    expect(await read("director", claim.id)).toEqual([
+      { status: "released", released_by: t.profileIds.accounts },
+    ]);
+  });
+
+  it("a salesperson who is not a report-filing role is not held either", async () => {
+    await t.actAs(null);
+    await t.db.query("update public.profiles set sells = true where id = $1", [
+      t.profileIds.support,
+    ]);
+    const claim = await startClaim("support");
+    expect(await update("md", claim.id, "status = 'released'")).toEqual([
+      { status: "released" },
+    ]);
+  });
+
   it("refuses releasing a draft", async () => {
     const claim = await startClaim("sales", { status: "draft" });
     await fileReport("sales", claim.month, "submitted");

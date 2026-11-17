@@ -14,7 +14,7 @@ export const AMOUNT_FIELDS = [
 ] as const;
 
 /** An amount in RM; blank means not keyed in (null), as the demo stores "". */
-const optionalAmount = z.string().transform((text, ctx) => {
+export const optionalAmount = z.string().transform((text, ctx) => {
   if (text.trim() === "") return null;
   const amount = parseRm(text);
   if (amount === null || amount < 0 || amount > MAX_AMOUNT) {

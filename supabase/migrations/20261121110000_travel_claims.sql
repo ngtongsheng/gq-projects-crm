@@ -2,9 +2,10 @@
 -- five keyed totals and a remark; receipts stay on paper. Flow (demo 1.7):
 --   draft --the person submits--> submitted --md/accounts Release--> released (final)
 --   submitted --md/accounts Return--> draft
--- Release needs the person's monthly report for the SAME month submitted or later (D3). The
--- person edits their claim until it is released; md and accounts set only the final amount,
--- their note, the "verified with Vicky" date and the status.
+-- Release needs the person's monthly report for the SAME month submitted or later (D3), unless
+-- their role files none (the Sales Director). The person edits their claim until it is released;
+-- md and accounts set only the final amount, their note, the "verified with Vicky" date and the
+-- status.
 
 -- D7: only the cut-off day is still used; the other stored claim settings stay, unchecked.
 alter table public.app_settings
@@ -144,7 +145,12 @@ begin
     elsif manager and old.status = 'submitted' and new.status = 'draft' then
       null;
     elsif manager and old.status = 'submitted' and new.status = 'released' then
-      if not exists (
+      -- Roles that file no monthly report (the Sales Director) have nothing to wait for;
+      -- the roles here mirror reportKindFor in report-stats.ts.
+      if exists (
+        select 1 from public.profiles p
+        where p.id = old.profile_id and p.job_role in ('sales', 'bd', 'site')
+      ) and not exists (
         select 1 from public.monthly_reports r
         where r.profile_id = old.profile_id
           and r.month = old.month

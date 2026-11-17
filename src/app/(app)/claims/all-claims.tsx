@@ -1,70 +1,76 @@
-import { FileText } from "lucide-react";
+import { Check, FileText } from "lucide-react";
 import Link from "next/link";
 import { DataTable, type DataTableColumn } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
+import { StatusBadge } from "@/components/app/status-badge";
 import { Button } from "@/components/ui/button";
-import type { Profile } from "@/lib/auth/current-profile";
 import { JobRoleLabel } from "@/lib/auth/job-role";
-import { submittedAfterCutOff } from "@/lib/domain/claim-flow";
-import { type ClaimSettings, claimPeriod } from "@/lib/domain/monthly-claim";
+import { claimPeriod } from "@/lib/domain/monthly-claim";
 import {
   type CalendarDate,
   formatDate,
   formatMonth,
   todayMyt,
 } from "@/lib/format/date";
-import { formatRm, sumRm } from "@/lib/format/money";
+import { formatRm } from "@/lib/format/money";
 import type { Translate } from "@/lib/i18n/translate";
 import {
-  type ClaimListRow,
-  loadClaimMonths,
-  loadClaimsForMonth,
-  loadMissingClaimants,
+  loadTravelClaimRows,
+  type TravelClaimListRow,
 } from "./all-claims-data";
-import { ClaimBanner } from "./claim-banner";
-import { ClaimStatusBadge } from "./claim-status-badge";
-import { ClaimTabs } from "./claim-tabs";
+import { travelClaimMonthLabel, travelClaimMonths } from "./claim-month";
+import { TravelClaimCheckSheet } from "./travel-claim-check-sheet";
+import { travelClaimTotal } from "./travel-claim-input";
+import { TravelClaimMonthSelect } from "./travel-claim-month-select";
+import { TravelClaimPrint } from "./travel-claim-print";
+import { REPORT_STATUS_TEXT, travelClaimPill } from "./travel-claim-status";
 
-/** The MD's and HR & Accounts' list: one month's submitted claims, what waits for whom, and who has not submitted. */
+const amount = (value: number | null | undefined) =>
+  value ? formatRm(value) : "—";
+
+/** What is paid: the final amount Jany set, else what was claimed (demo tcPay). */
+const payable = (row: TravelClaimListRow) =>
+  row.claim ? (row.claim.finalAmount ?? travelClaimTotal(row.claim)) : null;
+
+/**
+ * The MD's and HR & Accounts' list: every person who files a travel claim for one claim month,
+ * with a blank row for those who have not started, and the check and release sheet for a
+ * submitted claim (opened by `?claim=`).
+ */
 export async function AllClaims({
-  me,
-  settings,
+  cutOffDay,
   requestedMonth,
+  openClaimId,
   t,
 }: {
-  me: Profile;
-  settings: ClaimSettings;
+  cutOffDay: number;
+  /** The claim month asked for in the link (first of the month), or null. */
   requestedMonth: CalendarDate | null;
+  openClaimId: string | null;
   t: Translate;
 }) {
-  const months = await loadClaimMonths(settings);
+  const months = travelClaimMonths(todayMyt(), cutOffDay);
   const month =
     requestedMonth && months.includes(requestedMonth)
       ? requestedMonth
       : months[0];
-  const viewerIsMd = me.jobRole === "md";
-  const rows = await loadClaimsForMonth(month, settings, viewerIsMd);
-  const currentMonth = months[0];
-  const missing =
-    month === currentMonth
-      ? await loadMissingClaimants(new Set(rows.map((row) => row.personId)))
-      : [];
-  const toCheck = rows.filter((row) => row.status === "submitted").length;
-  const withMd = rows.filter((row) => row.status === "checked").length;
-  const cutOff = claimPeriod(month, settings.cutOffDay).to;
+  const rows = await loadTravelClaimRows(month, cutOffDay);
+  const ready = rows.filter(
+    (row) => row.claim?.status === "submitted" && row.reportIsIn,
+  ).length;
+  const listHref = `/claims?view=all&month=${month.slice(0, 7)}`;
+  const opened = rows.find(
+    (row) => row.claim?.id === openClaimId && row.claim.status !== "draft",
+  );
+  const period = claimPeriod(month, cutOffDay);
 
-  const columns: DataTableColumn<ClaimListRow>[] = [
+  const columns: DataTableColumn<TravelClaimListRow>[] = [
     {
       key: "name",
       header: t("Name"),
       cell: (row) => (
         <div className="min-w-32">
-          <Link
-            href={`/claims/${row.id}`}
-            className="font-medium hover:underline"
-          >
-            {row.name}
-          </Link>
+          <span className="font-medium">{row.name}</span>
           <span className="block text-xs text-muted-foreground">
             {t(JobRoleLabel[row.jobRole])}
           </span>
@@ -72,156 +78,168 @@ export async function AllClaims({
       ),
     },
     {
-      key: "commission",
-      header: t("Commission"),
+      key: "petrol",
+      header: t("Petrol + toll"),
       numeric: true,
-      className: "max-sm:hidden",
-      cell: (row) => (row.commission > 0 ? formatRm(row.commission) : "—"),
+      cell: (row) => amount(row.claim?.petrolParkingToll),
     },
     {
-      key: "travel",
-      header: t("Travel expense"),
+      key: "limit",
+      header: t("Limit"),
       numeric: true,
-      cell: (row) => (
-        <div className="flex flex-col items-end">
-          {formatRm(row.expenses)}
-          {row.otAmount > 0 && (
-            <span className="text-xs font-normal text-muted-foreground">
-              + {t("OT")} {formatRm(row.otAmount)}
-            </span>
-          )}
-          <span className="text-xs font-normal text-muted-foreground">
-            {row.expenseCount} {t("items")}
-            {row.receiptCount > 0 && (
-              <>
-                {" · "}
-                {row.originalReceiptsReceived ? (
-                  t("receipts in")
-                ) : (
-                  <b className="text-bad">{t("receipts not in")}</b>
-                )}
-              </>
-            )}
-          </span>
-        </div>
-      ),
-    },
-    {
-      key: "submitted",
-      header: t("Submitted"),
-      className: "max-sm:hidden",
+      className: "max-md:hidden",
       cell: (row) =>
-        row.submittedAt ? (
-          <div className="flex flex-col">
-            <span className="font-mono whitespace-nowrap tabular-nums">
-              {formatDate(todayMyt(new Date(row.submittedAt)))}
-            </span>
-            {submittedAfterCutOff(
-              month,
-              settings.cutOffDay,
-              todayMyt(new Date(row.submittedAt)),
-            ) && (
-              <span className="text-xs text-warn">{t("after cut-off")}</span>
-            )}
-          </div>
-        ) : null,
+        row.monthlyLimit === null ? (
+          "—"
+        ) : (
+          <span
+            className={
+              (row.claim?.petrolParkingToll ?? 0) > row.monthlyLimit
+                ? "font-bold text-bad"
+                : undefined
+            }
+          >
+            {formatRm(row.monthlyLimit)}
+          </span>
+        ),
     },
     {
-      key: "status",
-      header: t("Status"),
+      key: "outstation",
+      header: t("Outstation"),
+      numeric: true,
+      className: "max-md:hidden",
+      cell: (row) => amount(row.claim?.outstation),
+    },
+    {
+      key: "hotel",
+      header: t("Hotel"),
+      numeric: true,
+      className: "max-md:hidden",
+      cell: (row) => amount(row.claim?.hotel),
+    },
+    {
+      key: "others",
+      header: t("Others"),
+      numeric: true,
+      className: "max-md:hidden",
+      cell: (row) => amount(row.claim?.others),
+    },
+    {
+      key: "total",
+      header: t("Total"),
+      numeric: true,
       cell: (row) => (
-        <div className="flex flex-col items-start gap-0.5">
-          <ClaimStatusBadge status={row.status} t={t} />
-          {row.adjusted && (
-            <span className="text-xs text-warn">{t("adjusted")}</span>
-          )}
-          {row.hasRemark && (
-            <span className="text-xs text-muted-foreground">
-              {t("has a remark")}
-            </span>
-          )}
-          {row.status === "submitted" && row.flagCount > 0 && (
-            <span className="text-xs text-warn">
-              {row.flagCount} {t("to check")}
-            </span>
-          )}
-        </div>
+        <span className="font-semibold">{amount(payable(row))}</span>
       ),
+    },
+    {
+      key: "vicky",
+      header: t("Vicky ok"),
+      className: "max-lg:hidden",
+      cell: (row) =>
+        row.claim?.verifiedWithVickyOn ? (
+          <span className="inline-flex items-center gap-1 whitespace-nowrap text-good">
+            <Check aria-hidden className="size-3.5" />
+            {formatDate(row.claim.verifiedWithVickyOn)}
+          </span>
+        ) : (
+          "—"
+        ),
+    },
+    {
+      key: "report",
+      header: t("Report"),
+      className: "max-lg:hidden",
+      cell: (row) =>
+        !row.filesReport ? (
+          "—"
+        ) : row.report && row.report !== "draft" ? (
+          <StatusBadge tone="good">
+            {t(REPORT_STATUS_TEXT[row.report])}
+          </StatusBadge>
+        ) : (
+          <StatusBadge tone="neutral">{t("Not yet")}</StatusBadge>
+        ),
+    },
+    {
+      key: "claim",
+      header: t("Claim"),
+      cell: (row) => {
+        const pill = travelClaimPill(row.claim, row.reportIsIn);
+        return (
+          <StatusBadge tone={pill.tone}>
+            {t(pill.label)}
+            {pill.date && ` ${formatDate(pill.date)}`}
+          </StatusBadge>
+        );
+      },
     },
     {
       key: "open",
       header: "",
-      cell: (row) => (
-        <Button asChild variant="outline" size="sm">
-          <Link href={`/claims/${row.id}`}>{t("Open")}</Link>
-        </Button>
-      ),
+      cell: (row) =>
+        row.claim && row.claim.status !== "draft" ? (
+          <Button asChild variant="outline" size="sm">
+            <Link href={`${listHref}&claim=${row.claim.id}`} scroll={false}>
+              {t("Open")}
+            </Link>
+          </Button>
+        ) : null,
     },
   ];
 
   return (
-    <div className="flex flex-col gap-4">
-      <ClaimTabs
-        label={t("Claim month")}
-        active={month}
-        tabs={months.slice(0, 6).map((id) => ({
-          id,
-          label: `${formatMonth(id)} ${t("claim")}`,
-          href: `/claims?view=all&month=${id.slice(0, 7)}`,
-        }))}
-      />
-      <p className="text-sm text-muted-foreground">
-        {rows.length} {t("submitted")} · {t("commission")}{" "}
-        {formatRm(sumRm(rows.map((row) => row.commission)))} · {t("expense")}{" "}
-        {formatRm(sumRm(rows.map((row) => row.expenses)))} · {t("cut-off")}{" "}
-        {formatDate(cutOff)}
-      </p>
-      <ClaimBanner tone="info">
-        <b>{t("How claims flow:")}</b>{" "}
-        {t(
-          "HR & Accounts checks (receipts, itinerary, adjust, remark), then HR & Accounts or the MD approves, then HR & Accounts pays.",
-        )}{" "}
-        {viewerIsMd ? (
-          withMd > 0 ? (
-            <b>
-              {withMd} {t("waiting for your approval.")}
-            </b>
-          ) : (
-            t("Nothing waiting for you.")
-          )
-        ) : (
-          <>
-            {toCheck > 0 && (
-              <b>
-                {toCheck} {t("to check.")}
-              </b>
-            )}
-            {withMd > 0 && (
-              <>
-                {" "}
-                {withMd} {t("with the MD.")}
-              </>
-            )}
-          </>
-        )}
-      </ClaimBanner>
-      <DataTable
-        columns={columns}
-        rows={rows}
-        getRowKey={(row) => row.id}
-        empty={
-          <EmptyState
-            icon={FileText}
-            title={`${t("No claims submitted for")} ${formatMonth(month)} ${t("yet.")}`}
+    <>
+      <div className="flex flex-col gap-4 print:hidden">
+        <div className="flex flex-wrap items-center gap-3">
+          <TravelClaimMonthSelect
+            value={month}
+            months={months.map((option) => ({
+              month: option,
+              label: travelClaimMonthLabel(option, cutOffDay),
+              href: `/claims?view=all&month=${option.slice(0, 7)}`,
+            }))}
           />
-        }
-      />
-      {missing.length > 0 && (
+          <span className="ml-auto text-sm text-muted-foreground">
+            <b className="text-foreground">{ready}</b> {t("ready to release")}
+          </span>
+        </div>
+        <DataTable
+          columns={columns}
+          rows={rows}
+          getRowKey={(row) => row.personId}
+          empty={
+            <EmptyState
+              icon={FileText}
+              title={t("Nobody files a travel claim yet.")}
+            />
+          }
+        />
         <p className="text-sm text-muted-foreground">
-          {t("Not submitted yet:")} {missing.join(", ")} · {t("cut-off")}{" "}
-          {formatDate(cutOff)}
+          {t(
+            "Open a submitted claim to check it against the printed form and the receipts.",
+          )}
         </p>
+      </div>
+      {opened?.claim && (
+        <>
+          <TravelClaimCheckSheet
+            key={opened.claim.id}
+            row={{ ...opened, claim: opened.claim }}
+            monthLabel={formatMonth(month)}
+            closeHref={listHref}
+          />
+          <TravelClaimPrint
+            claim={opened.claim}
+            personName={opened.name}
+            position={t(JobRoleLabel[opened.jobRole])}
+            monthLabel={formatMonth(month)}
+            periodLabel={`${formatDate(period.from).slice(0, -5)} – ${formatDate(period.to)}`}
+            monthlyCap={opened.monthlyLimit}
+            t={t}
+          />
+        </>
       )}
-    </div>
+    </>
   );
 }

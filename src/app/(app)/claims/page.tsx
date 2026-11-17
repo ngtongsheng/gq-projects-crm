@@ -18,6 +18,7 @@ import { OvertimeToDecide } from "./overtime-to-decide";
 export const metadata: Metadata = { title: "Claims" };
 
 const monthParam = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/);
+const claimParam = z.uuid();
 const viewParam = z.enum(["all", "mine", "appeals", "settings"]).catch("all");
 
 export default async function ClaimsPage({
@@ -81,9 +82,9 @@ export default async function ClaimsPage({
         <>
           <OvertimeToDecide me={me} t={t} />
           <AllClaims
-            me={me}
-            settings={settings}
+            cutOffDay={settings.cutOffDay}
             requestedMonth={requestedMonth}
+            openClaimId={claimParam.safeParse(search.claim).data ?? null}
             t={t}
           />
         </>

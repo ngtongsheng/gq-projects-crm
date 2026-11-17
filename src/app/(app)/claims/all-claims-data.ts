@@ -1,182 +1,95 @@
 import { z } from "zod";
 import type { JobRole } from "@/lib/auth/job-role";
 import { canFileClaim } from "@/lib/domain/claim-eligibility";
-import { CLAIM_STATUSES } from "@/lib/domain/claim-flow";
-import { type ClaimSettings, claimMonthOf } from "@/lib/domain/monthly-claim";
-import { type CalendarDate, todayMyt } from "@/lib/format/date";
-import { sumRm, toCents } from "@/lib/format/money";
+import { claimPeriod } from "@/lib/domain/monthly-claim";
+import { type ReportStatus, reportKindFor } from "@/lib/domain/report-stats";
+import type { CalendarDate } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
+import { loadMonthlyLimits } from "./claim-limits-data";
 import { loadClaimPeople } from "./claim-people-data";
-import { createClaimFlagger, toFlagExpenses } from "./claim-review-flags";
+import {
+  parseTravelClaims,
+  TRAVEL_CLAIM_COLUMNS,
+  type TravelClaim,
+} from "./travel-claim-data";
+import { reportAllowsRelease } from "./travel-claim-status";
 
-const monthRows = z.array(z.object({ month: z.iso.date() }));
-
-/** The months that have a submitted claim, newest first, always with the claim month now. */
-export async function loadClaimMonths(
-  settings: Pick<ClaimSettings, "cutOffDay">,
-): Promise<CalendarDate[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("monthly_claims")
-    .select("month")
-    .neq("status", "draft")
-    .order("month", { ascending: false })
-    .limit(300);
-  if (error)
-    throw new Error(`Could not load the claim months: ${error.message}`);
-  const now = claimMonthOf(todayMyt(), settings.cutOffDay);
-  return [
-    ...new Set([now, ...monthRows.parse(data).map((row) => row.month)]),
-  ].sort((a, b) => b.localeCompare(a));
-}
-
-const amountPair = z.object({
-  amount: z.coerce.number(),
-  original_amount: z.coerce.number(),
-});
-
-const claimRows = z.array(
-  z.object({
-    id: z.uuid(),
-    profile_id: z.uuid(),
-    status: z.enum(CLAIM_STATUSES),
-    remark: z.string(),
-    original_receipts_received: z.boolean(),
-    ot_original_amount: z.coerce.number().nullable(),
-    ot_amount: z.coerce.number().nullable(),
-    monthly_claim_commissions: z.array(amountPair),
-    monthly_claim_expenses: z.array(
-      amountPair.extend({
-        id: z.uuid(),
-        spent_on: z.iso.date(),
-        expense_type: z.string(),
-        km: z.coerce.number().nullable(),
-        nights: z.number().nullable(),
-        receipt_path: z.string().nullable(),
-      }),
-    ),
-    monthly_claim_log: z.array(
-      z.object({ status: z.string(), changed_at: z.string() }),
-    ),
-  }),
-);
-
-export type ClaimListRow = {
-  id: string;
+export type TravelClaimListRow = {
   personId: string;
   name: string;
   jobRole: JobRole;
-  status: (typeof CLAIM_STATUSES)[number];
-  commission: number;
-  expenses: number;
-  expenseCount: number;
-  receiptCount: number;
-  originalReceiptsReceived: boolean;
-  /** In ringgit, frozen at submit. */
-  otAmount: number;
-  /** When it was last submitted, as a timestamp. */
-  submittedAt: string | null;
-  adjusted: boolean;
-  hasRemark: boolean;
-  /** Items to check; counted while it waits for HR & Accounts (demo: only Submitted). */
-  flagCount: number;
+  /** Null when the person has not started one: the list still shows their row. */
+  claim: TravelClaim | null;
+  releasedByName: string | null;
+  /** Petrol, parking and toll limit from HR; null for none. */
+  monthlyLimit: number | null;
+  /** Null when no report was started, and for roles that file none. */
+  report: ReportStatus | null;
+  filesReport: boolean;
+  /** The report no longer holds the claim back (demo tcRep). */
+  reportIsIn: boolean;
 };
 
-/** Order of the MD's list: what waits for their approval first (demo ORD). */
-const MD_ORDER = ["checked", "submitted", "returned", "approved", "paid"];
+const reportRows = z.array(
+  z.object({
+    profile_id: z.uuid(),
+    status: z.enum(["draft", "submitted", "reviewed", "approved"]),
+  }),
+);
 
-/** Every submitted claim for a month with its totals and, while submitted, the number of flagged items. */
-export async function loadClaimsForMonth(
+/** Every active person who files a travel claim, in name order, with their claim and monthly report for a claim month. */
+export async function loadTravelClaimRows(
   month: CalendarDate,
-  settings: ClaimSettings,
-  viewerIsMd: boolean,
-): Promise<ClaimListRow[]> {
+  cutOffDay: number,
+): Promise<TravelClaimListRow[]> {
+  const everyone = await loadClaimPeople();
+  const people = [...everyone.values()]
+    .filter((person) => person.active && canFileClaim(person))
+    .sort((a, b) => a.name.localeCompare(b.name));
   const supabase = await createClient();
-  const people = await loadClaimPeople();
-  const { data, error } = await supabase
-    .from("monthly_claims")
-    .select(
-      "id, profile_id, status, remark, original_receipts_received, ot_original_amount, ot_amount, monthly_claim_commissions(amount, original_amount), monthly_claim_expenses(id, spent_on, expense_type, km, nights, amount, original_amount, receipt_path), monthly_claim_log(status, changed_at)",
-    )
-    .eq("month", month)
-    .neq("status", "draft");
-  if (error) throw new Error(`Could not load the claims: ${error.message}`);
-  const claims = claimRows.parse(data).flatMap((claim) => {
-    const person = people.get(claim.profile_id);
-    return person ? [{ ...claim, person }] : [];
-  });
-
-  const submitted = claims.filter((claim) => claim.status === "submitted");
-  const flagsFor =
-    submitted.length > 0 ? await createClaimFlagger(settings) : null;
-  const flagCounts = new Map<string, number>();
-  if (flagsFor) {
-    await Promise.all(
-      submitted.map(async (claim) => {
-        const flags = await flagsFor({
-          personId: claim.profile_id,
-          jobRole: claim.person.jobRole,
-          month,
-          expenses: toFlagExpenses(claim.monthly_claim_expenses),
-        });
-        flagCounts.set(claim.id, flags.count);
-      }),
-    );
+  const [claims, reports, limits] = await Promise.all([
+    supabase
+      .from("travel_claims")
+      .select(TRAVEL_CLAIM_COLUMNS)
+      .eq("month", month),
+    supabase
+      .from("monthly_reports")
+      .select("profile_id, status")
+      .eq("month", month)
+      .in(
+        "profile_id",
+        people.map((person) => person.id),
+      ),
+    loadMonthlyLimits(people, claimPeriod(month, cutOffDay).to),
+  ]);
+  if (claims.error) {
+    throw new Error(`Could not load the claims: ${claims.error.message}`);
   }
+  if (reports.error) {
+    throw new Error(`Could not load the reports: ${reports.error.message}`);
+  }
+  const claimOf = new Map(
+    parseTravelClaims(claims.data).map((claim) => [claim.personId, claim]),
+  );
+  const reportOf = new Map(
+    reportRows.parse(reports.data).map((row) => [row.profile_id, row.status]),
+  );
 
-  const rows = claims.map((claim): ClaimListRow => {
-    const lines = [
-      ...claim.monthly_claim_commissions,
-      ...claim.monthly_claim_expenses,
-    ];
+  return people.map((person) => {
+    const claim = claimOf.get(person.id) ?? null;
+    const report = reportOf.get(person.id) ?? null;
     return {
-      id: claim.id,
-      personId: claim.profile_id,
-      name: claim.person.name,
-      jobRole: claim.person.jobRole,
-      status: claim.status,
-      commission: sumRm(claim.monthly_claim_commissions.map((l) => l.amount)),
-      expenses: sumRm(claim.monthly_claim_expenses.map((l) => l.amount)),
-      expenseCount: claim.monthly_claim_expenses.length,
-      receiptCount: claim.monthly_claim_expenses.filter(
-        (l) => l.receipt_path !== null,
-      ).length,
-      originalReceiptsReceived: claim.original_receipts_received,
-      otAmount: claim.ot_amount ?? 0,
-      submittedAt:
-        claim.monthly_claim_log
-          .filter((entry) => entry.status === "submitted")
-          .map((entry) => entry.changed_at)
-          .sort()
-          .at(-1) ?? null,
-      adjusted:
-        lines.some((l) => toCents(l.amount) !== toCents(l.original_amount)) ||
-        toCents(claim.ot_amount ?? 0) !==
-          toCents(claim.ot_original_amount ?? 0),
-      hasRemark: claim.remark.trim() !== "",
-      flagCount: flagCounts.get(claim.id) ?? 0,
+      personId: person.id,
+      name: person.name,
+      jobRole: person.jobRole,
+      claim,
+      releasedByName: claim?.releasedBy
+        ? (everyone.get(claim.releasedBy)?.name ?? null)
+        : null,
+      monthlyLimit: limits.get(person.id) ?? null,
+      report,
+      filesReport: reportKindFor(person.jobRole) !== null,
+      reportIsIn: reportAllowsRelease(person.jobRole, report),
     };
   });
-  return rows.sort(
-    (a, b) =>
-      (viewerIsMd
-        ? MD_ORDER.indexOf(a.status) - MD_ORDER.indexOf(b.status)
-        : 0) || a.name.localeCompare(b.name),
-  );
-}
-
-/** Active people who file a claim and have none submitted for the month, by name. */
-export async function loadMissingClaimants(
-  submittedPersonIds: ReadonlySet<string>,
-): Promise<string[]> {
-  const people = await loadClaimPeople();
-  return [...people.values()]
-    .filter(
-      (person) =>
-        person.active &&
-        canFileClaim({ jobRole: person.jobRole, sells: person.sells }) &&
-        !submittedPersonIds.has(person.id),
-    )
-    .map((person) => person.name)
-    .sort((a, b) => a.localeCompare(b));
 }

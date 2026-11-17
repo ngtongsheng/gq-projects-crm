@@ -31,8 +31,8 @@ pushed; owner pushes to `main`.
 | 01 | exceljs allow rule; adopt new demo; page registry, icons, access defaults | done | | standard |
 | 02 | Travel claims schema, RLS, cut-off setting | done | 01 | frontier |
 | 03 | My travel claim: form, submit/update, print | done | 02 | standard |
-| 04 | All claims list and check/release sheet | in-progress | 03 | standard |
-| 05 | Remove the old monthly claim (migration + code) | todo | 04 | frontier |
+| 04 | All claims list and check/release sheet | done | 03 | standard |
+| 05 | Remove the old monthly claim (migration + code) | in-progress | 04 | frontier |
 | 06 | Custom samples schema, photo storage, loan-days setting | todo | 01 | frontier |
 | 07 | Custom samples list, record/edit, borrow, detail | todo | 06 | standard |
 | 08 | Custom samples return, give away, overdue remind, settings | todo | 07 | standard |
@@ -73,3 +73,6 @@ pushed; owner pushes to `main`.
 2026-11-17 · #03 · done · check, typecheck, 3141 tests pass · next: #04
 2026-11-17 · #04 · decision · director files no monthly report (`reportKindFor` → null), so #02's release gate would block every director claim; #04 amends the unapplied travel_claims migration so roles with no report skip the gate
 2026-11-17 · #04 · started · standard
+2026-11-17 · #04 · decision · release gate applies only to job_role sales/bd/site (mirrors `reportKindFor`); Vicky soft warning is client-only; sheet opens from an "Open" button; review actions import `canManageClaims` from `claim-flow.ts` (#05 must move it)
+2026-11-17 · #04 · done · check, typecheck, 3157 tests pass · next: #05
+2026-11-17 · #05 · started · frontier

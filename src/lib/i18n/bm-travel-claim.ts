@@ -64,4 +64,35 @@ export const bmTravelClaim: Dictionary = {
   "up to": "sehingga",
   Released: "Dilepaskan",
   "Could not save. Try again.": "Tidak dapat menyimpan. Cuba lagi.",
+  "Petrol + toll": "Petrol + tol",
+  Limit: "Had",
+  Outstation: "Luar kawasan",
+  "Vicky ok": "Vicky setuju",
+  Report: "Laporan",
+  "ready to release": "sedia dilepaskan",
+  "Nobody files a travel claim yet.":
+    "Belum ada orang yang membuat tuntutan perjalanan.",
+  "Open a submitted claim to check it against the printed form and the receipts.":
+    "Buka tuntutan yang dihantar untuk menyemaknya dengan borang bercetak dan resit.",
+  "Claim released": "Tuntutan dilepaskan",
+  "Total claimed": "Jumlah dituntut",
+  "Final amount to pay (RM)": "Jumlah akhir untuk dibayar (RM)",
+  "Verified with Vicky": "Disahkan dengan Vicky",
+  "Jany's note (shown to the person)":
+    "Nota Jany (dipaparkan kepada orang itu)",
+  "can release": "boleh dilepaskan",
+  "hold the claim until it is submitted":
+    "tahan tuntutan sehingga laporan dihantar",
+  "Not yet verified with Vicky. Tap Release again to release anyway.":
+    "Belum disahkan dengan Vicky. Tekan Lepaskan sekali lagi untuk melepaskan juga.",
+  "Returned to": "Dipulangkan kepada",
+  "Release claim": "Lepaskan tuntutan",
+  Saved: "Disimpan",
+  "Only HR & Accounts or the MD checks a claim, and never their own.":
+    "Hanya HR & Akaun atau MD yang menyemak tuntutan, dan tidak pernah tuntutan sendiri.",
+  "Could not find that claim. Reload the page.":
+    "Tuntutan itu tidak dijumpai. Muat semula halaman.",
+  "This claim is no longer waiting to be checked. Reload the page.":
+    "Tuntutan ini tidak lagi menunggu semakan. Muat semula halaman.",
+  "Monthly report not submitted yet": "Laporan bulanan belum dihantar",
 };

@@ -56,4 +56,31 @@ export const zhTravelClaim: Dictionary = {
   "Write what was bought": "请写明购买了什么",
   "Keep this under 300 characters.": "请保持在 300 个字以内。",
   "Keep this under 1000 characters.": "请保持在 1000 个字以内。",
+  "Petrol + toll": "汽油 + 过路费",
+  Limit: "上限",
+  Outstation: "出差津贴",
+  "Vicky ok": "Vicky 已确认",
+  Report: "月报",
+  "ready to release": "可放行",
+  "Nobody files a travel claim yet.": "还没有人需要提交差旅报销。",
+  "Open a submitted claim to check it against the printed form and the receipts.":
+    "打开已提交的报销，对照打印表格和收据检查。",
+  "Claim released": "报销已放行",
+  "Total claimed": "申报总额",
+  "Final amount to pay (RM)": "最终支付金额 (RM)",
+  "Verified with Vicky": "已与 Vicky 确认",
+  "Jany's note (shown to the person)": "Jany 的备注（申请人可见）",
+  "can release": "可放行",
+  "hold the claim until it is submitted": "月报提交前请先不要放行",
+  "Not yet verified with Vicky. Tap Release again to release anyway.":
+    "尚未与 Vicky 确认。再点一次“放行”即可照样放行。",
+  "Returned to": "已退回给",
+  "Release claim": "放行报销",
+  "Not yet": "尚未",
+  "Only HR & Accounts or the MD checks a claim, and never their own.":
+    "只有人事与会计或董事总经理审核报销，且不能审核自己的报销。",
+  "Could not find that claim. Reload the page.": "找不到该报销。请刷新页面。",
+  "This claim is no longer waiting to be checked. Reload the page.":
+    "该报销已不在待审核状态。请刷新页面。",
+  "Monthly report not submitted yet": "月报尚未提交",
 };

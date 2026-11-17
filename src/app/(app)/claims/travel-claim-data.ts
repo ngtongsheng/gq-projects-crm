@@ -11,6 +11,8 @@ const amount = z.coerce.number().nullable();
 
 const travelClaimRow = z
   .object({
+    id: z.uuid(),
+    profile_id: z.uuid(),
     status: z.enum(TRAVEL_CLAIM_STATUSES),
     petrol_parking_toll: amount,
     outstation: amount,
@@ -22,9 +24,13 @@ const travelClaimRow = z
     submitted_on: z.iso.date().nullable(),
     final_amount: amount,
     final_note: z.string().nullable(),
+    verified_with_vicky_on: z.iso.date().nullable(),
     released_on: z.iso.date().nullable(),
+    released_by: z.uuid().nullable(),
   })
   .transform((row) => ({
+    id: row.id,
+    personId: row.profile_id,
     status: row.status,
     petrolParkingToll: row.petrol_parking_toll,
     outstation: row.outstation,
@@ -36,12 +42,17 @@ const travelClaimRow = z
     submittedOn: row.submitted_on,
     finalAmount: row.final_amount,
     finalNote: row.final_note,
+    verifiedWithVickyOn: row.verified_with_vicky_on,
     releasedOn: row.released_on,
+    releasedBy: row.released_by,
   }));
 export type TravelClaim = z.output<typeof travelClaimRow>;
 
-const COLUMNS =
-  "status, petrol_parking_toll, outstation, hotel, others, others_description, overtime, remark, submitted_on, final_amount, final_note, released_on";
+export const parseTravelClaims = (data: unknown): TravelClaim[] =>
+  z.array(travelClaimRow).parse(data);
+
+export const TRAVEL_CLAIM_COLUMNS =
+  "id, profile_id, status, petrol_parking_toll, outstation, hotel, others, others_description, overtime, remark, submitted_on, final_amount, final_note, verified_with_vicky_on, released_on, released_by";
 
 /** The person's claim for a claim month, or null when they have not started one. Row-level security limits it to their own. */
 export async function loadTravelClaim(
@@ -51,7 +62,7 @@ export async function loadTravelClaim(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("travel_claims")
-    .select(COLUMNS)
+    .select(TRAVEL_CLAIM_COLUMNS)
     .eq("profile_id", personId)
     .eq("month", month)
     .maybeSingle();

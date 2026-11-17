@@ -17,8 +17,9 @@ import { travelClaimTotal } from "./travel-claim-input";
 import { TravelClaimMonthSelect } from "./travel-claim-month-select";
 import { TravelClaimPrint } from "./travel-claim-print";
 import {
+  filesMonthlyReport,
   REPORT_STATUS_TEXT,
-  reportIsIn,
+  reportAllowsRelease,
   travelClaimPill,
 } from "./travel-claim-status";
 
@@ -61,7 +62,7 @@ export async function MyTravelClaim({
     loadMonthReportStatus(me, month),
   ]);
   const { monthlyCap, hotelBudget } = claimCapsOn(caps.basis, period.to);
-  const pill = travelClaimPill(claim, report);
+  const pill = travelClaimPill(claim, reportAllowsRelease(me.jobRole, report));
   const total = claim ? travelClaimTotal(claim) : 0;
   const reportText = report
     ? REPORT_STATUS_TEXT[report]
@@ -112,11 +113,13 @@ export async function MyTravelClaim({
               </p>
             )
           )}
-          <p className="text-sm text-muted-foreground">
-            {t("Monthly report")} {formatMonth(month)}: <b>{t(reportText)}</b>
-            {!reportIsIn(report) &&
-              ` – ${t("Jany releases the claim only after it is submitted.")}`}
-          </p>
+          {filesMonthlyReport(me.jobRole) && (
+            <p className="text-sm text-muted-foreground">
+              {t("Monthly report")} {formatMonth(month)}: <b>{t(reportText)}</b>
+              {!reportAllowsRelease(me.jobRole, report) &&
+                ` – ${t("Jany releases the claim only after it is submitted.")}`}
+            </p>
+          )}
         </TravelClaimForm>
       </section>
 

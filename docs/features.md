@@ -22,7 +22,8 @@ Job roles: MD, Sales Director, Marketing Director, Salesperson, HR & Accounts, S
 - [MOF detail](#mof-detail)
 - [Site Work](#site-work)
 - [Site Work detail](#site-work-detail)
-- [Claims](#claims)
+- [Travel claims](#travel-claims)
+- [Custom samples](#custom-samples)
 - [Overtime](#overtime)
 - [Stock](#stock)
 - [Samples](#samples)
@@ -33,6 +34,7 @@ Job roles: MD, Sales Director, Marketing Director, Salesperson, HR & Accounts, S
 - [Team Reports](#team-reports)
 - [Director Report](#director-report)
 - [Tasks](#tasks)
+- [Marketing expense](#marketing-expense)
 - [HR](#hr)
 - [Tools & Forms](#tools--forms)
 - [Leave](#leave)
@@ -245,40 +247,53 @@ and links. Site supervisors log visits and update the stage.
 
 Used by: MD, Sales Director, BD Director, Sales, HR & Accounts, Site Supervisor, Purchasing.
 
-## Claims
-One monthly claim per person, for commission and travelling costs. The sidebar says **My claims** for staff and
-**Claims** for managers. A claim runs: Draft, Submitted, Checked (HR & Accounts), Approved (HR & Accounts or the MD),
-Paid (HR & Accounts only). A claim can be Returned from Submitted or Checked, and the person fixes it and sends it again.
-Expenses dated after the cut-off day (25 by default, MD can change it) go to next month's claim.
+## Travel claims
+Each month a person sends one travel claim for their travelling costs. The sidebar says **My travel claim** for sales,
+Marketing Director, Sales Director and Site supervisors (site says **My claims**), and **Travel claims** for the MD and
+HR & Accounts. A claim runs: not submitted, Submitted, Released. Released is final.
 
-**Your claim** has three sections.
-- **A. Commission.** Orders that are 90% or more paid. Tick the ones to claim and the late-collection cut is shown. A line
-  in a claim that is waiting or approved cannot be claimed again; it is free again once the claim is paid.
-- **B. Travelling.** Petrol, Toll, Parking, Outstation meals, Hotel, Mileage (per km), Grab and Others. Each line gets a
-  receipt number (R1, R2...) and a photo, except Mileage. The screen warns, but never blocks, when there is no visit
-  logged that day, the hotel is over budget, meals are claimed twice, a day is over 150 km, or petrol, toll and parking
-  pass the monthly limit in the person's HR package. Mileage does not count toward that monthly limit.
-- **C. Overtime.** The month's approved overtime and replacement leave are added up for you. This section shows only for
-  Site Supervisors, or when the person has an overtime entry that month; the Travelling section is numbered B only for
-  people who claim commission.
+The claim month runs from the day after last month's cut-off day to the cut-off day (25th by default; set in the app
+settings). The form offers this month and the five before it.
 
-You can only send the claim after last month's report is submitted. The checker and the approver see the warnings and
-must write a remark when a claim has any. After a claim is Submitted, the checker and approver can adjust a line with a
-reason; adjustments lock once it is Approved. The claim shows the original amount next to the final amount. When
-approving, the app writes the commission payout in the same step, so an approved claim never lacks its payouts.
-The checker can also tick "original receipts received" and, for a late-collection cut, waive it only when an approved
-appeal exists.
+**My travel claim** has these amounts, all in RM, and a live total.
+- **Petrol, parking and toll (TNG) total.** Shows the monthly limit from the person's HR package, and marks the amount
+  when it goes over. The limit is a warning only.
+- **Outstation allowance total.** The meals are typed in as one total.
+- **Accommodation (hotel) total.** The hotel budget is shown as a hint only.
+- **Others, bought for the company.** A description is needed when this has an amount.
+- **Overtime (approved).** Shown to Site supervisors only.
+- **Remark.** Say why a trip is over the limit or other notes.
 
-**Managers** also get an **All claims** tab (who has not submitted, open and approve), an **Appeals** tab (moved here from
-Commission, which keeps a link), an **Overtime to decide** list, and **Settings** (cut-off day, mileage rate, km per day
-limit, travel limit, the report-first rule). The late-collection cut percentages stay on Commission settings (MD only).
+Submit with **Save & submit to Jany**; the person can keep changing it until it is released. A claim needs at least one
+amount above zero. **Print claim form** gives the A4 form to attach the receipts to. The page warns when last month's
+monthly report is not submitted yet.
 
-**Print.** A4 monthly claim form with sections A to C, signatures for Claimed, Checked and Approved by, and the
-original-versus-final box. It leaves out the invoice date, a meals column and the overtime approver's name.
+**All claims** (MD and HR & Accounts) lists every eligible person for the month, with the limit, the total and whether the
+month's monthly report is in. Open a claim to check it against the printed form and the receipts. You can set a final
+amount and a note, **Return** it to the person, or **Release** it. Release needs the same month's monthly report
+submitted (sales, Marketing Director and site supervisors). If Vicky has not ticked "Verified with Vicky", the first tap
+on Release warns; the second tap releases anyway. The MD and HR & Accounts cannot check their own claim.
 
-Used by: everyone with a job role for their own claim; MD and HR & Accounts to check and approve.
+The dashboards show a reminder when the cut-off is within 10 days and the claim is missing or still a draft, and when
+claims are ready to release.
 
-![Claims page with overtime to decide and the monthly claim table](screenshots/claims.jpg)
+Used by: sales, Marketing Director, Sales Director and Site supervisors for their own claim; MD and HR & Accounts to
+check and release.
+
+## Custom samples
+Sample pieces the company lends to customers and prospects. Kept apart from the stock **Samples** page. Each sample has a
+code, a design name and a photo. Customer and project are typed in, so a prospect who is not a customer yet can borrow one.
+
+- **Borrow** an available sample. The due date comes from the loan period in the settings.
+- **Return** takes two steps: the borrower marks it returned, then the office confirms it is back. If it did not come back,
+  **Not received** adds a dated note and the loan stays open.
+- **Give away** ends the loan for good. A given-away sample cannot be edited.
+- **Remind** opens WhatsApp to the borrower, using the number in People. The app does not count reminders.
+- The dashboards show samples due within 3 days, overdue samples, and samples to confirm back.
+
+Accounts can view the page but not change it.
+
+Used by: everyone except Site supervisors (the MD can change this in People).
 
 ## Overtime
 Night and weekend work claims. The page is no longer in the sidebar: staff open the form from **Claims**. Staff add a claim with the time and the job; the MD or Sales Director approves
@@ -403,6 +418,29 @@ app only (tiles and overdue marks); WhatsApp reminders come later. A task cannot
 Used by: everyone with the Tasks page.
 
 ![Tasks assigned by the MD with due date and status](screenshots/tasks.jpg)
+
+## Marketing expense
+Where the company's marketing money goes. Tabs: **Dashboard**, **Expense log**, **Vendors and part-timers**, **Events**,
+**Prepaid accounts** and **Sample give-away**. Expense categories are set with **Edit categories**; the first list has 11.
+
+- **Expense log.** Each line has a date, category, vendor, invoice number, amount, payment method and an optional event.
+  A foreign-currency amount keeps its currency. Delete asks first.
+- **Dashboard.** Spend by month and category, with the change from the month before, and the biggest vendors. Each
+  number opens the expense log with the matching filter. The events and prepaid balances show here too.
+- **Vendors and part-timers.** Companies and part-timers, with their year total and last payment. A vendor in use cannot
+  be deleted.
+- **Events.** Each event has a cost sheet with budget against actual cost, and prints as an event costing sheet. Cost
+  includes the cost lines and the log lines tagged to the event.
+- **Prepaid accounts.** Top-ups and used amounts per vendor, with the balance. A vendor can have a low-balance alert;
+  the dashboards show a banner when the balance is under it.
+- **Sample give-away.** A register of samples and catalogues given away. Not part of the dashboard totals.
+- **Excel.** Download the whole page as an .xlsx file, or import one. Import takes .xlsx files under 1 MB. One bad row
+  stops the import and nothing is saved; the dialog lists the first ten problems.
+
+HR & Accounts can view this page but not change it.
+
+Used by: MD and Marketing Executive to change it; HR & Accounts to view; Sales support and Purchasing by default. The MD
+can change this in People.
 
 ## HR
 Pay and policy papers for the whole company. Only the MD and HR & Accounts can open it. The **admin** role alone does

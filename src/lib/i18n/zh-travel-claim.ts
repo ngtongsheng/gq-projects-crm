@@ -25,6 +25,7 @@ export const zhTravelClaim: Dictionary = {
   "Others – bought for the company": "其他 – 为公司购买",
   "Outstation allowance (meals)": "出差津贴 (餐费)",
   "Outstation allowance total (RM)": "出差津贴总额 (RM)",
+  "Add or check your overtime claims": "添加或查看你的加班申请",
   "Overtime (approved OT)": "加班 (已批准的 OT)",
   "Overtime – approved OT claim (RM)": "加班 – 已批准的 OT 报销 (RM)",
   "Petrol + parking + toll (TNG) total (RM)":

@@ -216,3 +216,18 @@
 - What: the monthly claim tables are dropped, but the receipt photos already uploaded under `attachments/claims/<claim id>/` stay in the bucket. Nothing links to them any more and nobody can add new ones (`can_attach` refuses the `claims` area).
 - Why: deleting stored files is out of scope for loop 25 and needs someone with access to the live storage.
 - When to fix: Tong Sheng removes the `claims/` folder from the live `attachments` bucket by hand once Vicky confirms nobody needs the old receipt photos.
+
+## Custom sample borrow picker lists only sales, bd and director (loop 25 task 07)
+- What: the MD's salesperson picker on Custom samples reads `task_people()`, which returns sales, bd and director only. A person in another job role with the Sells flag can borrow for themselves but is not offered in the picker.
+- Why: `task_people()` is the existing RPC; widening it changes who can read the people list, which needs its own migration and a check of who should see whom.
+- When to fix: when Vicky wants a Sells-flag person from another role offered to the MD: add a migration for a people list that covers the Sells flag, then point the picker at it.
+
+## Parity checks not run for loop 25 screens (loop 25 exec)
+- What: `docs/office-parity/parity.md` was not run for the travel claim, Marketing expense, Custom samples or reminders screens. `pnpm dev` was not run either.
+- Why: the loop's migrations were kept off the shared test copy, because they would bring the old claim drop there before the owner approved it, and that would break Vicky's previews of `main`.
+- When to fix: run one parity pass per role before or right after go-live (owner, per the loop 25 owner actions). Log any drift in `drift-after-sweep.md`.
+
+## HR policy example text describes the old monthly claim (loop 25 task 05)
+- What: the HR policy example text in `scripts/example-data/hr.ts` still describes the old monthly claim. The example data has no travel claims, so a fresh example database shows none.
+- Why: the example text is copy, not a rule, and the loop kept to the claim code and migration. Example travel claims need the people and months in the example data to match.
+- When to fix: with the next example-data change: reword the policy text to the travel claim and add one or two example travel claims.

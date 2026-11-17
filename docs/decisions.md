@@ -675,6 +675,61 @@ Goal: Vicky opens Claude and the laptop brings itself up to date; Google sign-in
   silent rerun.
 
 ## Loop 25 (travel claim, marketing expense, custom samples)
+
+### Loop-level decisions
+- Travel claims replace the monthly claim (D1). The new `travel_claims` table stands alone; the old claim tables, their
+  functions, triggers and receipt storage policies are dropped in task 05. Reshaping the old table was rejected: the demo
+  keeps nothing useful from it. The drop needs the `data-loss-approved` label at go-live. The same label also covers the
+  claim settings trim (mileage rate, km per day, travel limit and the report-first rule removed; the cut-off day kept),
+  which the migration guard does not flag.
+- Commission leaves the claim (D2). The Commission page is unchanged for payouts. Appeals are decided from a Decide button
+  on a Commission row with a pending appeal (MD and accounts). The Claims "Appeals" tab goes; `commission_appeals` stays.
+  A salesperson self-claim on the Commission page was rejected.
+- Excel uses `exceljs` (D4), a new dependency named in the pull request. The preflight allow rule for `pnpm add exceljs`
+  (D13) was not added: the settings edit was refused, and the install ran without it. The owner may add the rule by hand.
+- Accounts (Jany) is view-only on Marketing expense and Custom samples (D5). She still releases travel claims and sees
+  the prepaid-low reminder.
+- Cut-off day stays in `app_settings` key `claims` (`cutOffDay`). The other claim settings and the settings screen are
+  removed; there is no cut-off editor (D7).
+- Demo gaps use the app's existing pattern (D8): deletes ask to confirm, Custom samples and Marketing expense get real
+  sidebar icons, the prepaid statement sorts by date then entry, and the director's tab reads "My travel claim".
+- The marketing chart is plain SVG and CSS with theme colours; no chart library (D9).
+- Installer contacts and HR packages and outstation rules get no work (D10): they are identical in the demo.
+- Custom sample photos go to the storage helper under `custom-samples/<sample id>/`, not a data URL (D11).
+- Go-live is the owner's step (D12). A push to `main` deploys and applies migrations live, including the travel claim
+  drop; the repo denies `git push *:main*` to the executor.
+- The loop ran in a worktree on `loop/25-claims-marketing-samples`. The executor merged `main` in, ran the checks and
+  pushed the branch; it did not merge to `main` (D14).
+- `pnpm dev` and the parity checks were not run during the loop. They need the branch migrations on the shared test copy,
+  which would bring the old claim drop there before the owner approves it. Logged in `docs/debt.md`.
+- The first `pnpm build` failed: three return actions in `custom-sample-loan-actions.ts` were non-async arrow exports in a
+  `"use server"` file. They are async functions now; `pnpm build` is part of the acceptance from then on.
+- The migration guard flags the `role_page_access.page_key` check drop (task 01). The check is re-added wider, so no data
+  is lost; the `data-loss-approved` label at go-live covers it.
+- The full test suite times out in PGlite hooks under heavy machine load (about 30 seconds). It passes with
+  `--maxWorkers=4`.
+
+### Travel claim (tasks 02-05)
+- The rules live in the trigger `guard_travel_claim_write`, so the database refuses what the form hides. A month outside
+  the six offered is refused. A submitted claim needs one non-zero amount. There is no delete.
+- The release gate also accepts a monthly report that is Approved. MD and accounts cannot check their own claim.
+- Release needs the same claim month's monthly report Submitted or Reviewed (D3). The gate applies only to job roles
+  sales, bd and site, matching `reportKindFor`, which files no report for directors. Without this a director's claim
+  could never be released.
+- "Verified with Vicky" is a warning on the client only. The first tap on Release shows it; the second tap releases.
+- The release sheet opens from an Open button in All claims.
+- The travel claim reuses the monthly-claim helpers for the claim month, period and caps, the settings loader, the print
+  button and the banner. The print has no on-time or late text.
+- Receipts uploaded to the old claim stay in storage (see `docs/debt.md`). Example travel claims are not in the example
+  data, and the HR policy example text still describes the old claim (see `docs/debt.md`).
+
+### Dashboard reminders (task 16)
+- Reminders sit in a new panel above each dashboard and on `/today` for site. They are not added to the Home list.
+- Items: travel claim not submitted (within 10 days of cut-off, for those who claim); travel claims ready to release
+  (MD and accounts, all months, active people only); custom samples due within 3 days, overdue, or to confirm back;
+  prepaid accounts below their alert (MD and accounts).
+- The demo has no old claim reminder to replace. The overtime item in "Needs attention" stays.
+
 ### Custom samples schema (task 06)
 - `custom_samples` and `custom_sample_loans` are separate from the stock `samples` table. A "Not received" answer is
   a date appended to the loan's `not_received_on` array, not a log table: the demo only appends a line, nobody reads

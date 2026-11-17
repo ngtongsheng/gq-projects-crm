@@ -44,7 +44,7 @@ pushed; owner pushes to `main`.
 | 14 | Prepaid accounts and sample give-away | done | 12 | standard |
 | 15 | Excel import and export | done | 11, 12, 13, 14 | standard |
 | 16 | Dashboard reminders | done | 04, 08, 14 | standard |
-| 17 | Docs: decisions, features, what's new, debt, roadmap | in-progress | 01-16 | economy |
+| 17 | Docs: decisions, features, what's new, debt, roadmap | done | 01-16 | economy |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 
 ## Owner actions
@@ -117,3 +117,6 @@ pushed; owner pushes to `main`.
 2026-11-18 · #16 · decision · reminders in a new "Reminders" panel above each dashboard (and on `/today` for site); md also sees "ready to release"; release count spans all months, active people only; no old claim reminder existed to replace; overtime item in "Needs attention" kept
 2026-11-18 · #16 · done · check, typecheck, 3327 tests, build pass · next: #17
 2026-11-18 · #17 · started · economy
+2026-11-18 · #17 · decision · whats-new.md replaced (it holds one version; catch-up reads only the current one)
+2026-11-18 · exec · fix · #05 deleted `claims/overtime-section.tsx`, the only entry point to the overtime form; `/overtime` still works but nothing linked to it. Added an "Add or check your overtime claims" link on My travel claim for site (the role with the OT field), zh/bm keys added
+2026-11-18 · #17 · done · check, typecheck, 3327 tests, build pass · next: vault, push branch

@@ -1,6 +1,6 @@
-version: 2026-11-16
-- The new GQP Office app is live. Everything is in one menu on the left, and you sign in with Google.
-- You add your staff yourself: open **People**, click **Add person** and send them the invite link. Their job role decides which pages they see.
-- Your laptop now updates itself each time you open Claude. You don't need to do anything.
-- Your older drafts are set aside and saved. Ask Claude if you want something from one of them.
-- To see the app as someone else: on the live app, open **People** and click **View as**. On your laptop, say "show me test sign-ins".
+version: 2026-11-18
+- **Travel claim** replaces the old monthly claim. Each month, open **My travel claim**, key in your petrol, outstation, hotel and other amounts, and click **Save & submit to Jany**. Then print the form and attach the receipts. The old claim pages and their saved claims are gone.
+- Jany sees every claim under **Travel claims**, releases it when the monthly report is in, and can add a final amount or send it back.
+- **Marketing expense** is a new page: the expense log, a dashboard by month and category, vendors and part-timers, events with their costs, prepaid accounts with low-balance alerts, sample give-aways, and Excel download and import.
+- **Custom samples** is a new page for samples lent to customers. Borrow, return (you mark it, the office confirms), give away, and send a WhatsApp reminder to the borrower.
+- The dashboards show reminders: a travel claim due soon, claims ready to release, samples due or overdue, and prepaid accounts running low.

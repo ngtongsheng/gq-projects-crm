@@ -24,6 +24,9 @@ Words to use with the person, and what they mean underneath. Say the left column
 | job role | the person's title in the demo (MD, Sales Director, Marketing Director, Salesperson, HR & Accounts, Site supervisor, Purchasing, Sales support, Designer, Marketing Executive); it decides the pages they see |
 | what each role can see | the page-access table in People, where the MD ticks pages per job role |
 | View as | the MD sees the app exactly as another person does, read only: nothing saved while viewing; "Back to" returns to the MD's own account |
+| a custom sample | a sample piece lent to a customer or prospect, kept on Custom samples apart from the stock Samples |
+| a prepaid account | the money paid up front to one marketing vendor, topped up and used, with its balance |
+| release a claim | the MD or HR & Accounts marks a travel claim as final and ready to pay; it cannot be undone |
 
 ## Words that stay out of the conversation
 git, branch, commit, push, pull request, merge, worktree, migration, deploy, pipeline, CI, TypeScript, lint, build,

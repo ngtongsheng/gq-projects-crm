@@ -1,4 +1,5 @@
 import { FileText } from "lucide-react";
+import Link from "next/link";
 import { EmptyState } from "@/components/app/empty-state";
 import { StatusBadge } from "@/components/app/status-badge";
 import type { Profile } from "@/lib/auth/current-profile";
@@ -120,6 +121,14 @@ export async function MyTravelClaim({
               {!reportAllowsRelease(me.jobRole, report) &&
                 ` – ${t("Jany releases the claim only after it is submitted.")}`}
             </p>
+          )}
+          {me.jobRole === "site" && (
+            <Link
+              href="/overtime"
+              className="text-sm font-medium hover:underline"
+            >
+              {t("Add or check your overtime claims")}
+            </Link>
           )}
         </TravelClaimForm>
       </section>

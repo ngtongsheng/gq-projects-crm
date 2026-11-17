@@ -27,6 +27,7 @@ they fit. Drift found on 2026-11-14 is in the four `drift-*.md` files here; `par
 | 4B-ii (done, loop 18) | Installation & stock | Installation views, installers, DO numbering + lines + print, delivery log, Stock, Samples, Leftover. Parity passed 2026-11-16 (loop 21); open rows IN1-IN6, DO1, ST1-ST6 in `drift-after-sweep.md` | site-stock | 4B-i |
 | 4A (done, loop 19) | Claims | Monthly claims, travel expenses, OT folded in, appeals tab, settings, print. Parity passed 2026-11-16 (loop 21); open rows CL1-CL4 in `drift-after-sweep.md` | money-reports | 3A, 3B-ii |
 | 5 (loop 22) | Integration | Role dashboards and banners, nav badges, leave in calendar and site work, WhatsApp reminders, PWA | all | all |
+| 6 (done on branch, loop 25) | Travel claim (replaces the monthly claim, old tables dropped), Marketing expense, Custom samples, dashboard reminders. Parity not run yet; see debt.md | new-modules | 4A, 5 |
 | later | Zoho | Link to Zoho (Vicky: "later") | - | 5 |
 
 Loop 22 (Integration) first takes the S and M rows of `drift-after-sweep.md` if the owner wants them; the L rows need a

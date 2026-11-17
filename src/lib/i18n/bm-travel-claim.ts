@@ -26,6 +26,8 @@ export const bmTravelClaim: Dictionary = {
   "Others – bought for the company": "Lain-lain – dibeli untuk syarikat",
   "Outstation allowance (meals)": "Elaun luar kawasan (makan)",
   "Outstation allowance total (RM)": "Jumlah elaun luar kawasan (RM)",
+  "Add or check your overtime claims":
+    "Tambah atau semak tuntutan kerja lebih masa anda",
   "Overtime (approved OT)": "Kerja lebih masa (OT diluluskan)",
   "Overtime – approved OT claim (RM)":
     "Kerja lebih masa – tuntutan OT diluluskan (RM)",

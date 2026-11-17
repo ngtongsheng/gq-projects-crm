@@ -71,6 +71,19 @@ describe("UploadRequest", () => {
       UploadRequest.safeParse({ ...valid, recordId: "../secret" }).success,
     ).toBe(false);
   });
+
+  it("takes only a photo for a custom sample", () => {
+    const sample = { ...valid, area: "custom-samples" };
+    expect(UploadRequest.safeParse(sample).success).toBe(true);
+    const pdf = UploadRequest.safeParse({
+      ...sample,
+      contentType: "application/pdf",
+    });
+    expect(pdf.success).toBe(false);
+    expect(pdf.error?.issues[0]?.message).toBe(
+      "Choose a photo (JPEG, PNG or WebP).",
+    );
+  });
 });
 
 describe("isImageType and AttachmentType", () => {

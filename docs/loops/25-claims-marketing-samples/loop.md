@@ -33,8 +33,8 @@ pushed; owner pushes to `main`.
 | 03 | My travel claim: form, submit/update, print | done | 02 | standard |
 | 04 | All claims list and check/release sheet | done | 03 | standard |
 | 05 | Remove the old monthly claim (migration + code) | done | 04 | frontier |
-| 06 | Custom samples schema, photo storage, loan-days setting | in-progress | 01 | frontier |
-| 07 | Custom samples list, record/edit, borrow, detail | todo | 06 | standard |
+| 06 | Custom samples schema, photo storage, loan-days setting | done | 01 | frontier |
+| 07 | Custom samples list, record/edit, borrow, detail | in-progress | 06 | standard |
 | 08 | Custom samples return, give away, overdue remind, settings | todo | 07 | standard |
 | 09 | Marketing expense schema and RLS | todo | 01 | frontier |
 | 10 | Expense log and categories editor | todo | 09 | standard |
@@ -82,3 +82,6 @@ pushed; owner pushes to `main`.
 2026-11-17 · exec · note · full suite hits 30s PGlite hook timeouts under machine load ~21; passes with `--maxWorkers=4` (284 files, 3023 tests)
 2026-11-17 · #05 · done · grep clean; check, typecheck, 3023 tests pass · next: #06
 2026-11-17 · #06 · started · frontier
+2026-11-17 · #06 · decision · read access fixed to everyone but site; "not received" kept as `not_received_on date[]` on the loan; customer/project are free text; photo id chosen before upload; settings key `customSamples`; due date set by the database; details in docs/decisions.md
+2026-11-17 · #06 · done · 43 PGlite tests; check, typecheck, 3065 tests pass · next: #07
+2026-11-17 · #07 · started · standard

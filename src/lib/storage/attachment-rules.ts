@@ -20,18 +20,31 @@ export function isImageType(type: string): boolean {
 
 const AREA = /^[a-z][a-z0-9-]*$/;
 
+/** Areas that hold photos only; the table recording the file checks the extension too. */
+const PHOTO_ONLY_AREAS: readonly string[] = ["custom-samples"];
+
 /** What the browser sends before it uploads: where the file belongs and what it is. */
-export const UploadRequest = z.object({
-  area: z.string().regex(AREA, "Unknown file area."),
-  recordId: z.uuid(),
-  fileName: z.string().trim().min(1, "The file needs a name.").max(200),
-  contentType: AttachmentType,
-  size: z
-    .number()
-    .int()
-    .positive("The file is empty.")
-    .max(MAX_ATTACHMENT_BYTES, "The file is over 1.5 MB."),
-});
+export const UploadRequest = z
+  .object({
+    area: z.string().regex(AREA, "Unknown file area."),
+    recordId: z.uuid(),
+    fileName: z.string().trim().min(1, "The file needs a name.").max(200),
+    contentType: AttachmentType,
+    size: z
+      .number()
+      .int()
+      .positive("The file is empty.")
+      .max(MAX_ATTACHMENT_BYTES, "The file is over 1.5 MB."),
+  })
+  .refine(
+    (request) =>
+      !PHOTO_ONLY_AREAS.includes(request.area) ||
+      isImageType(request.contentType),
+    {
+      message: "Choose a photo (JPEG, PNG or WebP).",
+      path: ["contentType"],
+    },
+  );
 export type UploadRequest = z.infer<typeof UploadRequest>;
 
 /** A stored file's path: <area>/<record-id>/<file>. The same shape the storage policy enforces. */

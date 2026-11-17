@@ -52,4 +52,5 @@ export const EXAMPLE_REFERENCES: Record<string, Record<string, string>> = {
   hr_policy_documents: { replaces_id: "hr_policy_documents" },
   staff_hr_records: { grade: "sales_grades" },
   handover_items: { contact_id: "contacts", project_id: "projects" },
+  custom_sample_loans: { sample_id: "custom_samples" },
 };

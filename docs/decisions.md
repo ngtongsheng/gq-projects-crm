@@ -673,3 +673,18 @@ Goal: Vicky opens Claude and the laptop brings itself up to date; Google sign-in
 - Laptop playbook for her agent: `docs/laptop.md`. README and `docs/features.md` use fresh screenshots at 1512 px.
 - Rehearsal on a fresh clone passed (`docs/loops/22-handoff/reports/rehearsal.md`): catch-up 34 s first run, 0.13 s
   silent rerun.
+
+## Loop 25 (travel claim, marketing expense, custom samples)
+### Custom samples schema (task 06)
+- `custom_samples` and `custom_sample_loans` are separate from the stock `samples` table. A "Not received" answer is
+  a date appended to the loan's `not_received_on` array, not a log table: the demo only appends a line, nobody reads
+  it back per entry.
+- Customer and project on a loan are free text, as in the demo: a sample is often lent for a prospect who is not a
+  customer record yet.
+- Read access is "everyone but Site Supervisors", the page's default; an MD override that gives Site the page shows
+  an empty list.
+- The photo lives at `custom-samples/<sample id>/` (D11). The id is chosen before the upload, like HR policies, so a
+  keeper may add a photo before the sample is saved. Photos only: the upload request refuses a PDF and the
+  `photo_path` must end in .jpg, .jpeg, .png or .webp.
+- Due date is set by the database from `app_settings.customSamples.loanDays` when the loan is added; a later change
+  leaves existing loans alone.

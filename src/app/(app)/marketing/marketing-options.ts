@@ -80,3 +80,10 @@ export const VENDOR_SKILL_LABEL: Record<VendorSkill, string> = {
   copywriting: "Copywriting",
   others: "Others",
 };
+
+export const PREPAID_KINDS = ["top_up", "deduction"] as const;
+export type PrepaidKind = (typeof PREPAID_KINDS)[number];
+
+// The currency a prepaid entry was paid in abroad (demo sheetMkPre); the first is the default.
+export const PREPAID_CURRENCIES = ["EUR", "USD", "RMB", "SGD", "RM"] as const;
+export type PrepaidCurrency = (typeof PREPAID_CURRENCIES)[number];

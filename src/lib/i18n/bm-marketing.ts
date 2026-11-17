@@ -257,4 +257,88 @@ export const bmMarketing: Dictionary = {
   "This event has cost lines or expenses, so it can't be deleted.":
     "Acara ini mempunyai baris kos atau perbelanjaan, jadi tidak boleh dipadam.",
   "Could not delete. Try again.": "Tidak dapat dipadam. Cuba lagi.",
+  "Add give-away": "Tambah pemberian",
+  "Alert saved": "Peringatan disimpan",
+  "All entries": "Semua catatan",
+  "All vendors": "Semua pembekal",
+  Balance: "Baki",
+  "Balance (RM)": "Baki (RM)",
+  "Balance now": "Baki sekarang",
+  "Click Add give-away to record the first one.":
+    "Klik Tambah pemberian untuk merekod yang pertama.",
+  "Click Top up to record the first advance payment.":
+    "Klik Tambah nilai untuk merekod bayaran pendahuluan yang pertama.",
+  "Client – project": "Pelanggan – projek",
+  "Could not find that entry. Reload the page.":
+    "Catatan itu tidak dijumpai. Muat semula halaman.",
+  "Could not find that give-away. Reload the page.":
+    "Rekod pemberian itu tidak dijumpai. Muat semula halaman.",
+  "Deduct a job": "Tolak satu kerja",
+  "Deduct a job from prepaid": "Tolak satu kerja daripada prabayar",
+  "Deducted · balance": "Ditolak · baki",
+  "Delete this entry?": "Padam catatan ini?",
+  "Delete this give-away?": "Padam rekod pemberian ini?",
+  "Edit entry": "Sunting catatan",
+  "Edit give-away": "Sunting pemberian",
+  Entries: "Catatan",
+  "Entry deleted.": "Catatan dipadam.",
+  "Fill in date, item and who it was given to.":
+    "Isi tarikh, item dan kepada siapa ia diberi.",
+  "Fill in date, vendor and the RM amount.":
+    "Isi tarikh, pembekal dan jumlah RM.",
+  Foreign: "Asing",
+  "Give-away deleted.": "Rekod pemberian dipadam.",
+  "Given to (client / project)": "Diberi kepada (pelanggan / projek)",
+  "Invoice no.": "No. invois",
+  "Key in the client – project.": "Isi pelanggan – projek.",
+  "Last top-up": "Tambah nilai terakhir",
+  "Low-balance alert": "Peringatan baki rendah",
+  "MOF / ref": "MOF / rujukan",
+  "Marketing cost (F.O.C, not charged to client)":
+    "Kos pemasaran (F.O.C, tidak dicaj kepada pelanggan)",
+  "Marketing?": "Pemasaran?",
+  "Money paid in advance to a vendor (e.g. the Europe designer). Each job is deducted from the balance.":
+    "Wang dibayar terlebih dahulu kepada pembekal (cth. pereka Eropah). Setiap kerja ditolak daripada baki.",
+  "No give-away yet": "Belum ada pemberian",
+  "No prepaid account yet": "Belum ada akaun prabayar",
+  "Nothing matches. Clear the search.": "Tiada yang sepadan. Kosongkan carian.",
+  "Prepaid account statement": "Penyata akaun prabayar",
+  "Print statement": "Cetak penyata",
+  "Sample & catalogue give-away": "Pemberian sampel & katalog",
+  "Search client, item, supplier": "Cari pelanggan, item, pembekal",
+  "Search give-aways": "Cari pemberian",
+  "The account turns red and the dashboard shows a reminder to top up. Leave blank to turn the alert off.":
+    "Akaun bertukar merah dan papan pemuka menunjukkan peringatan untuk tambah nilai. Biarkan kosong untuk mematikan peringatan.",
+  "The alert must be an amount in RM, or blank to turn it off.":
+    "Peringatan mestilah jumlah dalam RM, atau kosong untuk mematikannya.",
+  "The foreign amount must be more than 0.":
+    "Jumlah asing mesti lebih daripada 0.",
+  "The quantity must be a whole number above 0.":
+    "Kuantiti mestilah nombor bulat lebih daripada 0.",
+  "The unit cost must be an amount in RM.":
+    "Kos seunit mestilah jumlah dalam RM.",
+  "Top up": "Tambah nilai",
+  "Top up prepaid account": "Tambah nilai akaun prabayar",
+  "Top up soon.": "Sila tambah nilai tidak lama lagi.",
+  "Top-up (RM)": "Tambah nilai (RM)",
+  "Topped up": "Ditambah nilai",
+  "Topped up · balance": "Ditambah nilai · baki",
+  "Unit cost": "Kos seunit",
+  "Unit cost (RM)": "Kos seunit (RM)",
+  Used: "Digunakan",
+  "Used (RM)": "Digunakan (RM)",
+  "Used in": "Digunakan dalam",
+  "Warn when balance is below (RM)": "Beri amaran apabila baki di bawah (RM)",
+  balance: "baki",
+  below: "di bawah",
+  "e.g. Catalogue – Savoy": "cth. Katalog – Savoy",
+  "e.g. Stuarts Design – Hannan Medicare Office":
+    "cth. Stuarts Design – Hannan Medicare Office",
+  "e.g. Top-up / advance payment": "cth. Tambah nilai / bayaran pendahuluan",
+  jobs: "kerja",
+  "of which marketing (F.O.C)": "daripadanya pemasaran (F.O.C)",
+  "prepaid balance is": "baki prabayar ialah",
+  statement: "penyata",
+  "top up soon": "sila tambah nilai tidak lama lagi",
+  "– low, top up soon": "– rendah, sila tambah nilai tidak lama lagi",
 };

@@ -2,6 +2,8 @@ import type { CalendarDate } from "@/lib/format/date";
 import type {
   Currency,
   PaymentMethod,
+  PrepaidCurrency,
+  PrepaidKind,
   VendorKind,
   VendorSkill,
   VendorSupply,
@@ -86,4 +88,53 @@ export type MarketingEvent = {
   budget: number | null;
   notes: string | null;
   costs: EventCostLine[];
+};
+
+/** One vendor's prepaid account, worked out by the database from its entries (view marketing_prepaid_balances). */
+export type PrepaidAccount = {
+  vendorId: string;
+  vendorName: string;
+  toppedUp: number;
+  used: number;
+  balance: number;
+  /** Deductions taken from the account. */
+  jobs: number;
+  /** Of the used money, what is a marketing cost the client is not charged for. */
+  marketingFoc: number;
+  lastTopUpOn: CalendarDate | null;
+  /** Warn when the balance falls below this; 0 is off. */
+  lowBalanceAlert: number;
+  low: boolean;
+};
+
+/** A top-up or a deducted job (table marketing_prepaid_entries). */
+export type PrepaidEntry = {
+  id: string;
+  entryOn: CalendarDate;
+  vendorId: string;
+  vendorName: string;
+  kind: PrepaidKind;
+  /** A top-up's description, or the deduction's "Client - project". */
+  description: string | null;
+  foreignCurrency: PrepaidCurrency | null;
+  foreignAmount: number | null;
+  amountRm: number;
+  mofRef: string | null;
+  marketingFoc: boolean;
+  remarks: string | null;
+  /** Orders entries made on the same day. */
+  createdAt: string;
+};
+
+/** One line of the sample and catalogue give-away register (table marketing_giveaways). */
+export type Giveaway = {
+  id: string;
+  givenOn: CalendarDate;
+  supplier: string | null;
+  invoiceNo: string | null;
+  item: string;
+  givenTo: string;
+  qty: number;
+  unitCost: number;
+  total: number;
 };

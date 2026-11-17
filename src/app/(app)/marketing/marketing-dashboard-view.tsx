@@ -21,8 +21,13 @@ import {
   wholeRm,
 } from "./marketing-dashboard";
 import { expenseLogHref } from "./marketing-expense-filters";
+import { MarketingLowBalanceBanners } from "./marketing-low-balance-banners";
 import { MarketingSpendChart } from "./marketing-spend-chart";
-import type { MarketingCategory, MarketingExpense } from "./marketing-types";
+import type {
+  MarketingCategory,
+  MarketingExpense,
+  PrepaidAccount,
+} from "./marketing-types";
 import { MarketingYearSelect } from "./marketing-year-select";
 
 const TOP_VENDORS = 10;
@@ -58,6 +63,8 @@ type MarketingDashboardViewProps = {
   expenses: readonly MarketingExpense[];
   categories: readonly MarketingCategory[];
   eventCosts: readonly EventCostRow[];
+  /** Prepaid accounts; those below their alert show as banners. */
+  prepaidAccounts: readonly PrepaidAccount[];
   year: string;
   showAllVendors: boolean;
   today: string;
@@ -69,6 +76,7 @@ export function MarketingDashboardView({
   expenses,
   categories,
   eventCosts,
+  prepaidAccounts,
   year,
   showAllVendors,
   today,
@@ -85,6 +93,7 @@ export function MarketingDashboardView({
 
   return (
     <div className="flex flex-col gap-6">
+      <MarketingLowBalanceBanners accounts={prepaidAccounts} t={t} />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatTile
           label={`${t("Total spend")} ${year}`}

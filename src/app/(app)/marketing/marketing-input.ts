@@ -13,9 +13,9 @@ const REQUIRED = "Fill in date, description, vendor and amount.";
 const RM_REQUIRED = "Key in the amount in RM.";
 const NOT_FOUND = "Could not find that expense. Reload the page.";
 // numeric(12,2) holds up to this.
-const MAX_AMOUNT = 9_999_999_999.99;
+export const MAX_AMOUNT = 9_999_999_999.99;
 
-const amountText = (message: string) =>
+export const amountText = (message: string) =>
   z
     .string()
     .transform((text) => parseRm(text))
@@ -93,7 +93,9 @@ const VENDOR_NOT_FOUND = "Could not find that vendor. Reload the page.";
 const NAME_REQUIRED = "Fill in the name.";
 const NEEDS_CONTACT = "A part-timer needs a phone number or an email.";
 
-const optionalChoice = <T extends readonly [string, ...string[]]>(values: T) =>
+export const optionalChoice = <T extends readonly [string, ...string[]]>(
+  values: T,
+) =>
   z
     .union([z.literal(""), z.enum(values)])
     .transform((value) => (value === "" ? null : value));

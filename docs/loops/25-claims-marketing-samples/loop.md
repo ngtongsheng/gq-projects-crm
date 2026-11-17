@@ -41,8 +41,8 @@ pushed; owner pushes to `main`.
 | 11 | Marketing dashboard and chart | done | 10 | standard |
 | 12 | Vendors and part-timers | done | 10 | standard |
 | 13 | Events: costs, budget vs actual, print | done | 10 | standard |
-| 14 | Prepaid accounts and sample give-away | in-progress | 12 | standard |
-| 15 | Excel import and export | todo | 11, 12, 13, 14 | standard |
+| 14 | Prepaid accounts and sample give-away | done | 12 | standard |
+| 15 | Excel import and export | in-progress | 11, 12, 13, 14 | standard |
 | 16 | Dashboard reminders | todo | 04, 08, 14 | standard |
 | 17 | Docs: decisions, features, what's new, debt, roadmap | todo | 01-16 | economy |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
@@ -106,3 +106,6 @@ pushed; owner pushes to `main`.
 2026-11-17 · #13 · decision · event cost = cost lines + tagged expense-log lines (RM); dashboard events panel still sums cost lines only (as demo); budget 0 saved as none; negative rate allowed (credit), qty > 0; event delete hidden while in use; print reuses `ClaimPrintButton`
 2026-11-17 · #13 · done · check, typecheck, 3237 tests pass · next: #14
 2026-11-17 · #14 · started · standard
+2026-11-17 · #14 · decision · tiles and banners read the `marketing_prepaid_balances` view, statement running balance computed client-side; deletes ask to confirm; give-away qty whole number; banner opens `?view=prepaid&vendor=<id>`; Home "prepaid low" item left to #16
+2026-11-17 · #14 · done · check, typecheck, 3291 tests pass · next: #15
+2026-11-17 · #15 · started · standard

@@ -1,12 +1,11 @@
-import { Wallet } from "lucide-react";
 import type { Metadata } from "next";
 import { z } from "zod";
-import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { requirePage } from "@/lib/auth/require-page";
 import { todayMyt } from "@/lib/format/date";
 import { getT } from "@/lib/i18n/server-t";
 import type { Translate } from "@/lib/i18n/translate";
+import { loadCustomerNames } from "../custom-samples/custom-samples-data";
 import { SegmentLinks } from "../site-work/segment-links";
 import { editsMarketing } from "./marketing-access";
 import { MarketingCategoriesDialog } from "./marketing-categories-dialog";
@@ -27,6 +26,13 @@ import {
   expenseFiltersFromParams,
 } from "./marketing-expense-filters";
 import { MarketingExpenseLog } from "./marketing-expense-log";
+import { loadGiveaways } from "./marketing-giveaway-data";
+import { MarketingGiveawayView } from "./marketing-giveaway-view";
+import {
+  loadPrepaidAccounts,
+  loadPrepaidEntries,
+} from "./marketing-prepaid-data";
+import { MarketingPrepaidView } from "./marketing-prepaid-view";
 import type { MarketingCategory } from "./marketing-types";
 import { MarketingVendorsView } from "./marketing-vendors-view";
 import { MARKETING_VIEW_LABEL, MARKETING_VIEWS } from "./marketing-views";
@@ -89,12 +95,14 @@ export default async function MarketingPage({
           canEdit={canEdit}
           printedBy={me.fullName ?? "Unnamed"}
         />
-      ) : (
-        <EmptyState
-          icon={Wallet}
-          title={t(MARKETING_VIEW_LABEL[view])}
-          description={t("Nothing here yet.")}
+      ) : view === "prepaid" ? (
+        <PrepaidView
+          params={params}
+          canEdit={canEdit}
+          printedBy={me.fullName ?? "Unnamed"}
         />
+      ) : (
+        <GiveawayView canEdit={canEdit} />
       )}
     </div>
   );
@@ -112,15 +120,17 @@ async function DashboardView({
   t: Translate;
 }) {
   const today = todayMyt();
-  const [expenses, eventCosts] = await Promise.all([
+  const [expenses, eventCosts, prepaidAccounts] = await Promise.all([
     loadMarketingExpenses(),
     loadEventCosts(),
+    loadPrepaidAccounts(),
   ]);
   return (
     <MarketingDashboardView
       expenses={expenses}
       categories={categories}
       eventCosts={eventCostRows(eventCosts)}
+      prepaidAccounts={prepaidAccounts}
       year={yearParam.catch(today.slice(0, 4)).parse(params.year)}
       showAllVendors={params.vendors === "all"}
       today={today}
@@ -148,6 +158,7 @@ async function VendorsView({
 }
 
 const eventParam = z.uuid();
+const vendorParam = z.uuid();
 
 async function EventsView({
   params,
@@ -178,6 +189,50 @@ async function EventsView({
       canEdit={canEdit}
       today={todayMyt()}
       printedBy={printedBy}
+    />
+  );
+}
+
+async function PrepaidView({
+  params,
+  canEdit,
+  printedBy,
+}: {
+  params: Record<string, string | string[] | undefined>;
+  canEdit: boolean;
+  printedBy: string;
+}) {
+  const [accounts, entries, vendors] = await Promise.all([
+    loadPrepaidAccounts(),
+    loadPrepaidEntries(),
+    canEdit ? loadVendorNames() : [],
+  ]);
+  const initialVendorId = vendorParam.safeParse(params.vendor).data ?? null;
+  return (
+    <MarketingPrepaidView
+      // A new link from a dashboard banner opens that account.
+      key={initialVendorId}
+      accounts={accounts}
+      entries={entries}
+      vendors={vendors}
+      initialVendorId={initialVendorId}
+      canEdit={canEdit}
+      today={todayMyt()}
+      printedBy={printedBy}
+    />
+  );
+}
+
+async function GiveawayView({ canEdit }: { canEdit: boolean }) {
+  const [giveaways, customers] = await Promise.all([
+    loadGiveaways(),
+    canEdit ? loadCustomerNames() : [],
+  ]);
+  return (
+    <MarketingGiveawayView
+      giveaways={giveaways}
+      customers={customers}
+      canEdit={canEdit}
     />
   );
 }

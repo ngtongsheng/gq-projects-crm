@@ -772,3 +772,20 @@ Goal: Vicky opens Claude and the laptop brings itself up to date; Google sign-in
   travel claim. The title block reads "Event costing" with the event name, dates and venue under it (the demo puts the
   name in the title, which does not fit the 200px title block). Sections and footer follow the demo.
 - A rate may be negative (a credit line); the quantity must be above 0. Unit defaults to "ls", quantity to 1.
+
+### Marketing prepaid accounts and sample give-away (task 14)
+- A prepaid account exists once a vendor has an entry. Typing a new vendor name in an entry makes a vendor (same as the
+  expense form), so it starts a new account. Tiles and the dashboard banners read the database view
+  `marketing_prepaid_balances`, so the red tile and the banner always agree; the statement's running balance is worked
+  out in the browser from the same entries.
+- D8: the statement runs by date and then by when the entry was made, per vendor (the demo ran by id, so a backdated
+  top-up appeared after the job it paid for). The printed statement uses the same order.
+- "Used in <currency>" lists foreign currencies only (EUR, USD, RMB, SGD); a job keyed with currency RM is not a
+  foreign amount. A foreign amount left blank saves no currency.
+- Alert is per vendor (`vendors.low_balance_alert`); blank or 0 turns it off. A dashboard banner's Open goes to
+  `?view=prepaid&vendor=<id>`, which selects that account. The Home page's "Prepaid balance low" item for the MD and
+  Accounts (demo line 3064) is not built here.
+- Delete asks "Delete this entry?" / "Delete this give-away?" first, like the other marketing deletes (the demo does not).
+- The entry's kind is fixed when it is added (top-up or deduction); editing never changes it.
+- Give-away: quantity is a whole number (database integer; the demo allowed decimals). "Given to" suggestions are all
+  company names; supplier suggestions are earlier give-away suppliers. The register is not part of the dashboard totals.

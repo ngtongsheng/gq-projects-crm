@@ -1,6 +1,7 @@
 import { bmClaims } from "./bm-claims";
 import { bmInstallation } from "./bm-installation";
 import { bmSiteWork } from "./bm-site-work";
+import { bmTravelClaim } from "./bm-travel-claim";
 import type { Dictionary } from "./dictionary";
 
 // Seeded from the demo's TT dictionary (docs/mockup/gqp-office-demo.html), keyed by the English text.
@@ -130,6 +131,7 @@ export const bm: Dictionary = {
   ...bmSiteWork,
   ...bmClaims,
   ...bmInstallation,
+  ...bmTravelClaim,
   "Something went wrong. Try again.": "Sesuatu tidak kena. Cuba lagi.",
   "Try again": "Cuba lagi",
   Reference: "Rujukan",

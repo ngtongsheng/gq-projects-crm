@@ -30,8 +30,8 @@ pushed; owner pushes to `main`.
 |---|---|---|---|---|
 | 01 | exceljs allow rule; adopt new demo; page registry, icons, access defaults | done | | standard |
 | 02 | Travel claims schema, RLS, cut-off setting | done | 01 | frontier |
-| 03 | My travel claim: form, submit/update, print | in-progress | 02 | standard |
-| 04 | All claims list and check/release sheet | todo | 03 | standard |
+| 03 | My travel claim: form, submit/update, print | done | 02 | standard |
+| 04 | All claims list and check/release sheet | in-progress | 03 | standard |
 | 05 | Remove the old monthly claim (migration + code) | todo | 04 | frontier |
 | 06 | Custom samples schema, photo storage, loan-days setting | todo | 01 | frontier |
 | 07 | Custom samples list, record/edit, borrow, detail | todo | 06 | standard |
@@ -68,3 +68,8 @@ pushed; owner pushes to `main`.
 2026-11-17 · #02 · decision · rules live in trigger `guard_travel_claim_write`; "approved" report also opens release; md/accounts cannot check their own claim; a submitted claim needs one non-zero amount; no delete; old claim settings code left for #05
 2026-11-17 · #02 · done · 17 PGlite tests; check, typecheck, 3122 tests pass · next: #03
 2026-11-17 · #03 · started · standard
+2026-11-17 · exec · decision · `pnpm dev` and parity checks not run in this loop: they need the branch migrations on the shared test copy, which would put #05's drop there before the owner approves it and break Vicky's previews of `main` · owner runs one parity pass before pushing
+2026-11-17 · #03 · decision · reuses `monthly-claim.ts` helpers (`claimMonthOf`, `claimPeriod`, `claimCapsOn`), `loadClaimSettings`, `ClaimPrintButton`, `ClaimBanner`: #05 must keep or move them; month outside the 6 offered is refused; report line has no on-time/late text
+2026-11-17 · #03 · done · check, typecheck, 3141 tests pass · next: #04
+2026-11-17 · #04 · decision · director files no monthly report (`reportKindFor` → null), so #02's release gate would block every director claim; #04 amends the unapplied travel_claims migration so roles with no report skip the gate
+2026-11-17 · #04 · started · standard

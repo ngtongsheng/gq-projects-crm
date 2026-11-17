@@ -3,6 +3,7 @@ import { zhClaims } from "./zh-claims";
 import { zhHrTools } from "./zh-hr-tools";
 import { zhInstallationStock } from "./zh-installation-stock";
 import { zhTasksLeave } from "./zh-tasks-leave";
+import { zhTravelClaim } from "./zh-travel-claim";
 
 // Seeded from the demo's ZHEN dictionary, which maps 中文 to English for the Costing screens; turned
 // around here so it is keyed by the English text like the others. Fragment entries are left out.
@@ -611,6 +612,7 @@ export const zh: Dictionary = {
   ...zhHrTools,
   ...zhClaims,
   ...zhInstallationStock,
+  ...zhTravelClaim,
   "Something went wrong. Try again.": "出错了，请再试一次。",
   "Try again": "再试一次",
   Reference: "参考编号",

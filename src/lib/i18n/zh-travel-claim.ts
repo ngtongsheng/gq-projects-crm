@@ -1,0 +1,59 @@
+import type { Dictionary } from "./dictionary";
+
+// Chinese for My travel claim (loop 25), keyed by the English text.
+export const zhTravelClaim: Dictionary = {
+  "Accommodation (hotel)": "住宿(酒店)",
+  "Accommodation – hotel total (RM)": "住宿 – 酒店总额 (RM)",
+  "Anything Jany should know – outstation trips, why over the entitlement, etc.":
+    "Jany 需要知道的事 – 出差行程、为何超出额度等。",
+  "Approved by (Vicky)": "批准人 (Vicky)",
+  "Checked by (Accounts)": "审核人 (会计)",
+  "Claim period": "报销期间",
+  "Claim updated": "报销已更新",
+  "Cut-off day": "截止日",
+  "Final amount after Jany's check:": "Jany 审核后的最终金额:",
+  "Jany releases the claim only after it is submitted.":
+    "月报提交后，Jany 才会放行报销。",
+  "Monthly report": "月报",
+  "Monthly travel claim": "每月差旅报销",
+  "Not set – Jany sets it in HR": "未设定 – 由 Jany 在人事设定",
+  "One summary per month. Fill in the monthly totals, print the claim form, attach all the receipts and hand it to Jany. Jany releases the claim once the monthly report for that month has been submitted. Commission is claimed separately on the Commission page.":
+    "每月一份汇总。填写每月总额，打印报销表，附上所有收据，交给 Jany。该月的月报提交后，Jany 才会放行报销。佣金请在佣金页面另行申请。",
+  "Others – bought for the company (RM)": "其他 – 为公司购买 (RM)",
+  "Others – bought for the company": "其他 – 为公司购买",
+  "Outstation allowance (meals)": "出差津贴 (餐费)",
+  "Outstation allowance total (RM)": "出差津贴总额 (RM)",
+  "Overtime (approved OT)": "加班 (已批准的 OT)",
+  "Overtime – approved OT claim (RM)": "加班 – 已批准的 OT 报销 (RM)",
+  "Petrol + parking + toll (TNG) total (RM)":
+    "汽油 + 停车 + 过路费 (TNG) 总额 (RM)",
+  "Petrol + parking + toll (TNG)": "汽油 + 停车 + 过路费 (TNG)",
+  "Save & submit to Jany": "保存并提交给 Jany",
+  "Submitted to Jany – print the form and attach the receipts":
+    "已提交给 Jany – 请打印表格并附上收据",
+  Summary: "汇总",
+  "What was bought": "购买了什么",
+  "Your budget: up to": "你的预算:最多",
+  "Your role does not file a travel claim.": "你的职位不需提交差旅报销。",
+  "a day": "每天",
+  "a month": "每月",
+  "a night": "每晚",
+  dinner: "晚餐",
+  "e.g. adhesive for P1600 site": "例如 P1600 工地用的胶水",
+  entitlement: "额度",
+  lunch: "午餐",
+  "over by": "超出",
+  "Not submitted": "未提交",
+  "Ready to release": "可放行",
+  "Wait for report": "等月报",
+  "not submitted yet": "尚未提交",
+  Reviewed: "已审阅",
+  "Pick a claim month from the list.": "请从列表中选择报销月份。",
+  "This claim is released, so it can't be changed now.":
+    "此报销已放行，不能再更改。",
+  "Enter each amount as RM 0 or more.": "每个金额请填 RM 0 或以上。",
+  "Key in at least one amount": "请至少填写一个金额",
+  "Write what was bought": "请写明购买了什么",
+  "Keep this under 300 characters.": "请保持在 300 个字以内。",
+  "Keep this under 1000 characters.": "请保持在 1000 个字以内。",
+};

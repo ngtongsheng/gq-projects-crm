@@ -12,7 +12,7 @@ import { AppealsTab } from "./appeals-tab";
 import { loadClaimSettings } from "./claim-settings-data";
 import { ClaimSettingsForm } from "./claim-settings-form";
 import { ClaimTabs } from "./claim-tabs";
-import { MyClaimsView } from "./my-claims-view";
+import { MyTravelClaim } from "./my-travel-claim";
 import { OvertimeToDecide } from "./overtime-to-decide";
 
 export const metadata: Metadata = { title: "Claims" };
@@ -28,9 +28,7 @@ export default async function ClaimsPage({
   const me = await requirePage("claims");
   const t = await getT(me.language);
   // Only the MD and HR & Accounts see a claims list; everyone else, directors included, has their own claim.
-  const title = t(
-    canManageClaims(me.jobRole) ? pageLabel("claims", me) : "My claims",
-  );
+  const title = t(pageLabel("claims", me));
   const settings = await loadClaimSettings();
   const search = await searchParams;
   const asked = monthParam.safeParse(search.month);
@@ -41,12 +39,12 @@ export default async function ClaimsPage({
       <div className="flex flex-col gap-4 print:[&>:not([data-print-sheet])]:hidden">
         <PageHeader
           title={title}
-          description={`${t("One claim a month for commission, travelling expense and overtime. Submit by day")} ${settings.cutOffDay}. ${t("Expenses dated after that go into next month's claim.")}`}
+          description={`${t("One summary per month. Fill in the monthly totals, print the claim form, attach all the receipts and hand it to Jany. Jany releases the claim once the monthly report for that month has been submitted. Commission is claimed separately on the Commission page.")} ${t("Cut-off day")}: ${settings.cutOffDay}.`}
         />
         <OvertimeToDecide me={me} t={t} />
-        <MyClaimsView
+        <MyTravelClaim
           me={me}
-          settings={settings}
+          cutOffDay={settings.cutOffDay}
           requestedMonth={requestedMonth}
           hrefFor={(month) => `/claims?month=${month}`}
           t={t}
@@ -92,9 +90,9 @@ export default async function ClaimsPage({
       )}
       {view === "appeals" && <AppealsTab myId={me.id} />}
       {view === "mine" && (
-        <MyClaimsView
+        <MyTravelClaim
           me={me}
-          settings={settings}
+          cutOffDay={settings.cutOffDay}
           requestedMonth={requestedMonth}
           hrefFor={(month) => `/claims?view=mine&month=${month}`}
           t={t}

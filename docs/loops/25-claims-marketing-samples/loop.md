@@ -28,7 +28,7 @@ pushed; owner pushes to `main`.
 ## Tasks
 | # | Task | Status | Depends | Tier |
 |---|---|---|---|---|
-| 01 | exceljs allow rule; adopt new demo; page registry, icons, access defaults | todo | | standard |
+| 01 | exceljs allow rule; adopt new demo; page registry, icons, access defaults | done | | standard |
 | 02 | Travel claims schema, RLS, cut-off setting | todo | 01 | frontier |
 | 03 | My travel claim: form, submit/update, print | todo | 02 | standard |
 | 04 | All claims list and check/release sheet | todo | 03 | standard |
@@ -58,3 +58,8 @@ pushed; owner pushes to `main`.
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
 2026-11-17 · plan · loop written from Vicky's 16 Nov demo · next: /execute-loop docs/loops/25-claims-marketing-samples
 2026-11-17 · plan · decision · skipped issue #50 and catch-up hook · they target Vicky's laptop, this is the owner's machine
+2026-11-17 · exec · decision · worktree branched from local `main` (planning commit unpushed) · keeps the plan in the branch without copying
+2026-11-17 · #01 · started · standard
+2026-11-17 · #01 · decision · D13 allow rule not added: classifier denied the settings edit; `pnpm add exceljs` ran without it, so it is not needed · owner may add it by hand
+2026-11-17 · #01 · decision · migration widens `role_page_access.page_key` check for `tuft`/`mkt`; hrefs `/custom-samples`, `/marketing` (07/10 may change)
+2026-11-17 · #01 · done · check, typecheck, 3105 tests pass · next: #02

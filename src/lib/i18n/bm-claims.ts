@@ -264,4 +264,8 @@ export const bmClaims: Dictionary = {
   "Marked paid.": "Ditandakan sudah dibayar.",
   Claims: "Tuntutan",
   "My claims": "Tuntutan saya",
+  "Travel claims": "Tuntutan perjalanan",
+  "My travel claim": "Tuntutan perjalanan saya",
+  "Custom samples": "Sampel khas",
+  "Marketing expense": "Perbelanjaan pemasaran",
 };

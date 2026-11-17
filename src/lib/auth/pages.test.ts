@@ -253,6 +253,17 @@ describe("navPagesFor: defaults", () => {
     }
   });
 
+  it("names the claims page for each role", () => {
+    const label = (person: Viewer) =>
+      navPagesFor(person, {}).find((page) => page.key === "claims")?.label;
+    expect(label(viewer("md"))).toBe("Travel claims");
+    expect(label(viewer("accounts"))).toBe("Travel claims");
+    expect(label(viewer("director"))).toBe("My travel claim");
+    expect(label(viewer("bd"))).toBe("My travel claim");
+    expect(label(viewer("sales"))).toBe("My travel claim");
+    expect(label(viewer("site"))).toBe("My claims");
+  });
+
   it("sends managers to Team Reports and others to their own report", () => {
     const report = (person: Viewer) =>
       navPagesFor(person, {}).find((page) => page.key === "rep");
@@ -324,6 +335,57 @@ describe("margin", () => {
 
   it("is given to one person by their own tick", () => {
     expect(canSeeMargin(viewer("sales", { seesMargin: true }), {})).toBe(true);
+  });
+});
+
+describe("Custom samples and Marketing expense", () => {
+  const roles = [
+    "md",
+    "accounts",
+    "director",
+    "bd",
+    "sales",
+    "arrange",
+    "site",
+    "ssup",
+    "support",
+    "designer",
+    "marketing",
+  ] as const;
+
+  it("gives Custom samples to every role but the site supervisor", () => {
+    expect(roles.filter((role) => defaultAllowed(role, "tuft"))).toEqual(
+      roles.filter((role) => role !== "site"),
+    );
+  });
+
+  it("gives Marketing expense to the MD, accounts, sales support, purchasing and marketing", () => {
+    expect(roles.filter((role) => defaultAllowed(role, "mkt"))).toEqual([
+      "md",
+      "accounts",
+      "ssup",
+      "support",
+      "marketing",
+    ]);
+  });
+
+  it("stays hidden from every sidebar until the pages are built", () => {
+    for (const role of roles) {
+      const person = viewer(role === "arrange" ? "sales" : role, {
+        arrangesStock: role === "arrange",
+      });
+      expect(navKeys(person)).not.toContain("tuft");
+      expect(navKeys(person)).not.toContain("mkt");
+      expect(canOpenPage(person, "tuft", {})).toBe(false);
+      expect(canOpenPage(person, "mkt", {})).toBe(false);
+    }
+  });
+
+  it("lets the MD grant either page to another role", () => {
+    expect(accessAllowed("director", "mkt", { director: { mkt: true } })).toBe(
+      true,
+    );
+    expect(accessAllowed("site", "tuft", { site: { tuft: true } })).toBe(true);
   });
 });
 

@@ -232,4 +232,8 @@ export const zhClaims: Dictionary = {
   "Marked paid.": "已标记付款。",
   Claims: "报销",
   "My claims": "我的报销",
+  "Travel claims": "差旅报销",
+  "My travel claim": "我的差旅报销",
+  "Custom samples": "定制样品",
+  "Marketing expense": "营销费用",
 };

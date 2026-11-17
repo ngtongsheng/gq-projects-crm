@@ -25,13 +25,26 @@ const report = (
 );
 
 // Paths copied from the demo's icon map. The demo has no icons of its own for HR and Claims,
-// so they show the dashboard icon there; kept as is.
+// so they show the dashboard icon there; kept as is. Custom samples and Marketing expense
+// have their own (the demo falls back to the dashboard icon there, a prototype bug).
 const ICONS: Record<SidebarKey, ReactNode> = {
   today: (
     <>
       <path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1z" />
       <path d="M8 5H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2" />
       <path d="M9 13l2 2 4-4" />
+    </>
+  ),
+  tuft: (
+    <>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <path d="M3 9h18M9 3v18M3 15h18M15 3v18" />
+    </>
+  ),
+  mkt: (
+    <>
+      <path d="M3 11v2a1 1 0 0 0 1 1h3l8 4V6L7 10H4a1 1 0 0 0-1 1z" />
+      <path d="M18.5 9a4 4 0 0 1 0 6" />
     </>
   ),
   hr: dashboard,

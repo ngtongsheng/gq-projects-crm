@@ -4,9 +4,11 @@ import { isManager, type JobRole } from "./job-role";
 /** Every page in the demo's access matrix (demo: PAGES), in the matrix's row order. */
 export const PageKey = z.enum([
   "today",
+  "tuft",
   "hr",
   "tools",
   "claims",
+  "mkt",
   "tasks",
   "leave",
   "dash",
@@ -107,11 +109,34 @@ const PAGES: Record<PageKey, Page> = {
   },
   claims: {
     key: "claims",
-    matrixLabel: "Claims (commission & travel)",
-    label: (viewer) => (isManager(viewer.jobRole) ? "Claims" : "My claims"),
+    matrixLabel: "Travel claims (monthly)",
+    label: (viewer) =>
+      isSite(viewer)
+        ? "My claims"
+        : viewer.jobRole === "md" || viewer.jobRole === "accounts"
+          ? "Travel claims"
+          : "My travel claim",
     href: fixed("/claims"),
     group: "main",
     built: true,
+  },
+  tuft: {
+    key: "tuft",
+    matrixLabel: "Custom samples (loan)",
+    label: fixed("Custom samples"),
+    href: fixed("/custom-samples"),
+    group: "main",
+    // Task 07 builds the page.
+    built: false,
+  },
+  mkt: {
+    key: "mkt",
+    matrixLabel: "Marketing expense",
+    label: fixed("Marketing expense"),
+    href: fixed("/marketing"),
+    group: "main",
+    // Task 10 builds the page.
+    built: false,
   },
   tasks: {
     key: "tasks",
@@ -273,6 +298,7 @@ const SALES_PAGES: readonly PageKey[] = [
   "mof",
   "site",
   "stock",
+  "tuft",
   "coll",
   "comm",
   "claims",
@@ -286,17 +312,28 @@ const SALES_PAGES: readonly PageKey[] = [
  * the MD's own page and sits outside the matrix).
  */
 const ROLE_PAGES: Record<RoleKey, readonly PageKey[]> = {
-  md: [...SALES_PAGES, "rep", "drep", "hr"],
+  md: [...SALES_PAGES, "rep", "drep", "mkt", "hr"],
   director: [...SALES_PAGES.filter((key) => key !== "mof"), "rep", "drep"],
   bd: [...SALES_PAGES, "drep"],
   sales: [...SALES_PAGES, "rep"],
   arrange: [...SALES_PAGES, "rep"],
-  accounts: [...SALES_PAGES, "rep", "drep", "hr"],
+  accounts: [...SALES_PAGES, "rep", "drep", "mkt", "hr"],
   site: ["today", "inst", "site", "srep", "claims", "tasks", "leave"],
-  ssup: ["dash", "inst", "site", "stock", "tasks", "leave"],
-  designer: ["dash", "tasks", "leave"],
-  marketing: ["dash", "tasks", "site", "stock", "leave"],
-  support: ["dash", "cost", "mof", "inst", "site", "stock", "tasks", "leave"],
+  ssup: ["dash", "inst", "site", "stock", "tuft", "mkt", "tasks", "leave"],
+  designer: ["dash", "tuft", "tasks", "leave"],
+  marketing: ["dash", "mkt", "tasks", "site", "stock", "tuft", "leave"],
+  support: [
+    "dash",
+    "cost",
+    "mof",
+    "inst",
+    "site",
+    "stock",
+    "tuft",
+    "mkt",
+    "tasks",
+    "leave",
+  ],
 };
 
 /** A Site Supervisor who sells gets these after their report. */

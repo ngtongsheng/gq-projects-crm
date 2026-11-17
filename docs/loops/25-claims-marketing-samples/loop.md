@@ -29,8 +29,8 @@ pushed; owner pushes to `main`.
 | # | Task | Status | Depends | Tier |
 |---|---|---|---|---|
 | 01 | exceljs allow rule; adopt new demo; page registry, icons, access defaults | done | | standard |
-| 02 | Travel claims schema, RLS, cut-off setting | todo | 01 | frontier |
-| 03 | My travel claim: form, submit/update, print | todo | 02 | standard |
+| 02 | Travel claims schema, RLS, cut-off setting | done | 01 | frontier |
+| 03 | My travel claim: form, submit/update, print | in-progress | 02 | standard |
 | 04 | All claims list and check/release sheet | todo | 03 | standard |
 | 05 | Remove the old monthly claim (migration + code) | todo | 04 | frontier |
 | 06 | Custom samples schema, photo storage, loan-days setting | todo | 01 | frontier |
@@ -63,3 +63,8 @@ pushed; owner pushes to `main`.
 2026-11-17 · #01 · decision · D13 allow rule not added: classifier denied the settings edit; `pnpm add exceljs` ran without it, so it is not needed · owner may add it by hand
 2026-11-17 · #01 · decision · migration widens `role_page_access.page_key` check for `tuft`/`mkt`; hrefs `/custom-samples`, `/marketing` (07/10 may change)
 2026-11-17 · #01 · done · check, typecheck, 3105 tests pass · next: #02
+2026-11-17 · #02 · started · frontier
+2026-11-17 · #01 · decision · migration guard flags #01's `drop constraint role_page_access_page_key_check` (re-added wider, no data lost) · covered by the `data-loss-approved` label already needed at go-live (D1)
+2026-11-17 · #02 · decision · rules live in trigger `guard_travel_claim_write`; "approved" report also opens release; md/accounts cannot check their own claim; a submitted claim needs one non-zero amount; no delete; old claim settings code left for #05
+2026-11-17 · #02 · done · 17 PGlite tests; check, typecheck, 3122 tests pass · next: #03
+2026-11-17 · #03 · started · standard

@@ -53,4 +53,11 @@ export const EXAMPLE_REFERENCES: Record<string, Record<string, string>> = {
   staff_hr_records: { grade: "sales_grades" },
   handover_items: { contact_id: "contacts", project_id: "projects" },
   custom_sample_loans: { sample_id: "custom_samples" },
+  marketing_event_costs: { event_id: "marketing_events" },
+  marketing_expenses: {
+    category_id: "marketing_categories",
+    vendor_id: "marketing_vendors",
+    event_id: "marketing_events",
+  },
+  marketing_prepaid_entries: { vendor_id: "marketing_vendors" },
 };

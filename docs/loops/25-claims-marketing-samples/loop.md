@@ -36,8 +36,8 @@ pushed; owner pushes to `main`.
 | 06 | Custom samples schema, photo storage, loan-days setting | done | 01 | frontier |
 | 07 | Custom samples list, record/edit, borrow, detail | done | 06 | standard |
 | 08 | Custom samples return, give away, overdue remind, settings | done | 07 | standard |
-| 09 | Marketing expense schema and RLS | in-progress | 01 | frontier |
-| 10 | Expense log and categories editor | todo | 09 | standard |
+| 09 | Marketing expense schema and RLS | done | 01 | frontier |
+| 10 | Expense log and categories editor | in-progress | 09 | standard |
 | 11 | Marketing dashboard and chart | todo | 10 | standard |
 | 12 | Vendors and part-timers | todo | 10 | standard |
 | 13 | Events: costs, budget vs actual, print | todo | 10 | standard |
@@ -91,3 +91,6 @@ pushed; owner pushes to `main`.
 2026-11-17 · #08 · decision · Remind uses `profiles.whatsapp` (not `site_reminders`), read server-side with the service key for keepers only, borrowers only; no reminder counter stored; sheet stays open after return/give away
 2026-11-17 · #08 · done · check, typecheck, 3115 tests pass · next: #09
 2026-11-17 · #09 · started · frontier
+2026-11-17 · #09 · decision · enum values stored as keys (UI translates); categories/vendors/events linked by id (delete blocked while used, so no "older categories" panel); prepaid balance from view `marketing_prepaid_balances`, never stored; giveaway supplier/given_to free text; UI tasks insert vendor rows themselves (no auto-add); RLS uses fixed role lists like custom samples
+2026-11-17 · #09 · done · check, typecheck, 3145 tests pass · next: #10
+2026-11-17 · #10 · started · standard

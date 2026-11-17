@@ -120,3 +120,5 @@ pushed; owner pushes to `main`.
 2026-11-18 · #17 · decision · whats-new.md replaced (it holds one version; catch-up reads only the current one)
 2026-11-18 · exec · fix · #05 deleted `claims/overtime-section.tsx`, the only entry point to the overtime form; `/overtime` still works but nothing linked to it. Added an "Add or check your overtime claims" link on My travel claim for site (the role with the OT field), zh/bm keys added
 2026-11-18 · #17 · done · check, typecheck, 3327 tests, build pass · next: vault, push branch
+2026-11-18 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-18-loop-25-claims-marketing-samples.md
+2026-11-18 · exec · branch pushed; main untouched per D12/D14 · next: owner actions in loop.md

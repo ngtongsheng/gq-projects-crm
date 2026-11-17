@@ -5,7 +5,7 @@ import { EXAMPLE_REFERENCES } from "./table-references.ts";
 
 const MIGRATIONS = join(import.meta.dirname, "../../supabase/migrations");
 
-/** table -> column -> referenced table, read from `create table` blocks; profiles left out. */
+/** table -> column -> referenced table, read from `create table` blocks less dropped tables; profiles left out. */
 function referencesInMigrations(): Record<string, Record<string, string>> {
   const found: Record<string, Record<string, string>> = {};
   for (const file of readdirSync(MIGRATIONS).sort()) {
@@ -15,6 +15,8 @@ function referencesInMigrations(): Record<string, Record<string, string>> {
     )) {
       const created = line.match(/create table public\.([a-z_]+)/);
       if (created) table = created[1];
+      const dropped = line.match(/^drop table public\.([a-z_]+)/);
+      if (dropped) delete found[dropped[1]];
       // A later `alter table` in the same file adds columns to another table.
       if (/^alter table/.test(line)) table = "";
       const ref = line.match(/^\s*([a-z_]+)\s.*references public\.([a-z_]+)/);

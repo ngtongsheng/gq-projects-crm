@@ -25,16 +25,6 @@ it("the MD saves a setting that already exists", async () => {
   await expect(upsert("stock_hold_days", "21")).resolves.toBeDefined();
 });
 
-it("HR & Accounts saves the claim settings", async () => {
-  await t.actAs("accounts");
-  await expect(
-    upsert(
-      "claims",
-      '{"cutOffDay": 20, "mileageRatePerKm": 0.6, "kmPerDay": 150, "monthlyTravelLimit": 0, "needReport": true}',
-    ),
-  ).resolves.toBeDefined();
-});
-
 it("HR & Accounts still cannot save another setting", async () => {
   await t.actAs("accounts");
   await expect(upsert("stock_hold_days", "30")).rejects.toThrow();

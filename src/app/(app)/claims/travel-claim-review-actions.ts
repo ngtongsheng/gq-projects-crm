@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requirePage } from "@/lib/auth/require-page";
-import { canManageClaims } from "@/lib/domain/claim-flow";
+import { canManageClaims } from "@/lib/domain/claim-eligibility";
 import { optionalText, textField } from "@/lib/form/form-fields";
 import { todayMyt } from "@/lib/format/date";
 import { toCents } from "@/lib/format/money";

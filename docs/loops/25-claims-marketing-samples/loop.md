@@ -32,8 +32,8 @@ pushed; owner pushes to `main`.
 | 02 | Travel claims schema, RLS, cut-off setting | done | 01 | frontier |
 | 03 | My travel claim: form, submit/update, print | done | 02 | standard |
 | 04 | All claims list and check/release sheet | done | 03 | standard |
-| 05 | Remove the old monthly claim (migration + code) | in-progress | 04 | frontier |
-| 06 | Custom samples schema, photo storage, loan-days setting | todo | 01 | frontier |
+| 05 | Remove the old monthly claim (migration + code) | done | 04 | frontier |
+| 06 | Custom samples schema, photo storage, loan-days setting | in-progress | 01 | frontier |
 | 07 | Custom samples list, record/edit, borrow, detail | todo | 06 | standard |
 | 08 | Custom samples return, give away, overdue remind, settings | todo | 07 | standard |
 | 09 | Marketing expense schema and RLS | todo | 01 | frontier |
@@ -76,3 +76,9 @@ pushed; owner pushes to `main`.
 2026-11-17 · #04 · decision · release gate applies only to job_role sales/bd/site (mirrors `reportKindFor`); Vicky soft warning is client-only; sheet opens from an "Open" button; review actions import `canManageClaims` from `claim-flow.ts` (#05 must move it)
 2026-11-17 · #04 · done · check, typecheck, 3157 tests pass · next: #05
 2026-11-17 · #05 · started · frontier
+2026-11-17 · #05 · retry · first pass removed the Commission page's appeal decide dialog (against D2 and the task text); sent back to restore it with an entry point on the Commission page
+2026-11-17 · #05 · decision · appeal decide dialog restored; MD and accounts open it from a Decide button on Commission rows with a pending appeal (no separate list); `claim_people()` kept; leftover `attachments/claims/` receipts logged in debt.md; example travel claims not added; HR policy example text still describes the old claim
+2026-11-17 · #05 · decision · `data-loss-approved` label at go-live also covers the claims-setting trim (mileage rate, km/day, travel limit, needReport removed; cutOffDay kept), which the guard does not flag
+2026-11-17 · exec · note · full suite hits 30s PGlite hook timeouts under machine load ~21; passes with `--maxWorkers=4` (284 files, 3023 tests)
+2026-11-17 · #05 · done · grep clean; check, typecheck, 3023 tests pass · next: #06
+2026-11-17 · #06 · started · frontier

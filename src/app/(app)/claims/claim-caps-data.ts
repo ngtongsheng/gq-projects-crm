@@ -1,5 +1,5 @@
 import type { Profile } from "@/lib/auth/current-profile";
-import type { ClaimCapBasis } from "@/lib/domain/monthly-claim";
+import type { ClaimCapBasis } from "@/lib/domain/claim-caps";
 import type { OutstationRules } from "@/lib/domain/staff-package";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {

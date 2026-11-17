@@ -5,7 +5,7 @@ import { EmptyState } from "@/components/app/empty-state";
 import { StatusBadge } from "@/components/app/status-badge";
 import { Button } from "@/components/ui/button";
 import { JobRoleLabel } from "@/lib/auth/job-role";
-import { claimPeriod } from "@/lib/domain/monthly-claim";
+import { claimPeriod } from "@/lib/domain/claim-month";
 import {
   type CalendarDate,
   formatDate,

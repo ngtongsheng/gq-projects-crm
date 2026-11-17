@@ -1,5 +1,5 @@
 import type { JobRole } from "@/lib/auth/job-role";
-import { claimCapsOn } from "@/lib/domain/monthly-claim";
+import { claimCapsOn } from "@/lib/domain/claim-caps";
 import type { CalendarDate } from "@/lib/format/date";
 import {
   loadHrRecords,

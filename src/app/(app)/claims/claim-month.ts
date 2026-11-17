@@ -1,4 +1,4 @@
-import { claimMonthOf, claimPeriod } from "@/lib/domain/monthly-claim";
+import { claimMonthOf, claimPeriod } from "@/lib/domain/claim-month";
 import {
   addDays,
   type CalendarDate,

@@ -113,13 +113,7 @@ beforeEach(() => {
   calls.inserts = [];
   calls.updates = [];
   vi.mocked(getCurrentProfile).mockResolvedValue(profile("sales"));
-  vi.mocked(loadClaimSettings).mockResolvedValue({
-    cutOffDay: 25,
-    mileageRatePerKm: 0.6,
-    kmPerDay: 150,
-    monthlyTravelLimit: 0,
-    needReport: true,
-  });
+  vi.mocked(loadClaimSettings).mockResolvedValue({ cutOffDay: 25 });
 });
 
 describe("submitTravelClaim", () => {

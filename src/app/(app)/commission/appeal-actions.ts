@@ -76,7 +76,6 @@ export async function sendAppeal(formData: FormData): Promise<AppealResult> {
   }
 
   revalidatePath("/commission");
-  revalidatePath("/claims");
   return { error: null };
 }
 
@@ -117,6 +116,5 @@ export async function decideAppeal(formData: FormData): Promise<AppealResult> {
   if (data.length === 0) return { error: NOT_FOUND_APPEAL };
 
   revalidatePath("/commission");
-  revalidatePath("/claims");
   return { error: null };
 }

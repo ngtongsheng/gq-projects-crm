@@ -19,6 +19,8 @@ export const bmTravelClaim: Dictionary = {
   "Not set – Jany sets it in HR": "Belum ditetapkan – Jany tetapkan dalam HR",
   "One summary per month. Fill in the monthly totals, print the claim form, attach all the receipts and hand it to Jany. Jany releases the claim once the monthly report for that month has been submitted. Commission is claimed separately on the Commission page.":
     "Satu ringkasan sebulan. Isi jumlah bulanan, cetak borang tuntutan, lampirkan semua resit dan serahkan kepada Jany. Jany melepaskan tuntutan selepas laporan bulanan bulan itu dihantar. Komisen dituntut secara berasingan di halaman Komisen.",
+  "Staff fill in one summary per month and hand the printed form with receipts to Jany. Tap a name to check it, tick Vicky's OK and release. Release unlocks once that person's monthly report is submitted.":
+    "Kakitangan mengisi satu ringkasan setiap bulan dan menyerahkan borang bercetak bersama resit kepada Jany. Tekan nama untuk menyemak, tandakan pengesahan Vicky dan lepaskan. Lepaskan dibuka setelah laporan bulanan orang itu dihantar.",
   "Others – bought for the company (RM)":
     "Lain-lain – dibeli untuk syarikat (RM)",
   "Others – bought for the company": "Lain-lain – dibeli untuk syarikat",

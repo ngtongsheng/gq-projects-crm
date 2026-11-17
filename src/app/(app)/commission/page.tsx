@@ -1,4 +1,4 @@
-import { Percent, Scale, Search, Settings } from "lucide-react";
+import { Percent, Search, Settings } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { z } from "zod";
@@ -23,7 +23,7 @@ import {
 import { loadMyTeam } from "@/lib/auth/my-team";
 import { requirePage } from "@/lib/auth/require-page";
 import { inMyTeam } from "@/lib/auth/team";
-import { todayMyt } from "@/lib/format/date";
+import { formatDateTime, todayMyt } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
 import { AppealDialog } from "./appeal-dialog";
 import { AppealPill } from "./appeal-pill";
@@ -32,6 +32,7 @@ import { latestAppealByLine, loadCommissionAppeals } from "./appeals-data";
 import { loadCommissionLines } from "./commission-data";
 import { CommissionDialog } from "./commission-dialog";
 import { groupByPerson, lineStatus } from "./commission-groups";
+import { DecideAppealDialog } from "./decide-appeal-dialog";
 
 export const metadata: Metadata = { title: "Commission" };
 
@@ -86,26 +87,13 @@ export default async function CommissionPage({
             : "Your commission on the orders registered under your name."
         }
         actions={
-          canSetRules || canDecide ? (
-            <div className="flex flex-wrap gap-2">
-              {canDecide && (
-                // Appeals are decided in Claims (loop 19 D7); everyone else sees their appeal on the row.
-                <Button asChild variant="outline">
-                  <Link href="/claims?view=appeals">
-                    <Scale data-icon="inline-start" />
-                    Appeals in Claims
-                  </Link>
-                </Button>
-              )}
-              {canSetRules && (
-                <Button asChild variant="outline">
-                  <Link href="/commission/settings">
-                    <Settings data-icon="inline-start" />
-                    Commission settings
-                  </Link>
-                </Button>
-              )}
-            </div>
+          canSetRules ? (
+            <Button asChild variant="outline">
+              <Link href="/commission/settings">
+                <Settings data-icon="inline-start" />
+                Commission settings
+              </Link>
+            </Button>
           ) : undefined
         }
       />
@@ -253,6 +241,19 @@ export default async function CommissionPage({
                           }
                         />
                       )}
+                      {/* The Claims Appeals tab is gone (loop 25 D2): a waiting appeal is decided on its row. */}
+                      {canDecide &&
+                        appeal?.status === "pending" &&
+                        line.personId !== me.id && (
+                          <DecideAppealDialog
+                            appealId={appeal.id}
+                            personName={line.personName}
+                            orderTitle={`${line.mofNo} · ${line.projectName} · ${line.companyName}`}
+                            reason={appeal.reason}
+                            sentOn={formatDateTime(appeal.sentAt)}
+                            lateCut={line.commission.lateCut}
+                          />
+                        )}
                       <CommissionDialog
                         mofId={line.mofId}
                         personId={line.personId}

@@ -19,6 +19,8 @@ export const zhTravelClaim: Dictionary = {
   "Not set – Jany sets it in HR": "未设定 – 由 Jany 在人事设定",
   "One summary per month. Fill in the monthly totals, print the claim form, attach all the receipts and hand it to Jany. Jany releases the claim once the monthly report for that month has been submitted. Commission is claimed separately on the Commission page.":
     "每月一份汇总。填写每月总额，打印报销表，附上所有收据，交给 Jany。该月的月报提交后，Jany 才会放行报销。佣金请在佣金页面另行申请。",
+  "Staff fill in one summary per month and hand the printed form with receipts to Jany. Tap a name to check it, tick Vicky's OK and release. Release unlocks once that person's monthly report is submitted.":
+    "员工每月填写一份汇总，把打印好的报销表连同收据交给 Jany。点名字查看，勾选 Vicky 已确认，然后放行。该员工的月报提交后才能放行。",
   "Others – bought for the company (RM)": "其他 – 为公司购买 (RM)",
   "Others – bought for the company": "其他 – 为公司购买",
   "Outstation allowance (meals)": "出差津贴 (餐费)",

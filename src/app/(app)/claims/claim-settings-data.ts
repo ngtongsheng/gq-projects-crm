@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { ClaimSettings } from "@/lib/domain/monthly-claim";
+import { ClaimSettings } from "@/lib/domain/claim-month";
 import { createClient } from "@/lib/supabase/server";
 
 const settingRow = z.object({ value: ClaimSettings });
 
-/** The claim settings, seeded by the monthly claims migration and changed by the MD or HR & Accounts. */
+/** The claim cut-off day, stored in app_settings; nobody edits it in the app (loop 25, D7). */
 export async function loadClaimSettings(): Promise<ClaimSettings> {
   const supabase = await createClient();
   const { data, error } = await supabase

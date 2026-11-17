@@ -3,7 +3,7 @@ import { createUploadTarget } from "./upload";
 
 const RECORD = "3f2a9c1e-5b7d-4e8a-9c3b-1a2b3c4d5e6f";
 const request = {
-  area: "claims",
+  area: "leave",
   recordId: RECORD,
   fileName: "receipt.pdf",
   contentType: "application/pdf",
@@ -31,7 +31,7 @@ describe("createUploadTarget", () => {
     expect(from).toHaveBeenCalledWith("attachments");
     const path = createSignedUploadUrl.mock.calls[0]?.[0];
     expect(path).toMatch(
-      new RegExp(`^claims/${RECORD}/[0-9a-f]{8}-receipt.pdf$`),
+      new RegExp(`^leave/${RECORD}/[0-9a-f]{8}-receipt.pdf$`),
     );
     expect(result).toEqual({ ok: true, target: { path, token: "tok" } });
   });

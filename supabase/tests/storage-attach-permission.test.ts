@@ -4,10 +4,9 @@ import { createTestDatabase, type TestDatabase } from "./harness";
 
 // Loop 24 audit S-DB1: a file goes into <area>/<record-id>/ only when the person may change that
 // record, by the same rule as the table the file is recorded on. Every upload area the app has:
-// claims, leave, tasks, hr-policies.
+// leave, tasks, hr-policies. Claim receipts went with the monthly claim (loop 25).
 
 let t: TestDatabase;
-let claimId: string;
 let leaveId: string;
 let taskId: string;
 const NEW_POLICY_ID = "7b1d2c3e-4f50-4a6b-8c7d-9e0f1a2b3c4d";
@@ -35,10 +34,6 @@ const refused = (who: JobRole, area: string, record: string) =>
 
 beforeAll(async () => {
   t = await createTestDatabase();
-  claimId = await insertAs(
-    "sales",
-    "insert into public.monthly_claims (month) values ('2026-10-01') returning id",
-  );
   leaveId = await insertAs(
     "sales",
     `insert into public.leave_requests (leave_type, starts_on, ends_on)
@@ -53,21 +48,6 @@ beforeAll(async () => {
 });
 
 afterAll(() => t.close());
-
-describe("claim receipts", () => {
-  it("the person adds to their own open claim", async () => {
-    await attach("sales", "claims", claimId);
-  });
-
-  it("another person cannot, nor HR & Accounts before it is submitted", async () => {
-    await refused("designer", "claims", claimId);
-    await refused("accounts", "claims", claimId);
-  });
-
-  it("nobody adds to a claim that does not exist", async () => {
-    await refused("sales", "claims", crypto.randomUUID());
-  });
-});
 
 describe("leave slips", () => {
   it("the person, the MD and HR & Accounts add to the leave", async () => {
@@ -112,17 +92,21 @@ describe("HR policy documents", () => {
 
 describe("an area the app does not have", () => {
   it("is refused to everyone, even the MD", async () => {
-    await refused("md", "photos", claimId);
+    await refused("md", "photos", leaveId);
+  });
+
+  it("refuses the old claim receipts area", async () => {
+    await refused("md", "claims", crypto.randomUUID());
   });
 });
 
 describe("a person who has left", () => {
-  it("cannot add to what was their own claim", async () => {
+  it("cannot add to what was their own leave", async () => {
     await t.actAs(null);
     await t.db.query(
       "update public.profiles set active = false, left_on = current_date where id = $1",
       [t.profileIds.sales],
     );
-    await refused("sales", "claims", claimId);
+    await refused("sales", "leave", leaveId);
   });
 });

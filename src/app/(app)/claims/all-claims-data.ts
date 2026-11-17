@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { JobRole } from "@/lib/auth/job-role";
 import { canFileClaim } from "@/lib/domain/claim-eligibility";
-import { claimPeriod } from "@/lib/domain/monthly-claim";
+import { claimPeriod } from "@/lib/domain/claim-month";
 import { type ReportStatus, reportKindFor } from "@/lib/domain/report-stats";
 import type { CalendarDate } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";

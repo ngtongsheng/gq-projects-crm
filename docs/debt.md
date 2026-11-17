@@ -211,3 +211,8 @@
 - What: `pnpm audit` reports 2 advisories, both in the dev-only `shadcn` CLI (`minimatch`, `deepmerge`). Next, react and supabase-js have patch releases pending.
 - Why: production does not run them; patching was not part of loop 24.
 - When to fix: the next dependency update: take the patch versions and recheck `pnpm audit`.
+
+## Old monthly claim receipt files left in storage (loop 25 task 05)
+- What: the monthly claim tables are dropped, but the receipt photos already uploaded under `attachments/claims/<claim id>/` stay in the bucket. Nothing links to them any more and nobody can add new ones (`can_attach` refuses the `claims` area).
+- Why: deleting stored files is out of scope for loop 25 and needs someone with access to the live storage.
+- When to fix: Tong Sheng removes the `claims/` folder from the live `attachments` bucket by hand once Vicky confirms nobody needs the old receipt photos.

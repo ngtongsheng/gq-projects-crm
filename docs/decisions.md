@@ -713,3 +713,17 @@ Goal: Vicky opens Claude and the laptop brings itself up to date; Google sign-in
 - Return, give away and loan-period saves are server actions with the database's own refusals passed through
   (`custom-sample-refusal.ts`); the settings dialog saves `app_settings.customSamples` through the keepers' policies
   from task 06.
+
+### Marketing expense log and categories (task 10)
+- The page opens on the Dashboard tab like the demo; until the dashboard and the other views are built, those tabs show
+  "Nothing here yet." Edit categories sits in the page header (all views) for now; the dashboard task may move it.
+- The demo's "Older categories still on expenses" panel is not built: expenses link to a category by id, so a category
+  that expenses use cannot be deleted (the row shows "N used") and none are left behind. The way to retire a category
+  is to move its expenses to another one by editing them.
+- The categories dialog only has Move up, like the demo. Save deletes removed rows first and then saves names and
+  order, so a refused delete changes nothing.
+- A vendor typed in the expense form that matches no vendor (any capitalisation) is added as a company vendor in the
+  same save; a failed expense save after that leaves the new vendor in the list.
+- Delete asks "Delete this expense?" first (the demo does not ask). Only editors see the Add expense button and can open
+  a line; HR & Accounts sees the log read-only.
+- Server messages are shown through the dictionaries (`t(error)`), unlike the earlier pages that show them in English.

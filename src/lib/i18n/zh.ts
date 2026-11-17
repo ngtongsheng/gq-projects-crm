@@ -3,6 +3,7 @@ import { zhClaims } from "./zh-claims";
 import { zhCustomSamples } from "./zh-custom-samples";
 import { zhHrTools } from "./zh-hr-tools";
 import { zhInstallationStock } from "./zh-installation-stock";
+import { zhMarketing } from "./zh-marketing";
 import { zhTasksLeave } from "./zh-tasks-leave";
 import { zhTravelClaim } from "./zh-travel-claim";
 
@@ -615,6 +616,7 @@ export const zh: Dictionary = {
   ...zhInstallationStock,
   ...zhTravelClaim,
   ...zhCustomSamples,
+  ...zhMarketing,
   "Something went wrong. Try again.": "出错了，请再试一次。",
   "Try again": "再试一次",
   Reference: "参考编号",

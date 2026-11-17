@@ -134,8 +134,7 @@ const PAGES: Record<PageKey, Page> = {
     label: fixed("Marketing expense"),
     href: fixed("/marketing"),
     group: "main",
-    // Task 10 builds the page.
-    built: false,
+    built: true,
   },
   tasks: {
     key: "tasks",

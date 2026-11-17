@@ -37,8 +37,8 @@ pushed; owner pushes to `main`.
 | 07 | Custom samples list, record/edit, borrow, detail | done | 06 | standard |
 | 08 | Custom samples return, give away, overdue remind, settings | done | 07 | standard |
 | 09 | Marketing expense schema and RLS | done | 01 | frontier |
-| 10 | Expense log and categories editor | in-progress | 09 | standard |
-| 11 | Marketing dashboard and chart | todo | 10 | standard |
+| 10 | Expense log and categories editor | done | 09 | standard |
+| 11 | Marketing dashboard and chart | in-progress | 10 | standard |
 | 12 | Vendors and part-timers | todo | 10 | standard |
 | 13 | Events: costs, budget vs actual, print | todo | 10 | standard |
 | 14 | Prepaid accounts and sample give-away | todo | 12 | standard |
@@ -94,3 +94,6 @@ pushed; owner pushes to `main`.
 2026-11-17 · #09 · decision · enum values stored as keys (UI translates); categories/vendors/events linked by id (delete blocked while used, so no "older categories" panel); prepaid balance from view `marketing_prepaid_balances`, never stored; giveaway supplier/given_to free text; UI tasks insert vendor rows themselves (no auto-add); RLS uses fixed role lists like custom samples
 2026-11-17 · #09 · done · check, typecheck, 3145 tests pass · next: #10
 2026-11-17 · #10 · started · standard
+2026-11-17 · #10 · decision · page opens on Dashboard (placeholder until #11); Edit categories in the header for editors; categories show "N used" instead of delete; expense delete asks to confirm; tabs reuse `SegmentLinks`; a new vendor stays if the expense insert fails
+2026-11-17 · #10 · done · check, typecheck, 3170 tests pass · next: #11
+2026-11-17 · #11 · started · standard

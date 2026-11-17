@@ -1,6 +1,7 @@
 import { bmClaims } from "./bm-claims";
 import { bmCustomSamples } from "./bm-custom-samples";
 import { bmInstallation } from "./bm-installation";
+import { bmMarketing } from "./bm-marketing";
 import { bmSiteWork } from "./bm-site-work";
 import { bmTravelClaim } from "./bm-travel-claim";
 import type { Dictionary } from "./dictionary";
@@ -134,6 +135,7 @@ export const bm: Dictionary = {
   ...bmInstallation,
   ...bmTravelClaim,
   ...bmCustomSamples,
+  ...bmMarketing,
   "Something went wrong. Try again.": "Sesuatu tidak kena. Cuba lagi.",
   "Try again": "Cuba lagi",
   Reference: "Rujukan",

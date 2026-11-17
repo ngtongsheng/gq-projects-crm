@@ -45,6 +45,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "leave",
       "rep",
       "drep",
+      "mkt",
       "hr",
     ],
   },
@@ -155,6 +156,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "leave",
       "rep",
       "drep",
+      "mkt",
       "hr",
     ],
   },
@@ -190,7 +192,17 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
   },
   ssup: {
     person: viewer("ssup"),
-    keys: ["dash", "inst", "site", "stock", "tuft", "tasks", "tools", "leave"],
+    keys: [
+      "dash",
+      "inst",
+      "site",
+      "stock",
+      "tuft",
+      "mkt",
+      "tasks",
+      "tools",
+      "leave",
+    ],
   },
   designer: {
     person: viewer("designer"),
@@ -198,7 +210,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
   },
   marketing: {
     person: viewer("marketing"),
-    keys: ["dash", "tasks", "site", "stock", "tuft", "tools", "leave"],
+    keys: ["dash", "mkt", "tasks", "site", "stock", "tuft", "tools", "leave"],
   },
   support: {
     person: viewer("support"),
@@ -210,6 +222,7 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
       "site",
       "stock",
       "tuft",
+      "mkt",
       "tasks",
       "tools",
       "leave",
@@ -245,6 +258,7 @@ describe("navPagesFor: defaults", () => {
       "Site Work",
       "Stock",
       "Custom samples",
+      "Marketing expense",
       "Tasks",
       "Tools & Forms",
       "Leave",
@@ -387,13 +401,14 @@ describe("Custom samples and Marketing expense", () => {
     }
   });
 
-  it("keeps Marketing expense hidden from every sidebar until it is built", () => {
+  it("lists Marketing expense in the sidebar of every role that has it", () => {
     for (const role of roles) {
       const person = viewer(role === "arrange" ? "sales" : role, {
         arrangesStock: role === "arrange",
       });
-      expect(navKeys(person)).not.toContain("mkt");
-      expect(canOpenPage(person, "mkt", {})).toBe(false);
+      const has = defaultAllowed(role, "mkt");
+      expect(navKeys(person).includes("mkt")).toBe(has);
+      expect(canOpenPage(person, "mkt", {})).toBe(has);
     }
   });
 

@@ -755,3 +755,20 @@ Goal: Vicky opens Claude and the laptop brings itself up to date; Google sign-in
 - The "Rate" label of a part-timer reads "Pay rate" because "Rate" is already the exchange rate in Chinese. The
   Contact column reads "Contact details" for the same reason.
 - The TOTAL row sums the vendors shown under the tab and search.
+
+### Marketing events (task 13)
+- Events are created in the Events tab ("Create event"); nothing creates one from a typed name, because costs and expenses
+  link by event id. With no event the tab says "Create the event first". Rename needs no cascade. Delete is hidden ("In
+  use") while a cost line or a tagged expense uses the event; the database refuses it anyway.
+- Event cost = the event's own cost lines plus every expense-log line tagged to it (amount in RM). A log line sits under
+  its category as the cost group, shows an "Expense log" pill, and its supplier column reads "vendor · invoice no.". Its
+  foreign amount is "CUR amount" when the expense was not in RM; rate, unit and quantity stay blank. Clicking it opens the
+  expense form; a cost-sheet line opens the cost form.
+- Over budget means cost above budget. A budget of 0 is saved as no budget ("No budget set"). Cost groups are listed
+  biggest first, with whole-percent shares (they may not add to exactly 100).
+- The selected event is a click on a row of "All events" (shown when there is more than one), opened first on the newest
+  event; the dashboard's events panel links to `?view=events&event=<id>`.
+- Print: the page's other content is hidden and the sheet reuses the shared A4 `PrintLayout` and the print button of the
+  travel claim. The title block reads "Event costing" with the event name, dates and venue under it (the demo puts the
+  name in the title, which does not fit the 200px title block). Sections and footer follow the demo.
+- A rate may be negative (a credit line); the quantity must be above 0. Unit defaults to "ls", quantity to 1.

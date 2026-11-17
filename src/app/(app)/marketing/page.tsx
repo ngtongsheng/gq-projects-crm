@@ -20,6 +20,8 @@ import {
   loadMarketingVendors,
   loadVendorNames,
 } from "./marketing-data";
+import { loadMarketingEvents } from "./marketing-events-data";
+import { MarketingEventsView } from "./marketing-events-view";
 import {
   type ExpenseFilters,
   expenseFiltersFromParams,
@@ -47,7 +49,8 @@ export default async function MarketingPage({
   const categories = await loadMarketingCategories();
 
   return (
-    <div className="flex flex-col gap-4">
+    // The Events tab prints its costing sheet; everything else on the page stays off the paper.
+    <div className="flex flex-col gap-4 print:[&>:not([data-print-sheet])]:hidden">
       <PageHeader
         title={t("Marketing expense")}
         description={t(
@@ -79,6 +82,13 @@ export default async function MarketingPage({
         />
       ) : view === "vendors" ? (
         <VendorsView params={params} canEdit={canEdit} />
+      ) : view === "events" ? (
+        <EventsView
+          params={params}
+          categories={categories}
+          canEdit={canEdit}
+          printedBy={me.fullName ?? "Unnamed"}
+        />
       ) : (
         <EmptyState
           icon={Wallet}
@@ -133,6 +143,41 @@ async function VendorsView({
       year={yearParam.catch(today.slice(0, 4)).parse(params.year)}
       today={today}
       canEdit={canEdit}
+    />
+  );
+}
+
+const eventParam = z.uuid();
+
+async function EventsView({
+  params,
+  categories,
+  canEdit,
+  printedBy,
+}: {
+  params: Record<string, string | string[] | undefined>;
+  categories: MarketingCategory[];
+  canEdit: boolean;
+  printedBy: string;
+}) {
+  const [events, expenses, vendors] = await Promise.all([
+    loadMarketingEvents(),
+    loadMarketingExpenses(),
+    canEdit ? loadVendorNames() : [],
+  ]);
+  const initialEventId = eventParam.safeParse(params.event).data ?? null;
+  return (
+    <MarketingEventsView
+      // A new link from the dashboard opens that event.
+      key={initialEventId}
+      events={events}
+      expenses={expenses}
+      categories={categories}
+      vendors={vendors}
+      initialEventId={initialEventId}
+      canEdit={canEdit}
+      today={todayMyt()}
+      printedBy={printedBy}
     />
   );
 }

@@ -40,8 +40,8 @@ pushed; owner pushes to `main`.
 | 10 | Expense log and categories editor | done | 09 | standard |
 | 11 | Marketing dashboard and chart | done | 10 | standard |
 | 12 | Vendors and part-timers | done | 10 | standard |
-| 13 | Events: costs, budget vs actual, print | in-progress | 10 | standard |
-| 14 | Prepaid accounts and sample give-away | todo | 12 | standard |
+| 13 | Events: costs, budget vs actual, print | done | 10 | standard |
+| 14 | Prepaid accounts and sample give-away | in-progress | 12 | standard |
 | 15 | Excel import and export | todo | 11, 12, 13, 14 | standard |
 | 16 | Dashboard reminders | todo | 04, 08, 14 | standard |
 | 17 | Docs: decisions, features, what's new, debt, roadmap | todo | 01-16 | economy |
@@ -103,3 +103,6 @@ pushed; owner pushes to `main`.
 2026-11-17 · #12 · decision · vendor totals match by id (not name); company/part-timer drop the other kind's fields on save; labels "Pay rate", "Contact details" (zh clash); delete hidden when in use, DB refusal mapped; TOTAL sums visible rows
 2026-11-17 · #12 · done · check, typecheck, 3208 tests pass (DB suite included) · next: #13
 2026-11-17 · #13 · started · standard
+2026-11-17 · #13 · decision · event cost = cost lines + tagged expense-log lines (RM); dashboard events panel still sums cost lines only (as demo); budget 0 saved as none; negative rate allowed (credit), qty > 0; event delete hidden while in use; print reuses `ClaimPrintButton`
+2026-11-17 · #13 · done · check, typecheck, 3237 tests pass · next: #14
+2026-11-17 · #14 · started · standard

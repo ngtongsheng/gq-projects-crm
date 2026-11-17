@@ -60,3 +60,30 @@ export type MarketingVendor = {
   /** How many prepaid-account entries use this vendor; the database blocks a delete while any exist. */
   prepaidEntries: number;
 };
+
+/** One line of an event's cost sheet in full (table marketing_event_costs). */
+export type EventCostLine = {
+  id: string;
+  costGroup: string;
+  description: string | null;
+  supplierRef: string | null;
+  /** Free text such as "RMB 2700". */
+  foreignAmount: string | null;
+  rate: number;
+  unit: string;
+  qty: number;
+  total: number;
+  remarks: string | null;
+};
+
+/** An event with its own cost sheet (table marketing_events). */
+export type MarketingEvent = {
+  id: string;
+  name: string;
+  startsOn: CalendarDate | null;
+  endsOn: CalendarDate | null;
+  venue: string | null;
+  budget: number | null;
+  notes: string | null;
+  costs: EventCostLine[];
+};

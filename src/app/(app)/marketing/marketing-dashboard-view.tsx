@@ -312,7 +312,7 @@ export function MarketingDashboardView({
                   <TableRow key={event.eventId} className="hover:bg-sunk">
                     <TableCell className="px-3.5 py-2.5">
                       <Link
-                        href="/marketing?view=events"
+                        href={`/marketing?view=events&event=${event.eventId}`}
                         className="hover:underline"
                       >
                         {event.name} – {t("total event cost")}

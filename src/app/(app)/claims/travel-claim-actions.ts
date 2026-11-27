@@ -36,7 +36,15 @@ export async function submitTravelClaim(
     return { error: parsed.error.issues[0]?.message ?? TRY_AGAIN };
   }
   const { month, ...figures } = parsed.data;
-  const settings = await loadClaimSettings();
+  const supabase = await createClient();
+  const find = () =>
+    supabase
+      .from("travel_claims")
+      .select("id, status")
+      .eq("profile_id", me.id)
+      .eq("month", month)
+      .maybeSingle();
+  const [settings, found] = await Promise.all([loadClaimSettings(), find()]);
   if (!travelClaimMonths(todayMyt(), settings.cutOffDay).includes(month)) {
     return { error: WRONG_MONTH };
   }
@@ -51,16 +59,8 @@ export async function submitTravelClaim(
     remark: figures.remark,
     status: "submitted" as const,
   };
-  const supabase = await createClient();
-  const find = () =>
-    supabase
-      .from("travel_claims")
-      .select("id, status")
-      .eq("profile_id", me.id)
-      .eq("month", month)
-      .maybeSingle();
 
-  let existing = await find();
+  let existing = found;
   if (existing.error) {
     logServerError("Could not load the travel claim", existing.error, {
       profileId: me.id,
@@ -87,7 +87,14 @@ export async function submitTravelClaim(
     existing = await find();
   }
   const claim = existing.data;
-  if (existing.error || !claim) return { error: TRY_AGAIN };
+  if (existing.error || !claim) {
+    logServerError(
+      "Could not find the travel claim that was already started",
+      existing.error,
+      { profileId: me.id, month },
+    );
+    return { error: TRY_AGAIN };
+  }
   if (claim.status === "released") return { error: RELEASED };
 
   const saved = await supabase
@@ -97,10 +104,11 @@ export async function submitTravelClaim(
     .select("id");
   if (saved.error || saved.data.length === 0) {
     if (saved.error?.code === "42501") return { error: RELEASED };
-    logServerError("Could not update the travel claim", saved.error, {
-      profileId: me.id,
-      recordId: claim.id,
-    });
+    logServerError(
+      "Could not update the travel claim",
+      saved.error ?? "The update changed no rows",
+      { profileId: me.id, recordId: claim.id },
+    );
     return { error: TRY_AGAIN };
   }
   revalidatePath("/claims");

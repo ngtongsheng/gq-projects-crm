@@ -46,10 +46,31 @@ const calls: {
   updates: { row: Record<string, unknown>; id: unknown }[];
 } = { finds: [], inserts: [], updates: [] };
 
-/** A database with one existing claim in `existing` status (or none), recording what is written. */
+type Lookup = {
+  data: { id: string; status: string } | null;
+  error: { message: string } | null;
+};
+
+const claimIn = (status: string | null): Lookup => ({
+  data: status ? { id: CLAIM, status } : null,
+  error: null,
+});
+
+/**
+ * A database with one existing claim in `existing` status (or none), recording what is written.
+ * `afterInsert` is what a lookup finds once an insert has been tried.
+ */
 function givenClaim(
   existing: string | null,
-  insertError: { code: string } | null = null,
+  {
+    insertError = null,
+    afterInsert = claimIn(existing),
+    updatedRows = [{ id: CLAIM }],
+  }: {
+    insertError?: { code: string } | null;
+    afterInsert?: Lookup;
+    updatedRows?: { id: string }[];
+  } = {},
 ) {
   const client = {
     from: (table: string) => {
@@ -63,10 +84,8 @@ function givenClaim(
               filters[column] = value;
               return chain;
             },
-            maybeSingle: async () => ({
-              data: existing ? { id: CLAIM, status: existing } : null,
-              error: null,
-            }),
+            maybeSingle: async () =>
+              calls.inserts.length > 0 ? afterInsert : claimIn(existing),
           };
           return chain;
         },
@@ -78,7 +97,7 @@ function givenClaim(
           eq: (_column: string, id: unknown) => ({
             select: async () => {
               calls.updates.push({ row, id });
-              return { data: [{ id: CLAIM }], error: null };
+              return { data: updatedRows, error: null };
             },
           }),
         }),
@@ -167,12 +186,43 @@ describe("submitTravelClaim", () => {
   });
 
   it("updates the claim another tab just started", async () => {
-    givenClaim("submitted", { code: "23505" });
+    givenClaim(null, {
+      insertError: { code: "23505" },
+      afterInsert: claimIn("submitted"),
+    });
     expect(await submitTravelClaim(form(nov))).toEqual({
       error: null,
       updated: true,
     });
+    expect(calls.inserts).toHaveLength(1);
     expect(calls.updates).toHaveLength(1);
+  });
+
+  it("logs why the claim another tab started could not be read", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    givenClaim(null, {
+      insertError: { code: "23505" },
+      afterInsert: { data: null, error: { message: "connection lost" } },
+    });
+    expect(await submitTravelClaim(form(nov))).toEqual({
+      error: "Could not save. Try again.",
+    });
+    expect(log).toHaveBeenCalledWith(
+      expect.stringContaining("connection lost"),
+    );
+    expect(calls.updates).toEqual([]);
+  });
+
+  it("logs the claim id when the update changes no rows", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    givenClaim("submitted", { updatedRows: [] });
+    expect(await submitTravelClaim(form(nov))).toEqual({
+      error: "Could not save. Try again.",
+    });
+    expect(JSON.parse(String(log.mock.calls[0]?.[0]))).toMatchObject({
+      context: { profileId: MEI, recordId: CLAIM },
+      error: { message: "The update changed no rows" },
+    });
   });
 
   it("refuses a released claim", async () => {

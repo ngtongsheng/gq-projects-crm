@@ -231,3 +231,53 @@
 - What: the HR policy example text in `scripts/example-data/hr.ts` still describes the old monthly claim. The example data has no travel claims, so a fresh example database shows none.
 - Why: the example text is copy, not a rule, and the loop kept to the claim code and migration. Example travel claims need the people and months in the example data to match.
 - When to fix: with the next example-data change: reword the policy text to the travel claim and add one or two example travel claims.
+
+## Supabase CLI 3 not adopted (loop 26 #04, D4)
+- What: the supabase CLI stays on 2.x (`^2.122.1`); 3.4.0 is latest. Checked against 3.4.0: `db push` targets the local database unless `--remote` is given, so `checks` and `migrate-prod` would hit the wrong one; `db push --db-url` (`scripts/db-test-copy.ts`) and `db dump --linked` (backup) are deprecated; `db query --linked` (health) needs `--yes` or `--read-only` to run unattended; `migration list` (allow-list) needs `--remote`. `link --project-ref` and `projects list` work on 3.4.0.
+- Why: the `db push` behaviour was checked from release notes only (CLI help was denied), and the rest can only be proven by real runs against the databases. Changing the workflows needs those runs, so the loop reverted the upgrade.
+- When to fix: before the next CLI upgrade: add `--remote`, `--yes` or `--read-only` to the commands above, run each workflow once against the test copy, then move to `^3`.
+
+## TypeScript 7 and @types/node 26 (loop 26 D4)
+- What: `typescript` is 5.9.3 (latest 7.0.2). `@types/node` is `^24` (latest 26.6.11).
+- Why: TypeScript 7 is a compiler major with its own migration. `@types/node` 26 describes Node 26, but `mise.toml` pins Node 24.
+- When to fix: TypeScript 7 in its own loop, with `typecheck`, `build` and `test` run on it first. `@types/node` when `mise.toml` moves to Node 26.
+
+## Marketing and installer lists still read past the 1000-row cap (loop 26 #09, audit A2)
+- What: `loadEventCosts` (dashboard totals only) reads every row, so the totals are short past 1000 rows. `allIds` in `marketing-excel-store.ts` and the installer-data loader page correctly but keep their own paging loops instead of `readAllRows` (duplication only). The marketing dashboard, expense log and events view send every expense of every year to the browser and filter there (A2).
+- Why: task 09 fixed the export and the other loaders (A1); these went past the 8-file cap (D5).
+- When to fix: before the marketing history import, and before any marketing table nears about 800 rows: move `loadEventCosts` onto `readAllRows` and filter by year in the query; fold `allIds` and installer-data onto `readAllRows` when next touched.
+
+## Serial reads and unlogged failures on marketing, travel claims and reminders (audit A3, A4, A14, A15, A17)
+- What: the marketing page awaits categories before its `Promise.all` (A3). A workbook that fails to parse is swallowed by `.catch(() => null)` with no log (A4). Travel claim settings and the claim lookup run in series (A15), and after a 23505 race the second `find()` error goes unlogged while a zero-row update logs a null error (A14). `countClaimsReadyToRelease` waits for the claims query before loading people, and reads every monthly report ever filed (A17).
+- Why: each adds a round trip or hides a log line; none is wrong today. They went past the 8-file cap (D5).
+- When to fix: at the next change to those files. A17 once a person has several years of reports.
+
+## Marketing saves and import are not atomic (audit A5, A6, B9)
+- What: saving categories deletes first and upserts second; a failed upsert (a name swap hits the `lower(name)` unique index) leaves the deletes done (A5). A failed import rollback undoes only the inserted lines, so new categories, vendors, events and event updates stay (A6). A failed clean-up in that rollback is swallowed with no log (B9).
+- Why: a real fix needs one SQL function or a transaction in a new migration (A5, A6). B9 changes logging only, and was past the cap.
+- When to fix: the next marketing migration: move category save and import into one SQL function. B9 with the next change to `marketing-excel-store.ts`: log the failed clean-up with `logServerError`.
+
+## Custom sample codes, photos and error handling (audit A10, A12, A13)
+- What: the next `TS-###` code is `max()+1` with no lock, so two samples saved at once collide and the second sees "That code is already used." (A12). Replacing a photo leaves the old file in storage, and 44 px list thumbnails download the full photo (A13). `void openCustomSamplePhoto(id).then(...)` has no rejection handler (A10).
+- Why: A12 needs a sequence or a retry in a migration. A13 needs a storage clean-up and a thumbnail size. A10 went past the cap.
+- When to fix: A12 at the next custom-sample migration. A13 when storage or phone data use is raised. A10 with the next change to `custom-sample-sheet.tsx`.
+
+## Travel claim lock message is generic (audit A16)
+- What: every 42501 on update shows "This claim is released", but the guard raises 42501 for five other reasons (overtime for non-site staff, not the owner, ...). Claim review matches `message.includes(NO_REPORT)`, while custom samples pass the database message through `plainRefusal`.
+- Why: a new message changes what people see on the claim action. Moving `plainRefusal` to `lib` touches a second feature.
+- When to fix: the next travel-claim change: show the guard's own message, and move `plainRefusal` to `lib`.
+
+## Repeated dialog footer, MOF columns and project picker (audit B2, B4, B5)
+- What: the delete-confirm footer is copied in 8 dialogs (B2). The MOF register columns are copied across four pages, and the "A + B" salesperson join is built in three places (B4). The "projects not lost, labelled name · company" loader exists three times (B5).
+- Why: each copy works on its own. Shared components touch many files, beyond the cap for task 07 and 08.
+- When to fix: during the next change to those dialogs or pages: add `components/app/delete-confirm.tsx`, `mofs/mof-columns.tsx` and `projects/project-options-data.ts`.
+
+## Costing editor components are one function each (audit B7)
+- What: `QuoteEditor` (about 380 lines) and `ItemRow` (about 330 lines) are one function each in `costing/[id]/`.
+- Why: a plain move is not safe, because splitting needs new props passed between the parts.
+- When to fix: the next change to costing editing: split each into parts with explicit props, as round 1 C1 describes.
+
+## Money-path server errors have no record id (audit B8)
+- What: the MOF money writes (installer claims and payments, supplier and installer POs, VOs, the MOF save and costing approval) still use raw `console.error` with no user or record id. These are the first files for the O4 item above.
+- Why: task 09 was at its cap. Switching to `logServerError` changes logging only.
+- When to fix: at the next change to these action files, or as a quick pass: switch them to `logServerError`.

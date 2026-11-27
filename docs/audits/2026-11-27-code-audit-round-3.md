@@ -173,3 +173,32 @@ State after tasks 02-04 (`pnpm outdated`, `pnpm audit` on 2026-11-27: no known v
 | `typescript` (dev) | ^5 | ^5.9.3 | 7.0.2 | deferred (loop D4): to debt, a compiler major |
 | `@types/node` (dev) | ^24.19.2 | ^24.19.4 | 26.6.11 | kept on 24 to match Node 24 in `mise.toml` (loop D4) |
 | `next` | 16.4.6 | 16.4.6 | 16.4.6 | current (upgraded before the loop, `3e807c2`) |
+
+## Loop 26 outcome
+
+Every A and B finding is either fixed or in `docs/debt.md`. Fixed changes are behaviour-preserving (D3).
+
+### Fixed
+
+| Task | Commit | IDs |
+|---|---|---|
+| 07 dead code and duplication | e0f8cef | A8, A11, A19, B1, B6 |
+| 08 comments and oversized files | 81e2819 | A7, B3 |
+| 09 performance, robustness, error handling | fd1300e | A1, A9, A18 |
+
+### Deferred to debt.md
+
+| IDs | Debt section |
+|---|---|
+| A2 | Marketing and installer lists still read past the 1000-row cap |
+| A3, A4, A14, A15, A17 | Serial reads and unlogged failures on marketing, travel claims and reminders |
+| A5, A6, B9 | Marketing saves and import are not atomic |
+| A10, A12, A13 | Custom sample codes, photos and error handling |
+| A16 | Travel claim lock message is generic |
+| B2, B4, B5 | Repeated dialog footer, MOF columns and project picker |
+| B7 | Costing editor components are one function each |
+| B8 | Money-path server errors have no record id |
+
+Dependencies deferred (loop 26 D4): supabase CLI 3 (reverted in task 04), TypeScript 7, `@types/node` 26.
+
+Count: section A has 19 findings (7 fixed, 12 deferred); section B has 9 (3 fixed, 6 deferred).

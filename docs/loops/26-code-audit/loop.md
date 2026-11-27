@@ -27,7 +27,7 @@ checks pass, the branch is pushed, every other finding is in `docs/debt.md`. Own
 | 07 | Fix: dead code and duplication | done | 06 | frontier |
 | 08 | Fix: comments and oversized files | done | 07 | standard |
 | 09 | Fix: performance, robustness, error handling | done | 08 | frontier |
-| 10 | Debt log, audit outcome, push branch | in-progress | 09 | economy |
+| 10 | Debt log, audit outcome, push branch | done | 09 | economy |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - After #10: push `loop/25-claims-marketing-samples`, then `loop/26-code-audit`, to `main` (or merge the PRs).
@@ -66,3 +66,5 @@ checks pass, the branch is pushed, every other finding is in `docs/debt.md`. Own
 2026-11-27 · #09 · decision · A17 A3 A14 A15 A4 A10 → debt (09 cap) · D5 cap reached after A1 A18 A9
 2026-11-27 · #09 · done · A1 A18 A9 fixed in fd1300e; check/typecheck/build ok, 3337/3337 tests · #10
 2026-11-27 · #10 · in-progress · delegated economy
+2026-11-27 · #10 · decision · corrected subagent's debt.md claim that `allIds` is unpaged · it pages by id (marketing-excel-store.ts:33-47); duplication only, no data-loss path
+2026-11-27 · #10 · done · 10 debt sections + Loop 26 outcome (A 7 fixed/12 deferred, B 3 fixed/6 deferred), check ok · push

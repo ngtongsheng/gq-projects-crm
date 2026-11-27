@@ -21,8 +21,8 @@ checks pass, the branch is pushed, every other finding is in `docs/debt.md`. Own
 | 01 | Branch and allow rules | done | | economy |
 | 02 | Patch/minor bumps and minimatch advisory | done | 01 | standard |
 | 03 | Biome 2.4 to 2.6 | done | 02 | standard |
-| 04 | pglite 0.6 and supabase CLI 3 | in-progress | 03 | frontier |
-| 05 | Audit A: delta deep review (loops 23-25) | todo | 04 | frontier |
+| 04 | pglite 0.6 and supabase CLI 3 | done | 03 | frontier |
+| 05 | Audit A: delta deep review (loops 23-25) | in-progress | 04 | frontier |
 | 06 | Audit B: repo-wide sweep | todo | 05 | frontier |
 | 07 | Fix: dead code and duplication | todo | 06 | frontier |
 | 08 | Fix: comments and oversized files | todo | 07 | standard |
@@ -47,3 +47,7 @@ checks pass, the branch is pushed, every other finding is in `docs/debt.md`. Own
 2026-11-27 · #03 · decision · noArrayIndexKey fixed with real db ids (handover_items.id, site_follow_ups.id added to selects + zod) · behaviour unchanged, no schema change
 2026-11-27 · #03 · done · biome 2.6.9, check clean, typecheck/build ok, 3328/3328 tests, no new biome-ignore · #04
 2026-11-27 · #04 · in-progress · delegated frontier
+2026-11-27 · #04 · decision · pglite 0.6.0 (PostgreSQL 19), 0.5.17 hang not reproduced; supabase/tests 55 files ok in 58s under load
+2026-11-27 · #04 · decision · supabase CLI stays ^2.122.1 (D4 revert) · checked v3.4.0 against: `link --project-ref` ok; `db push --yes` (checks, migrate-prod) BREAKS, v3 targets local unless `--remote`; `db push --db-url` (scripts/db-test-copy.ts) deprecated; `db dump --linked [--data-only]` (backup) deprecated, use `--remote`; `db query --linked` (health) BREAKS, needs `--yes`/`--read-only` unattended; `projects list` ok; `migration list` (allow-list) needs `--remote`. Items 2 and 5 provable only by real runs against the databases → debt for #10. `db push` checked from release notes only (help denied by permissions)
+2026-11-27 · #04 · done · pglite 0.6.0, check/typecheck/build ok, 3328/3328 tests; CLI stays 2.x · #05
+2026-11-27 · #05 · in-progress · delegated frontier

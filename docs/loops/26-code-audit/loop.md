@@ -18,8 +18,8 @@ checks pass, the branch is pushed, every other finding is in `docs/debt.md`. Own
 ## Tasks
 | # | Task | Status | Depends | Tier |
 |---|---|---|---|---|
-| 01 | Branch and allow rules | todo | | economy |
-| 02 | Patch/minor bumps and minimatch advisory | todo | 01 | standard |
+| 01 | Branch and allow rules | done | | economy |
+| 02 | Patch/minor bumps and minimatch advisory | in-progress | 01 | standard |
 | 03 | Biome 2.4 to 2.6 | todo | 02 | standard |
 | 04 | pglite 0.6 and supabase CLI 3 | todo | 03 | frontier |
 | 05 | Audit A: delta deep review (loops 23-25) | todo | 04 | frontier |
@@ -33,3 +33,8 @@ checks pass, the branch is pushed, every other finding is in `docs/debt.md`. Own
 - After #10: push `loop/25-claims-marketing-samples`, then `loop/26-code-audit`, to `main` (or merge the PRs).
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
+2026-11-27 · setup · worktree ../gq-projects-crm-loops/26-code-audit on loop/26-code-audit off loop/25 (D1); plan commit cherry-picked · #01
+2026-11-27 · planner · tab w7:t1F answered YES, closed · #01
+2026-11-27 · #01 · in-progress · delegated economy
+2026-11-27 · #01 · done · ancestor check ok, 4 allow rules, pnpm check ok · #02
+2026-11-27 · #02 · in-progress · delegated standard

@@ -80,28 +80,3 @@ export async function loadTaskPeople(): Promise<TaskPerson[]> {
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
-
-const projectRows = z.array(
-  z.object({
-    id: z.uuid(),
-    name: z.string(),
-    contacts: z.object({ companies: z.object({ name: z.string() }) }),
-  }),
-);
-
-/** Projects a task can be about: every one not lost. */
-export async function loadTaskProjects(): Promise<
-  { id: string; label: string }[]
-> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("projects")
-    .select("id, name, contacts(companies(name))")
-    .neq("stage", "lost")
-    .order("name");
-  if (error) throw new Error(`Could not load projects: ${error.message}`);
-  return projectRows.parse(data).map((row) => ({
-    id: row.id,
-    label: `${row.name} · ${row.contacts.companies.name}`,
-  }));
-}

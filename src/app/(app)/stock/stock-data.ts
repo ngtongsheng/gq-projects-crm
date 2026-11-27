@@ -1,5 +1,9 @@
 import { z } from "zod";
 import {
+  loadProjectOptions,
+  type ProjectOption,
+} from "@/app/(app)/projects/project-options-data";
+import {
   RESERVATION_STATUSES,
   type ReservationStatus,
   STOCK_UNITS,
@@ -131,34 +135,10 @@ export async function loadReservations(): Promise<Reservation[]> {
   }));
 }
 
-const projectRows = z.array(
-  z.object({
-    id: z.string(),
-    name: z.string(),
-    contacts: z.object({ companies: z.object({ name: z.string() }) }),
-  }),
-);
-
-export type ReservableProject = { id: string; label: string };
-
 /** Projects stock can be held for: the person's own, or every live one for those who arrange stock. */
 export async function loadReservableProjects(
   meId: string,
   arrangesStock: boolean,
-): Promise<ReservableProject[]> {
-  const supabase = await createClient();
-  let query = supabase
-    .from("projects")
-    .select("id, name, contacts(companies(name))")
-    .neq("stage", "lost")
-    .order("name");
-  if (!arrangesStock) {
-    query = query.or(`pic_id.eq.${meId},support_id.eq.${meId}`);
-  }
-  const { data, error } = await query;
-  if (error) throw new Error(`Could not load projects: ${error.message}`);
-  return projectRows.parse(data).map((row) => ({
-    id: row.id,
-    label: `${row.name} · ${row.contacts.companies.name}`,
-  }));
+): Promise<ProjectOption[]> {
+  return loadProjectOptions(arrangesStock ? null : meId);
 }

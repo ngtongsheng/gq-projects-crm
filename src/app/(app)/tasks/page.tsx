@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { z } from "zod";
+import { loadProjectOptions } from "@/app/(app)/projects/project-options-data";
 import { LanguageToggle } from "@/components/app/language-toggle";
 import { PageHeader } from "@/components/app/page-header";
 import { requirePage } from "@/lib/auth/require-page";
@@ -16,7 +17,7 @@ import { getT } from "@/lib/i18n/server-t";
 import { loadWorkCalendar } from "@/lib/work-calendar";
 import { NewTaskDialog } from "./new-task-dialog";
 import { TaskBannerLine } from "./task-banner-line";
-import { loadTaskPeople, loadTaskProjects, loadTasks } from "./task-data";
+import { loadTaskPeople, loadTasks } from "./task-data";
 import { loadTaskDetail } from "./task-detail-data";
 import { TaskFilters } from "./task-filters";
 import { TaskSheet } from "./task-sheet";
@@ -54,7 +55,7 @@ export default async function TasksPage({
 
   const [people, projects, calendar] = await Promise.all([
     assigns || params.view === "load" ? loadTaskPeople() : [],
-    assigns ? loadTaskProjects() : [],
+    assigns ? loadProjectOptions(null) : [],
     assigns ? loadWorkCalendar("mon-fri") : null,
   ]);
 

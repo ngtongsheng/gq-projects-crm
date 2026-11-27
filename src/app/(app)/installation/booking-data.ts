@@ -1,4 +1,8 @@
 import { z } from "zod";
+import {
+  loadProjectOptions,
+  type ProjectOption,
+} from "@/app/(app)/projects/project-options-data";
 import { isManager, type JobRole } from "@/lib/auth/job-role";
 import {
   BOOKING_PURPOSES,
@@ -95,38 +99,14 @@ export async function loadSiteSupervisors(): Promise<
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-const projectRows = z.array(
-  z.object({
-    id: z.string(),
-    name: z.string(),
-    pic_id: z.string(),
-    support_id: z.string().nullable(),
-    contacts: z.object({ companies: z.object({ name: z.string() }) }),
-  }),
-);
-
-export type BookableProject = { id: string; label: string };
+export type BookableProject = ProjectOption;
 
 /** The projects a person can book a supervisor for: their own, or all of them for a manager. */
 export async function loadBookableProjects(me: {
   id: string;
   jobRole: JobRole;
 }): Promise<BookableProject[]> {
-  const supabase = await createClient();
-  let query = supabase
-    .from("projects")
-    .select("id, name, pic_id, support_id, contacts(companies(name))")
-    .neq("stage", "lost")
-    .order("name");
-  if (!isManager(me.jobRole)) {
-    query = query.or(`pic_id.eq.${me.id},support_id.eq.${me.id}`);
-  }
-  const { data, error } = await query;
-  if (error) throw new Error(`Could not load projects: ${error.message}`);
-  return projectRows.parse(data).map((row) => ({
-    id: row.id,
-    label: `${row.name} · ${row.contacts.companies.name}`,
-  }));
+  return loadProjectOptions(isManager(me.jobRole) ? null : me.id);
 }
 
 const pendingRows = z.array(z.object({ visit_on: z.string() }));

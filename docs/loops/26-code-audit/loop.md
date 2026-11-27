@@ -68,3 +68,4 @@ checks pass, the branch is pushed, every other finding is in `docs/debt.md`. Own
 2026-11-27 · #10 · in-progress · delegated economy
 2026-11-27 · #10 · decision · corrected subagent's debt.md claim that `allIds` is unpaged · it pages by id (marketing-excel-store.ts:33-47); duplication only, no data-loss path
 2026-11-27 · #10 · done · 10 debt sections + Loop 26 outcome (A 7 fixed/12 deferred, B 3 fixed/6 deferred), check ok · push
+2026-11-27 · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-27-loop-26-code-audit.md

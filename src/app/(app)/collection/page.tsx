@@ -1,6 +1,5 @@
 import { Banknote } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { DataTable } from "@/components/app/data-table";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
@@ -11,6 +10,7 @@ import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { summariseCollection } from "@/lib/domain/collection";
 import { formatDate, todayMyt } from "@/lib/format/date";
 import { formatRm, sumRm } from "@/lib/format/money";
+import { mofNoColumn, mofProjectColumn } from "../mofs/mof-columns";
 import { seesOnlyOwnMofs } from "../mofs/mof-filters";
 import { mofPeople } from "../mofs/mof-people";
 import { loadCollectionOrders, loadPaymentThreshold } from "./collection-data";
@@ -72,30 +72,8 @@ export default async function CollectionPage() {
           />
         }
         columns={[
-          {
-            key: "mofNo",
-            header: "MOF no.",
-            cell: (row) => (
-              <Link
-                href={`/mofs/${row.id}`}
-                className="font-mono font-medium hover:underline"
-              >
-                {row.mofNo}
-              </Link>
-            ),
-          },
-          {
-            key: "project",
-            header: "Company / project",
-            cell: (row) => (
-              <div className="flex flex-col">
-                <span className="font-medium">{row.companyName}</span>
-                <span className="text-xs text-muted-foreground">
-                  {row.projectName}
-                </span>
-              </div>
-            ),
-          },
+          mofNoColumn<(typeof rows)[number]>((row) => row.id),
+          mofProjectColumn<(typeof rows)[number]>(),
           {
             key: "salesperson",
             header: "Salesperson",

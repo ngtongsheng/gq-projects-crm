@@ -25,7 +25,7 @@ outcome show what is left. The branch passes every check and is ready for the ow
 | 05 | DeleteConfirm component and first 3 dialogs (B2) | done | | standard |
 | 06 | DeleteConfirm in the other 5 marketing dialogs (B2) | done | 05 | economy |
 | 07 | mofPeople helper for the salesperson join (B4) | done | | standard |
-| 08 | MOF register column factory (B4) | todo | 07 | standard |
+| 08 | MOF register column factory (B4) | done | 07 | standard |
 | 09 | Shared project picker loader (B5) | todo | | standard |
 | 10 | Close out debt.md and the audit outcome | todo | 01-09 | economy |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
@@ -60,3 +60,6 @@ outcome show what is left. The branch passes every check and is ready for the ow
 2026-11-27 · #07 · delegated (standard) · wait
 2026-11-27 · #07 · decision · mofPeople takes keepBlankNames for Collection · it keeps a blank name's place where the register and summary drop it
 2026-11-27 · #07 · done; check, typecheck, 3346 tests, build pass · #08
+2026-11-27 · #08 · delegated (standard) · wait
+2026-11-27 · #08 · decision · columns compared by dumping the rendered column config before and after · no sign-in to a dev server
+2026-11-27 · #08 · done (B4); check, typecheck, 3346 tests, build pass · #09

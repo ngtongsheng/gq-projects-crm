@@ -25,11 +25,12 @@ import { requirePage } from "@/lib/auth/require-page";
 import { inMyTeam } from "@/lib/auth/team";
 import { formatDateTime, todayMyt } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
+import { mofNoColumn, mofProjectColumn } from "../mofs/mof-columns";
 import { AppealDialog } from "./appeal-dialog";
 import { AppealPill } from "./appeal-pill";
 import { appealKey, canSendAppeal } from "./appeal-rules";
 import { latestAppealByLine, loadCommissionAppeals } from "./appeals-data";
-import { loadCommissionLines } from "./commission-data";
+import { type CommissionLine, loadCommissionLines } from "./commission-data";
 import { CommissionDialog } from "./commission-dialog";
 import { groupByPerson, lineStatus } from "./commission-groups";
 import { DecideAppealDialog } from "./decide-appeal-dialog";
@@ -145,36 +146,13 @@ export default async function CommissionPage({
             rows={group.lines}
             getRowKey={(line) => `${line.mofId}-${line.personId}`}
             columns={[
-              {
-                key: "mofNo",
-                header: "MOF no.",
-                cell: (line) => (
-                  <Link
-                    href={`/mofs/${line.mofId}`}
-                    className="font-mono font-medium hover:underline"
-                  >
-                    {line.mofNo}
-                  </Link>
-                ),
-              },
-              {
-                key: "project",
-                header: "Company / project",
-                cell: (line) => {
-                  const appeal = appealByLine.get(
-                    appealKey(line.mofId, line.personId),
-                  );
-                  return (
-                    <div className="flex flex-col items-start gap-1">
-                      <span className="font-medium">{line.companyName}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {line.projectName}
-                      </span>
-                      {appeal && <AppealPill appeal={appeal} />}
-                    </div>
-                  );
-                },
-              },
+              mofNoColumn<CommissionLine>((line) => line.mofId),
+              mofProjectColumn<CommissionLine>((line) => {
+                const appeal = appealByLine.get(
+                  appealKey(line.mofId, line.personId),
+                );
+                return appeal && <AppealPill appeal={appeal} />;
+              }),
               {
                 key: "rate",
                 header: "Rate",

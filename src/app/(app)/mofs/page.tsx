@@ -30,7 +30,8 @@ import { getT } from "@/lib/i18n/server-t";
 import { DeliveryLog } from "./delivery-log";
 import { loadDeliveryLog } from "./delivery-log-data";
 import { importMofs, previewMofImport } from "./import-actions";
-import { loadRegister } from "./mof-data";
+import { mofNoColumn, mofProjectColumn } from "./mof-columns";
+import { loadRegister, type RegisterRow } from "./mof-data";
 import { parseMofFilters, seesOnlyOwnMofs, visibleMofs } from "./mof-filters";
 import { mofImportFields } from "./mof-import";
 import { MofStage, MofStageLabel } from "./schemas";
@@ -167,18 +168,7 @@ export default async function MofRegisterPage({
           />
         }
         columns={[
-          {
-            key: "mofNo",
-            header: "MOF no.",
-            cell: (row) => (
-              <Link
-                href={`/mofs/${row.id}`}
-                className="font-mono font-medium hover:underline"
-              >
-                {row.mofNo}
-              </Link>
-            ),
-          },
+          mofNoColumn<RegisterRow>((row) => row.id),
           {
             key: "loaDate",
             header: "LOA date",
@@ -186,18 +176,7 @@ export default async function MofRegisterPage({
             cell: (row) => formatDate(row.loaDate),
           },
           { key: "people", header: "Salesperson", cell: (row) => row.people },
-          {
-            key: "project",
-            header: "Company / project",
-            cell: (row) => (
-              <div className="flex flex-col">
-                <span className="font-medium">{row.companyName}</span>
-                <span className="text-xs text-muted-foreground">
-                  {row.projectName}
-                </span>
-              </div>
-            ),
-          },
+          mofProjectColumn<RegisterRow>(),
           {
             key: "total",
             header: "Order total",

@@ -14,7 +14,12 @@ import {
   keepsCustomSamples,
 } from "./custom-sample-access";
 import { borrowSampleSchema, recordSampleSchema } from "./custom-sample-input";
-import { plainRefusal } from "./custom-sample-refusal";
+import {
+  NOT_FOUND,
+  plainRefusal,
+  sampleId,
+  TRY_AGAIN,
+} from "./custom-sample-refusal";
 
 export type CustomSampleResult = { error: string | null };
 export type BorrowResult = { error: string } | { error: null; dueOn: string };
@@ -25,11 +30,6 @@ export type PhotoLinkResult = { error: string } | { error: null; url: string };
 
 const NOT_KEEPER = "Only the office records custom samples.";
 const NOT_BORROWER = "Only a salesperson borrows a custom sample.";
-const NOT_FOUND = "Could not find that sample. Reload the page.";
-const TRY_AGAIN = "Could not save. Try again.";
-
-const sampleId = z.uuid({ error: NOT_FOUND });
-
 /**
  * Step one of a photo upload: hand back a one-file upload token for custom-samples/<sample id>/.
  * The id is chosen by the browser before the sample exists, like an HR policy.

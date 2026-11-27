@@ -1,15 +1,15 @@
 import { z } from "zod";
 import { optionalText } from "@/lib/form/form-fields";
 import { AttachmentPath } from "@/lib/storage/attachment-rules";
+import { sampleId } from "./custom-sample-refusal";
 
-const NOT_FOUND = "Could not find that sample. Reload the page.";
 const REQUIRED = "Fill in the design no., design name and received date.";
 const GIVE_AWAY_REQUIRED = "Key in who it was given to and the reason.";
 
 /** Record or edit a sample (demo sheetTfRec). The id is chosen before the photo is uploaded under it. */
 export const recordSampleSchema = z
   .object({
-    id: z.uuid({ error: NOT_FOUND }),
+    id: sampleId,
     editing: z.boolean(),
     // Blank: the next TS-### when recording, the code it has when editing.
     code: optionalText(40, "Keep the code under 40 characters."),
@@ -48,11 +48,10 @@ export const recordSampleSchema = z
       path: ["photoPath"],
     },
   );
-export type RecordSampleInput = z.output<typeof recordSampleSchema>;
 
 /** Borrow an available sample (demo sheetTfBorrow). */
 export const borrowSampleSchema = z.object({
-  sampleId: z.uuid({ error: NOT_FOUND }),
+  sampleId,
   // Only the MD, who does not sell, picks the salesperson.
   salespersonId: z.uuid().nullable(),
   customer: z
@@ -66,7 +65,7 @@ export const borrowSampleSchema = z.object({
 
 /** Give a sample away (demo sheetTfGift). */
 export const giveAwaySampleSchema = z.object({
-  sampleId: z.uuid({ error: NOT_FOUND }),
+  sampleId,
   givenTo: z
     .string()
     .trim()

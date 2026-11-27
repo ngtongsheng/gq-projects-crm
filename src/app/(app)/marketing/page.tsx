@@ -5,7 +5,7 @@ import { requirePage } from "@/lib/auth/require-page";
 import { todayMyt } from "@/lib/format/date";
 import { getT } from "@/lib/i18n/server-t";
 import type { Translate } from "@/lib/i18n/translate";
-import { loadCustomerNames } from "../custom-samples/custom-samples-data";
+import { loadCustomerNames } from "../customers/company-data";
 import { SegmentLinks } from "../site-work/segment-links";
 import { editsMarketing } from "./marketing-access";
 import { MarketingCategoriesDialog } from "./marketing-categories-dialog";

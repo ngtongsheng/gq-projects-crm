@@ -58,7 +58,6 @@ export const bmMarketing: Dictionary = {
   "Move up": "Alih ke atas",
   "New category": "Kategori baru",
   "No expense here": "Tiada perbelanjaan di sini",
-  "Nothing here yet.": "Belum ada apa-apa di sini.",
   Payment: "Bayaran",
   "Payment method": "Kaedah bayaran",
   "Petty cash": "Tunai runcit",

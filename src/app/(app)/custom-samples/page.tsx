@@ -4,6 +4,7 @@ import { requirePage } from "@/lib/auth/require-page";
 import { getTeamDirectory } from "@/lib/auth/team-directory";
 import { todayMyt } from "@/lib/format/date";
 import { getT } from "@/lib/i18n/server-t";
+import { loadCustomerNames } from "../customers/company-data";
 import {
   canBorrowCustomSample,
   isCustomSampleSeller,
@@ -12,7 +13,6 @@ import {
 import { CustomSampleSettingsDialog } from "./custom-sample-settings-dialog";
 import {
   loadBorrowerWhatsApp,
-  loadCustomerNames,
   loadCustomSamples,
   loadLoanDays,
   loadSellers,

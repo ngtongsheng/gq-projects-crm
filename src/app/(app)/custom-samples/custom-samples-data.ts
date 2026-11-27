@@ -119,20 +119,6 @@ export async function loadLoanDays(): Promise<number> {
   return data ? loanDaysSetting.parse(data).value.loanDays : 14;
 }
 
-/** Company names offered while typing the customer a sample is lent for. */
-export async function loadCustomerNames(): Promise<string[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("companies")
-    .select("name")
-    .order("name");
-  if (error) throw new Error(`Could not load customers: ${error.message}`);
-  return z
-    .array(z.object({ name: z.string() }))
-    .parse(data)
-    .map((row) => row.name);
-}
-
 /** The salespeople the MD may lend a sample to. Only the MD gets any: sellers borrow for themselves. */
 export async function loadSellers(): Promise<{ id: string; name: string }[]> {
   const people = await loadTaskPeople();

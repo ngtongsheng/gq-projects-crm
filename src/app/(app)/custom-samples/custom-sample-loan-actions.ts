@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
 import { requirePage } from "@/lib/auth/require-page";
 import { todayMyt } from "@/lib/format/date";
 import { logServerError } from "@/lib/log-server-error";
@@ -9,14 +8,15 @@ import { createClient } from "@/lib/supabase/server";
 import { keepsCustomSamples } from "./custom-sample-access";
 import type { CustomSampleResult } from "./custom-sample-actions";
 import { giveAwaySampleSchema } from "./custom-sample-input";
-import { plainRefusal } from "./custom-sample-refusal";
+import {
+  NOT_FOUND,
+  plainRefusal,
+  sampleId,
+  TRY_AGAIN,
+} from "./custom-sample-refusal";
 
 const NOT_KEEPER = "Only the office confirms a return.";
-const NOT_FOUND = "Could not find that sample. Reload the page.";
 const NOT_OUT = "That sample is not out on loan any more. Reload the page.";
-const TRY_AGAIN = "Could not save. Try again.";
-
-const sampleId = z.uuid({ error: NOT_FOUND });
 
 type LoanStep = "mark" | "confirm" | "reject";
 

@@ -129,7 +129,6 @@ export const projectFormSchema = z
       (form.commissionType === "pass_down") === (form.passedBy !== null),
     { message: "Choose who passed this project down.", path: ["passedBy"] },
   );
-export type ProjectForm = z.infer<typeof projectFormSchema>;
 
 export const projectIdSchema = z.uuid({
   error: "Could not find that project. Reload the page.",

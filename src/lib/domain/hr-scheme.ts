@@ -49,7 +49,6 @@ export const SALES_GRADES = [
   "M1",
   "M2",
 ] as const;
-export type SalesGrade = (typeof SALES_GRADES)[number];
 
 export type AppendixStatus = "not_signed" | "signed" | "older_version";
 

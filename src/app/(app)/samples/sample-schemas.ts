@@ -33,8 +33,6 @@ export const sampleSchema = z
     path: ["name"],
   });
 
-export type SampleInput = z.output<typeof sampleSchema>;
-
 /** Taking a sample out of Best Link: for a while, or for good when the client keeps it. */
 export const takeOutSchema = z.object({
   sampleId: z.uuid({ error: "Could not find that sample. Reload the page." }),
@@ -94,5 +92,3 @@ export const pickupFormSchema = z.object({
       `A pickup form takes at most ${PICKUP_MAX_LINES} rows.`,
     ),
 });
-
-export type PickupFormInput = z.output<typeof pickupFormSchema>;

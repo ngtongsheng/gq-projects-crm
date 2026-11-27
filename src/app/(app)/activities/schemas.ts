@@ -59,7 +59,6 @@ export const activityFormSchema = z
       path: ["startsAt"],
     },
   );
-export type ActivityForm = z.infer<typeof activityFormSchema>;
 
 export const activityIdSchema = z.uuid({
   error: "Could not find that activity. Reload the page.",

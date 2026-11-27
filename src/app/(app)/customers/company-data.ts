@@ -70,3 +70,17 @@ export async function loadCompanies() {
     todayMyt(),
   );
 }
+
+/** Company names offered while typing a customer (a sample loan, a marketing giveaway). */
+export async function loadCustomerNames(): Promise<string[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("companies")
+    .select("name")
+    .order("name");
+  if (error) throw new Error(`Could not load customers: ${error.message}`);
+  return z
+    .array(z.object({ name: z.string() }))
+    .parse(data)
+    .map((row) => row.name);
+}

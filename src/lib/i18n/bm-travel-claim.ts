@@ -62,7 +62,6 @@ export const bmTravelClaim: Dictionary = {
     "Masukkan setiap jumlah sebagai RM 0 atau lebih.",
   "Key in at least one amount": "Masukkan sekurang-kurangnya satu jumlah",
   "Write what was bought": "Tulis apa yang dibeli",
-  "Keep this under 300 characters.": "Kekalkan di bawah 300 aksara.",
   "Keep this under 1000 characters.": "Kekalkan di bawah 1000 aksara.",
   Entitlement: "Kelayakan",
   "up to": "sehingga",

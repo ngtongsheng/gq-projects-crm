@@ -154,6 +154,5 @@ export const vendorSchema = z
       ? { ...form, skills: [], rate: null, portfolioUrl: null }
       : { ...form, supplies: null, contactPerson: null },
   );
-export type VendorInput = z.output<typeof vendorSchema>;
 
 export const vendorId = z.uuid({ error: VENDOR_NOT_FOUND });

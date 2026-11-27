@@ -14,7 +14,6 @@ export const INSTALLER_SKILLS = [
   "Epoxy / screeding",
   "Others",
 ] as const;
-export type InstallerSkill = (typeof INSTALLER_SKILLS)[number];
 
 /** The `wa.me` chat link for a Malaysian number as people write it; null when it is not one. */
 export function whatsAppChatLink(phone: string): string | null {

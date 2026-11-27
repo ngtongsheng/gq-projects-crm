@@ -57,7 +57,6 @@ export const zhTravelClaim: Dictionary = {
   "Enter each amount as RM 0 or more.": "每个金额请填 RM 0 或以上。",
   "Key in at least one amount": "请至少填写一个金额",
   "Write what was bought": "请写明购买了什么",
-  "Keep this under 300 characters.": "请保持在 300 个字以内。",
   "Keep this under 1000 characters.": "请保持在 1000 个字以内。",
   "Petrol + toll": "汽油 + 过路费",
   Limit: "上限",

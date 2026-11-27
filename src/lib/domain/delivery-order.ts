@@ -57,8 +57,6 @@ export const doLineSchema = z.object({
 
 /** A DO line as the database keeps it: empty text is null. */
 export type DoLine = z.output<typeof doLineSchema>;
-/** A DO line as the editor posts it. */
-export type DoLineInput = z.input<typeof doLineSchema>;
 
 const MAX_LINES = 100;
 

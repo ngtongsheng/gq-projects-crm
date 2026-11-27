@@ -91,4 +91,3 @@ export const contactFormSchema = z
     notes: optionalText(2000),
   })
   .refine(needsPassedBy, { message: PASSED_BY_MESSAGE, path: ["passedBy"] });
-export type ContactForm = z.infer<typeof contactFormSchema>;

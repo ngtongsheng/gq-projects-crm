@@ -187,7 +187,6 @@ export const mofTotalChangeSchema = z
     message: TOTAL_MESSAGE,
     path: ["voAmount"],
   });
-export type MofTotalChange = z.infer<typeof mofTotalChangeSchema>;
 
 export const mofCostSchema = z.object({
   mofId: z.uuid({ error: "Could not find that MOF. Reload the page." }),
@@ -195,7 +194,6 @@ export const mofCostSchema = z.object({
     z.number().min(0, "The cost can't be negative."),
   ),
 });
-export type MofCost = z.infer<typeof mofCostSchema>;
 
 export const mofIdSchema = z.uuid({
   error: "Could not find that MOF. Reload the page.",

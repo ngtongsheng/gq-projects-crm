@@ -49,7 +49,6 @@ export const zhMarketing: Dictionary = {
   "Move up": "上移",
   "New category": "新类别",
   "No expense here": "这里没有开销",
-  "Nothing here yet.": "这里还没有内容。",
   Payment: "付款",
   "Payment method": "付款方式",
   "Petty cash": "零用金",

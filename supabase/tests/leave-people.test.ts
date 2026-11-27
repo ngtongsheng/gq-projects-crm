@@ -30,18 +30,17 @@ afterAll(async () => {
 });
 
 describe("leave_people", () => {
-  it.each<JobRole>([
-    "md",
-    "director",
-    "accounts",
-  ])("%s gets everyone still here, with job role and join date", async (who) => {
-    const rows = await people(who);
-    expect(rows).toHaveLength(10);
-    expect(rows.find((row) => row.id === t.profileIds.sales)).toMatchObject({
-      job_role: "sales",
-      joined_on: "2027-03-10",
-    });
-  });
+  it.each<JobRole>(["md", "director", "accounts"])(
+    "%s gets everyone still here, with job role and join date",
+    async (who) => {
+      const rows = await people(who);
+      expect(rows).toHaveLength(10);
+      expect(rows.find((row) => row.id === t.profileIds.sales)).toMatchObject({
+        job_role: "sales",
+        joined_on: "2027-03-10",
+      });
+    },
+  );
 
   it("a Marketing Director gets themself and the salespeople who report to them", async () => {
     const rows = await people("bd");

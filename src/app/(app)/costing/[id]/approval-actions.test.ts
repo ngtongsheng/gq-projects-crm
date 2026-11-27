@@ -288,46 +288,46 @@ describe("sendCosting", () => {
 });
 
 describe("approveCosting and returnCosting", () => {
-  it.each([
-    "md",
-    "director",
-  ] as const)("the %s approves a waiting costing", async (jobRole) => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile(jobRole));
-    const calls = database(
-      revisionRow({ owner: OTHER, status: "submitted", cost: 80 }),
-    );
+  it.each(["md", "director"] as const)(
+    "the %s approves a waiting costing",
+    async (jobRole) => {
+      vi.mocked(getCurrentProfile).mockResolvedValue(profile(jobRole));
+      const calls = database(
+        revisionRow({ owner: OTHER, status: "submitted", cost: 80 }),
+      );
 
-    const result = await approveCosting({
-      revisionId: REVISION,
-      note: "Fine this once",
-    });
+      const result = await approveCosting({
+        revisionId: REVISION,
+        note: "Fine this once",
+      });
 
-    expect(result.error).toBeNull();
-    expect(find(calls, "quote_revisions", "update")[0].payload).toEqual({
-      status: "approved",
-    });
-    expect(
-      find(calls, "quote_revision_history", "insert")[0].payload,
-    ).toMatchObject({
-      action: "approved",
-      note: "Fine this once",
-    });
-  });
+      expect(result.error).toBeNull();
+      expect(find(calls, "quote_revisions", "update")[0].payload).toEqual({
+        status: "approved",
+      });
+      expect(
+        find(calls, "quote_revision_history", "insert")[0].payload,
+      ).toMatchObject({
+        action: "approved",
+        note: "Fine this once",
+      });
+    },
+  );
 
-  it.each([
-    "sales",
-    "bd",
-    "accounts",
-    "support",
-  ] as const)("a %s cannot approve", async (jobRole) => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile(jobRole));
-    const calls = database(revisionRow({ owner: OTHER, status: "submitted" }));
+  it.each(["sales", "bd", "accounts", "support"] as const)(
+    "a %s cannot approve",
+    async (jobRole) => {
+      vi.mocked(getCurrentProfile).mockResolvedValue(profile(jobRole));
+      const calls = database(
+        revisionRow({ owner: OTHER, status: "submitted" }),
+      );
 
-    const result = await approveCosting({ revisionId: REVISION, note: "" });
+      const result = await approveCosting({ revisionId: REVISION, note: "" });
 
-    expect(result.error).toMatch(/MD or Sales Director/);
-    expect(writes(calls)).toHaveLength(0);
-  });
+      expect(result.error).toMatch(/MD or Sales Director/);
+      expect(writes(calls)).toHaveLength(0);
+    },
+  );
 
   it("the MD may approve their own costing, as in the demo", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));

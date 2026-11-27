@@ -142,11 +142,14 @@ describe("itemColumns", () => {
     ["transport", { category: "transport", type: "lump" }, ["cost"]],
     ["accessory", { category: "acc", type: "simple" }, ["install", "material"]],
     ["discount", { category: "disc", type: "discount" }, []],
-  ] as const)("keeps only the cost columns a %s line may have", (_name, kind, expected) => {
-    const columns = itemColumns(line({ ...everything, ...kind }));
+  ] as const)(
+    "keeps only the cost columns a %s line may have",
+    (_name, kind, expected) => {
+      const columns = itemColumns(line({ ...everything, ...kind }));
 
-    expect(filled(columns)).toEqual([...expected].sort());
-  });
+      expect(filled(columns)).toEqual([...expected].sort());
+    },
+  );
 
   it("drops installation, underlay and accessories from a supply-only line", () => {
     const columns = itemColumns(

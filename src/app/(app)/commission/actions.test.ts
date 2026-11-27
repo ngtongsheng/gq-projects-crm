@@ -148,20 +148,19 @@ describe("recordPayout", () => {
     expect(result.error).toMatch(/no commission on this order/);
   });
 
-  it.each([
-    "director",
-    "sales",
-    "bd",
-  ] as const)("turns %s away before touching the database", async (jobRole) => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile(jobRole));
-    fakeSupabase({ data: null, error: null });
+  it.each(["director", "sales", "bd"] as const)(
+    "turns %s away before touching the database",
+    async (jobRole) => {
+      vi.mocked(getCurrentProfile).mockResolvedValue(profile(jobRole));
+      fakeSupabase({ data: null, error: null });
 
-    const result = await recordPayout(payoutFields());
+      const result = await recordPayout(payoutFields());
 
-    expect(result.error).toMatch(/Only the MD and HR & Accounts/);
-    expect(createClient).not.toHaveBeenCalled();
-    expect(loadCommissionLines).not.toHaveBeenCalled();
-  });
+      expect(result.error).toMatch(/Only the MD and HR & Accounts/);
+      expect(createClient).not.toHaveBeenCalled();
+      expect(loadCommissionLines).not.toHaveBeenCalled();
+    },
+  );
 
   it.each([
     ["no amount", { amount: "" }],

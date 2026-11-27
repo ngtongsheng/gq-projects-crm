@@ -13,7 +13,12 @@ import {
   sameSite,
 } from "@/lib/domain/site-log";
 import { isWorkday } from "@/lib/domain/workdays";
-import { addDays, type CalendarDate } from "@/lib/format/date";
+import {
+  addDays,
+  type CalendarDate,
+  earlierDate,
+  laterDate,
+} from "@/lib/format/date";
 
 export type PlanJob = {
   jobType: JobType;
@@ -77,8 +82,8 @@ export function plannedWork(input: {
   const planned: PlannedWork[] = [];
   for (const job of input.jobs) {
     if (job.status === "postponed") continue;
-    const first = job.scheduledOn > input.from ? job.scheduledOn : input.from;
-    const last = job.endsOn < input.to ? job.endsOn : input.to;
+    const first = laterDate(job.scheduledOn, input.from);
+    const last = earlierDate(job.endsOn, input.to);
     for (let day = first; day <= last; day = addDays(day, 1)) {
       planned.push({
         day,

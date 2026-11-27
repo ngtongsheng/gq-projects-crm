@@ -106,18 +106,17 @@ describe("what the new job roles read", () => {
     expect(designer.payments).toBe(false);
   });
 
-  it.each([
-    "ssup",
-    "marketing",
-    "designer",
-  ] as const)("%s cannot add a company", async (jobRole) => {
-    await t.actAs(jobRole);
-    await expect(
-      t.db.query("insert into public.companies (name) values ($1)", [
-        `By ${jobRole}`,
-      ]),
-    ).rejects.toThrow(/row-level security/);
-  });
+  it.each(["ssup", "marketing", "designer"] as const)(
+    "%s cannot add a company",
+    async (jobRole) => {
+      await t.actAs(jobRole);
+      await expect(
+        t.db.query("insert into public.companies (name) values ($1)", [
+          `By ${jobRole}`,
+        ]),
+      ).rejects.toThrow(/row-level security/);
+    },
+  );
 });
 
 describe("a person who has left", () => {
@@ -170,28 +169,27 @@ describe("who a person reports to", () => {
     );
   };
 
-  it.each([
-    "director",
-    "bd",
-  ] as const)("a salesperson can report to %s", async (lead) => {
-    await setReportsTo(lead);
-    await t.actAs(null);
-    const { rows } = await t.db.query<{ reports_to: string }>(
-      "select reports_to from public.profiles where id = $1",
-      [t.profileIds.sales],
-    );
-    expect(rows[0].reports_to).toBe(t.profileIds[lead]);
-  });
+  it.each(["director", "bd"] as const)(
+    "a salesperson can report to %s",
+    async (lead) => {
+      await setReportsTo(lead);
+      await t.actAs(null);
+      const { rows } = await t.db.query<{ reports_to: string }>(
+        "select reports_to from public.profiles where id = $1",
+        [t.profileIds.sales],
+      );
+      expect(rows[0].reports_to).toBe(t.profileIds[lead]);
+    },
+  );
 
-  it.each([
-    "md",
-    "support",
-    "sales",
-  ] as const)("refuses %s as a team lead", async (lead) => {
-    await expect(setReportsTo(lead)).rejects.toThrow(
-      /Sales Director or Marketing Director|reports_to_not_self/,
-    );
-  });
+  it.each(["md", "support", "sales"] as const)(
+    "refuses %s as a team lead",
+    async (lead) => {
+      await expect(setReportsTo(lead)).rejects.toThrow(
+        /Sales Director or Marketing Director|reports_to_not_self/,
+      );
+    },
+  );
 
   it("refuses a WhatsApp number that is not digits and an unknown language", async () => {
     await t.actAs("md");

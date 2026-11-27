@@ -114,22 +114,21 @@ describe("setValueFromCosting", () => {
     expect(calls[1].payload).toEqual({ value: 1000 });
   });
 
-  it.each([
-    "draft",
-    "submitted",
-    "returned",
-  ])("refuses a costing that is %s", async (status) => {
-    vi.mocked(loadQuote).mockResolvedValue(quote(status));
-    const calls = fakeSupabase([]);
+  it.each(["draft", "submitted", "returned"])(
+    "refuses a costing that is %s",
+    async (status) => {
+      vi.mocked(loadQuote).mockResolvedValue(quote(status));
+      const calls = fakeSupabase([]);
 
-    const result = await setValueFromCosting({
-      projectId: PROJECT,
-      quoteId: QUOTE,
-    });
+      const result = await setValueFromCosting({
+        projectId: PROJECT,
+        quoteId: QUOTE,
+      });
 
-    expect(result.error).toMatch(/OK to quote/);
-    expect(calls).toEqual([]);
-  });
+      expect(result.error).toMatch(/OK to quote/);
+      expect(calls).toEqual([]);
+    },
+  );
 
   it("refuses a project that already has an MOF", async () => {
     vi.mocked(loadQuote).mockResolvedValue(quote("approved"));

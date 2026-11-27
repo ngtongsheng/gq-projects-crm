@@ -127,23 +127,25 @@ describe("job role capabilities", () => {
     }).toEqual(expected[jobRole]);
   });
 
-  it.each(
-    JobRole.options,
-  )("%s pays out commission only as MD or accounts", (jobRole) => {
-    expect(canPayOutCommission(jobRole)).toBe(
-      jobRole === "md" || jobRole === "accounts",
-    );
-  });
+  it.each(JobRole.options)(
+    "%s pays out commission only as MD or accounts",
+    (jobRole) => {
+      expect(canPayOutCommission(jobRole)).toBe(
+        jobRole === "md" || jobRole === "accounts",
+      );
+    },
+  );
 
   it.each(JobRole.options)("%s sees HR only as MD or accounts", (jobRole) => {
     expect(canSeeHr(jobRole)).toBe(jobRole === "md" || jobRole === "accounts");
   });
 
-  it.each(
-    JobRole.options,
-  )("%s can edit stock when they arrange stock", (jobRole) => {
-    expect(canEditStock({ jobRole, arrangesStock: true })).toBe(true);
-  });
+  it.each(JobRole.options)(
+    "%s can edit stock when they arrange stock",
+    (jobRole) => {
+      expect(canEditStock({ jobRole, arrangesStock: true })).toBe(true);
+    },
+  );
 });
 
 describe("samples", () => {

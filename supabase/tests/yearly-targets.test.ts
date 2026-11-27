@@ -244,32 +244,31 @@ describe("who reads and writes", () => {
     return rows.map((r) => r.profile_id).sort();
   }
 
-  it.each([
-    "md",
-    "director",
-    "accounts",
-  ] as const)("lets %s read and set anyone's targets, which updates yearly_target", async (jobRole) => {
-    await t.actAs(jobRole);
-    expect(await visibleTargets()).toEqual(
-      [t.profileIds.sales, t.profileIds.site].sort(),
-    );
-    await t.db.query(
-      "insert into public.yearly_targets (profile_id, year, sales_target) values ($1, $2, 1200000)",
-      [t.profileIds.support, year],
-    );
-    await t.db.query(
-      "update public.yearly_targets set sales_target = 1100000 where profile_id = $1",
-      [t.profileIds.sales],
-    );
-    await t.db.query(
-      "delete from public.yearly_targets where profile_id = $1",
-      [t.profileIds.site],
-    );
-    await t.actAs(null);
-    expect(await yearlyTarget(t, t.profileIds.support)).toBe("1200000.00");
-    expect(await yearlyTarget(t, t.profileIds.sales)).toBe("1100000.00");
-    expect(await yearlyTarget(t, t.profileIds.site)).toBeNull();
-  });
+  it.each(["md", "director", "accounts"] as const)(
+    "lets %s read and set anyone's targets, which updates yearly_target",
+    async (jobRole) => {
+      await t.actAs(jobRole);
+      expect(await visibleTargets()).toEqual(
+        [t.profileIds.sales, t.profileIds.site].sort(),
+      );
+      await t.db.query(
+        "insert into public.yearly_targets (profile_id, year, sales_target) values ($1, $2, 1200000)",
+        [t.profileIds.support, year],
+      );
+      await t.db.query(
+        "update public.yearly_targets set sales_target = 1100000 where profile_id = $1",
+        [t.profileIds.sales],
+      );
+      await t.db.query(
+        "delete from public.yearly_targets where profile_id = $1",
+        [t.profileIds.site],
+      );
+      await t.actAs(null);
+      expect(await yearlyTarget(t, t.profileIds.support)).toBe("1200000.00");
+      expect(await yearlyTarget(t, t.profileIds.sales)).toBe("1100000.00");
+      expect(await yearlyTarget(t, t.profileIds.site)).toBeNull();
+    },
+  );
 
   it("lets a person read only their own targets", async () => {
     await t.actAs("sales");
@@ -283,24 +282,23 @@ describe("who reads and writes", () => {
     expect(await visibleTargets()).toEqual([t.profileIds.sales]);
   });
 
-  it.each([
-    "sales",
-    "bd",
-    "site",
-  ] as const)("does not let %s set targets", async (jobRole) => {
-    await t.actAs(jobRole);
-    await expect(
-      t.db.query(
-        "insert into public.yearly_targets (profile_id, year, sales_target) values ($1, $2, 1)",
-        [t.profileIds[jobRole], year + 1],
-      ),
-    ).rejects.toThrow(/row-level security/);
-    const { affectedRows } = await t.db.query(
-      "update public.yearly_targets set sales_target = 1 where profile_id = $1",
-      [t.profileIds[jobRole]],
-    );
-    expect(affectedRows).toBe(0);
-  });
+  it.each(["sales", "bd", "site"] as const)(
+    "does not let %s set targets",
+    async (jobRole) => {
+      await t.actAs(jobRole);
+      await expect(
+        t.db.query(
+          "insert into public.yearly_targets (profile_id, year, sales_target) values ($1, $2, 1)",
+          [t.profileIds[jobRole], year + 1],
+        ),
+      ).rejects.toThrow(/row-level security/);
+      const { affectedRows } = await t.db.query(
+        "update public.yearly_targets set sales_target = 1 where profile_id = $1",
+        [t.profileIds[jobRole]],
+      );
+      expect(affectedRows).toBe(0);
+    },
+  );
 
   it("shows nothing to a person who has left", async () => {
     await t.db.query(
@@ -345,17 +343,18 @@ describe("the copy on profiles", () => {
     `);
   });
 
-  it.each([
-    "md",
-    "director",
-  ] as const)("is not edited directly by %s", async (jobRole) => {
-    await t.actAs(jobRole);
-    await expect(
-      t.db.query("update public.profiles set yearly_target = 1 where id = $1", [
-        t.profileIds.sales,
-      ]),
-    ).rejects.toThrow(/permission denied/);
-  });
+  it.each(["md", "director"] as const)(
+    "is not edited directly by %s",
+    async (jobRole) => {
+      await t.actAs(jobRole);
+      await expect(
+        t.db.query(
+          "update public.profiles set yearly_target = 1 where id = $1",
+          [t.profileIds.sales],
+        ),
+      ).rejects.toThrow(/permission denied/);
+    },
+  );
 
   it("is brought up to date after the year turns, from own rows and grades", async () => {
     const { sales, bd, site } = t.profileIds;

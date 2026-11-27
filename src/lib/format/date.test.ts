@@ -3,9 +3,11 @@ import {
   addDays,
   dayOfWeek,
   daysBetween,
+  earlierDate,
   formatDate,
   formatDateTime,
   formatMonth,
+  laterDate,
   todayMyt,
 } from "./date";
 
@@ -47,4 +49,13 @@ test("formats dates and Malaysia date-times", () => {
 
 test("formats a month", () => {
   expect(formatMonth("2026-11-01")).toBe("Nov 2026");
+});
+
+test("picks the earlier or later of two ISO dates and timestamps", () => {
+  expect(earlierDate("2026-11-02", "2026-10-30")).toBe("2026-10-30");
+  expect(laterDate("2026-11-02", "2026-10-30")).toBe("2026-11-02");
+  expect(laterDate("2026-11-02T01:00:00Z", "2026-11-02T02:00:00Z")).toBe(
+    "2026-11-02T02:00:00Z",
+  );
+  expect(earlierDate("2026-11-02", "2026-11-02")).toBe("2026-11-02");
 });

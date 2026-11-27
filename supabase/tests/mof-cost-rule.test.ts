@@ -37,22 +37,19 @@ async function visible(jobRole: JobRole, table: "mof_costs" | "payments") {
 }
 
 describe("who reads an MOF's cost", () => {
-  it.each([
-    "md",
-    "support",
-    "accounts",
-  ] as const)("%s reads it", async (role) => {
-    expect(await visible(role, "mof_costs")).toBe(1);
-  });
+  it.each(["md", "support", "accounts"] as const)(
+    "%s reads it",
+    async (role) => {
+      expect(await visible(role, "mof_costs")).toBe(1);
+    },
+  );
 
-  it.each([
-    "director",
-    "bd",
-    "sales",
-    "site",
-  ] as const)("%s does not", async (role) => {
-    expect(await visible(role, "mof_costs")).toBe(0);
-  });
+  it.each(["director", "bd", "sales", "site"] as const)(
+    "%s does not",
+    async (role) => {
+      expect(await visible(role, "mof_costs")).toBe(0);
+    },
+  );
 });
 
 describe("who sets an MOF's cost", () => {

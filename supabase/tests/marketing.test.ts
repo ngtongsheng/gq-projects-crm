@@ -325,13 +325,13 @@ describe("who reads and writes", () => {
       )
     )[0].n;
 
-  it.each([
-    ...EDITORS,
-    "accounts",
-  ] as const)("%s reads every table", async (who) => {
-    for (const table of TABLES)
-      expect(await count(who, table)).toBeGreaterThan(0);
-  });
+  it.each([...EDITORS, "accounts"] as const)(
+    "%s reads every table",
+    async (who) => {
+      for (const table of TABLES)
+        expect(await count(who, table)).toBeGreaterThan(0);
+    },
+  );
 
   it.each(OUTSIDERS)("%s reads nothing and cannot write", async (who) => {
     for (const table of TABLES) expect(await count(who, table)).toBe(0);

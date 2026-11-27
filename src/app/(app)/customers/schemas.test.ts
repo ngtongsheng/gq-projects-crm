@@ -49,15 +49,12 @@ describe("contactFormSchema", () => {
     ).toBe(false);
   });
 
-  it.each([
-    "0",
-    "6",
-    "3.5",
-    "",
-    "abc",
-  ])("rejects company rating %j", (rating) => {
-    expect(companyRatingSchema.safeParse(rating).success).toBe(false);
-  });
+  it.each(["0", "6", "3.5", "", "abc"])(
+    "rejects company rating %j",
+    (rating) => {
+      expect(companyRatingSchema.safeParse(rating).success).toBe(false);
+    },
+  );
 
   it.each(["", "pass", "staff"])("rejects account type %j", (accountType) => {
     expect(contactFormSchema.safeParse(contact({ accountType })).success).toBe(

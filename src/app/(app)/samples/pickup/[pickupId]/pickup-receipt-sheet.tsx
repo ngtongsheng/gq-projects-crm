@@ -61,7 +61,10 @@ export function PickupReceiptSheet({
   formDate: string;
   appointmentOn: string;
 }) {
-  const blankRows = Math.max(0, PICKUP_MAX_LINES - form.lines.length);
+  const blankRowNumbers = Array.from(
+    { length: Math.max(0, PICKUP_MAX_LINES - form.lines.length) },
+    (_, offset) => form.lines.length + offset + 1,
+  );
 
   return (
     <>
@@ -146,8 +149,8 @@ export function PickupReceiptSheet({
               <td className={CELL}>{line.remarks ?? ""}</td>
             </tr>
           ))}
-          {Array.from({ length: blankRows }, (_, index) => (
-            <tr key={`blank-${index + 1}`} style={{ height: "26px" }}>
+          {blankRowNumbers.map((rowNumber) => (
+            <tr key={`blank-${rowNumber}`} style={{ height: "26px" }}>
               <td className={CELL} />
               <td className={CELL} />
               <td className={CELL} />

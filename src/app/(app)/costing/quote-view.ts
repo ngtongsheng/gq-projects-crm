@@ -7,6 +7,7 @@ import {
   optionTotals,
   quoteAmount,
 } from "@/lib/domain/costing";
+import { laterDate } from "@/lib/format/date";
 
 /**
  * A quote as the database returns it, and the two shapes the app sends to the browser: the full
@@ -499,8 +500,7 @@ export function toRegisterRow(quote: QuoteView): QuoteRegisterRow | null {
     amount: latest.amount,
     marginLevel: latest.marginLevel,
     // Editing items touches the revision, not the quote.
-    updatedAt:
-      latest.updatedAt > quote.updatedAt ? latest.updatedAt : quote.updatedAt,
+    updatedAt: laterDate(latest.updatedAt, quote.updatedAt),
   };
   if (!quote.costShown) return { ...row, costShown: false };
   const lowest = quote.revisions.at(-1)?.lowestMargin ?? null;

@@ -247,33 +247,35 @@ describe("who reads and writes VOs", () => {
     return Number(rows[0].n) > 0;
   }
 
-  it.each(
-    JobRole.options,
-  )("%s reads VOs exactly where they read the MOF", async (role) => {
-    for (const mofId of [salesMof, directorMof]) {
-      expect(await sees(role, "mof_variation_orders", mofId)).toBe(
-        await sees(role, "mofs", mofId),
-      );
-    }
-  });
+  it.each(JobRole.options)(
+    "%s reads VOs exactly where they read the MOF",
+    async (role) => {
+      for (const mofId of [salesMof, directorMof]) {
+        expect(await sees(role, "mof_variation_orders", mofId)).toBe(
+          await sees(role, "mofs", mofId),
+        );
+      }
+    },
+  );
 
-  it.each(
-    JobRole.options,
-  )("%s adds a VO only if they keep the register", async (role) => {
-    const mofId = await addMof(t.profileIds.sales);
-    await t.actAs(role);
-    const add = t.db.query(
-      `insert into public.mof_variation_orders (mof_id, vo_no, confirmed_on, amount, description)
+  it.each(JobRole.options)(
+    "%s adds a VO only if they keep the register",
+    async (role) => {
+      const mofId = await addMof(t.profileIds.sales);
+      await t.actAs(role);
+      const add = t.db.query(
+        `insert into public.mof_variation_orders (mof_id, vo_no, confirmed_on, amount, description)
        values ($1, 'VO1', '2026-11-02', 100, 'Extra')`,
-      [mofId],
-    );
-    if (["md", "support", "accounts"].includes(role)) {
-      await add;
-      expect((await mofTotal(mofId)).voAmount).toBe(100);
-    } else {
-      await expect(add).rejects.toThrow(/row-level security/);
-    }
-  });
+        [mofId],
+      );
+      if (["md", "support", "accounts"].includes(role)) {
+        await add;
+        expect((await mofTotal(mofId)).voAmount).toBe(100);
+      } else {
+        await expect(add).rejects.toThrow(/row-level security/);
+      }
+    },
+  );
 });
 
 describe("VO cost", () => {

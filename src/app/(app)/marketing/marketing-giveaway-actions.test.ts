@@ -118,13 +118,16 @@ describe("saveGiveaway", () => {
     ["date", { givenOn: "" }],
     ["item", { item: "  " }],
     ["given to", { givenTo: "" }],
-  ])("asks for date, item and who it was given to when the %s is missing", async (_name, change) => {
-    givenDatabase();
-    expect(await saveGiveaway({ ...giveaway, ...change })).toEqual({
-      error: "Fill in date, item and who it was given to.",
-    });
-    expect(writes).toEqual([]);
-  });
+  ])(
+    "asks for date, item and who it was given to when the %s is missing",
+    async (_name, change) => {
+      givenDatabase();
+      expect(await saveGiveaway({ ...giveaway, ...change })).toEqual({
+        error: "Fill in date, item and who it was given to.",
+      });
+      expect(writes).toEqual([]);
+    },
+  );
 
   it.each(["0", "-2", "1.5", "abc"])("refuses the quantity %s", async (qty) => {
     givenDatabase();

@@ -117,26 +117,25 @@ describe.each(tables)("who reads which %s", (table) => {
     expect(rows).not.toContain(idOf(eddieTeam, table));
   });
 
-  it.each([
-    "md",
-    "accounts",
-  ] as const)("%s reads both teams'", async (jobRole) => {
-    const rows = await visible(jobRole, table);
-    expect(rows).toContain(idOf(eddieTeam, table));
-    expect(rows).toContain(idOf(vanessaTeam, table));
-  });
+  it.each(["md", "accounts"] as const)(
+    "%s reads both teams'",
+    async (jobRole) => {
+      const rows = await visible(jobRole, table);
+      expect(rows).toContain(idOf(eddieTeam, table));
+      expect(rows).toContain(idOf(vanessaTeam, table));
+    },
+  );
 });
 
 describe("a Site Supervisor", () => {
-  it.each([
-    "companies",
-    "contacts",
-    "activities",
-  ] as const)("reads both teams' %s", async (table) => {
-    const rows = await visible("site", table);
-    expect(rows).toContain(idOf(eddieTeam, table));
-    expect(rows).toContain(idOf(vanessaTeam, table));
-  });
+  it.each(["companies", "contacts", "activities"] as const)(
+    "reads both teams' %s",
+    async (table) => {
+      const rows = await visible("site", table);
+      expect(rows).toContain(idOf(eddieTeam, table));
+      expect(rows).toContain(idOf(vanessaTeam, table));
+    },
+  );
 
   it("reads neither team's projects (loop 12 task 09)", async () => {
     expect(await visible("site", "projects")).toEqual([]);
@@ -144,15 +143,14 @@ describe("a Site Supervisor", () => {
 });
 
 describe("a salesperson", () => {
-  it.each([
-    "companies",
-    "contacts",
-    "activities",
-  ] as const)("still reads every team's %s", async (table) => {
-    const rows = await visible(beeId, table);
-    expect(rows).toContain(idOf(eddieTeam, table));
-    expect(rows).toContain(idOf(vanessaTeam, table));
-  });
+  it.each(["companies", "contacts", "activities"] as const)(
+    "still reads every team's %s",
+    async (table) => {
+      const rows = await visible(beeId, table);
+      expect(rows).toContain(idOf(eddieTeam, table));
+      expect(rows).toContain(idOf(vanessaTeam, table));
+    },
+  );
 
   it("still reads only their own projects", async () => {
     expect(await visible(beeId, "projects")).toEqual([vanessaTeam.projectId]);

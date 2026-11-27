@@ -159,24 +159,27 @@ describe("decideAppeal", () => {
   it.each([
     ["md", "approved"],
     ["accounts", "rejected"],
-  ] as const)("lets %s record %s with the note, on a pending appeal only", async (jobRole, status) => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(
-      profile(jobRole, "77777777-7777-4777-8777-777777777777"),
-    );
-    const record = fakeSupabase({ data: [{ id: APPEAL }], error: null });
+  ] as const)(
+    "lets %s record %s with the note, on a pending appeal only",
+    async (jobRole, status) => {
+      vi.mocked(getCurrentProfile).mockResolvedValue(
+        profile(jobRole, "77777777-7777-4777-8777-777777777777"),
+      );
+      const record = fakeSupabase({ data: [{ id: APPEAL }], error: null });
 
-    expect(await decideAppeal(decision({ decision: status }))).toEqual({
-      error: null,
-    });
-    expect(record.update).toEqual({
-      status,
-      reply: "Special approval this time only.",
-    });
-    expect(record.filters).toEqual([
-      ["id", APPEAL],
-      ["status", "pending"],
-    ]);
-  });
+      expect(await decideAppeal(decision({ decision: status }))).toEqual({
+        error: null,
+      });
+      expect(record.update).toEqual({
+        status,
+        reply: "Special approval this time only.",
+      });
+      expect(record.filters).toEqual([
+        ["id", APPEAL],
+        ["status", "pending"],
+      ]);
+    },
+  );
 
   it.each(["sales", "director"] as const)("refuses %s", async (jobRole) => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile(jobRole));

@@ -57,15 +57,15 @@ describe("leaveApprovers", () => {
     ]);
   });
 
-  it.each([
-    "bd",
-    "site",
-  ] as const)("sends %s to the Sales Director, then the MD", (jobRole) => {
-    expect(leaveApprovers({ jobRole, teamLeadId: null })).toEqual([
-      { approverRole: "director" },
-      { approverRole: "md" },
-    ]);
-  });
+  it.each(["bd", "site"] as const)(
+    "sends %s to the Sales Director, then the MD",
+    (jobRole) => {
+      expect(leaveApprovers({ jobRole, teamLeadId: null })).toEqual([
+        { approverRole: "director" },
+        { approverRole: "md" },
+      ]);
+    },
+  );
 
   it("sends the MD's own leave to the Sales Director", () => {
     expect(leaveApprovers({ jobRole: "md", teamLeadId: null })).toEqual([

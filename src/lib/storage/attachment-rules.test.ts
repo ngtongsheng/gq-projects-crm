@@ -39,19 +39,16 @@ describe("UploadRequest", () => {
     expect(over.error?.issues[0]?.message).toBe("The file is over 1.5 MB.");
   });
 
-  it.each([
-    "image/gif",
-    "image/svg+xml",
-    "text/html",
-    "application/zip",
-    "",
-  ])("refuses %j", (contentType) => {
-    const result = UploadRequest.safeParse({ ...valid, contentType });
-    expect(result.success).toBe(false);
-    expect(result.error?.issues[0]?.message).toBe(
-      "Choose a photo (JPEG, PNG or WebP) or a PDF.",
-    );
-  });
+  it.each(["image/gif", "image/svg+xml", "text/html", "application/zip", ""])(
+    "refuses %j",
+    (contentType) => {
+      const result = UploadRequest.safeParse({ ...valid, contentType });
+      expect(result.success).toBe(false);
+      expect(result.error?.issues[0]?.message).toBe(
+        "Choose a photo (JPEG, PNG or WebP) or a PDF.",
+      );
+    },
+  );
 
   it("refuses an empty file, a fractional size and a missing size", () => {
     expect(UploadRequest.safeParse({ ...valid, size: 0 }).success).toBe(false);

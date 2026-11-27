@@ -165,13 +165,16 @@ describe("savePrepaidEntry", () => {
   it.each([
     ["blank", ""],
     ["spaces", "   "],
-  ])("asks for the client and project when a deduction has %s", async (_name, description) => {
-    givenDatabase();
-    expect(await savePrepaidEntry({ ...deduction, description })).toEqual({
-      error: "Key in the client – project.",
-    });
-    expect(writes).toEqual([]);
-  });
+  ])(
+    "asks for the client and project when a deduction has %s",
+    async (_name, description) => {
+      givenDatabase();
+      expect(await savePrepaidEntry({ ...deduction, description })).toEqual({
+        error: "Key in the client – project.",
+      });
+      expect(writes).toEqual([]);
+    },
+  );
 
   it("does not need a description for a top-up", async () => {
     givenDatabase();
@@ -201,13 +204,16 @@ describe("savePrepaidEntry", () => {
     ["vendor", { vendor: " " }],
     ["RM amount", { amountRm: "" }],
     ["zero RM amount", { amountRm: "0" }],
-  ])("asks for date, vendor and the RM amount when the %s is missing", async (_name, change) => {
-    givenDatabase();
-    expect(await savePrepaidEntry({ ...topUp, ...change })).toEqual({
-      error: "Fill in date, vendor and the RM amount.",
-    });
-    expect(writes).toEqual([]);
-  });
+  ])(
+    "asks for date, vendor and the RM amount when the %s is missing",
+    async (_name, change) => {
+      givenDatabase();
+      expect(await savePrepaidEntry({ ...topUp, ...change })).toEqual({
+        error: "Fill in date, vendor and the RM amount.",
+      });
+      expect(writes).toEqual([]);
+    },
+  );
 
   it("adds a vendor it has not seen, which is a new account", async () => {
     givenDatabase();

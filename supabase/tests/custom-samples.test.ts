@@ -125,16 +125,14 @@ describe("recording samples", () => {
     ]);
   });
 
-  it.each([
-    "sales",
-    "bd",
-    "accounts",
-    "site",
-  ] as const)("%s cannot record or edit", async (who) => {
-    await expect(record(who)).rejects.toThrow(/row-level security/);
-    const sample = await record();
-    expect(await updateSample(who, sample.id, "notes = 'x'")).toEqual([]);
-  });
+  it.each(["sales", "bd", "accounts", "site"] as const)(
+    "%s cannot record or edit",
+    async (who) => {
+      await expect(record(who)).rejects.toThrow(/row-level security/);
+      const sample = await record();
+      expect(await updateSample(who, sample.id, "notes = 'x'")).toEqual([]);
+    },
+  );
 
   it("keeps the photo under the sample's own folder, photos only", async () => {
     const sample = await record();
@@ -193,16 +191,16 @@ describe("borrowing", () => {
     await expect(borrow("bd", sample.id)).rejects.toThrow("Already on loan.");
   });
 
-  it.each([
-    "bd",
-    "director",
-  ] as const)("%s borrows for themselves only", async (who) => {
-    const sample = await record();
-    await expect(
-      borrow(who, sample.id, { salesperson: "sales" }),
-    ).rejects.toThrow("A salesperson borrows for themselves.");
-    await borrow(who, sample.id);
-  });
+  it.each(["bd", "director"] as const)(
+    "%s borrows for themselves only",
+    async (who) => {
+      const sample = await record();
+      await expect(
+        borrow(who, sample.id, { salesperson: "sales" }),
+      ).rejects.toThrow("A salesperson borrows for themselves.");
+      await borrow(who, sample.id);
+    },
+  );
 
   it("the MD borrows for a salesperson, not for himself", async () => {
     const sample = await record();

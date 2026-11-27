@@ -172,13 +172,16 @@ describe("saveMarketingExpense", () => {
     ["vendor", { vendor: "" }],
     ["amount", { amount: "" }],
     ["zero amount", { amount: "0" }],
-  ])("asks for date, description, vendor and amount when the %s is missing", async (_name, change) => {
-    givenDatabase();
-    expect(await saveMarketingExpense({ ...expense, ...change })).toEqual({
-      error: "Fill in date, description, vendor and amount.",
-    });
-    expect(writes).toEqual([]);
-  });
+  ])(
+    "asks for date, description, vendor and amount when the %s is missing",
+    async (_name, change) => {
+      givenDatabase();
+      expect(await saveMarketingExpense({ ...expense, ...change })).toEqual({
+        error: "Fill in date, description, vendor and amount.",
+      });
+      expect(writes).toEqual([]);
+    },
+  );
 
   it("asks for the RM amount when the currency is not RM", async () => {
     givenDatabase();

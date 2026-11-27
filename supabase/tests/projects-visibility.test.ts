@@ -61,14 +61,12 @@ afterAll(async () => {
 });
 
 describe("who reads which projects", () => {
-  it.each([
-    "md",
-    "accounts",
-    "support",
-    "ssup",
-  ] as const)("%s reads every project", async (jobRole) => {
-    expect(await visibleTo(jobRole)).toEqual(Object.values(ids).sort());
-  });
+  it.each(["md", "accounts", "support", "ssup"] as const)(
+    "%s reads every project",
+    async (jobRole) => {
+      expect(await visibleTo(jobRole)).toEqual(Object.values(ids).sort());
+    },
+  );
 
   it("director reads only their own team's projects", async () => {
     expect(await visibleTo("director")).toEqual(

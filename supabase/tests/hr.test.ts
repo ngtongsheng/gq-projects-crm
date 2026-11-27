@@ -116,59 +116,59 @@ describe("seed", () => {
 });
 
 describe("md and accounts", () => {
-  it.each([
-    "md",
-    "accounts",
-  ] as const)("lets %s read every HR table", async (jobRole) => {
-    await t.actAs(jobRole);
-    for (const table of HR_TABLES) {
-      expect(await visibleRows(table), table).toBeGreaterThan(0);
-    }
-  });
+  it.each(["md", "accounts"] as const)(
+    "lets %s read every HR table",
+    async (jobRole) => {
+      await t.actAs(jobRole);
+      for (const table of HR_TABLES) {
+        expect(await visibleRows(table), table).toBeGreaterThan(0);
+      }
+    },
+  );
 
-  it.each([
-    "md",
-    "accounts",
-  ] as const)("lets %s write HR data", async (jobRole) => {
-    await t.actAs(jobRole);
-    const me = t.profileIds[jobRole];
-    await t.db.query(
-      "insert into public.hr_policy_documents (category, title, version, effective_on, link) values ('leave', 'Leave policy', 'v2', '2027-01-01', 'https://drive.google.com/x')",
-    );
-    await t.db.query(
-      "update public.hr_policy_documents set note = 'Edited' where title = 'Handbook'",
-    );
-    await t.db.query(
-      "insert into public.hr_extra_rules (starts_on, rule) values ('2027-01-01', 'New rule.')",
-    );
-    await t.db.query(
-      "delete from public.hr_extra_rules where rule = 'New rule.'",
-    );
-    await t.db.query(
-      "insert into public.staff_packages (profile_id, effective_on, basic, allowances, claim_cap, hotel_level, reason) values ($1, '2027-01-01', 3300, '[{\"name\": \"car\", \"amount\": 300}]', 600, 'manager', 'Annual increment')",
-      [t.profileIds.sales],
-    );
-    await t.db.query(
-      "insert into public.staff_hr_records (profile_id, grade, appendix_signed_on, appendix_version) values ($1, 'J1', '2026-09-10', '2026-09-08')",
-      [t.profileIds.site],
-    );
-    await t.db.query(
-      "update public.sales_grades set basic = 2500 where grade = 'J1'",
-    );
-    await t.db.query(
-      "update public.standard_packages set claim_cap = 700 where position = 'sales'",
-    );
-    await t.db.query("update public.outstation_rules set lunch = 20");
+  it.each(["md", "accounts"] as const)(
+    "lets %s write HR data",
+    async (jobRole) => {
+      await t.actAs(jobRole);
+      const me = t.profileIds[jobRole];
+      await t.db.query(
+        "insert into public.hr_policy_documents (category, title, version, effective_on, link) values ('leave', 'Leave policy', 'v2', '2027-01-01', 'https://drive.google.com/x')",
+      );
+      await t.db.query(
+        "update public.hr_policy_documents set note = 'Edited' where title = 'Handbook'",
+      );
+      await t.db.query(
+        "insert into public.hr_extra_rules (starts_on, rule) values ('2027-01-01', 'New rule.')",
+      );
+      await t.db.query(
+        "delete from public.hr_extra_rules where rule = 'New rule.'",
+      );
+      await t.db.query(
+        "insert into public.staff_packages (profile_id, effective_on, basic, allowances, claim_cap, hotel_level, reason) values ($1, '2027-01-01', 3300, '[{\"name\": \"car\", \"amount\": 300}]', 600, 'manager', 'Annual increment')",
+        [t.profileIds.sales],
+      );
+      await t.db.query(
+        "insert into public.staff_hr_records (profile_id, grade, appendix_signed_on, appendix_version) values ($1, 'J1', '2026-09-10', '2026-09-08')",
+        [t.profileIds.site],
+      );
+      await t.db.query(
+        "update public.sales_grades set basic = 2500 where grade = 'J1'",
+      );
+      await t.db.query(
+        "update public.standard_packages set claim_cap = 700 where position = 'sales'",
+      );
+      await t.db.query("update public.outstation_rules set lunch = 20");
 
-    const { rows } = await t.db.query<{ added_by: string }>(
-      "select added_by from public.staff_packages where effective_on = '2027-01-01'",
-    );
-    expect(rows).toEqual([{ added_by: me }]);
-    const lunch = await t.db.query<{ lunch: string }>(
-      "select lunch::text from public.outstation_rules",
-    );
-    expect(lunch.rows[0].lunch).toBe("20.00");
-  });
+      const { rows } = await t.db.query<{ added_by: string }>(
+        "select added_by from public.staff_packages where effective_on = '2027-01-01'",
+      );
+      expect(rows).toEqual([{ added_by: me }]);
+      const lunch = await t.db.query<{ lunch: string }>(
+        "select lunch::text from public.outstation_rules",
+      );
+      expect(lunch.rows[0].lunch).toBe("20.00");
+    },
+  );
 
   it("keeps package history: a change is a new row, never an edit", async () => {
     await t.actAs("accounts");
@@ -207,35 +207,36 @@ describe("everyone else", () => {
     ["a site supervisor", "site"],
   ] as const;
 
-  it.each(
-    cases,
-  )("shows %s nothing and refuses their writes", async (_, jobRole) => {
-    if (jobRole === "support") {
-      await t.db.query(
-        "update public.profiles set role = 'admin' where id = $1",
-        [t.profileIds.support],
+  it.each(cases)(
+    "shows %s nothing and refuses their writes",
+    async (_, jobRole) => {
+      if (jobRole === "support") {
+        await t.db.query(
+          "update public.profiles set role = 'admin' where id = $1",
+          [t.profileIds.support],
+        );
+      }
+      await t.actAs(jobRole);
+      for (const table of HR_TABLES) {
+        expect(await visibleRows(table), table).toBe(0);
+      }
+      await expect(
+        t.db.query(
+          "insert into public.staff_packages (profile_id, effective_on, basic) values ($1, '2027-01-01', 9999)",
+          [t.profileIds[jobRole]],
+        ),
+      ).rejects.toThrow(/row-level security/);
+      await expect(
+        t.db.query(
+          "insert into public.hr_extra_rules (starts_on, rule) values ('2027-01-01', 'x')",
+        ),
+      ).rejects.toThrow(/row-level security/);
+      const update = await t.db.query(
+        "update public.sales_grades set basic = 1 returning 1",
       );
-    }
-    await t.actAs(jobRole);
-    for (const table of HR_TABLES) {
-      expect(await visibleRows(table), table).toBe(0);
-    }
-    await expect(
-      t.db.query(
-        "insert into public.staff_packages (profile_id, effective_on, basic) values ($1, '2027-01-01', 9999)",
-        [t.profileIds[jobRole]],
-      ),
-    ).rejects.toThrow(/row-level security/);
-    await expect(
-      t.db.query(
-        "insert into public.hr_extra_rules (starts_on, rule) values ('2027-01-01', 'x')",
-      ),
-    ).rejects.toThrow(/row-level security/);
-    const update = await t.db.query(
-      "update public.sales_grades set basic = 1 returning 1",
-    );
-    expect(update.rows).toHaveLength(0);
-  });
+      expect(update.rows).toHaveLength(0);
+    },
+  );
 
   it("shows HR & Accounts nothing once they have left", async () => {
     await t.db.query(

@@ -74,24 +74,19 @@ afterAll(async () => {
 });
 
 describe("who assigns", () => {
-  it.each<JobRole>([
-    "md",
-    "director",
-    "bd",
-    "support",
-  ])("%s may assign", async (who) => {
-    await expect(addTask(who, "designer")).resolves.toBeTruthy();
-  });
+  it.each<JobRole>(["md", "director", "bd", "support"])(
+    "%s may assign",
+    async (who) => {
+      await expect(addTask(who, "designer")).resolves.toBeTruthy();
+    },
+  );
 
-  it.each<JobRole>([
-    "sales",
-    "designer",
-    "accounts",
-    "site",
-    "ssup",
-  ])("%s may not", async (who) => {
-    await expect(addTask(who, "designer")).rejects.toThrow();
-  });
+  it.each<JobRole>(["sales", "designer", "accounts", "site", "ssup"])(
+    "%s may not",
+    async (who) => {
+      await expect(addTask(who, "designer")).rejects.toThrow();
+    },
+  );
 
   it("nobody assigns in someone else's name", async () => {
     await expect(
@@ -106,27 +101,23 @@ describe("who assigns", () => {
 });
 
 describe("who sees a task", () => {
-  it.each<JobRole>([
-    "marketing",
-    "designer",
-    "ssup",
-    "md",
-    "director",
-  ])("%s sees it, its co-assignees, log and files", async (who) => {
-    expect(await idsIn(who, "tasks")).toContain(taskId);
-    expect(await idsIn(who, "task_co_assignees", "task_id")).toContain(taskId);
-  });
+  it.each<JobRole>(["marketing", "designer", "ssup", "md", "director"])(
+    "%s sees it, its co-assignees, log and files",
+    async (who) => {
+      expect(await idsIn(who, "tasks")).toContain(taskId);
+      expect(await idsIn(who, "task_co_assignees", "task_id")).toContain(
+        taskId,
+      );
+    },
+  );
 
-  it.each<JobRole>([
-    "sales",
-    "accounts",
-    "site",
-    "support",
-    "bd",
-  ])("%s does not", async (who) => {
-    expect(await idsIn(who, "tasks")).not.toContain(taskId);
-    expect(await idsIn(who, "task_co_assignees", "task_id")).toEqual([]);
-  });
+  it.each<JobRole>(["sales", "accounts", "site", "support", "bd"])(
+    "%s does not",
+    async (who) => {
+      expect(await idsIn(who, "tasks")).not.toContain(taskId);
+      expect(await idsIn(who, "task_co_assignees", "task_id")).toEqual([]);
+    },
+  );
 
   it("an unrelated person cannot write in its log", async () => {
     await expect(
@@ -283,37 +274,32 @@ describe("task_people (the Assign to list and Workload)", () => {
       "select * from public.task_people()",
     );
 
-  it.each<JobRole>([
-    "md",
-    "director",
-    "bd",
-    "support",
-    "marketing",
-  ])("%s gets everyone still here with their job role", async (who) => {
-    await t.actAs(null);
-    await t.db.query(
-      "update public.profiles set active = false where id = $1",
-      [t.profileIds.site],
-    );
-    const rows = await people(who);
-    await t.actAs(null);
-    await t.db.query("update public.profiles set active = true where id = $1", [
-      t.profileIds.site,
-    ]);
-    expect(rows.map((row) => row.id)).toContain(t.profileIds.designer);
-    expect(rows.map((row) => row.id)).not.toContain(t.profileIds.site);
-    expect(rows.find((row) => row.id === t.profileIds.designer)?.job_role).toBe(
-      "designer",
-    );
-  });
+  it.each<JobRole>(["md", "director", "bd", "support", "marketing"])(
+    "%s gets everyone still here with their job role",
+    async (who) => {
+      await t.actAs(null);
+      await t.db.query(
+        "update public.profiles set active = false where id = $1",
+        [t.profileIds.site],
+      );
+      const rows = await people(who);
+      await t.actAs(null);
+      await t.db.query(
+        "update public.profiles set active = true where id = $1",
+        [t.profileIds.site],
+      );
+      expect(rows.map((row) => row.id)).toContain(t.profileIds.designer);
+      expect(rows.map((row) => row.id)).not.toContain(t.profileIds.site);
+      expect(
+        rows.find((row) => row.id === t.profileIds.designer)?.job_role,
+      ).toBe("designer");
+    },
+  );
 
-  it.each<JobRole>([
-    "sales",
-    "designer",
-    "accounts",
-    "site",
-    "ssup",
-  ])("%s gets nobody", async (who) => {
-    expect(await people(who)).toEqual([]);
-  });
+  it.each<JobRole>(["sales", "designer", "accounts", "site", "ssup"])(
+    "%s gets nobody",
+    async (who) => {
+      expect(await people(who)).toEqual([]);
+    },
+  );
 });

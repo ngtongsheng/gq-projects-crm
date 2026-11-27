@@ -20,7 +20,7 @@ import {
   shouldRemindToLog,
 } from "@/lib/domain/site-plan";
 import { pace as monthPace, weekKindFor } from "@/lib/domain/workdays";
-import { addDays, formatDate, todayMyt } from "@/lib/format/date";
+import { addDays, earlierDate, formatDate, todayMyt } from "@/lib/format/date";
 import { resolveLanguage } from "@/lib/i18n/current-language";
 import { getT } from "@/lib/i18n/server-t";
 import { loadWorkCalendar } from "@/lib/work-calendar";
@@ -80,8 +80,8 @@ export default async function LogWorkPage({
   const day = asked.success && asked.data <= today ? asked.data : today;
 
   const weekAgo = addDays(today, -REMINDER_LOOKBACK_DAYS);
-  const planFrom = day < weekAgo ? day : weekAgo;
-  const logsFrom = startOfMonth(day) < planFrom ? startOfMonth(day) : planFrom;
+  const planFrom = earlierDate(day, weekAgo);
+  const logsFrom = earlierDate(startOfMonth(day), planFrom);
   const year = Number(today.slice(0, 4));
 
   const team = await getTeamDirectory();

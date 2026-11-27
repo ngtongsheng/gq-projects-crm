@@ -38,6 +38,7 @@ export type MonthLog = {
     driveLink: string | null;
   };
   followUps: {
+    id: string;
     action: string;
     ownerGroup: FollowUpOwner;
     dueOn: CalendarDate | null;
@@ -71,6 +72,7 @@ const logRows = z.array(
     mofs: z.object({ mof_no: z.string(), project_name: z.string() }).nullable(),
     site_follow_ups: z.array(
       z.object({
+        id: z.string(),
         action: z.string(),
         owner_group: z.enum(FOLLOW_UP_OWNERS),
         due_on: z.iso.date().nullable(),
@@ -86,7 +88,7 @@ export async function loadMonthLogs(month: CalendarDate): Promise<MonthLog[]> {
   const { data, error } = await supabase
     .from("site_logs")
     .select(
-      "id, visited_on, supervisor_id, activity, mof_id, site_name, notes, inst_pct, handover_signed, return_answer, measurement_to, measurement_sent_on, measurement_received, measurement_received_at, photos_to, photos_posted_on, photos_saved_by, photos_saved_at, drive_link, mofs(mof_no, project_name), site_follow_ups(action, owner_group, due_on, done_at)",
+      "id, visited_on, supervisor_id, activity, mof_id, site_name, notes, inst_pct, handover_signed, return_answer, measurement_to, measurement_sent_on, measurement_received, measurement_received_at, photos_to, photos_posted_on, photos_saved_by, photos_saved_at, drive_link, mofs(mof_no, project_name), site_follow_ups(id, action, owner_group, due_on, done_at)",
     )
     .gte("visited_on", month)
     .lte("visited_on", endOfMonth(month))
@@ -123,6 +125,7 @@ export async function loadMonthLogs(month: CalendarDate): Promise<MonthLog[]> {
       driveLink: row.drive_link,
     },
     followUps: row.site_follow_ups.map((followUp) => ({
+      id: followUp.id,
       action: followUp.action,
       ownerGroup: followUp.owner_group,
       dueOn: followUp.due_on,

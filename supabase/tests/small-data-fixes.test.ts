@@ -38,9 +38,12 @@ describe("dates default to the Malaysian day", () => {
   it.each([
     ["tasks", "assigned_on"],
     ["fob_enquiries", "enquiry_date"],
-  ])("%s.%s at 00:30 Malaysian time is that day, not the UTC day", async (table, column) => {
-    expect(await defaultDayAt(table, column, "2026-11-15T16:30:00Z")).toBe(
-      "2026-11-16",
-    );
-  });
+  ])(
+    "%s.%s at 00:30 Malaysian time is that day, not the UTC day",
+    async (table, column) => {
+      expect(await defaultDayAt(table, column, "2026-11-15T16:30:00Z")).toBe(
+        "2026-11-16",
+      );
+    },
+  );
 });

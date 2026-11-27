@@ -39,15 +39,14 @@ describe("seed", () => {
 });
 
 describe("who reads", () => {
-  it.each([
-    "md",
-    "sales",
-    "site",
-  ] as const)("lets %s read the list", async (jobRole) => {
-    await t.actAs(jobRole);
-    const { rows } = await t.db.query("select * from public.public_holidays");
-    expect(rows).toHaveLength(1);
-  });
+  it.each(["md", "sales", "site"] as const)(
+    "lets %s read the list",
+    async (jobRole) => {
+      await t.actAs(jobRole);
+      const { rows } = await t.db.query("select * from public.public_holidays");
+      expect(rows).toHaveLength(1);
+    },
+  );
 
   it("shows a person who has left nothing", async () => {
     await t.db.query(
@@ -61,43 +60,42 @@ describe("who reads", () => {
 });
 
 describe("who changes", () => {
-  it.each([
-    "md",
-    "accounts",
-  ] as const)("lets %s add, rename and remove a holiday", async (jobRole) => {
-    await t.actAs(jobRole);
-    await t.db.query(
-      "insert into public.public_holidays (day, name) values ('2027-01-01', 'New Year')",
-    );
-    await t.db.query(
-      "update public.public_holidays set name = 'New Year''s Day' where day = '2027-01-01'",
-    );
-    const { rows } = await t.db.query<{ n: number }>(
-      "with gone as (delete from public.public_holidays where day = '2027-01-01' returning 1) select count(*)::int as n from gone",
-    );
-    expect(rows[0].n).toBe(1);
-  });
-
-  it.each([
-    "director",
-    "sales",
-    "site",
-  ] as const)("refuses %s", async (jobRole) => {
-    await t.actAs(jobRole);
-    await expect(
-      t.db.query(
+  it.each(["md", "accounts"] as const)(
+    "lets %s add, rename and remove a holiday",
+    async (jobRole) => {
+      await t.actAs(jobRole);
+      await t.db.query(
         "insert into public.public_holidays (day, name) values ('2027-01-01', 'New Year')",
-      ),
-    ).rejects.toThrow(/row-level security/);
-    const update = await t.db.query(
-      "update public.public_holidays set name = 'x' returning 1",
-    );
-    expect(update.rows).toHaveLength(0);
-    const remove = await t.db.query(
-      "delete from public.public_holidays returning 1",
-    );
-    expect(remove.rows).toHaveLength(0);
-  });
+      );
+      await t.db.query(
+        "update public.public_holidays set name = 'New Year''s Day' where day = '2027-01-01'",
+      );
+      const { rows } = await t.db.query<{ n: number }>(
+        "with gone as (delete from public.public_holidays where day = '2027-01-01' returning 1) select count(*)::int as n from gone",
+      );
+      expect(rows[0].n).toBe(1);
+    },
+  );
+
+  it.each(["director", "sales", "site"] as const)(
+    "refuses %s",
+    async (jobRole) => {
+      await t.actAs(jobRole);
+      await expect(
+        t.db.query(
+          "insert into public.public_holidays (day, name) values ('2027-01-01', 'New Year')",
+        ),
+      ).rejects.toThrow(/row-level security/);
+      const update = await t.db.query(
+        "update public.public_holidays set name = 'x' returning 1",
+      );
+      expect(update.rows).toHaveLength(0);
+      const remove = await t.db.query(
+        "delete from public.public_holidays returning 1",
+      );
+      expect(remove.rows).toHaveLength(0);
+    },
+  );
 
   it("refuses an empty name", async () => {
     await t.actAs("md");

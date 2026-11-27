@@ -165,12 +165,15 @@ describe("createQuote", () => {
       { customerName: "x".repeat(201) },
       "Keep the customer name under 200 characters.",
     ],
-  ])("refuses %s without touching the database", async (_label, fields, message) => {
-    const calls = fakeSupabase([]);
+  ])(
+    "refuses %s without touching the database",
+    async (_label, fields, message) => {
+      const calls = fakeSupabase([]);
 
-    expect(await createQuote(form(fields))).toEqual({ error: message });
-    expect(calls).toHaveLength(0);
-  });
+      expect(await createQuote(form(fields))).toEqual({ error: message });
+      expect(calls).toHaveLength(0);
+    },
+  );
 
   it("refuses a role that does not sell", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("support"));

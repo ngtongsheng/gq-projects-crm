@@ -193,22 +193,20 @@ describe("approval chain", () => {
     await cleanUp();
   });
 
-  it.each<JobRole>([
-    "md",
-    "sales",
-    "bd",
-    "accounts",
-  ])("%s cannot approve their own leave", async (who) => {
-    const { id } = await apply(who, "2027-01-04", "2027-01-04", "mc");
-    await asService(
-      `update public.leave_requests set slip_path = 'leave/' || id || '/1a2b3c4d-mc.jpg',
+  it.each<JobRole>(["md", "sales", "bd", "accounts"])(
+    "%s cannot approve their own leave",
+    async (who) => {
+      const { id } = await apply(who, "2027-01-04", "2027-01-04", "mc");
+      await asService(
+        `update public.leave_requests set slip_path = 'leave/' || id || '/1a2b3c4d-mc.jpg',
          slip_file_name = 'mc.jpg', slip_content_type = 'image/jpeg', slip_uploaded_at = now()
        where id = $1`,
-      [id],
-    );
-    await expect(decide(who, id)).rejects.toThrow("own leave");
-    await cleanUp();
-  });
+        [id],
+      );
+      await expect(decide(who, id)).rejects.toThrow("own leave");
+      await cleanUp();
+    },
+  );
 
   it("the director approves the md's leave", async () => {
     const { id } = await apply("md", "2027-01-04");
@@ -311,39 +309,33 @@ describe("who sees leave", () => {
       await query<{ id: string }>(who, "select id from public.leave_requests")
     ).map((row) => row.id);
 
-  it.each<JobRole>([
-    "sales",
-    "bd",
-    "md",
-    "director",
-    "accounts",
-  ])("%s sees the salesperson's leave and its steps", async (who) => {
-    const { id } = await apply("sales", "2027-01-04");
-    expect(await visible(who)).toEqual([id]);
-    expect(
-      await query(
-        who,
-        "select 1 from public.leave_approval_steps where request_id = $1",
-        [id],
-      ),
-    ).toHaveLength(2);
-    await cleanUp();
-  });
+  it.each<JobRole>(["sales", "bd", "md", "director", "accounts"])(
+    "%s sees the salesperson's leave and its steps",
+    async (who) => {
+      const { id } = await apply("sales", "2027-01-04");
+      expect(await visible(who)).toEqual([id]);
+      expect(
+        await query(
+          who,
+          "select 1 from public.leave_approval_steps where request_id = $1",
+          [id],
+        ),
+      ).toHaveLength(2);
+      await cleanUp();
+    },
+  );
 
-  it.each<JobRole>([
-    "designer",
-    "site",
-    "ssup",
-    "support",
-    "marketing",
-  ])("%s does not", async (who) => {
-    await apply("sales", "2027-01-04");
-    expect(await visible(who)).toEqual([]);
-    expect(
-      await query(who, "select 1 from public.leave_approval_steps"),
-    ).toEqual([]);
-    await cleanUp();
-  });
+  it.each<JobRole>(["designer", "site", "ssup", "support", "marketing"])(
+    "%s does not",
+    async (who) => {
+      await apply("sales", "2027-01-04");
+      expect(await visible(who)).toEqual([]);
+      expect(
+        await query(who, "select 1 from public.leave_approval_steps"),
+      ).toEqual([]);
+      await cleanUp();
+    },
+  );
 
   it("a team lead does not see people outside their team", async () => {
     await apply("designer", "2027-01-04");
@@ -380,13 +372,12 @@ describe("entitlements", () => {
       )
     ).map((row) => row.profile_id);
 
-  it.each<JobRole>([
-    "director",
-    "sales",
-    "bd",
-  ])("%s cannot set one", async (who) => {
-    await expect(setFor(who, "designer")).rejects.toThrow();
-  });
+  it.each<JobRole>(["director", "sales", "bd"])(
+    "%s cannot set one",
+    async (who) => {
+      await expect(setFor(who, "designer")).rejects.toThrow();
+    },
+  );
 
   it("HR & Accounts sets a carry-forward; the md changes it back", async () => {
     await setFor("accounts", "sales");

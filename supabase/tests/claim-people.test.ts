@@ -25,22 +25,21 @@ afterAll(async () => {
 });
 
 describe("claim_people", () => {
-  it.each<JobRole>([
-    "md",
-    "accounts",
-  ])("%s gets everyone, with job role", async (who) => {
-    const rows = await people(who);
-    expect(rows).toHaveLength(10);
-    expect(rows.find((row) => row.id === t.profileIds.sales)?.job_role).toBe(
-      "sales",
-    );
-  });
+  it.each<JobRole>(["md", "accounts"])(
+    "%s gets everyone, with job role",
+    async (who) => {
+      const rows = await people(who);
+      expect(rows).toHaveLength(10);
+      expect(rows.find((row) => row.id === t.profileIds.sales)?.job_role).toBe(
+        "sales",
+      );
+    },
+  );
 
-  it.each<JobRole>([
-    "director",
-    "sales",
-    "site",
-  ])("%s gets nobody", async (who) => {
-    expect(await people(who)).toEqual([]);
-  });
+  it.each<JobRole>(["director", "sales", "site"])(
+    "%s gets nobody",
+    async (who) => {
+      expect(await people(who)).toEqual([]);
+    },
+  );
 });

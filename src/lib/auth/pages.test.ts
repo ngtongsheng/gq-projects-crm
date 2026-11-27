@@ -231,11 +231,12 @@ const DEFAULT_NAV: Record<string, { person: Viewer; keys: PageKey[] }> = {
 };
 
 describe("navPagesFor: defaults", () => {
-  it.each(
-    Object.entries(DEFAULT_NAV),
-  )("%s gets the demo's default pages, in order", (_name, { person, keys }) => {
-    expect(navKeys(person)).toEqual(keys);
-  });
+  it.each(Object.entries(DEFAULT_NAV))(
+    "%s gets the demo's default pages, in order",
+    (_name, { person, keys }) => {
+      expect(navKeys(person)).toEqual(keys);
+    },
+  );
 
   it("uses the demo's wording per role", () => {
     const labels = (person: Viewer) =>

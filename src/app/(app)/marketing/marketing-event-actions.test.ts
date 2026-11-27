@@ -218,13 +218,16 @@ describe("saveMarketingEventCost", () => {
     ["no cost group", { costGroup: " " }],
     ["no rate", { rate: "" }],
     ["a rate that is not a number", { rate: "abc" }],
-  ])("asks for the event, cost group and rate when there is %s", async (_what, change) => {
-    givenDatabase();
-    expect(await saveMarketingEventCost({ ...cost, ...change })).toEqual({
-      error: "Choose the event and fill in cost group and rate.",
-    });
-    expect(writes).toEqual([]);
-  });
+  ])(
+    "asks for the event, cost group and rate when there is %s",
+    async (_what, change) => {
+      givenDatabase();
+      expect(await saveMarketingEventCost({ ...cost, ...change })).toEqual({
+        error: "Choose the event and fill in cost group and rate.",
+      });
+      expect(writes).toEqual([]);
+    },
+  );
 
   it("refuses a quantity of 0", async () => {
     givenDatabase();

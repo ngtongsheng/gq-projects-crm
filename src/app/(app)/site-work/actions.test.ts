@@ -391,7 +391,8 @@ describe("saveSiteVisit", () => {
 
     expect(result).toEqual({ error: null, movedTo: null });
     expect(calls).toHaveLength(1);
-    expect((calls[0]?.payload as Record<string, unknown>[])[0]).toMatchObject({
+    const rows = calls[0]?.payload as Record<string, unknown>[] | undefined;
+    expect(rows?.[0]).toMatchObject({
       mof_id: null,
       site_name: "Menara KL",
       salesperson_id: SALES,

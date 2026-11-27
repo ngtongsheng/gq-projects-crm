@@ -131,19 +131,18 @@ describe("requestBooking", () => {
     expect(calls).toHaveLength(0);
   });
 
-  it.each([
-    "support",
-    "site",
-    "accounts",
-  ] as const)("refuses a %s", async (jobRole) => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile(jobRole));
-    const calls = fakeSupabase([saved]);
+  it.each(["support", "site", "accounts"] as const)(
+    "refuses a %s",
+    async (jobRole) => {
+      vi.mocked(getCurrentProfile).mockResolvedValue(profile(jobRole));
+      const calls = fakeSupabase([saved]);
 
-    const result = await requestBooking(form());
+      const result = await requestBooking(form());
 
-    expect(result.error).toMatch(/can book a site supervisor/);
-    expect(calls).toHaveLength(0);
-  });
+      expect(result.error).toMatch(/can book a site supervisor/);
+      expect(calls).toHaveLength(0);
+    },
+  );
 
   it("rejects a bad purpose or time", async () => {
     fakeSupabase([saved]);
@@ -219,22 +218,20 @@ describe("answerBooking", () => {
     expect(calls[0]?.payload).toMatchObject({ decline_reason: null });
   });
 
-  it.each([
-    "sales",
-    "support",
-    "md",
-    "director",
-  ] as const)("refuses a %s, who cannot answer a booking", async (jobRole) => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile(jobRole));
-    const calls = fakeSupabase([one]);
+  it.each(["sales", "support", "md", "director"] as const)(
+    "refuses a %s, who cannot answer a booking",
+    async (jobRole) => {
+      vi.mocked(getCurrentProfile).mockResolvedValue(profile(jobRole));
+      const calls = fakeSupabase([one]);
 
-    const result = await answerBooking(BOOKING, "confirmed", "");
+      const result = await answerBooking(BOOKING, "confirmed", "");
 
-    expect(result.error).toBe(
-      "Only the booked site supervisor can answer a booking.",
-    );
-    expect(calls).toHaveLength(0);
-  });
+      expect(result.error).toBe(
+        "Only the booked site supervisor can answer a booking.",
+      );
+      expect(calls).toHaveLength(0);
+    },
+  );
 
   it("says not found when the booking is someone else's or already answered", async () => {
     fakeSupabase([saved]);

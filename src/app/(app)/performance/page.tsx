@@ -276,11 +276,7 @@ function Strong({
   row: PerformanceRow;
   children: React.ReactNode;
 }) {
-  return row.personId === "total" ? (
-    <strong>{children}</strong>
-  ) : (
-    <>{children}</>
-  );
+  return row.personId === "total" ? <strong>{children}</strong> : children;
 }
 
 /** The name opens that person's MOFs under the table; the total row is just a label. */

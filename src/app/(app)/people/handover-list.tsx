@@ -9,12 +9,8 @@ export function HandoverList({ entries }: { entries: HandoverEntry[] }) {
     <div className="flex flex-col gap-2">
       <FieldTitle>Handover list</FieldTitle>
       <ul className="flex flex-col gap-1 text-sm">
-        {entries.map((entry, index) => (
-          <li
-            // The same customer can reach someone twice (from two leavers), so the key needs the index.
-            key={`${entry.kind}-${entry.name}-${index}`}
-            className="flex flex-wrap justify-between gap-x-4"
-          >
+        {entries.map((entry) => (
+          <li key={entry.id} className="flex flex-wrap justify-between gap-x-4">
             <span>
               {entry.kind === "customer" ? "Customer" : "Project"} ·{" "}
               {entry.name}

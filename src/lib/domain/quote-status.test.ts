@@ -124,40 +124,39 @@ const allStatuses: QuoteStatus[] = [
 ];
 
 describe("decideStep: send", () => {
-  it.each([
-    "draft",
-    "returned",
-    "submitted",
-  ] as const)("the owner confirms a %s costing that meets the minimum", (status) => {
-    expect(decideStep("send", facts({ ...owner, status }))).toEqual({
-      ok: true,
-      status: "approved",
-      history: "approved",
-      note: CONFIRMED_NOTE,
-    });
-  });
+  it.each(["draft", "returned", "submitted"] as const)(
+    "the owner confirms a %s costing that meets the minimum",
+    (status) => {
+      expect(decideStep("send", facts({ ...owner, status }))).toEqual({
+        ok: true,
+        status: "approved",
+        history: "approved",
+        note: CONFIRMED_NOTE,
+      });
+    },
+  );
 
-  it.each([
-    "draft",
-    "returned",
-  ] as const)("the owner sends a low %s costing with a reason", (status) => {
-    expect(
-      decideStep(
-        "send",
-        facts({
-          ...owner,
-          status,
-          readiness: low,
-          note: "  Competitor at RM 90  ",
-        }),
-      ),
-    ).toEqual({
-      ok: true,
-      status: "submitted",
-      history: "submitted",
-      note: "Competitor at RM 90",
-    });
-  });
+  it.each(["draft", "returned"] as const)(
+    "the owner sends a low %s costing with a reason",
+    (status) => {
+      expect(
+        decideStep(
+          "send",
+          facts({
+            ...owner,
+            status,
+            readiness: low,
+            note: "  Competitor at RM 90  ",
+          }),
+        ),
+      ).toEqual({
+        ok: true,
+        status: "submitted",
+        history: "submitted",
+        note: "Competitor at RM 90",
+      });
+    },
+  );
 
   it("needs a reason below the minimum", () => {
     const outcome = decideStep(
@@ -262,39 +261,39 @@ describe("decideStep: approve and return", () => {
     });
   });
 
-  it.each([
-    "approve",
-    "return",
-  ] as const)("refuses to %s a costing that is not waiting", (step) => {
-    for (const status of allStatuses.filter((s) => s !== "submitted")) {
+  it.each(["approve", "return"] as const)(
+    "refuses to %s a costing that is not waiting",
+    (step) => {
+      for (const status of allStatuses.filter((s) => s !== "submitted")) {
+        expect(
+          decideStep(step, facts({ ...approver, status, note: "n" })),
+        ).toMatchObject({
+          ok: false,
+        });
+      }
+    },
+  );
+
+  it.each(["approve", "return"] as const)(
+    "an approver may %s their own costing",
+    (step) => {
       expect(
-        decideStep(step, facts({ ...approver, status, note: "n" })),
-      ).toMatchObject({
-        ok: false,
-      });
-    }
-  });
+        decideStep(
+          step,
+          facts({ ...approverOwner, status: "submitted", note: "n" }),
+        ),
+      ).toMatchObject({ ok: true });
+    },
+  );
 
-  it.each([
-    "approve",
-    "return",
-  ] as const)("an approver may %s their own costing", (step) => {
-    expect(
-      decideStep(
-        step,
-        facts({ ...approverOwner, status: "submitted", note: "n" }),
-      ),
-    ).toMatchObject({ ok: true });
-  });
-
-  it.each([
-    "approve",
-    "return",
-  ] as const)("an owner who is not an approver cannot %s", (step) => {
-    expect(
-      decideStep(step, facts({ ...owner, status: "submitted", note: "n" })),
-    ).toMatchObject({ ok: false });
-  });
+  it.each(["approve", "return"] as const)(
+    "an owner who is not an approver cannot %s",
+    (step) => {
+      expect(
+        decideStep(step, facts({ ...owner, status: "submitted", note: "n" })),
+      ).toMatchObject({ ok: false });
+    },
+  );
 
   it.each(["approve", "return"] as const)("someone else cannot %s", (step) => {
     expect(
@@ -347,16 +346,16 @@ describe("decideStep: choose and revise", () => {
     });
   });
 
-  it.each([
-    "choose",
-    "revise",
-  ] as const)("refuses to %s before it is OK to quote", (step) => {
-    for (const status of allStatuses.filter((s) => s !== "approved")) {
-      expect(decideStep(step, facts({ ...owner, status }))).toMatchObject({
-        ok: false,
-      });
-    }
-  });
+  it.each(["choose", "revise"] as const)(
+    "refuses to %s before it is OK to quote",
+    (step) => {
+      for (const status of allStatuses.filter((s) => s !== "approved")) {
+        expect(decideStep(step, facts({ ...owner, status }))).toMatchObject({
+          ok: false,
+        });
+      }
+    },
+  );
 
   it.each(["choose", "revise"] as const)("only the owner may %s", (step) => {
     for (const role of [approver, bystander]) {

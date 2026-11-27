@@ -213,20 +213,18 @@ describe("saveEnquiry", () => {
     });
   });
 
-  it.each([
-    "site",
-    "marketing",
-    "designer",
-    "ssup",
-  ] as const)("refuses a %s", async (jobRole) => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile(jobRole));
-    const calls = fakeSupabase([]);
+  it.each(["site", "marketing", "designer", "ssup"] as const)(
+    "refuses a %s",
+    async (jobRole) => {
+      vi.mocked(getCurrentProfile).mockResolvedValue(profile(jobRole));
+      const calls = fakeSupabase([]);
 
-    const result = await saveEnquiry(form());
+      const result = await saveEnquiry(form());
 
-    expect(result.error).toMatch(/Only salespeople/);
-    expect(calls).toHaveLength(0);
-  });
+      expect(result.error).toMatch(/Only salespeople/);
+      expect(calls).toHaveLength(0);
+    },
+  );
 
   it.each([
     [{ product: " " }, "Enter the product or spec."],

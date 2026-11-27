@@ -39,6 +39,17 @@ export function addDays(date: CalendarDate, days: number): CalendarDate {
   return fromUtcMs(toUtcMs(date) + days * DAY_MS);
 }
 
+// ISO dates and timestamps sort as text, so these compare strings. Math.min/max would turn them into NaN.
+export function earlierDate(a: string, b: string): string {
+  if (a < b) return a;
+  return b;
+}
+
+export function laterDate(a: string, b: string): string {
+  if (a > b) return a;
+  return b;
+}
+
 export function daysBetween(from: CalendarDate, to: CalendarDate): number {
   return Math.round((toUtcMs(to) - toUtcMs(from)) / DAY_MS);
 }

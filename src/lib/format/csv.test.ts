@@ -23,17 +23,13 @@ describe("toCsv", () => {
     );
   });
 
-  it.each([
-    "=SUM(A1)",
-    "+60123",
-    "-1+1",
-    "@cmd",
-    "\tx",
-    "\rx",
-  ])("defuses a formula start in %j", (cell) => {
-    const out = body(toCsv(["A"], [[cell]])).split("\r\n")[1];
-    expect(out.replace(/^"/, "").startsWith("'")).toBe(true);
-  });
+  it.each(["=SUM(A1)", "+60123", "-1+1", "@cmd", "\tx", "\rx"])(
+    "defuses a formula start in %j",
+    (cell) => {
+      const out = body(toCsv(["A"], [[cell]])).split("\r\n")[1];
+      expect(out.replace(/^"/, "").startsWith("'")).toBe(true);
+    },
+  );
 
   it("leaves ordinary text alone", () => {
     expect(body(toCsv(["A"], [["Carpet m²"]]))).toBe("A\r\nCarpet m²\r\n");

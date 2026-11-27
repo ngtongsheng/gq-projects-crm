@@ -3,6 +3,7 @@ import { todayMyt } from "@/lib/format/date";
 import { createClient } from "@/lib/supabase/server";
 
 export type HandoverItem = {
+  id: string;
   kind: "customer" | "project";
   name: string;
   fromId: string;
@@ -15,6 +16,7 @@ const named = z.object({ name: z.string() }).nullable();
 
 const handoverRows = z.array(
   z.object({
+    id: z.uuid(),
     from_id: z.uuid(),
     to_id: z.uuid(),
     handed_over_at: z.string(),
@@ -29,11 +31,12 @@ export async function loadHandoverItems(): Promise<HandoverItem[]> {
   const { data, error } = await supabase
     .from("handover_items")
     .select(
-      "from_id, to_id, handed_over_at, contact:contacts(name), project:projects(name)",
+      "id, from_id, to_id, handed_over_at, contact:contacts(name), project:projects(name)",
     )
     .order("handed_over_at", { ascending: false });
   if (error) throw new Error(`Could not load handovers: ${error.message}`);
   return handoverRows.parse(data).map((row) => ({
+    id: row.id,
     kind: row.project ? "project" : "customer",
     name: row.project?.name ?? row.contact?.name ?? "–",
     fromId: row.from_id,
@@ -43,6 +46,7 @@ export async function loadHandoverItems(): Promise<HandoverItem[]> {
 }
 
 export type HandoverEntry = {
+  id: string;
   kind: HandoverItem["kind"];
   name: string;
   /** True when this person handed it over; false when they received it. */
@@ -62,6 +66,7 @@ export function handoversOf(
     if (!gave && item.toId !== personId) return [];
     return [
       {
+        id: item.id,
         kind: item.kind,
         name: item.name,
         gave,

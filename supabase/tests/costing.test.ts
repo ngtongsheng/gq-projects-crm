@@ -154,25 +154,21 @@ describe.each(quoteTables)("who reads %s", (table, key) => {
     expect(await idsIn("bd", table)).toEqual([bees[key]]);
   });
 
-  it.each([
-    "md",
-    "director",
-    "support",
-    "accounts",
-  ] as const)("%s reads all", async (jobRole) => {
-    const rows = await idsIn(jobRole, table);
-    expect(rows).toContain(mine[key]);
-    expect(rows).toContain(bees[key]);
-  });
+  it.each(["md", "director", "support", "accounts"] as const)(
+    "%s reads all",
+    async (jobRole) => {
+      const rows = await idsIn(jobRole, table);
+      expect(rows).toContain(mine[key]);
+      expect(rows).toContain(bees[key]);
+    },
+  );
 
-  it.each([
-    "site",
-    "ssup",
-    "marketing",
-    "designer",
-  ] as const)("%s reads nothing", async (jobRole) => {
-    expect(await idsIn(jobRole, table)).toEqual([]);
-  });
+  it.each(["site", "ssup", "marketing", "designer"] as const)(
+    "%s reads nothing",
+    async (jobRole) => {
+      expect(await idsIn(jobRole, table)).toEqual([]);
+    },
+  );
 });
 
 describe("who writes a quote", () => {

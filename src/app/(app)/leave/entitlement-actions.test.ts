@@ -168,16 +168,15 @@ describe("saveEntitlement", () => {
     expect(calls).toHaveLength(0);
   });
 
-  it.each([
-    "director",
-    "sales",
-    "site",
-  ] as const)("refuses a %s", async (jobRole) => {
-    signedInAs(jobRole);
-    const calls = fakeSupabase();
-    expect((await saveEntitlement(entitlement())).error).toMatch(/Only the/);
-    expect(calls).toHaveLength(0);
-  });
+  it.each(["director", "sales", "site"] as const)(
+    "refuses a %s",
+    async (jobRole) => {
+      signedInAs(jobRole);
+      const calls = fakeSupabase();
+      expect((await saveEntitlement(entitlement())).error).toMatch(/Only the/);
+      expect(calls).toHaveLength(0);
+    },
+  );
 
   it("lets the Managing Director save", async () => {
     signedInAs("md");

@@ -20,8 +20,8 @@ checks pass, the branch is pushed, every other finding is in `docs/debt.md`. Own
 |---|---|---|---|---|
 | 01 | Branch and allow rules | done | | economy |
 | 02 | Patch/minor bumps and minimatch advisory | done | 01 | standard |
-| 03 | Biome 2.4 to 2.6 | in-progress | 02 | standard |
-| 04 | pglite 0.6 and supabase CLI 3 | todo | 03 | frontier |
+| 03 | Biome 2.4 to 2.6 | done | 02 | standard |
+| 04 | pglite 0.6 and supabase CLI 3 | in-progress | 03 | frontier |
 | 05 | Audit A: delta deep review (loops 23-25) | todo | 04 | frontier |
 | 06 | Audit B: repo-wide sweep | todo | 05 | frontier |
 | 07 | Fix: dead code and duplication | todo | 06 | frontier |
@@ -42,3 +42,8 @@ checks pass, the branch is pushed, every other finding is in `docs/debt.md`. Own
 2026-11-27 · #02 · decision · pin pglite to exact 0.5.14 · 0.5.17 hung createTestDatabase past 30s in ~7 supabase/tests files; #04 re-tests 0.6 and logs debt if it hangs too
 2026-11-27 · #02 · done · audit clean, check/typecheck/build ok, 3327/3327 tests, outdated = expected 5 · #03
 2026-11-27 · #03 · in-progress · delegated standard
+2026-11-27 · #03 · decision · biome markdown formatter off · 2.6 formats .md by default (~350 docs/skill/loop files); keeps 2.4 behaviour, no churn in files Vicky's agents edit
+2026-11-27 · #03 · decision · new earlierDate/laterDate in src/lib/format/date.ts for useMathMinMax (8 sites) · Math.min/max on ISO strings gives NaN; no rule disable
+2026-11-27 · #03 · decision · noArrayIndexKey fixed with real db ids (handover_items.id, site_follow_ups.id added to selects + zod) · behaviour unchanged, no schema change
+2026-11-27 · #03 · done · biome 2.6.9, check clean, typecheck/build ok, 3328/3328 tests, no new biome-ignore · #04
+2026-11-27 · #04 · in-progress · delegated frontier

@@ -20,15 +20,14 @@ describe("projectValueOf", () => {
     ).toBe(2500.5);
   });
 
-  it.each([
-    "draft",
-    "submitted",
-    "returned",
-  ])("offers nothing when %s", (status) => {
-    expect(
-      projectValueOf({ status, chosenOptionId: null, options }),
-    ).toBeNull();
-  });
+  it.each(["draft", "submitted", "returned"])(
+    "offers nothing when %s",
+    (status) => {
+      expect(
+        projectValueOf({ status, chosenOptionId: null, options }),
+      ).toBeNull();
+    },
+  );
 
   it("offers nothing when the costing sells nothing", () => {
     expect(

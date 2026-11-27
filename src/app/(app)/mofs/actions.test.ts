@@ -300,17 +300,18 @@ describe("saveMof: cost is for managers only", () => {
     expect(savePayload(calls).cost).toBe(8000);
   });
 
-  it.each([
-    ["a business developer", "bd"],
-  ] as const)("refuses a cost from %s before writing anything", async (_label, jobRole) => {
-    vi.mocked(getCurrentProfile).mockResolvedValue(profile(jobRole));
-    const calls = fakeSupabase([]);
+  it.each([["a business developer", "bd"]] as const)(
+    "refuses a cost from %s before writing anything",
+    async (_label, jobRole) => {
+      vi.mocked(getCurrentProfile).mockResolvedValue(profile(jobRole));
+      const calls = fakeSupabase([]);
 
-    const result = await saveMof(form({ mofId: MOF, cost: "8000" }));
+      const result = await saveMof(form({ mofId: MOF, cost: "8000" }));
 
-    expect(result.error).toMatch(/Only the/);
-    expect(calls).toHaveLength(0);
-  });
+      expect(result.error).toMatch(/Only the/);
+      expect(calls).toHaveLength(0);
+    },
+  );
 
   it("reports the database refusing a cost", async () => {
     vi.mocked(getCurrentProfile).mockResolvedValue(profile("md"));

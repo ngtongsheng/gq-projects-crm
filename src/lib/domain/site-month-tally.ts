@@ -6,7 +6,7 @@ import {
 import { leaveDays } from "@/lib/domain/leave-balance";
 import { countSiteVisits, type SiteActivity } from "@/lib/domain/site-log";
 import type { WorkCalendar } from "@/lib/domain/workdays";
-import type { CalendarDate } from "@/lib/format/date";
+import { type CalendarDate, earlierDate, laterDate } from "@/lib/format/date";
 
 export type TallyLog = {
   supervisorId: string;
@@ -61,8 +61,8 @@ export function awayDaysByKind(
   const last = endOfMonth(month);
   const days = new Map<string, number>();
   for (const entry of away) {
-    const startsOn = entry.startsOn > first ? entry.startsOn : first;
-    const endsOn = entry.endsOn < last ? entry.endsOn : last;
+    const startsOn = laterDate(entry.startsOn, first);
+    const endsOn = earlierDate(entry.endsOn, last);
     if (startsOn > endsOn) continue;
     const count = leaveDays(startsOn, endsOn, false, calendar);
     if (count > 0) days.set(entry.kind, (days.get(entry.kind) ?? 0) + count);

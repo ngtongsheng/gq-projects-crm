@@ -137,8 +137,8 @@ describe("reserveStock", () => {
       reserved_by: SALESPERSON,
       reserved_at: today,
     });
-    const expires = (calls[0]?.payload as { expires_on: string }).expires_on;
-    expect(expires > today).toBe(true);
+    const payload = calls[0]?.payload as { expires_on: string } | undefined;
+    expect((payload?.expires_on ?? "") > today).toBe(true);
   });
 
   it("refuses HR & Accounts, who can see stock but not reserve it", async () => {
@@ -286,8 +286,8 @@ describe("extendReservation", () => {
 
     await extendReservation(form({ reservationId: LINE }));
 
-    const expires = (calls[1]?.payload as { expires_on: string }).expires_on;
-    expect(expires > todayMyt()).toBe(true);
+    const payload = calls[1]?.payload as { expires_on: string } | undefined;
+    expect((payload?.expires_on ?? "") > todayMyt()).toBe(true);
   });
 
   it("does not extend a request", async () => {

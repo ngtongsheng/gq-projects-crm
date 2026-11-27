@@ -53,18 +53,17 @@ describe("who changes the matrix", () => {
     expect(rows[0].n).toBe(1);
   });
 
-  it.each([
-    "accounts",
-    "director",
-    "sales",
-  ] as const)("refuses %s", async (jobRole) => {
-    await t.actAs(jobRole);
-    await expect(
-      t.db.query(
-        "insert into public.role_page_access (role_key, page_key, allowed) values ('sales', 'coll', false)",
-      ),
-    ).rejects.toThrow(/row-level security/);
-  });
+  it.each(["accounts", "director", "sales"] as const)(
+    "refuses %s",
+    async (jobRole) => {
+      await t.actAs(jobRole);
+      await expect(
+        t.db.query(
+          "insert into public.role_page_access (role_key, page_key, allowed) values ('sales', 'coll', false)",
+        ),
+      ).rejects.toThrow(/row-level security/);
+    },
+  );
 
   it("lets everyone signed in read it", async () => {
     await setMargin("sales", true);

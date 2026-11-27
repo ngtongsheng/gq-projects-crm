@@ -167,14 +167,14 @@ describe.each(tables)("who reads which %s", (table) => {
     expect(rows).not.toContain(idOf(eddieTeam, table));
   });
 
-  it.each([
-    "md",
-    "accounts",
-  ] as const)("%s reads both teams'", async (jobRole) => {
-    const rows = await visible(jobRole, table);
-    expect(rows).toContain(idOf(eddieTeam, table));
-    expect(rows).toContain(idOf(vanessaTeam, table));
-  });
+  it.each(["md", "accounts"] as const)(
+    "%s reads both teams'",
+    async (jobRole) => {
+      const rows = await visible(jobRole, table);
+      expect(rows).toContain(idOf(eddieTeam, table));
+      expect(rows).toContain(idOf(vanessaTeam, table));
+    },
+  );
 
   it("a salesperson reads only their own", async () => {
     const rows = await visible(beeId, table);
@@ -189,15 +189,14 @@ describe.each(tables)("who reads which %s", (table) => {
 });
 
 describe("operational reads stay", () => {
-  it.each([
-    "support",
-    "site",
-    "ssup",
-  ] as const)("%s reads every MOF", async (jobRole) => {
-    const rows = await visible(jobRole, "mofs");
-    expect(rows).toContain(eddieTeam.mofId);
-    expect(rows).toContain(vanessaTeam.mofId);
-  });
+  it.each(["support", "site", "ssup"] as const)(
+    "%s reads every MOF",
+    async (jobRole) => {
+      const rows = await visible(jobRole, "mofs");
+      expect(rows).toContain(eddieTeam.mofId);
+      expect(rows).toContain(vanessaTeam.mofId);
+    },
+  );
 
   it("Purchasing reads every payment", async () => {
     const rows = await visible("support", "payments");

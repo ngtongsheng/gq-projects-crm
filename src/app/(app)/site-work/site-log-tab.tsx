@@ -345,8 +345,8 @@ export async function SiteLogTab({
             cell: (log) =>
               log.followUps.length === 0
                 ? "–"
-                : log.followUps.map((followUp, index) => (
-                    <div key={`${followUp.action}-${index}`}>
+                : log.followUps.map((followUp) => (
+                    <div key={followUp.id}>
                       {followUp.action}
                       <Sub>
                         {`${t(FOLLOW_UP_OWNER_LABEL[followUp.ownerGroup])} · ${

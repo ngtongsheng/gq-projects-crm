@@ -19,8 +19,8 @@ checks pass, the branch is pushed, every other finding is in `docs/debt.md`. Own
 | # | Task | Status | Depends | Tier |
 |---|---|---|---|---|
 | 01 | Branch and allow rules | done | | economy |
-| 02 | Patch/minor bumps and minimatch advisory | in-progress | 01 | standard |
-| 03 | Biome 2.4 to 2.6 | todo | 02 | standard |
+| 02 | Patch/minor bumps and minimatch advisory | done | 01 | standard |
+| 03 | Biome 2.4 to 2.6 | in-progress | 02 | standard |
 | 04 | pglite 0.6 and supabase CLI 3 | todo | 03 | frontier |
 | 05 | Audit A: delta deep review (loops 23-25) | todo | 04 | frontier |
 | 06 | Audit B: repo-wide sweep | todo | 05 | frontier |
@@ -38,3 +38,7 @@ checks pass, the branch is pushed, every other finding is in `docs/debt.md`. Own
 2026-11-27 · #01 · in-progress · delegated economy
 2026-11-27 · #01 · done · ancestor check ok, 4 allow rules, pnpm check ok · #02
 2026-11-27 · #02 · in-progress · delegated standard
+2026-11-27 · #02 · decision · override `exceljs>uuid: 11.1.1` in pnpm-workspace.yaml for GHSA-w5hq-g745-h8pq · second advisory not in plan; exceljs only uses v4, tests pass. minimatch advisory cleared by shadcn 4.23.1, no override
+2026-11-27 · #02 · decision · pin pglite to exact 0.5.14 · 0.5.17 hung createTestDatabase past 30s in ~7 supabase/tests files; #04 re-tests 0.6 and logs debt if it hangs too
+2026-11-27 · #02 · done · audit clean, check/typecheck/build ok, 3327/3327 tests, outdated = expected 5 · #03
+2026-11-27 · #03 · in-progress · delegated standard

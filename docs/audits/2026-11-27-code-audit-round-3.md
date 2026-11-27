@@ -202,3 +202,23 @@ Every A and B finding is either fixed or in `docs/debt.md`. Fixed changes are be
 Dependencies deferred (loop 26 D4): supabase CLI 3 (reverted in task 04), TypeScript 7, `@types/node` 26.
 
 Count: section A has 19 findings (7 fixed, 12 deferred); section B has 9 (3 fixed, 6 deferred).
+
+## Loop 27 outcome
+
+Loop 27 fixed the round 3 debt that needed no owner decision. Fixed changes are behaviour-preserving (loop 27 D2).
+
+| Task | Commits | IDs |
+|---|---|---|
+| 01 event costs, paging loops, rollback log | dda8606, 7e7d84c | A2 (paging and `loadEventCosts`), B9 |
+| 02 marketing reads, workbook log, photo rejection | e1a69fe, 53d56b5, 3e96a76 | A3, A4 (A10 left open, note in 3e96a76) |
+| 03 travel claim and ready-to-release reads and logs | a6ca55b, 8d38588 | A14, A15, A17 |
+| 04 money-path errors with record ids | 48e91bd | B8 |
+| 05 DeleteConfirm and first 3 dialogs | f8dfb08 | B2 (part) |
+| 06 DeleteConfirm in the other 5 dialogs | d6d58e3 | B2 |
+| 07 mofPeople helper | 70b8e45 | B4 (part) |
+| 08 MOF register column factory | ab5430e | B4 |
+| 09 shared project picker loader | eec1156 | B5 |
+
+Still in `docs/debt.md`: A2 (marketing lists send every year to the browser), A5, A6, A10, A12, A13, A16, B7, and
+the Supabase CLI 3 and TypeScript 7 items. New loop 27 debt: the samples dialog question beside Save (`DeleteConfirm`
+prop) and `mofPeople`'s `keepBlankNames` option.

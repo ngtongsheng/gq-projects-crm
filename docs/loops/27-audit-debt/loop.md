@@ -27,7 +27,7 @@ outcome show what is left. The branch passes every check and is ready for the ow
 | 07 | mofPeople helper for the salesperson join (B4) | done | | standard |
 | 08 | MOF register column factory (B4) | done | 07 | standard |
 | 09 | Shared project picker loader (B5) | done | | standard |
-| 10 | Close out debt.md and the audit outcome | todo | 01-09 | economy |
+| 10 | Close out debt.md and the audit outcome | done | 01-09 | economy |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - After #10: push `loop/27-audit-debt` to `main` (`git push origin loop/27-audit-debt:main` once it is rebased on the
@@ -66,3 +66,6 @@ outcome show what is left. The branch passes every check and is ready for the ow
 2026-11-27 · #09 · delegated (standard) · wait
 2026-11-27 · #09 · decision · loadTaskProjects removed and tasks/page.tsx calls the shared loader · it would have been a pass-through
 2026-11-27 · #09 · done (B5); check, typecheck, 3346 tests, build pass · #10
+2026-11-27 · #10 · delegated (economy) · wait
+2026-11-27 · #10 · decision · logged two new debt items (DeleteConfirm questionBesideSave, mofPeople keepBlankNames) · removing either changes what people see (D2)
+2026-11-27 · #10 · done; check passes, remaining ID hits are older audit rounds and the open A10 · final checks

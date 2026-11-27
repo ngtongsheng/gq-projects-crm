@@ -242,20 +242,15 @@
 - Why: TypeScript 7 is a compiler major with its own migration. `@types/node` 26 describes Node 26, but `mise.toml` pins Node 24.
 - When to fix: TypeScript 7 in its own loop, with `typecheck`, `build` and `test` run on it first. `@types/node` when `mise.toml` moves to Node 26.
 
-## Marketing and installer lists still read past the 1000-row cap (loop 26 #09, audit A2)
-- What: `loadEventCosts` (dashboard totals only) reads every row, so the totals are short past 1000 rows. `allIds` in `marketing-excel-store.ts` and the installer-data loader page correctly but keep their own paging loops instead of `readAllRows` (duplication only). The marketing dashboard, expense log and events view send every expense of every year to the browser and filter there (A2).
-- Why: task 09 fixed the export and the other loaders (A1); these went past the 8-file cap (D5).
-- When to fix: before the marketing history import, and before any marketing table nears about 800 rows: move `loadEventCosts` onto `readAllRows` and filter by year in the query; fold `allIds` and installer-data onto `readAllRows` when next touched.
+## Marketing lists send every year to the browser (loop 26 #09, audit A2)
+- What: the marketing dashboard, expense log and events view send every expense of every year to the browser and filter there (A2). The reads themselves page past 1000 rows (loop 27 #01).
+- Why: filtering by year in the query changes which rows the screens show, so it needs an owner decision on the screens (loop 27 D5 kept the events panel unfiltered).
+- When to fix: when the marketing history import takes any marketing table near 800 rows: filter by year in the query.
 
-## Serial reads and unlogged failures on marketing, travel claims and reminders (audit A3, A4, A14, A15, A17)
-- What: the marketing page awaits categories before its `Promise.all` (A3). A workbook that fails to parse is swallowed by `.catch(() => null)` with no log (A4). Travel claim settings and the claim lookup run in series (A15), and after a 23505 race the second `find()` error goes unlogged while a zero-row update logs a null error (A14). `countClaimsReadyToRelease` waits for the claims query before loading people, and reads every monthly report ever filed (A17).
-- Why: each adds a round trip or hides a log line; none is wrong today. They went past the 8-file cap (D5).
-- When to fix: at the next change to those files. A17 once a person has several years of reports.
-
-## Marketing saves and import are not atomic (audit A5, A6, B9)
-- What: saving categories deletes first and upserts second; a failed upsert (a name swap hits the `lower(name)` unique index) leaves the deletes done (A5). A failed import rollback undoes only the inserted lines, so new categories, vendors, events and event updates stay (A6). A failed clean-up in that rollback is swallowed with no log (B9).
-- Why: a real fix needs one SQL function or a transaction in a new migration (A5, A6). B9 changes logging only, and was past the cap.
-- When to fix: the next marketing migration: move category save and import into one SQL function. B9 with the next change to `marketing-excel-store.ts`: log the failed clean-up with `logServerError`.
+## Marketing saves and import are not atomic (audit A5, A6)
+- What: saving categories deletes first and upserts second; a failed upsert (a name swap hits the `lower(name)` unique index) leaves the deletes done (A5). A failed import rollback undoes only the inserted lines, so new categories, vendors, events and event updates stay (A6).
+- Why: a real fix needs one SQL function or a transaction in a new migration (A5, A6).
+- When to fix: the next marketing migration: move category save and import into one SQL function.
 
 ## Custom sample codes, photos and error handling (audit A10, A12, A13)
 - What: the next `TS-###` code is `max()+1` with no lock, so two samples saved at once collide and the second sees "That code is already used." (A12). Replacing a photo leaves the old file in storage, and 44 px list thumbnails download the full photo (A13). `void openCustomSamplePhoto(id).then(...)` has no rejection handler (A10).
@@ -267,17 +262,17 @@
 - Why: a new message changes what people see on the claim action. Moving `plainRefusal` to `lib` touches a second feature.
 - When to fix: the next travel-claim change: show the guard's own message, and move `plainRefusal` to `lib`.
 
-## Repeated dialog footer, MOF columns and project picker (audit B2, B4, B5)
-- What: the delete-confirm footer is copied in 8 dialogs (B2). The MOF register columns are copied across four pages, and the "A + B" salesperson join is built in three places (B4). The "projects not lost, labelled name · company" loader exists three times (B5).
-- Why: each copy works on its own. Shared components touch many files, beyond the cap for task 07 and 08.
-- When to fix: during the next change to those dialogs or pages: add `components/app/delete-confirm.tsx`, `mofs/mof-columns.tsx` and `projects/project-options-data.ts`.
-
 ## Costing editor components are one function each (audit B7)
 - What: `QuoteEditor` (about 380 lines) and `ItemRow` (about 330 lines) are one function each in `costing/[id]/`.
 - Why: a plain move is not safe, because splitting needs new props passed between the parts.
 - When to fix: the next change to costing editing: split each into parts with explicit props, as round 1 C1 describes.
 
-## Money-path server errors have no record id (audit B8)
-- What: the MOF money writes (installer claims and payments, supplier and installer POs, VOs, the MOF save and costing approval) still use raw `console.error` with no user or record id. These are the first files for the O4 item above.
-- Why: task 09 was at its cap. Switching to `logServerError` changes logging only.
-- When to fix: at the next change to these action files, or as a quick pass: switch them to `logServerError`.
+## Delete-confirm question beside Save for the samples dialog (loop 27 #05)
+- What: `DeleteConfirm` has a `questionBesideSave` prop only because the question in `samples/sample-dialog.tsx` sits beside Save. The other 7 dialogs push it to the far end.
+- Why: moving the question changes what people see in the samples dialog, so loop 27 kept the look as it was (D2).
+- When to fix: with the next change to the samples dialog: move the question to the far end like the other dialogs and drop the prop.
+
+## mofPeople keeps blank names for Collection (loop 27 #07)
+- What: `mofPeople` takes `keepBlankNames` only for the Collection page, which keeps a blank name's place. The register and summary drop it. This is reachable only by a direct database write that leaves a blank name.
+- Why: dropping the option changes the Collection page's columns for that case, so the loop kept it (D2).
+- When to fix: with the next change to the Collection page: drop the option and the blank-name case in the Collection column, or decide that blank names cannot be saved.

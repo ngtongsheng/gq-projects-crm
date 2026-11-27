@@ -69,3 +69,6 @@ outcome show what is left. The branch passes every check and is ready for the ow
 2026-11-27 · #10 · delegated (economy) · wait
 2026-11-27 · #10 · decision · logged two new debt items (DeleteConfirm questionBesideSave, mofPeople keepBlankNames) · removing either changes what people see (D2)
 2026-11-27 · #10 · done; check passes, remaining ID hits are older audit rounds and the open A10 · final checks
+2026-11-27 · - · final: check, typecheck, 3346 tests, build pass; origin/main is an ancestor of the branch · vault
+2026-11-27 · - · vault · ~/work/vault/sessions/gq-projects-crm/2026-11-27-loop-27-audit-debt.md
+2026-11-27 · - · decision · not merged: D1 leaves the push to main to the owner · push branch only

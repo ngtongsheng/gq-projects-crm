@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { logServerError } from "@/lib/log-server-error";
+import { readAllRows } from "@/lib/supabase/read-all-rows";
 import type { createClient } from "@/lib/supabase/server";
 import type { ImportPlan } from "./marketing-excel-plan";
 
@@ -13,8 +15,6 @@ type DatabaseError = { code?: string; message?: string };
 const INSERT_CHUNK = 200;
 // Ids go in the address of the delete request, which has a length limit.
 const DELETE_CHUNK = 100;
-// The most rows the database hands back in one read.
-const PAGE = 1000;
 
 /** A failed database call, kept whole so the caller can read its code. */
 class StoreError extends Error {
@@ -31,20 +31,10 @@ function must<T>(result: { data: T; error: DatabaseError | null }): T {
 const idRows = z.array(z.object({ id: z.uuid() }));
 
 async function allIds(supabase: Supabase, table: Table): Promise<string[]> {
-  const ids: string[] = [];
-  for (let from = 0; ; from += PAGE) {
-    const rows = idRows.parse(
-      must(
-        await supabase
-          .from(table)
-          .select("id")
-          .order("id")
-          .range(from, from + PAGE - 1),
-      ),
-    );
-    ids.push(...rows.map((row) => row.id));
-    if (rows.length < PAGE) return ids;
-  }
+  const result = await readAllRows((from, to) =>
+    supabase.from(table).select("id").order("id").range(from, to),
+  );
+  return idRows.parse(must(result)).map((row) => row.id);
 }
 
 async function deleteIds(supabase: Supabase, table: Table, ids: string[]) {
@@ -242,9 +232,15 @@ export async function applyMarketingImport(
     return { error: null };
   } catch (error) {
     if (!(error instanceof StoreError)) throw error;
-    // Best effort: the original error is the one to report, so a failed clean-up is not.
+    // Best effort: the original error is the one to report, so a failed clean-up is only logged.
     for (const { table, ids } of inserted.reverse()) {
-      await deleteIds(supabase, table, ids).catch(() => undefined);
+      await deleteIds(supabase, table, ids).catch((failure: unknown) => {
+        logServerError(
+          "Could not remove the new lines after a failed marketing import",
+          failure instanceof StoreError ? failure.detail : failure,
+          { table },
+        );
+      });
     }
     return { error: error.detail };
   }

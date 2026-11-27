@@ -3,6 +3,7 @@ import {
   type DirectoryInstaller,
   tallyInstallerJobs,
 } from "@/lib/domain/installer";
+import { readAllRows } from "@/lib/supabase/read-all-rows";
 import { createClient } from "@/lib/supabase/server";
 
 export type InstallerRow = DirectoryInstaller & {
@@ -31,29 +32,21 @@ const jobDateRows = z.array(
   z.object({ installer_id: z.uuid(), scheduled_on: z.string() }),
 );
 
-// The API returns at most this many rows a call, so the jobs are read a page at a time.
-const PAGE_SIZE = 1000;
-
 async function loadInstallerJobDates() {
   const supabase = await createClient();
-  const jobs: { installerId: string; scheduledOn: string }[] = [];
-  for (let from = 0; ; from += PAGE_SIZE) {
-    const { data, error } = await supabase
+  const { data, error } = await readAllRows((from, to) =>
+    supabase
       .from("jobs")
       .select("installer_id, scheduled_on")
       .not("installer_id", "is", null)
       .order("id")
-      .range(from, from + PAGE_SIZE - 1);
-    if (error) throw new Error(`Could not load jobs: ${error.message}`);
-    const page = jobDateRows.parse(data);
-    jobs.push(
-      ...page.map((job) => ({
-        installerId: job.installer_id,
-        scheduledOn: job.scheduled_on,
-      })),
-    );
-    if (page.length < PAGE_SIZE) return jobs;
-  }
+      .range(from, to),
+  );
+  if (error) throw new Error(`Could not load jobs: ${error.message}`);
+  return jobDateRows.parse(data).map((job) => ({
+    installerId: job.installer_id,
+    scheduledOn: job.scheduled_on,
+  }));
 }
 
 /** Every installer in the directory, with how many jobs they have had and when the latest started. */

@@ -18,7 +18,7 @@ outcome show what is left. The branch passes every check and is ready for the ow
 ## Tasks
 | # | Task | Status | Depends | Tier |
 |---|---|---|---|---|
-| 01 | Event costs and paging loops onto readAllRows, log the failed rollback (B9) | todo | | standard |
+| 01 | Event costs and paging loops onto readAllRows, log the failed rollback (B9) | done | | standard |
 | 02 | Marketing page reads in parallel, log workbook parse failures, handle the photo rejection (A3, A4, A10) | todo | | standard |
 | 03 | Travel claim reads and logs, ready-to-release reads (A14, A15, A17) | todo | | standard |
 | 04 | Money-path writes onto logServerError (B8) | todo | | economy |
@@ -34,3 +34,9 @@ outcome show what is left. The branch passes every check and is ready for the ow
   latest main, or merge the PR). CI runs checks and deploys.
 ## Log
 <!-- one line per event: YYYY-MM-DD · #NN · result · next -->
+2026-11-27 · - · planner tab w7:t1P answered YES, closed · start #01
+2026-11-27 · - · baseline in worktree: check, typecheck, 3337 tests pass · -
+2026-11-27 · #01 · delegated (standard) · wait
+2026-11-27 · #01 · decision · allIds and installer loader order by id on every page · keeps their previous queries
+2026-11-27 · #01 · decision · no permanent test added for the paged import or rollback log · test file outside the listed files
+2026-11-27 · #01 · done; check, typecheck, 3337 tests, build pass · #02

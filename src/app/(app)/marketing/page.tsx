@@ -21,10 +21,7 @@ import {
 } from "./marketing-data";
 import { loadMarketingEvents } from "./marketing-events-data";
 import { MarketingEventsView } from "./marketing-events-view";
-import {
-  type ExpenseFilters,
-  expenseFiltersFromParams,
-} from "./marketing-expense-filters";
+import { expenseFiltersFromParams } from "./marketing-expense-filters";
 import { MarketingExpenseLog } from "./marketing-expense-log";
 import { loadGiveaways } from "./marketing-giveaway-data";
 import { MarketingGiveawayView } from "./marketing-giveaway-view";
@@ -52,7 +49,23 @@ export default async function MarketingPage({
   const params = await searchParams;
   const view = viewParam.parse(params.view);
   const canEdit = editsMarketing(me.jobRole);
-  const categories = await loadMarketingCategories();
+  const printedBy = me.fullName ?? "Unnamed";
+  // Started here and awaited beside the open view, so its own reads do not wait for the categories.
+  const categoriesRead = loadMarketingCategories();
+  const [categories, openView] = await Promise.all([
+    categoriesRead,
+    view === "dashboard"
+      ? dashboardView({ params, categoriesRead, t })
+      : view === "expenses"
+        ? expenseLogView({ params, categoriesRead, canEdit })
+        : view === "vendors"
+          ? vendorsView({ params, canEdit })
+          : view === "events"
+            ? eventsView({ params, categoriesRead, canEdit, printedBy })
+            : view === "prepaid"
+              ? prepaidView({ params, canEdit, printedBy })
+              : giveawayView({ canEdit }),
+  ]);
 
   return (
     // The Events tab prints its costing sheet; everything else on the page stays off the paper.
@@ -75,56 +88,31 @@ export default async function MarketingPage({
           href: `/marketing?view=${key}`,
         }))}
       />
-      {view === "dashboard" ? (
-        <DashboardView params={params} categories={categories} t={t} />
-      ) : view === "expenses" ? (
-        <ExpenseLogView
-          categories={categories}
-          canEdit={canEdit}
-          filters={expenseFiltersFromParams(
-            params,
-            new Set(categories.map((category) => category.id)),
-          )}
-        />
-      ) : view === "vendors" ? (
-        <VendorsView params={params} canEdit={canEdit} />
-      ) : view === "events" ? (
-        <EventsView
-          params={params}
-          categories={categories}
-          canEdit={canEdit}
-          printedBy={me.fullName ?? "Unnamed"}
-        />
-      ) : view === "prepaid" ? (
-        <PrepaidView
-          params={params}
-          canEdit={canEdit}
-          printedBy={me.fullName ?? "Unnamed"}
-        />
-      ) : (
-        <GiveawayView canEdit={canEdit} />
-      )}
+      {openView}
     </div>
   );
 }
 
 const yearParam = z.string().regex(/^\d{4}$/);
 
-async function DashboardView({
+async function dashboardView({
   params,
-  categories,
+  categoriesRead,
   t,
 }: {
   params: Record<string, string | string[] | undefined>;
-  categories: MarketingCategory[];
+  categoriesRead: Promise<MarketingCategory[]>;
   t: Translate;
 }) {
   const today = todayMyt();
-  const [expenses, eventCosts, prepaidAccounts] = await Promise.all([
-    loadMarketingExpenses(),
-    loadEventCosts(),
-    loadPrepaidAccounts(),
-  ]);
+  const [categories, expenses, eventCosts, prepaidAccounts] = await Promise.all(
+    [
+      categoriesRead,
+      loadMarketingExpenses(),
+      loadEventCosts(),
+      loadPrepaidAccounts(),
+    ],
+  );
   return (
     <MarketingDashboardView
       expenses={expenses}
@@ -139,7 +127,7 @@ async function DashboardView({
   );
 }
 
-async function VendorsView({
+async function vendorsView({
   params,
   canEdit,
 }: {
@@ -160,18 +148,19 @@ async function VendorsView({
 const eventParam = z.uuid();
 const vendorParam = z.uuid();
 
-async function EventsView({
+async function eventsView({
   params,
-  categories,
+  categoriesRead,
   canEdit,
   printedBy,
 }: {
   params: Record<string, string | string[] | undefined>;
-  categories: MarketingCategory[];
+  categoriesRead: Promise<MarketingCategory[]>;
   canEdit: boolean;
   printedBy: string;
 }) {
-  const [events, expenses, vendors] = await Promise.all([
+  const [categories, events, expenses, vendors] = await Promise.all([
+    categoriesRead,
     loadMarketingEvents(),
     loadMarketingExpenses(),
     canEdit ? loadVendorNames() : [],
@@ -193,7 +182,7 @@ async function EventsView({
   );
 }
 
-async function PrepaidView({
+async function prepaidView({
   params,
   canEdit,
   printedBy,
@@ -223,7 +212,7 @@ async function PrepaidView({
   );
 }
 
-async function GiveawayView({ canEdit }: { canEdit: boolean }) {
+async function giveawayView({ canEdit }: { canEdit: boolean }) {
   const [giveaways, customers] = await Promise.all([
     loadGiveaways(),
     canEdit ? loadCustomerNames() : [],
@@ -237,20 +226,25 @@ async function GiveawayView({ canEdit }: { canEdit: boolean }) {
   );
 }
 
-async function ExpenseLogView({
-  categories,
+async function expenseLogView({
+  params,
+  categoriesRead,
   canEdit,
-  filters,
 }: {
-  categories: MarketingCategory[];
+  params: Record<string, string | string[] | undefined>;
+  categoriesRead: Promise<MarketingCategory[]>;
   canEdit: boolean;
-  filters: ExpenseFilters;
 }) {
-  const [expenses, events, vendors] = await Promise.all([
+  const [categories, expenses, events, vendors] = await Promise.all([
+    categoriesRead,
     loadMarketingExpenses(),
     canEdit ? loadEventOptions() : [],
     canEdit ? loadVendorNames() : [],
   ]);
+  const filters = expenseFiltersFromParams(
+    params,
+    new Set(categories.map((category) => category.id)),
+  );
   return (
     <MarketingExpenseLog
       // A new link from the dashboard starts the log again with its filters.

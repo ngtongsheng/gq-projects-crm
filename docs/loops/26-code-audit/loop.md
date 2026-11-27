@@ -23,8 +23,8 @@ checks pass, the branch is pushed, every other finding is in `docs/debt.md`. Own
 | 03 | Biome 2.4 to 2.6 | done | 02 | standard |
 | 04 | pglite 0.6 and supabase CLI 3 | done | 03 | frontier |
 | 05 | Audit A: delta deep review (loops 23-25) | done | 04 | frontier |
-| 06 | Audit B: repo-wide sweep | in-progress | 05 | frontier |
-| 07 | Fix: dead code and duplication | todo | 06 | frontier |
+| 06 | Audit B: repo-wide sweep | done | 05 | frontier |
+| 07 | Fix: dead code and duplication | in-progress | 06 | frontier |
 | 08 | Fix: comments and oversized files | todo | 07 | standard |
 | 09 | Fix: performance, robustness, error handling | todo | 08 | frontier |
 | 10 | Debt log, audit outcome, push branch | todo | 09 | economy |
@@ -54,3 +54,6 @@ checks pass, the branch is pushed, every other finding is in `docs/debt.md`. Own
 2026-11-27 · #05 · decision · A1 (silent 1000-row cap → export+Replace import deletes rows) retagged debt → fix: 09, first in rank · highest-ranked finding, no schema/UI change, identical below 1000 rows; D5 cap pushes lower 09 items to debt instead
 2026-11-27 · #05 · done · section A: 19 findings with file:line + tags, no source changes, check ok · #06
 2026-11-27 · #06 · in-progress · delegated frontier
+2026-11-27 · #06 · decision · B6 (12 dead exported types) retagged debt → fix: 07, over the D5 cap · 07 acceptance needs knip clean of confirmed items; one-line deletes, zero behaviour risk
+2026-11-27 · #06 · done · section B (B1-B9) + Dependencies table, no source changes, check ok · #07
+2026-11-27 · #07 · in-progress · delegated frontier

@@ -17,19 +17,22 @@ const reportRows = z.array(
 /** Submitted claims of any month whose monthly report no longer holds them back (demo: submitted and tcRep). */
 export async function countClaimsReadyToRelease(): Promise<number> {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("travel_claims")
-    .select("profile_id, month")
-    .eq("status", "submitted");
+  const [{ data, error }, people] = await Promise.all([
+    supabase
+      .from("travel_claims")
+      .select("profile_id, month")
+      .eq("status", "submitted"),
+    loadClaimPeople(),
+  ]);
   if (error) throw new Error(`Could not load the claims: ${error.message}`);
   const submitted = submittedRows.parse(data);
   if (submitted.length === 0) return 0;
 
-  const people = await loadClaimPeople();
   const { data: reports, error: reportError } = await supabase
     .from("monthly_reports")
     .select("profile_id, month, status")
-    .in("profile_id", [...new Set(submitted.map((row) => row.profile_id))]);
+    .in("profile_id", [...new Set(submitted.map((row) => row.profile_id))])
+    .in("month", [...new Set(submitted.map((row) => row.month))]);
   if (reportError) {
     throw new Error(`Could not load the reports: ${reportError.message}`);
   }

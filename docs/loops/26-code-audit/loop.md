@@ -26,8 +26,8 @@ checks pass, the branch is pushed, every other finding is in `docs/debt.md`. Own
 | 06 | Audit B: repo-wide sweep | done | 05 | frontier |
 | 07 | Fix: dead code and duplication | done | 06 | frontier |
 | 08 | Fix: comments and oversized files | done | 07 | standard |
-| 09 | Fix: performance, robustness, error handling | in-progress | 08 | frontier |
-| 10 | Debt log, audit outcome, push branch | todo | 09 | economy |
+| 09 | Fix: performance, robustness, error handling | done | 08 | frontier |
+| 10 | Debt log, audit outcome, push branch | in-progress | 09 | economy |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
 - After #10: push `loop/25-claims-marketing-samples`, then `loop/26-code-audit`, to `main` (or merge the PRs).
@@ -62,3 +62,7 @@ checks pass, the branch is pushed, every other finding is in `docs/debt.md`. Own
 2026-11-27 · #08 · decision · plan types moved to new marketing-excel-plan.ts · avoids import cycle between sheet readers and marketing-excel-import.ts
 2026-11-27 · #08 · done · A7 B3 fixed in 81e2819; check/typecheck/build ok, 3328/3328 tests · #09
 2026-11-27 · #09 · in-progress · delegated frontier
+2026-11-27 · #09 · decision · readAllRows runs the original query first, adds order("id") only past one page · keeps tie order below 1000 rows; loadEventCosts (dashboard only), allIds and installer-data paging left as is (cap) → debt
+2026-11-27 · #09 · decision · A17 A3 A14 A15 A4 A10 → debt (09 cap) · D5 cap reached after A1 A18 A9
+2026-11-27 · #09 · done · A1 A18 A9 fixed in fd1300e; check/typecheck/build ok, 3337/3337 tests · #10
+2026-11-27 · #10 · in-progress · delegated economy

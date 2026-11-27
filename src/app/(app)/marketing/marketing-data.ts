@@ -136,9 +136,12 @@ const eventCostQueryRows = z.array(
 /** The lines of every event's cost sheet, for the dashboard's events panel. */
 export async function loadEventCosts(): Promise<MarketingEventCost[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("marketing_event_costs")
-    .select("event_id, total, marketing_events(name)");
+  const { data, error } = await readAllRows((from, to, stable) => {
+    const query = supabase
+      .from("marketing_event_costs")
+      .select("event_id, total, marketing_events(name)");
+    return (stable ? query.order("id") : query).range(from, to);
+  });
   if (error) {
     throw new Error(`Could not load event costs: ${error.message}`);
   }

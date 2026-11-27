@@ -24,7 +24,7 @@ outcome show what is left. The branch passes every check and is ready for the ow
 | 04 | Money-path writes onto logServerError (B8) | done | | economy |
 | 05 | DeleteConfirm component and first 3 dialogs (B2) | done | | standard |
 | 06 | DeleteConfirm in the other 5 marketing dialogs (B2) | done | 05 | economy |
-| 07 | mofPeople helper for the salesperson join (B4) | todo | | standard |
+| 07 | mofPeople helper for the salesperson join (B4) | done | | standard |
 | 08 | MOF register column factory (B4) | todo | 07 | standard |
 | 09 | Shared project picker loader (B5) | todo | | standard |
 | 10 | Close out debt.md and the audit outcome | todo | 01-09 | economy |
@@ -57,3 +57,6 @@ outcome show what is left. The branch passes every check and is ready for the ow
 2026-11-27 · #06 · delegated (economy) · wait
 2026-11-27 · #06 · decision · killed a shell the subagent left hanging on stdin · it still held a pending file rewrite
 2026-11-27 · #06 · done (B2); check, typecheck, 3341 tests, build pass · #07
+2026-11-27 · #07 · delegated (standard) · wait
+2026-11-27 · #07 · decision · mofPeople takes keepBlankNames for Collection · it keeps a blank name's place where the register and summary drop it
+2026-11-27 · #07 · done; check, typecheck, 3346 tests, build pass · #08

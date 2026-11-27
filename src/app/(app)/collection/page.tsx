@@ -12,6 +12,7 @@ import { summariseCollection } from "@/lib/domain/collection";
 import { formatDate, todayMyt } from "@/lib/format/date";
 import { formatRm, sumRm } from "@/lib/format/money";
 import { seesOnlyOwnMofs } from "../mofs/mof-filters";
+import { mofPeople } from "../mofs/mof-people";
 import { loadCollectionOrders, loadPaymentThreshold } from "./collection-data";
 import { PaymentsDialog } from "./payments-dialog";
 
@@ -98,10 +99,7 @@ export default async function CollectionPage() {
           {
             key: "salesperson",
             header: "Salesperson",
-            cell: (row) =>
-              [row.salespersonId, row.secondSalespersonId]
-                .flatMap((id) => (id ? [nameOf.get(id) ?? "Unnamed"] : []))
-                .join(" + "),
+            cell: (row) => mofPeople(row, nameOf, { keepBlankNames: true }),
           },
           {
             key: "invoice",

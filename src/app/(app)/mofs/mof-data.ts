@@ -11,6 +11,7 @@ import {
   SUPPLIER_PO_STATUSES,
 } from "@/lib/domain/supplier-po";
 import { createClient } from "@/lib/supabase/server";
+import { mofPeople } from "./mof-people";
 import { LineUnit, MofStage, StockType } from "./schemas";
 
 const mofRows = z.array(
@@ -78,7 +79,6 @@ export async function loadRegister(): Promise<RegisterRow[]> {
     throw new Error(`Could not load MOFs: ${mofsResult.error.message}`);
   }
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
-  const personName = (id: string) => nameOf.get(id) ?? "Unnamed";
 
   return mofRows.parse(mofsResult.data).map((row) => {
     const lines = row.mof_lines.map((line) => ({
@@ -93,14 +93,13 @@ export async function loadRegister(): Promise<RegisterRow[]> {
       loaDate: row.loa_date,
       salespersonId: row.salesperson_id,
       secondSalespersonId: row.second_salesperson_id,
-      people: [
-        personName(row.salesperson_id),
-        row.second_salesperson_id
-          ? personName(row.second_salesperson_id)
-          : null,
-      ]
-        .filter(Boolean)
-        .join(" + "),
+      people: mofPeople(
+        {
+          salespersonId: row.salesperson_id,
+          secondSalespersonId: row.second_salesperson_id,
+        },
+        nameOf,
+      ),
       companyName: row.company_name,
       projectName: row.project_name,
       total: orderTotal({

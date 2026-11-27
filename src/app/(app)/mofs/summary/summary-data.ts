@@ -11,6 +11,7 @@ import { orderTotal, totalAreaM2 } from "@/lib/domain/mof-totals";
 import { todayMyt } from "@/lib/format/date";
 import { fromCents, sumRm, toCents } from "@/lib/format/money";
 import { createClient } from "@/lib/supabase/server";
+import { mofPeople } from "../mof-people";
 import { JobScope, LineUnit } from "../schemas";
 
 const mofRows = z.array(
@@ -116,7 +117,6 @@ export async function loadSummary(): Promise<SummaryRow[]> {
     costRows.parse(costsResult.data).map((row) => [row.mof_id, row.cost]),
   );
   const nameOf = new Map(team.map((member) => [member.id, member.name]));
-  const personName = (id: string) => nameOf.get(id) ?? "Unnamed";
   const today = todayMyt();
 
   return mofRows.parse(mofsResult.data).map((row) => {
@@ -135,14 +135,13 @@ export async function loadSummary(): Promise<SummaryRow[]> {
       loaDate: row.loa_date,
       salespersonId: row.salesperson_id,
       secondSalespersonId: row.second_salesperson_id,
-      people: [
-        personName(row.salesperson_id),
-        row.second_salesperson_id
-          ? personName(row.second_salesperson_id)
-          : null,
-      ]
-        .filter(Boolean)
-        .join(" + "),
+      people: mofPeople(
+        {
+          salespersonId: row.salesperson_id,
+          secondSalespersonId: row.second_salesperson_id,
+        },
+        nameOf,
+      ),
       companyName: row.company_name,
       projectName: row.project_name,
       customerContact: row.customer_contact,

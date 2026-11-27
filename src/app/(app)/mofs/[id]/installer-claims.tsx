@@ -20,11 +20,9 @@ import type { Person } from "@/lib/domain/job-team";
 import { formatDate } from "@/lib/format/date";
 import { formatRm } from "@/lib/format/money";
 import { verifyInstallerClaim } from "../installer-actions";
-import {
-  InstallerClaimDialog,
-  InstallerPaymentDialog,
-  InstallerPoDialog,
-} from "./installer-forms";
+import { InstallerClaimDialog } from "./installer-claim-dialog";
+import { InstallerPaymentDialog } from "./installer-payment-dialog";
+import { InstallerPoDialog } from "./installer-po-dialog";
 
 export type InstallerClaimRow = {
   id: string;

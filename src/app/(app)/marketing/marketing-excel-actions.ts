@@ -6,11 +6,9 @@ import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 import { editsMarketing } from "./marketing-access";
 import { loadEventOptions, loadMarketingCategories } from "./marketing-data";
-import {
-  type ImportProblem,
-  parseMarketingWorkbook,
-} from "./marketing-excel-import";
+import { parseMarketingWorkbook } from "./marketing-excel-import";
 import { MAX_IMPORT_BYTES } from "./marketing-excel-layout";
+import type { ImportProblem } from "./marketing-excel-plan";
 import { applyMarketingImport } from "./marketing-excel-store";
 import { NOT_EDITOR } from "./marketing-refusal";
 

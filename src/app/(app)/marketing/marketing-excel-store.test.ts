@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { createClient } from "@/lib/supabase/server";
-import type { ImportPlan } from "./marketing-excel-import";
+import type { ImportPlan } from "./marketing-excel-plan";
 import { applyMarketingImport } from "./marketing-excel-store";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;

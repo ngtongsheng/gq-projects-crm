@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { createClient } from "@/lib/supabase/server";
-import type { ImportPlan } from "./marketing-excel-import";
+import type { ImportPlan } from "./marketing-excel-plan";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 type Table =

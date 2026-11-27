@@ -144,7 +144,7 @@
 
 ## Repeated dialog, data-layer and test-mock code (audit R1, R3, Q2)
 - What: about 99 files re-declare the dialog `useState` and `useTransition` block. The data layer has no shared helpers. The Supabase test mock is copied across about 53 test files. There is no component test harness (no jsdom or testing-library), so the upload button is tested through `attachFile` only (loop 24 #09).
-- Why: each copy works on its own; extracting shared code is a wide change with little payoff per file. `FormDialog` and `useSubmit` in `installer-forms.tsx` are the starting point.
+- Why: each copy works on its own; extracting shared code is a wide change with little payoff per file. `FormDialog` and `useSubmit` in `mofs/[id]/form-dialog.tsx` are the starting point.
 - When to fix: during the next change that touches many dialogs or tests: promote `FormDialog`/`useSubmit` to a shared file and add a shared Supabase fake under `src/lib/supabase/`. A component harness needs a new dependency: ask first.
 
 ## Commission rules are written twice (audit R2, D9)

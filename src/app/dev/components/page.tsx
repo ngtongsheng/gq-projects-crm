@@ -49,6 +49,7 @@ import type { SidebarItems } from "@/lib/auth/sidebar-items";
 import { monthWeeks, weekDays } from "@/lib/domain/calendar-grid";
 import { formatRm } from "@/lib/format/money";
 import { resolveLanguage } from "@/lib/i18n/current-language";
+import { DeleteConfirmDemo } from "./delete-confirm-demo";
 import { FileUploadDemo } from "./file-upload-demo";
 import { ToastDemo } from "./toast-demo";
 
@@ -254,6 +255,10 @@ export default async function ComponentCatalogPage() {
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-2/3" />
         </div>
+      </Section>
+
+      <Section title="DeleteConfirm (dialog footer: can delete, in use, adding)">
+        <DeleteConfirmDemo />
       </Section>
 
       <section className="grid gap-2">

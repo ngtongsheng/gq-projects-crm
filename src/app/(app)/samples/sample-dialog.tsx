@@ -3,6 +3,7 @@
 import { Plus } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import { DeleteConfirm } from "@/components/app/delete-confirm";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -271,43 +272,15 @@ export function SampleDialog({
               </details>
             )}
             {error && <FieldError>{error}</FieldError>}
-            <div className="flex flex-wrap items-center gap-2">
-              <Button type="submit" disabled={pending}>
-                {pending ? t("Saving...") : t("Save")}
-              </Button>
-              {sample &&
-                (asking ? (
-                  <span className="flex flex-wrap items-center gap-2 text-sm">
-                    {t("Delete it and its history?")}
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="destructive"
-                      onClick={remove}
-                      disabled={pending}
-                    >
-                      {t("Yes, delete")}
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setAsking(false)}
-                    >
-                      {t("Keep")}
-                    </Button>
-                  </span>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="ml-auto text-bad"
-                    onClick={() => setAsking(true)}
-                  >
-                    {t("Delete")}
-                  </Button>
-                ))}
-            </div>
+            <DeleteConfirm
+              pending={pending}
+              showDelete={sample !== undefined}
+              question={t("Delete it and its history?")}
+              asking={asking}
+              onAskingChange={setAsking}
+              onDelete={remove}
+              questionBesideSave
+            />
           </FieldGroup>
         </form>
       </DialogContent>

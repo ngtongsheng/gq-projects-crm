@@ -25,8 +25,8 @@ checks pass, the branch is pushed, every other finding is in `docs/debt.md`. Own
 | 05 | Audit A: delta deep review (loops 23-25) | done | 04 | frontier |
 | 06 | Audit B: repo-wide sweep | done | 05 | frontier |
 | 07 | Fix: dead code and duplication | done | 06 | frontier |
-| 08 | Fix: comments and oversized files | in-progress | 07 | standard |
-| 09 | Fix: performance, robustness, error handling | todo | 08 | frontier |
+| 08 | Fix: comments and oversized files | done | 07 | standard |
+| 09 | Fix: performance, robustness, error handling | in-progress | 08 | frontier |
 | 10 | Debt log, audit outcome, push branch | todo | 09 | economy |
 <!-- status: todo | in-progress | done | blocked: <reason> -->
 ## Owner actions
@@ -59,3 +59,6 @@ checks pass, the branch is pushed, every other finding is in `docs/debt.md`. Own
 2026-11-27 · #07 · in-progress · delegated frontier
 2026-11-27 · #07 · done · A8 A11 A19 B1 B6 fixed in e0f8cef; check/typecheck/build ok, 3328/3328 tests, knip clear of report items · #08
 2026-11-27 · #08 · in-progress · delegated standard
+2026-11-27 · #08 · decision · plan types moved to new marketing-excel-plan.ts · avoids import cycle between sheet readers and marketing-excel-import.ts
+2026-11-27 · #08 · done · A7 B3 fixed in 81e2819; check/typecheck/build ok, 3328/3328 tests · #09
+2026-11-27 · #09 · in-progress · delegated frontier

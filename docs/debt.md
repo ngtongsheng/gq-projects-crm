@@ -259,8 +259,8 @@
 
 ## Custom sample codes, photos and error handling (audit A10, A12, A13)
 - What: the next `TS-###` code is `max()+1` with no lock, so two samples saved at once collide and the second sees "That code is already used." (A12). Replacing a photo leaves the old file in storage, and 44 px list thumbnails download the full photo (A13). `void openCustomSamplePhoto(id).then(...)` has no rejection handler (A10).
-- Why: A12 needs a sequence or a retry in a migration. A13 needs a storage clean-up and a thumbnail size. A10 went past the cap.
-- When to fix: A12 at the next custom-sample migration. A13 when storage or phone data use is raised. A10 with the next change to `custom-sample-sheet.tsx`.
+- Why: A12 needs a sequence or a retry in a migration. A13 needs a storage clean-up and a thumbnail size. A10 stayed open in loop 27 task 02: `custom-sample-sheet.tsx` has no error message to reuse, and a failed result there keeps the page's photo link without saying anything.
+- When to fix: A12 at the next custom-sample migration. A13 when storage or phone data use is raised. A10 with the next change to `custom-sample-sheet.tsx`: handle the rejection the same way as a failed result (keep the page's link), or agree an error message first.
 
 ## Travel claim lock message is generic (audit A16)
 - What: every 42501 on update shows "This claim is released", but the guard raises 42501 for five other reasons (overtime for non-site staff, not the owner, ...). Claim review matches `message.includes(NO_REPORT)`, while custom samples pass the database message through `plainRefusal`.

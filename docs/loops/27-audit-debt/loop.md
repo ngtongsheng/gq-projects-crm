@@ -19,7 +19,7 @@ outcome show what is left. The branch passes every check and is ready for the ow
 | # | Task | Status | Depends | Tier |
 |---|---|---|---|---|
 | 01 | Event costs and paging loops onto readAllRows, log the failed rollback (B9) | done | | standard |
-| 02 | Marketing page reads in parallel, log workbook parse failures, handle the photo rejection (A3, A4, A10) | todo | | standard |
+| 02 | Marketing page reads in parallel, log workbook parse failures, handle the photo rejection (A3, A4, A10) | done | | standard |
 | 03 | Travel claim reads and logs, ready-to-release reads (A14, A15, A17) | todo | | standard |
 | 04 | Money-path writes onto logServerError (B8) | todo | | economy |
 | 05 | DeleteConfirm component and first 3 dialogs (B2) | todo | | standard |
@@ -40,3 +40,7 @@ outcome show what is left. The branch passes every check and is ready for the ow
 2026-11-27 · #01 · decision · allIds and installer loader order by id on every page · keeps their previous queries
 2026-11-27 · #01 · decision · no permanent test added for the paged import or rollback log · test file outside the listed files
 2026-11-27 · #01 · done; check, typecheck, 3337 tests, build pass · #02
+2026-11-27 · #02 · delegated (standard) · wait
+2026-11-27 · #02 · decision · A10 stays open in debt.md · custom-sample-sheet.tsx has no error UI and step 3 says leave it open
+2026-11-27 · #02 · decision · marketing views became async functions the page calls · categories read runs beside each view and still fails the whole page
+2026-11-27 · #02 · done (A3, A4); check, typecheck, tests, build pass · #03

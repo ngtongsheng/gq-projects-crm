@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { DeleteConfirm } from "@/components/app/delete-confirm";
 import {
   Dialog,
   DialogContent,
@@ -188,43 +188,14 @@ export function MarketingGiveawayDialog({
               </Field>
             </div>
             {error && <FieldError>{t(error)}</FieldError>}
-            <div className="flex flex-wrap items-center gap-2">
-              <Button type="submit" disabled={pending}>
-                {pending ? t("Saving...") : t("Save")}
-              </Button>
-              {giveaway &&
-                (asking ? (
-                  <span className="ml-auto flex flex-wrap items-center gap-2 text-sm">
-                    {t("Delete this give-away?")}
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="destructive"
-                      onClick={remove}
-                      disabled={pending}
-                    >
-                      {t("Yes, delete")}
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setAsking(false)}
-                    >
-                      {t("Keep")}
-                    </Button>
-                  </span>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="ml-auto text-bad"
-                    onClick={() => setAsking(true)}
-                  >
-                    {t("Delete")}
-                  </Button>
-                ))}
-            </div>
+            <DeleteConfirm
+              pending={pending}
+              showDelete={giveaway !== undefined}
+              question={t("Delete this give-away?")}
+              asking={asking}
+              onAskingChange={setAsking}
+              onDelete={remove}
+            />
           </FieldGroup>
         </form>
       </DialogContent>

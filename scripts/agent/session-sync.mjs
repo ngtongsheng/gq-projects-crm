@@ -162,6 +162,17 @@ export function formatSync({
 }
 
 /**
+ * What the hook reports. A failed issue fetch (offline, gh signed out) only drops the issues: the
+ * pull still happened, so its "Rules updated" and "behind" lines must still show.
+ * @param {{ rulesUpdated: boolean, behindBy: number }} git
+ * @param {{ instructions: Instruction[], replies: Instruction[] } | null} issues
+ * @param {boolean} catchUpDue
+ */
+export function combineSync(git, issues, catchUpDue) {
+  return { instructions: [], replies: [], ...issues, ...git, catchUpDue };
+}
+
+/**
  * @param {string} command
  * @param {string[]} args
  * @param {string} cwd
@@ -328,15 +339,7 @@ async function main() {
   const [git, issues] = await Promise.all([syncGit(cwd), fetchIssues(cwd)]);
   // The pull may have changed the lockfile or migrations, so the check comes after it.
   const catchUpDue = await laptopUpdateDue(cwd);
-  const output = issues
-    ? formatSync({ ...issues, ...git, catchUpDue })
-    : formatSync({
-        instructions: [],
-        replies: [],
-        rulesUpdated: false,
-        behindBy: 0,
-        catchUpDue,
-      });
+  const output = formatSync(combineSync(git, issues, catchUpDue));
   if (output) process.stdout.write(`${output}\n`);
 }
 

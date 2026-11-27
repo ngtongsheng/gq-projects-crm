@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { readAllRows } from "@/lib/supabase/read-all-rows";
 import { createClient } from "@/lib/supabase/server";
 import { PREPAID_CURRENCIES, PREPAID_KINDS } from "./marketing-options";
 import type { PrepaidAccount, PrepaidEntry } from "./marketing-types";
@@ -88,11 +89,14 @@ const entryRows = z.array(
 /** Every top-up and deduction. Ordering and running balances happen in the browser. */
 export async function loadPrepaidEntries(): Promise<PrepaidEntry[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("marketing_prepaid_entries")
-    .select(
-      "id, entry_on, vendor_id, kind, description, foreign_currency, foreign_amount, amount_rm, mof_ref, marketing_foc, remarks, created_at, marketing_vendors(name)",
-    );
+  const { data, error } = await readAllRows((from, to, stable) => {
+    const query = supabase
+      .from("marketing_prepaid_entries")
+      .select(
+        "id, entry_on, vendor_id, kind, description, foreign_currency, foreign_amount, amount_rm, mof_ref, marketing_foc, remarks, created_at, marketing_vendors(name)",
+      );
+    return (stable ? query.order("id") : query).range(from, to);
+  });
   if (error) {
     throw new Error(`Could not load prepaid entries: ${error.message}`);
   }

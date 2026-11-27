@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { readAllRows } from "@/lib/supabase/read-all-rows";
 import { createClient } from "@/lib/supabase/server";
 import type { MarketingEvent } from "./marketing-types";
 
@@ -32,13 +33,16 @@ const eventRows = z.array(
 /** Every event with the lines of its own cost sheet, newest event first. */
 export async function loadMarketingEvents(): Promise<MarketingEvent[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("marketing_events")
-    .select(
-      "id, name, starts_on, ends_on, venue, budget, notes, marketing_event_costs(id, cost_group, description, supplier_ref, foreign_amount, rate, unit, qty, total, remarks, created_at)",
-    )
-    .order("starts_on", { ascending: false, nullsFirst: false })
-    .order("name");
+  const { data, error } = await readAllRows((from, to, stable) => {
+    const query = supabase
+      .from("marketing_events")
+      .select(
+        "id, name, starts_on, ends_on, venue, budget, notes, marketing_event_costs(id, cost_group, description, supplier_ref, foreign_amount, rate, unit, qty, total, remarks, created_at)",
+      )
+      .order("starts_on", { ascending: false, nullsFirst: false })
+      .order("name");
+    return (stable ? query.order("id") : query).range(from, to);
+  });
   if (error) {
     throw new Error(`Could not load marketing events: ${error.message}`);
   }

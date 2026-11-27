@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { readAllRows } from "@/lib/supabase/read-all-rows";
 import { createClient } from "@/lib/supabase/server";
 import {
   CURRENCIES,
@@ -26,10 +27,13 @@ const categoryRows = z.array(
 /** The categories in dashboard order, each with how many expenses use it. */
 export async function loadMarketingCategories(): Promise<MarketingCategory[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("marketing_categories")
-    .select("id, name, marketing_expenses(count)")
-    .order("sort_order");
+  const { data, error } = await readAllRows((from, to, stable) => {
+    const query = supabase
+      .from("marketing_categories")
+      .select("id, name, marketing_expenses(count)")
+      .order("sort_order");
+    return (stable ? query.order("id") : query).range(from, to);
+  });
   if (error) {
     throw new Error(`Could not load marketing categories: ${error.message}`);
   }
@@ -92,11 +96,14 @@ const expenseRows = z.array(
 /** Every expense in the log. Filtering and the year view happen in the browser. */
 export async function loadMarketingExpenses(): Promise<MarketingExpense[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("marketing_expenses")
-    .select(
-      "id, spent_on, category_id, description, invoice_ref, currency, amount, amount_rm, event_id, payment_method, remarks, created_at, marketing_vendors(name), marketing_events(name)",
-    );
+  const { data, error } = await readAllRows((from, to, stable) => {
+    const query = supabase
+      .from("marketing_expenses")
+      .select(
+        "id, spent_on, category_id, description, invoice_ref, currency, amount, amount_rm, event_id, payment_method, remarks, created_at, marketing_vendors(name), marketing_events(name)",
+      );
+    return (stable ? query.order("id") : query).range(from, to);
+  });
   if (error) {
     throw new Error(`Could not load marketing expenses: ${error.message}`);
   }
@@ -165,11 +172,14 @@ const vendorQueryRows = z.array(
 /** Every vendor with what was paid to them; the year totals are worked out in the browser. */
 export async function loadMarketingVendors(): Promise<MarketingVendor[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("marketing_vendors")
-    .select(
-      "id, kind, name, supplies, contact_person, skills, rate, portfolio_url, phone, email, notes, marketing_expenses(spent_on, amount_rm), marketing_prepaid_entries(count)",
-    );
+  const { data, error } = await readAllRows((from, to, stable) => {
+    const query = supabase
+      .from("marketing_vendors")
+      .select(
+        "id, kind, name, supplies, contact_person, skills, rate, portfolio_url, phone, email, notes, marketing_expenses(spent_on, amount_rm), marketing_prepaid_entries(count)",
+      );
+    return (stable ? query.order("id") : query).range(from, to);
+  });
   if (error) {
     throw new Error(`Could not load marketing vendors: ${error.message}`);
   }

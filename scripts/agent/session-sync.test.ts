@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  combineSync,
   formatSync,
   isThrottled,
   parseDuration,
@@ -188,5 +189,31 @@ describe("formatSync", () => {
     expect(output).toContain("2 commit(s) behind origin/main");
     expect(output).toContain("#1 Add fax\nDo it");
     expect(output).toContain("#7 (his reply on a from:crm issue)\nTry again");
+  });
+});
+
+describe("combineSync", () => {
+  const git = { rulesUpdated: true, behindBy: 3 };
+
+  it("keeps the git result when the issue fetch failed", () => {
+    expect(combineSync(git, null, false)).toEqual({
+      instructions: [],
+      replies: [],
+      rulesUpdated: true,
+      behindBy: 3,
+      catchUpDue: false,
+    });
+  });
+
+  it("adds the issues when the fetch worked", () => {
+    const issues = {
+      instructions: [{ number: 1, title: "Add fax", text: "Do it" }],
+      replies: [],
+    };
+    expect(combineSync(git, issues, true)).toEqual({
+      ...issues,
+      ...git,
+      catchUpDue: true,
+    });
   });
 });

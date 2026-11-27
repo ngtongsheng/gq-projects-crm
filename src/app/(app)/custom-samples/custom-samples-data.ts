@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createReadLink } from "@/lib/storage/signed-url";
+import { createReadLinks } from "@/lib/storage/signed-url";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { loadTaskPeople } from "../tasks/task-data";
@@ -61,46 +61,45 @@ export async function loadCustomSamples({
     throw new Error(`Could not load custom samples: ${error.message}`);
   }
 
+  const rows = sampleRows.parse(data);
   const admin = withPhotos ? createAdminClient() : null;
-  return Promise.all(
-    sampleRows.parse(data).map(async (row) => {
-      const link =
-        admin && row.photo_path
-          ? await createReadLink(admin, row.photo_path)
-          : null;
-      return {
-        id: row.id,
-        code: row.code,
-        receivedOn: row.received_on,
-        designName: row.design_name,
-        designNo: row.design_no,
-        supplier: row.supplier,
-        size: row.size,
-        qty: row.qty,
-        photoPath: row.photo_path,
-        photoUrl: link?.ok ? link.url : null,
-        notes: row.notes,
-        recordedBy: row.recorded_by,
-        givenOn: row.given_on,
-        givenTo: row.given_to,
-        giftReason: row.gift_reason,
-        givenBy: row.given_by,
-        loans: row.custom_sample_loans
-          .toSorted((a, b) => a.created_at.localeCompare(b.created_at))
-          .map((loan) => ({
-            id: loan.id,
-            salespersonId: loan.salesperson_id,
-            customer: loan.customer,
-            project: loan.project,
-            outOn: loan.out_on,
-            dueOn: loan.due_on,
-            returnedMarkedOn: loan.returned_marked_on,
-            backOn: loan.back_on,
-            givenAway: loan.given_away,
-          })),
-      };
-    }),
-  );
+  const photoUrls = admin
+    ? await createReadLinks(
+        admin,
+        rows.flatMap((row) => (row.photo_path ? [row.photo_path] : [])),
+      )
+    : new Map<string, string>();
+  return rows.map((row) => ({
+    id: row.id,
+    code: row.code,
+    receivedOn: row.received_on,
+    designName: row.design_name,
+    designNo: row.design_no,
+    supplier: row.supplier,
+    size: row.size,
+    qty: row.qty,
+    photoPath: row.photo_path,
+    photoUrl: row.photo_path ? (photoUrls.get(row.photo_path) ?? null) : null,
+    notes: row.notes,
+    recordedBy: row.recorded_by,
+    givenOn: row.given_on,
+    givenTo: row.given_to,
+    giftReason: row.gift_reason,
+    givenBy: row.given_by,
+    loans: row.custom_sample_loans
+      .toSorted((a, b) => a.created_at.localeCompare(b.created_at))
+      .map((loan) => ({
+        id: loan.id,
+        salespersonId: loan.salesperson_id,
+        customer: loan.customer,
+        project: loan.project,
+        outOn: loan.out_on,
+        dueOn: loan.due_on,
+        returnedMarkedOn: loan.returned_marked_on,
+        backOn: loan.back_on,
+        givenAway: loan.given_away,
+      })),
+  }));
 }
 
 const loanDaysSetting = z.object({

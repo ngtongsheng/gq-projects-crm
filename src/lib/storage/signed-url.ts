@@ -44,3 +44,51 @@ export async function createReadLink(
   }
   return { ok: true, url: data.signedUrl };
 }
+
+type ReadLinksSigner = {
+  storage: {
+    from(bucket: string): {
+      createSignedUrls(
+        paths: string[],
+        expiresIn: number,
+      ): Promise<{
+        data: { path: string | null; signedUrl: string | null }[] | null;
+        error: { message: string } | null;
+      }>;
+    };
+  };
+};
+
+/**
+ * Short-lived links for many stored files in one storage request, by path. Same rules and links as
+ * createReadLink; a path that is not a stored file, or that storage cannot sign, has no link.
+ */
+export async function createReadLinks(
+  admin: ReadLinksSigner,
+  paths: readonly string[],
+): Promise<Map<string, string>> {
+  const links = new Map<string, string>();
+  const valid = [
+    ...new Set(
+      paths.flatMap((path) => {
+        const parsed = AttachmentPath.safeParse(path);
+        return parsed.success ? [parsed.data] : [];
+      }),
+    ),
+  ];
+  if (valid.length === 0) return links;
+
+  const { data, error } = await admin.storage
+    .from(ATTACHMENTS_BUCKET)
+    .createSignedUrls(valid, READ_LINK_SECONDS);
+  if (error || !data) {
+    console.error("Could not sign file links", error);
+    return links;
+  }
+  for (const link of data) {
+    if (link.path && link.signedUrl) links.set(link.path, link.signedUrl);
+  }
+  const unsigned = valid.length - links.size;
+  if (unsigned > 0) console.error(`Could not sign ${unsigned} file link(s)`);
+  return links;
+}

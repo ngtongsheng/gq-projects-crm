@@ -6,6 +6,7 @@ import { canEditRegister } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { SUPPLIER_PO_STATUSES } from "@/lib/domain/supplier-po";
 import { textField } from "@/lib/form/form-fields";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 import { mofIdSchema } from "./schemas";
 
@@ -96,7 +97,11 @@ export async function saveSupplierPo(
         error: `Running no. ${zohoNo} is already used by another supplier PO. Check Zoho.`,
       };
     }
-    console.error("Could not save supplier PO", error);
+    logServerError("Could not save supplier PO", error, {
+      profileId: me.id,
+      mofId,
+      recordId: poId || undefined,
+    });
     return { error: TRY_AGAIN };
   }
   if (data.length === 0) {

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { canEditRegister } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { canMoveStage, moveWarning } from "@/lib/domain/mof-stages";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 import { MofStage, mofIdSchema } from "./schemas";
 
@@ -40,7 +41,10 @@ export async function changeMofStage(
     .eq("id", id.data)
     .maybeSingle();
   if (error) {
-    console.error("Could not load MOF for stage change", error);
+    logServerError("Could not load MOF for stage change", error, {
+      profileId: me.id,
+      recordId: mofId,
+    });
     return { error: "Could not change the stage. Try again." };
   }
   if (!data) return { error: "Could not find that MOF. Reload the page." };
@@ -58,7 +62,10 @@ export async function changeMofStage(
     .eq("id", id.data)
     .select("id");
   if (updateError) {
-    console.error("Could not change MOF stage", updateError);
+    logServerError("Could not change MOF stage", updateError, {
+      profileId: me.id,
+      recordId: mofId,
+    });
     return { error: "Could not change the stage. Try again." };
   }
   if (updated.length === 0) {

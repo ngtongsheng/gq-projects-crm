@@ -14,6 +14,7 @@ import {
 } from "@/lib/domain/installer-claim";
 import { optionalId, optionalText, textField } from "@/lib/form/form-fields";
 import { formatRm, parseRm, sumRm } from "@/lib/format/money";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 import { mofIdSchema } from "./schemas";
 
@@ -109,7 +110,11 @@ export async function saveInstallerPo(
       };
     }
     if (error.code === "23503") return { error: NOT_FOUND_INSTALLER };
-    console.error("Could not save installer PO", error);
+    logServerError("Could not save installer PO", error, {
+      profileId: me.id,
+      mofId,
+      recordId: poId || undefined,
+    });
     return { error: "Could not save the installer PO. Try again." };
   }
   if (data.length === 0) return { error: NOT_FOUND_PO };
@@ -175,9 +180,10 @@ export async function saveInstallerClaim(
         .eq("installer_po_id", installerPoId),
     ]);
     if (poResult.error || claimsResult.error) {
-      console.error(
+      logServerError(
         "Could not check the installer PO",
         poResult.error ?? claimsResult.error,
+        { profileId: me.id, mofId, recordId: installerPoId },
       );
       return { error: "Could not save the claim. Try again." };
     }
@@ -228,7 +234,12 @@ export async function saveInstallerClaim(
           : NOT_EDITOR,
       };
     }
-    console.error("Could not save installer claim", error);
+    logServerError("Could not save installer claim", error, {
+      profileId: me.id,
+      mofId,
+      installerPoId,
+      recordId: claimId || undefined,
+    });
     return { error: "Could not save the claim. Try again." };
   }
   if (data.length === 0) return { error: NOT_FOUND_CLAIM };
@@ -267,7 +278,11 @@ export async function verifyInstallerClaim(
 
   if (error) {
     if (error.code === "42501") return { error: NOT_VERIFIER };
-    console.error("Could not verify installer claim", error);
+    logServerError("Could not verify installer claim", error, {
+      profileId: me.id,
+      mofId,
+      recordId: claimId,
+    });
     return { error: "Could not verify the claim. Try again." };
   }
   if (data.length === 0) return { error: NOT_FOUND_CLAIM };
@@ -319,7 +334,11 @@ export async function recordInstallerPayment(
           : "The amount paid cannot be more than the claim, and a deduction is not paid.",
       };
     }
-    console.error("Could not record installer payment", error);
+    logServerError("Could not record installer payment", error, {
+      profileId: me.id,
+      mofId,
+      recordId: claimId,
+    });
     return { error: "Could not record the payment. Try again." };
   }
   if (data.length === 0) return { error: NOT_FOUND_CLAIM };

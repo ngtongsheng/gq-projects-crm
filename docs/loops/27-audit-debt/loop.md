@@ -21,7 +21,7 @@ outcome show what is left. The branch passes every check and is ready for the ow
 | 01 | Event costs and paging loops onto readAllRows, log the failed rollback (B9) | done | | standard |
 | 02 | Marketing page reads in parallel, log workbook parse failures, handle the photo rejection (A3, A4, A10) | done | | standard |
 | 03 | Travel claim reads and logs, ready-to-release reads (A14, A15, A17) | done | | standard |
-| 04 | Money-path writes onto logServerError (B8) | todo | | economy |
+| 04 | Money-path writes onto logServerError (B8) | done | | economy |
 | 05 | DeleteConfirm component and first 3 dialogs (B2) | todo | | standard |
 | 06 | DeleteConfirm in the other 5 marketing dialogs (B2) | todo | 05 | economy |
 | 07 | mofPeople helper for the salesperson join (B4) | todo | | standard |
@@ -47,3 +47,6 @@ outcome show what is left. The branch passes every check and is ready for the ow
 2026-11-27 · #03 · delegated (standard) · wait
 2026-11-27 · #03 · decision · people are now read even with no submitted claim, so that failure path throws instead of returning 0 · required by the A17 parallel read
 2026-11-27 · #03 · done (A14, A15, A17); check, typecheck, 3341 tests, build pass · #04
+2026-11-27 · #04 · delegated (economy) · wait
+2026-11-27 · #04 · decision · dbMessage helpers gained an id context parameter; the approval load catch logs the revision id only · no ids in scope otherwise
+2026-11-27 · #04 · done (B8); check, typecheck, 3341 tests, build pass · #05

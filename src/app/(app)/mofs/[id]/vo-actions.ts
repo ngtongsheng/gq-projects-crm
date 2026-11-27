@@ -7,6 +7,7 @@ import { seesMofCost } from "@/lib/auth/page-access";
 import { requirePage } from "@/lib/auth/require-page";
 import { optionalText, textField } from "@/lib/form/form-fields";
 import { parseRm } from "@/lib/format/money";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 import { mofIdSchema } from "../schemas";
 
@@ -65,7 +66,11 @@ const costSchema = rm("Enter the cost as an amount in RM.").pipe(
 
 type DbError = { code?: string; message?: string };
 
-function dbMessage(error: DbError, voNo: string): string {
+function dbMessage(
+  error: DbError,
+  voNo: string,
+  context: { profileId: string; mofId: string; recordId?: string },
+): string {
   if (error.code === "42501") {
     return error.message?.includes("mof_variation_order_costs")
       ? NOT_COST_READER
@@ -78,7 +83,7 @@ function dbMessage(error: DbError, voNo: string): string {
   if (error.code === "23514" && error.message?.startsWith(BELOW_RECEIVED)) {
     return error.message;
   }
-  console.error("Could not save variation order", error);
+  logServerError("Could not save variation order", error, context);
   return TRY_AGAIN;
 }
 
@@ -143,7 +148,15 @@ export async function saveVariationOrder(
     cost,
     notify: vo.notify,
   });
-  if (error) return { error: dbMessage(error, vo.voNo) };
+  if (error) {
+    return {
+      error: dbMessage(error, vo.voNo, {
+        profileId: me.id,
+        mofId: vo.mofId,
+        recordId: voId || undefined,
+      }),
+    };
+  }
 
   revalidatePath("/mofs");
   revalidatePath(`/mofs/${vo.mofId}`);

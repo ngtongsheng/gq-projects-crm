@@ -5,6 +5,7 @@ import { z } from "zod";
 import { canApproveQuote } from "@/lib/auth/job-role";
 import { requirePage } from "@/lib/auth/require-page";
 import { type ApprovalStep, decideStep } from "@/lib/domain/quote-status";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 import {
   type ApprovalRevision,
@@ -28,9 +29,12 @@ const fail = (error: string): ApprovalResult => ({ error });
 const revisionName = (quoteNo: string, rev: number) =>
   rev > 0 ? `${quoteNo}-R${rev}` : quoteNo;
 
-function dbMessage(error: DbError): string {
+function dbMessage(
+  error: DbError,
+  context: { profileId: string; recordId: string },
+): string {
   if (error.code === "42501") return CHANGED_UNDER_YOU;
-  console.error("Could not update the costing approval", error);
+  logServerError("Could not update the costing approval", error, context);
   return TRY_AGAIN;
 }
 
@@ -43,7 +47,9 @@ async function load(supabase: Supabase, revisionId: string): Promise<Loaded> {
     const revision = await loadApprovalRevision(supabase, revisionId);
     return revision ? { revision } : { error: NOT_FOUND };
   } catch (error) {
-    console.error("Could not load the costing for approval", error);
+    logServerError("Could not load the costing for approval", error, {
+      recordId: revisionId,
+    });
     return { error: TRY_AGAIN };
   }
 }
@@ -87,7 +93,10 @@ async function moveRevision(
     .eq("id", revision.id)
     .eq("status", revision.status)
     .select("id");
-  if (updated.error) return fail(dbMessage(updated.error));
+  if (updated.error)
+    return fail(
+      dbMessage(updated.error, { profileId: me.id, recordId: revision.id }),
+    );
   if (z.array(z.unknown()).parse(updated.data).length === 0) {
     return fail(CHANGED_UNDER_YOU);
   }
@@ -97,7 +106,10 @@ async function moveRevision(
     action: outcome.history,
     note: outcome.note,
   });
-  if (logged.error) return fail(dbMessage(logged.error));
+  if (logged.error)
+    return fail(
+      dbMessage(logged.error, { profileId: me.id, recordId: revision.id }),
+    );
 
   revalidateCosting(revision.quoteId);
   return { error: null };
@@ -200,7 +212,9 @@ export async function openRevision(
     .single();
   if (created.error) {
     if (created.error.code === "23505") return fail(ALREADY_OPEN);
-    return fail(dbMessage(created.error));
+    return fail(
+      dbMessage(created.error, { profileId: me.id, recordId: revision.id }),
+    );
   }
   const newId = z.object({ id: z.string() }).parse(created.data).id;
 
@@ -209,7 +223,8 @@ export async function openRevision(
     action: outcome.history,
     note: outcome.note,
   });
-  if (logged.error) return fail(dbMessage(logged.error));
+  if (logged.error)
+    return fail(dbMessage(logged.error, { profileId: me.id, recordId: newId }));
 
   const copied = await Promise.all(
     revision.options.map(async (option) => {
@@ -224,7 +239,8 @@ export async function openRevision(
     }),
   );
   const copyError = firstError(copied);
-  if (copyError) return fail(dbMessage(copyError));
+  if (copyError)
+    return fail(dbMessage(copyError, { profileId: me.id, recordId: newId }));
 
   revalidateCosting(revision.quoteId);
   return { error: null, rev };

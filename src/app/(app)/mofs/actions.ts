@@ -12,6 +12,7 @@ import {
   mofDiff,
 } from "@/lib/domain/mof-diff";
 import { textField } from "@/lib/form/form-fields";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 import {
   JobScope,
@@ -168,7 +169,10 @@ const lineColumns = (line: MofLine) => ({
 });
 
 /** A plain message for a refusal from the database; anything else is logged. */
-function dbMessage(error: DbError): string {
+function dbMessage(
+  error: DbError,
+  context: { profileId: string; recordId?: string },
+): string {
   if (error.code === "42501") {
     return error.message?.includes("mof_costs") ? NOT_MANAGER : NOT_EDITOR;
   }
@@ -188,7 +192,7 @@ function dbMessage(error: DbError): string {
   if (error.code === "22023" && error.message?.includes("already completed")) {
     return JOB_DONE;
   }
-  console.error("Could not save MOF", error);
+  logServerError("Could not save MOF", error, context);
   return TRY_AGAIN;
 }
 
@@ -230,7 +234,8 @@ export async function saveMof(formData: FormData): Promise<MofResult> {
       )
       .eq("id", mofId)
       .maybeSingle();
-    if (loadError) return fail(dbMessage(loadError));
+    if (loadError)
+      return fail(dbMessage(loadError, { profileId: me.id, recordId: mofId }));
     if (!existingData) return fail(RELOAD);
     existing = existingMofRow.parse(existingData);
     if (cost !== null) {
@@ -239,7 +244,10 @@ export async function saveMof(formData: FormData): Promise<MofResult> {
         .select("cost")
         .eq("mof_id", mofId)
         .maybeSingle();
-      if (costError) return fail(dbMessage(costError));
+      if (costError)
+        return fail(
+          dbMessage(costError, { profileId: me.id, recordId: mofId }),
+        );
       savedCost = savedCostRow.parse(costData)?.cost ?? null;
     }
   }
@@ -338,7 +346,10 @@ export async function saveMof(formData: FormData): Promise<MofResult> {
       new_value: change.to,
     })),
   });
-  if (error) return fail(dbMessage(error));
+  if (error)
+    return fail(
+      dbMessage(error, { profileId: me.id, recordId: mofId ?? undefined }),
+    );
   const savedId = z.uuid().parse(data);
 
   revalidatePath("/mofs");

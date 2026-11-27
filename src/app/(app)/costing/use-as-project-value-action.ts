@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requirePage } from "@/lib/auth/require-page";
+import { logServerError } from "@/lib/log-server-error";
 import { createClient } from "@/lib/supabase/server";
 import { projectValueOf } from "./project-value";
 import { loadQuote } from "./quote-data";
@@ -45,7 +46,10 @@ export async function setValueFromCosting(
     .select("id")
     .eq("project_id", projectId);
   if (mof.error) {
-    console.error("Could not check the project's MOF", mof.error);
+    logServerError("Could not check the project's MOF", mof.error, {
+      profileId: me.id,
+      recordId: projectId,
+    });
     return fail(TRY_AGAIN);
   }
   if (z.array(z.unknown()).parse(mof.data).length > 0) {
@@ -58,7 +62,10 @@ export async function setValueFromCosting(
     .eq("id", projectId)
     .select("id");
   if (updated.error) {
-    console.error("Could not set the project value", updated.error);
+    logServerError("Could not set the project value", updated.error, {
+      profileId: me.id,
+      recordId: projectId,
+    });
     return fail(TRY_AGAIN);
   }
   if (z.array(z.unknown()).parse(updated.data).length === 0) {

@@ -67,7 +67,12 @@ export async function importMarketingExcel(
   const plan = await parseMarketingWorkbook(await file.arrayBuffer(), {
     categories,
     events,
-  }).catch(() => null);
+  }).catch((error: unknown) => {
+    logServerError("Could not read the marketing Excel file", error, {
+      profileId: me.id,
+    });
+    return null;
+  });
   if (plan === null) {
     return refused("Could not read that file. Save it as an Excel .xlsx file.");
   }
